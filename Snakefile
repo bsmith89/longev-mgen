@@ -1,3 +1,5 @@
+from itertools import product
+
 max_threads = 99
 just_symlink_cmd = 'ln -rs {input} {output}'
 config_file = 'config.yml'
@@ -96,4 +98,18 @@ rule quality_trim:
             --pe-file1 {input.r1} --pe-file2 {input.r2} \
             --output-pe1 {output.r1} --output-pe2 {output.r2} \
             --output-single {output.r3}
+        """
+
+rule assemble_mgen:
+    output:
+        'seq/{group}.{proc}.asmbl.fn'
+    input:
+        lambda wildcards: ['seq/{library}.{read}.{{proc}}.fq.gz'
+                           for library, read
+                           in product(config['group'][wildcards.group],
+                                      ['r1', 'r2', 'r3'])
+                          ]
+    shell:
+        """
+        echo {input} > {output}
         """

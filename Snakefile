@@ -1,6 +1,7 @@
 max_threads = 99
 just_symlink_cmd = 'ln -rs {input} {output}'
 config_file = 'config.yml'
+qsub_resources="nodes=1:ppn=1,pmem=24gb,walltime=00:10:00:00,qos=flux"
 configfile: config_file
 
 rule make_config:
@@ -63,6 +64,7 @@ rule deduplicate_reads:
         script='scripts/fastuniq_wrapper.sh',
         r1='seq/{stem}.mgen.r1.fq.gz',
         r2='seq/{stem}.mgen.r2.fq.gz'
+    params: qsub_resources="nodes=1:ppn=1,pmem=24gb,walltime=00:01:00:00,qos=flux"
     shell: "{input.script} {input.r1} {input.r2} {output.r1} {output.r2}"
 
 rule trim_adapters:

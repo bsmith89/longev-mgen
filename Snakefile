@@ -1,14 +1,11 @@
 from itertools import product
 import pandas as pd
 
-max_threads = 99
-just_symlink_cmd = 'ln -rs {input} {output}'
 # Default params
 max_threads = 40
 
 # Configure the pipeline
 config_file = 'config.yml'
-qsub_resources="nodes=1:ppn=1,pmem=24gb,walltime=00:10:00:00,qos=flux"
 configfile: config_file
 # Metadata specific configurations
 _library = pd.read_table('meta/library.tsv', index_col='library_id')
@@ -26,22 +23,11 @@ rule print_config:
     shell:
         '{config}'
 
-# rule make_config:
-#     run:
-#         import pandas as pd
-#         import yaml
-#         library = pd.read_table('meta/library.tsv', index_col='mgen_library_id')
-#         library_dict = {}
-#         for lib, data in library.iterrows():
-#             library_dict[lib] = {'r1': 'raw/mgen/' + data['file_r1'],
-#                                 'r2': 'raw/mgen/' + data['file_r2']}
-#         with open(config_file, 'w') as handle:
-#             handle.write(yaml.dump({'library': library_dict}))
-
 rule link_raw_reads:
-    output: r1='seq/{library}.mgen.r1.fq.gz', r2='seq/{library}.mgen.r2.fq.gz'
+    output:
+        r1='seq/{library}.mgen.r1.fq.gz',
+        r2='seq/{library}.mgen.r2.fq.gz'
     input:
-        unpack(lambda wildcards: config['library'][wildcards.library])
         unpack(lambda wildcards: {'r1': 'raw/mgen/' + config['library'][wildcards.library]['r1'],
                                   'r2': 'raw/mgen/' + config['library'][wildcards.library]['r2']})
     shell:
@@ -88,7 +74,6 @@ rule deduplicate_reads:
         script='scripts/fastuniq_wrapper.sh',
         r1='seq/{stem}.mgen.r1.fq.gz',
         r2='seq/{stem}.mgen.r2.fq.gz'
-    params: qsub_resources="nodes=1:ppn=1,pmem=24gb,walltime=00:01:00:00,qos=flux"
     resources:
         mem_mb=24000
     shell: "{input.script} {input.r1} {input.r2} {output.r1} {output.r2}"
@@ -126,13 +111,10 @@ rule quality_trim:
 
 rule assemble_mgen:
     output:
-        'seq/{group}.{proc}.asmbl.fn'
         'seq/{group,[^.]+}.{proc}.asmbl.fn'
     input:
-        lambda wildcards: ['seq/{library}.{read}.{{proc}}.fq.gz'
         lambda wildcards: [f'seq/{library}.mgen.{read}.{wildcards.proc}.fq.gz'
                            for library, read
-                           in product(config['group'][wildcards.group],
                            in product(config['asmbl_group'][wildcards.group],
                                       ['r1', 'r2', 'r3'])
                           ]

@@ -1,4 +1,4 @@
-mgen_library_id	extraction_id	run	file_r1	file_r2
+library_id	extraction_id	run	file_r1	file_r2
 MGEN-0055a	EXT-0032	J_laneA	2017-01-12-mgen/73480_ACTCAGA_S1_L005_R1_001.fastq.gz	2017-01-12-mgen/73480_ACTCAGA_S1_L005_R2_001.fastq.gz
 MGEN-0056a	EXT-0037	J_laneA	2017-01-12-mgen/73481_ACGAGTT_S2_L005_R1_001.fastq.gz	2017-01-12-mgen/73481_ACGAGTT_S2_L005_R2_001.fastq.gz
 MGEN-0057a	EXT-0040	J_laneA	2017-01-12-mgen/73482_AGGTTAG_S3_L005_R1_001.fastq.gz	2017-01-12-mgen/73482_AGGTTAG_S3_L005_R2_001.fastq.gz

@@ -19,6 +19,9 @@ config['asmbl_group'] = {}
 for group, d in _asmbl_group.groupby('asmbl_group'):
     config['asmbl_group'][group] = list(d['library_id'])
 
+localrules: print_config, link_raw_reads, download_salask_reference,
+    download_illumina_adapters, download_mouse_reference
+
 rule print_config:
     shell:
         '{config}'
@@ -111,35 +114,32 @@ rule quality_trim:
 
 rule assemble_mgen:
     output:
-        'seq/{group,[^.]+}.{proc}.asmbl.fn'
+        contigs='seq/{group,[^.]+}.{proc}.asmbl.fn',
+        outdir=temp('seq/{group}.{proc}.asmbl.d')
     input:
         lambda wildcards: [f'seq/{library}.mgen.{read}.{wildcards.proc}.fq.gz'
                            for library, read
                            in product(config['asmbl_group'][wildcards.group],
                                       ['r1', 'r2', 'r3'])
                           ]
+    log: 'log/{group}.{proc}.asmbl.log'
+    threads: 30
+    params:
+        r1=lambda wildcards: ','.join([f'seq/{library}.mgen.r1.{wildcards.proc}.fq.gz'
+                                      for library in config['asmbl_group'][wildcards.group]]),
+        r2=lambda wildcards: ','.join([f'seq/{library}.mgen.r2.{wildcards.proc}.fq.gz'
+                                      for library in config['asmbl_group'][wildcards.group]]),
+        r3=lambda wildcards: ','.join([f'seq/{library}.mgen.r3.{wildcards.proc}.fq.gz'
+                                      for library in config['asmbl_group'][wildcards.group]])
     shell:
         """
-        echo {input} > {output}
+        megahit \
+            -1 {params.r1} \
+            -2 {params.r2} \
+            -r {params.r3} \
+            --k-min 21 --k-max 161 --k-step 20 \
+            --out-dir {output.outdir} \
+            --num-cpu-threads {threads} \
+            --verbose 2>&1 > {log}
+        sed 's:^>k:>{wildcards.group}-k:' {output.outdir}/final.contigs.fa > {output.contigs}
         """
-
-+# ruleorder: deduplicate_reads > trim_adapters >  quality_trim > assemble_mgen
-+
-+
-+# rule qsub_test:
-+#     output: touch('qsub_test.{n}')
-+#     log: 'log/qsub_test.{n}.log'
-+#     threads: 2
-+#     shell:
-+#         """
-+#         qstat -f $PBS_JOBID >>{log}
-+#         """
-+#
-+# rule qsub_test_dep:
-+#     output: touch('qsub_test_dep')
-+#     input: 'qsub_test.1', 'qsub_test.2'
-+#     log: 'log/qsub_test_dep.log'
-+#     shell:
-+#         """
-+#         qstat -f $PBS_JOBID >>{log}
-+#         """

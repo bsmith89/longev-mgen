@@ -8,8 +8,8 @@ max_threads = 40
 config_file = 'config.yml'
 configfile: config_file
 # Metadata specific configurations
-_library = pd.read_table('meta/library.tsv', index_col='library_id')
-_asmbl_group = pd.read_table('meta/asmbl_group.tsv')
+_library = pd.read_table(config['_meta_library'], index_col='library_id')
+_asmbl_group = pd.read_table(config['_meta_asmbl_group'])
 config['library'] = {}
 for library_id, row in _library.iterrows():
     config['library'][library_id] = {}
@@ -57,18 +57,6 @@ rule download_mouse_reference:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Mus_musculus/latest_assembly_versions/GCA_001632575.1_C3H_HeJ_v1/GCA_001632575.1_C3H_HeJ_v1_genomic.fna.gz'
     shell: "curl '{params.url}' | zcat > {output}"
 
-rule bowtie_index_build:
-    output:
-        'seq/{stem}.1.bt2',
-        'seq/{stem}.2.bt2',
-        'seq/{stem}.3.bt2',
-        'seq/{stem}.4.bt2',
-        'seq/{stem}.rev.1.bt2',
-        'seq/{stem}.rev.2.bt2'
-    input: 'seq/{stem}.fn'
-    threads: max_threads
-    shell: "bowtie2-build --threads {threads} {input} seq/{stem}"
-
 rule deduplicate_reads:
     output:
         r1='seq/{stem}.mgen.r1.dedup.fq.gz',
@@ -115,7 +103,7 @@ rule quality_trim:
 rule assemble_mgen:
     output:
         contigs='seq/{group,[^.]+}.{proc}.asmbl.fn',
-        outdir=temp('seq/{group}.{proc}.asmbl.d')
+        outdir='seq/{group}.{proc}.asmbl.d'
     input:
         lambda wildcards: [f'seq/{library}.mgen.{read}.{wildcards.proc}.fq.gz'
                            for library, read
@@ -123,7 +111,7 @@ rule assemble_mgen:
                                       ['r1', 'r2', 'r3'])
                           ]
     log: 'log/{group}.{proc}.asmbl.log'
-    threads: 30
+    threads: max_threads
     params:
         r1=lambda wildcards: ','.join([f'seq/{library}.mgen.r1.{wildcards.proc}.fq.gz'
                                       for library in config['asmbl_group'][wildcards.group]]),
@@ -140,6 +128,65 @@ rule assemble_mgen:
             --k-min 21 --k-max 161 --k-step 20 \
             --out-dir {output.outdir} \
             --num-cpu-threads {threads} \
-            --verbose 2>&1 > {log}
+            --verbose
         sed 's:^>k:>{wildcards.group}-k:' {output.outdir}/final.contigs.fa > {output.contigs}
+        cp {output.outdir}/log {log}
         """
+
+rule bowtie_index_build:
+    output:
+        'seq/{stem}.1.bt2',
+        'seq/{stem}.2.bt2',
+        'seq/{stem}.3.bt2',
+        'seq/{stem}.4.bt2',
+        'seq/{stem}.rev.1.bt2',
+        'seq/{stem}.rev.2.bt2'
+    input: 'seq/{stem}.fn'
+    log: 'seq/{stem}.bowtie2-build.log'
+    threads: max_threads
+    shell:
+        """
+        bowtie2-build --threads {threads} {input} seq/{wildcards.stem} 2>&1 >{log}
+        """
+
+rule backmap_reads_to_assembly:
+    output: 'res/{library}.mgen.{proc}.{group}.asmbl.map.bam'
+    wildcard_constraints:
+        library='[^.]+',
+        group='[^.]+'
+    input:
+        inx_1='seq/{group}.{proc}.asmbl.1.bt2',
+        inx_2='seq/{group}.{proc}.asmbl.2.bt2',
+        inx_3='seq/{group}.{proc}.asmbl.3.bt2',
+        inx_4='seq/{group}.{proc}.asmbl.4.bt2',
+        inx_rev1='seq/{group}.{proc}.asmbl.rev.1.bt2',
+        inx_rev2='seq/{group}.{proc}.asmbl.rev.2.bt2',
+        r1='seq/{library}.mgen.r1.{proc}.fq.gz',
+        r2='seq/{library}.mgen.r2.{proc}.fq.gz'
+    threads: max_threads
+    shell:
+        """
+        bowtie2 -x seq/{wildcards.group}.{wildcards.proc}.asmbl -1 {input.r1} -2 {input.r2} \
+            | samtools view -bS - \
+            > {output}
+        """
+
+rule calculate_mapping_depth:
+    output: 'res/{stem}.depth.tsv'
+    input: 'res/{stem}.bam'
+    shell:
+        """
+        printf 'contig_id\tposition\tdepth\n' > {output}
+        samtools sort {input} | samtools depth - >> {output}
+        """
+
+rule estimate_contig_cvrg:
+    output: 'res/{library}.mgen.{proc}.cvrg.tsv'
+    input:
+        script='scripts/estimate_contig_coverage.py'
+        depth='res/{library}.mgen.{proc}.depth.tsv'
+    shell:
+        """
+        {input.script} {library} {input.depth} > {output}
+        """
+

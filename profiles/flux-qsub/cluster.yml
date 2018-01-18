@@ -1,0 +1,22 @@
+__default__:
+  queue: 'fluxm'
+  alloc: 'schmidti_fluxm'
+  walltime: '00:02:00:00'
+  pmem: 24000
+  ppn: '{threads}'
+  mail_options: 'n'
+  user_list: 'bjsm@umich.edu'
+  stdout_file: '/dev/null'
+  stderr_file: '/dev/null'
+assemble_mgen:
+    walltime: '10:00:00:00'
+    ppn: '24'
+bowtie_index_build:
+    walltime: '01:00:00:00'
+    ppn: '24'
+backmap_reads_to_assembly:
+    walltime: '01:00:00:00'
+    ppn: '4'
+    stdout_file: 'qsub.stdout'
+    stderr_file: 'qsub.stderr'
+

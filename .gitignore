@@ -1,0 +1,5 @@
+.snakemake/
+log/
+raw/
+res/
+seq/

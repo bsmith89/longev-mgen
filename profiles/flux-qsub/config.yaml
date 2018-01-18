@@ -1,4 +1,4 @@
-cluster-config: 'profiles/flux-qsub/cluster.yml'
+cluster-config: 'profiles/flux-qsub/cluster.yaml'
 jobscript: 'profiles/flux-qsub/jobscript.sh'
 cluster: >-
     qsub -v PATH="$PATH" \

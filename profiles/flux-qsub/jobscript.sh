@@ -1,6 +1,6 @@
 #!/bin/sh
 # properties = {properties}
 
-source ${{PBS_O_WORKDIR}}/scripts/activate_flux
+source ${{PBS_O_WORKDIR}}/profiles/flux-qsub/activate
 
 {exec_job}

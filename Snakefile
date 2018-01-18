@@ -5,7 +5,7 @@ import pandas as pd
 max_threads = 40
 
 # Configure the pipeline
-config_file = 'config.yml'
+config_file = 'config.yaml'
 configfile: config_file
 # Metadata specific configurations
 _library = pd.read_table(config['_meta_library'], index_col='library_id')

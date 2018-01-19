@@ -15,7 +15,7 @@ bowtie_index_build:
     walltime: '01:00:00:00'
     ppn: '24'
 backmap_reads_to_assembly:
-    walltime: '01:00:00:00'
+    walltime: '00:10:00:00'
     ppn: '4'
     stdout_file: 'qsub.stdout'
     stderr_file: 'qsub.stderr'

@@ -1,34 +1,31 @@
 #!/usr/bin/env python3
 
 import sys
-import pandas as pd
 
-def calc_cvrg(df):
-    total_count = df.depth.sum()
-    assert len(df.length.unique()) == 1
-    contig_len = df.length.iloc[0]
-    hit_len = (df.depth > 0).sum()
-    left = df.position.min()
-    right = df.position.max()
-    return pd.Series({'coverage': total_count / contig_len,
-                      'hit_fraction': hit_len / contig_len,
-                      'left': left,
-                      'right': right,
-                      'contiguous': (right - left) + 1 == hit_len})
+def chunk_depth(lines):
+    """Split list into lines with same first field."""
+    chunk = []
+    for line in lines:
+        if not chunk:
+            chunk_first_field = line.split()[0]
+        line_first_field = line.split()[0]
+        if line_first_field = chunk_first_field:
+            chunk.append(line)
+        else:
+            yield chunk
+            chunk = [line]
+            chunk_first_field = line_first_field
+    yield chunk
 
 def main():
-    depth_path = sys.argv[1]
-    contig_path = sys.argv[2]
-    mgen_library_id = sys.argv[3]
-    depth = pd.read_table(depth_path)
-    contig = pd.read_table(contig_path, index_col='contig_id')
+    depth_path, contigs_path, library_name = sys.argv[1:]
+        print('coverage\thit_fraction\tleft\tright\tcontiguous', file=sys.stdout)
+    with open(depth_path) as depth_handle, open(contigs_path) as contigs_handle:
+        depth_header, contigs_header = depth_handle.next(), contigs_handle.next()
 
-    data = depth.join(contig, on='contig_id').groupby('contig_id').apply(calc_cvrg)
-    data['mgen_library_id'] = mgen_library_id
-    data.left = data.left.astype(int)
-    data.right = data.right.astype(int)
-    data.contiguous = data.contiguous.astype(int)
-    data.to_csv(sys.stdout, sep='\t')
+        contig_id, flag, multi, length = contig.split()
+
+
 
 if __name__ == '__main__':
     main()

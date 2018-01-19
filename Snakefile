@@ -133,6 +133,18 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
+rule make_contig_table:
+    output: 'res/{stem}.asmbl.contigs.tsv'
+    input: 'seq/{stem}.asmbl.fn'
+    shell:
+        """
+        printf 'contig_id\tflag\tmulti\tlength\n' > {output}
+        grep '^>' {input} \
+        | sed 's:^>\(\S*\) flag=\([0123]\) multi=\(\S*\) len=\([0-9]*\)$:\\1\t\\2\t\\3\t\\4:' \
+        >> {output}
+        """
+
+
 rule bowtie_index_build:
     output:
         'seq/{stem}.1.bt2',
@@ -166,14 +178,15 @@ rule backmap_reads_to_assembly:
     threads: max_threads
     shell:
         """
-        bowtie2 -x seq/{wildcards.group}.{wildcards.proc}.asmbl -1 {input.r1} -2 {input.r2} \
+        bowtie2 --threads {threads} -x seq/{wildcards.group}.{wildcards.proc}.asmbl -1 {input.r1} -2 {input.r2} \
             | samtools view -bS - \
             > {output}
         """
 
 rule calculate_mapping_depth:
     output: 'res/{stem}.depth.tsv'
-    input: 'res/{stem}.bam'
+    input: 'res/{stem}.map.bam'
+    shadow: 'full'
     shell:
         """
         printf 'contig_id\tposition\tdepth\n' > {output}
@@ -181,12 +194,31 @@ rule calculate_mapping_depth:
         """
 
 rule estimate_contig_cvrg:
-    output: 'res/{library}.mgen.{proc}.cvrg.tsv'
+    output: 'res/{library}.mgen.{proc}.{group}.asmbl.cvrg.tsv'
     input:
-        script='scripts/estimate_contig_coverage.py'
-        depth='res/{library}.mgen.{proc}.depth.tsv'
+        script='scripts/estimate_contig_coverage.py',
+        depth='res/{library}.mgen.{proc}.{group}.asmbl.depth.tsv',
+        contigs='res/{group}.{proc}.asmbl.contigs.tsv'
+    wildcard_constraints:
+        library='[^.]+',
+        group='[^.]+'
     shell:
         """
-        {input.script} {library} {input.depth} > {output}
+        {input.script} {input.depth} {input.contigs} {wildcards.library} > {output}
+        """
+
+rule combine_cvrg_tables:
+    output: 'res/{group}.{proc}.cvrg.tsv'
+    input:
+        script='scripts/concat_tables.py',
+        all_cvrg_tables=lambda wildcards: [f'res/{library}.mgen.{wildcards.proc}.cvrg.tsv'
+                                           for library
+                                           in config['asmbl_group'][wildcards.group]
+                                          ]
+    wildcard_constraints:
+        group='[^.]+'
+    shell:
+        """
+        {input.script} {input.all_cvrg_tables} > {output}
         """
 

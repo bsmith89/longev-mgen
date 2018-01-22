@@ -210,15 +210,18 @@ rule estimate_contig_cvrg:
 rule combine_cvrg_tables:
     output: 'res/{group}.{proc}.cvrg.tsv'
     input:
-        script='scripts/concat_tables.py',
-        all_cvrg_tables=lambda wildcards: [f'res/{library}.mgen.{wildcards.proc}.cvrg.tsv'
-                                           for library
-                                           in config['asmbl_group'][wildcards.group]
-                                          ]
+        lambda wildcards: [f'res/{library}.mgen.{wildcards.proc}.cvrg.tsv'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
     wildcard_constraints:
         group='[^.]+'
     shell:
         """
-        {input.script} {input.all_cvrg_tables} > {output}
+        printf 'library_name\tcontig_id\tcoverage\thit_fraction\tleft\tright\tcontiguous\n' > {output}
+        for table in {input}; do
+            sed '1,1d' $table >> {output}
+        done
+
         """
 

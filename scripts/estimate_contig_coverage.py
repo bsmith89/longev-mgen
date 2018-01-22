@@ -46,7 +46,8 @@ def main():
             hit_fraction = num_positions / length
             left = positions[0]
             right = positions[-1]
-            contiguous = int((right - left) + 1 == num_positions)
+            span_length = (right - left) + 1
+            contiguous = int(span_length == num_positions)
             print(library_id, contig_id,
                   coverage, hit_fraction,
                   left, right, contiguous,

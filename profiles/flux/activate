@@ -1,4 +1,4 @@
 module use /dept/geology/geomicro/data9/flux/modulefiles/ && module load geomicro/omics
-module load intel/17.0.1 bowtie2/2.3.3
+module load intel/17.0.1 bowtie2/2.3.3 hmmer/3.1b2
 source activate longev-mgen
 `snakemake --bash-completion`

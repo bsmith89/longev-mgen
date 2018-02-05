@@ -7,3 +7,4 @@ cluster: >-
          -l walltime={cluster.walltime} \
          -m {cluster.mail_options} \
          -o {cluster.stdout_file} -e {cluster.stderr_file}
+notemp: true

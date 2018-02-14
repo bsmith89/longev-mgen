@@ -9,15 +9,15 @@ __default__:
   stdout_file: '/dev/null'
   stderr_file: '/dev/null'
 assemble_mgen:
-    walltime: '10:00:00:00'
+    walltime: '04:00:00:00'
 bowtie_index_build:
-    walltime: '01:00:00:00'
+    walltime: '00:04:00:00'
 backmap_reads_to_assembly:
-    walltime: '00:10:00:00'
+    walltime: '00:04:00:00'
     ppn: '4'
 transform_contig_space:
-    walltime: '00:12:00:00'
-bin_contigs_gmm:
-    walltime: '03:00:00:00'
+    walltime: '00:05:00:00'
+bin_contigs:
+    walltime: '02:00:00:00'
 checkm_bins:
     walltime: '01:00:00:00'

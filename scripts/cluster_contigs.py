@@ -11,7 +11,7 @@ from contextlib import redirect_stdout
 
 import pandas as pd
 import numpy as np
-from sklearn.mixture import GaussianMixture
+from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 
 logger = logging.getLogger(__name__)
 
@@ -26,66 +26,82 @@ def load_data(data_path, length_path, min_length):
     data = data[length >= min_length]
     length = length.loc[data.index]
     logger.info('Loaded {} contigs with {} bp total.'
-                    .format(len(length), length.sum())
-               )
+                .format(len(length), length.sum()))
     return data, length
 
-def cluster_optics(data, threads=1):
-    from sklearn.cluster import OPTICS
-    logger.info('Fitting an OPTICS model.')
-    model = OPTICS(n_jobs=args.threads)
-    model.fit(data)
-    logger.info('Finished clustering.')
-    logger.info('Assigning bins to contigs.')
-    cluster = pd.Series(model.labels_, index=data.index, name='cluster')
-    return cluster
 
-
-def _fit_gmm(data, max_nbins):
-    model = GaussianMixture(max_nbins, covariance_type='full',
-                            verbose=2, verbose_interval=1)
+def _fit_gmm(data, max_nbins, alpha=None, seed=None):
+    logger.info('Fitting a VBGMM model:'
+                f' max_nbins={max_nbins}, alpha={alpha}, seed={seed}')
+    model = BayesianGaussianMixture(max_nbins, covariance_type='full',
+                                    weight_concentration_prior=alpha,
+                                    random_state=seed,
+                                    verbose=2, verbose_interval=1)
     with redirect_stdout(sys.stderr):
         model.fit(data)
     if model.converged_:
         logger.info('Finished clustering.')
     else:
-        logger.warning('Convergence not achieved.  Results may not be correct.')
+        logger.warning('Convergence not achieved.'
+                       ' Results may not be correct.')
     return model
 
 
-def _label_gmm(model, data, pthresh=0.5):
+def _label_gmm(model, data, pthresh=0.0):
     logger.info(f'Calculating posterior probabilities.')
-    probs = model.predict_proba(data)
-    logger.info(f'Assigning bins to contigs where p > {pthresh}.')
-    best_guess = np.argmax(probs, axis=1)
-    # Are any of the probs > pthresh?
-    mask = (probs > pthresh).sum(axis=1).astype(bool)
-    cluster = pd.Series(best_guess.astype(int), index=data.index, name='cluster')
+    if pthresh == 0:
+        logger.info(f'Assigning bins to all contigs.')
+        best_guess = model.predict(data)
+        mask = np.ones_like(best_guess).astype(bool)
+    elif pthresh > 0:
+        logger.info(f'Assigning bins to contigs where p > {pthresh}.')
+        probs = model.predict_proba(data)
+        best_guess = np.argmax(probs, axis=1)
+        # Are any of the probs > pthresh?
+        mask = (probs > pthresh).sum(axis=1).astype(bool)
+    cluster = pd.Series(best_guess.astype(int),
+                        index=data.index, name='cluster')
     return cluster[mask]
 
 
-def cluster_gmm(data, max_nbins):
-    logger.info('Fitting a GMM model using EM.')
-    logger.info(f'max_nbins={max_nbins}')
-    model = _fit_gmm(data, max_nbins)
-    cluster = _label_gmm(model, data)
-    return cluster
-
-
-def cluster_gmmss(data, length, max_nbins, frac):
-    logger.info('Fitting a GMM model with a subsample of data using EM.')
-    logger.info(f'frac={frac}, max_nbins={max_nbins}')
-    model = _fit_gmm(data.sample(frac=frac, weights=length), max_nbins)
-    cluster = _label_gmm(model, data)
+# def cluster_gmm(data, max_nbins, alpha=None, seed=None, prob_min=0):
+#     model = _fit_gmm(data, max_nbins, alpha, seed)
+#     cluster = _label_gmm(model, data, pthresh=prob_min)
+#     return cluster
+#
+#
+def cluster_gmm(data, length, max_nbins, frac,
+                alpha=None, seed=None, prob_min=0):
+    if 0 < frac < 1:
+        subdata = data.sample(frac=frac, weights=length, random_state=seed)
+        logger.info(f'Subsampling data weighted by contig length: frac={frac}')
+        logger.info('Subsampled {} reads with {} bp total.'
+                    .format(subdata.shape[0], length.loc[subdata.index].sum()))
+    elif frac == 1:
+        subdata = data.copy()
+    else:
+        raise ValueError("*frac* must be in range (0, 1]")
+    model = _fit_gmm(subdata, max_nbins, alpha, seed)
+    cluster = _label_gmm(model, data, pthresh=prob_min)
     return cluster
 
 
 def filt_by_total_size(cluster, length, min_bin_size):
-    valid_clusters = (length.groupby(cluster).sum() >= min_bin_size)[lambda x: x].index
+    cluster_length = length.groupby(cluster).sum()
+    valid_clusters = ((cluster_length >= min_bin_size)
+                      [lambda x: x]
+                      .index)
     filt_cluster = cluster[cluster.isin(valid_clusters)]
     total_clusters = len(valid_clusters)
     logger.info(f'{total_clusters} clusters with more than {min_bin_size} bp')
     return filt_cluster
+
+
+def rename_clusters(cluster, length):
+    cluster_length = length.groupby(cluster).sum()
+    rename_by = (-cluster_length).argsort()
+    renamed_cluster = cluster.map(rename_by)
+    return renamed_cluster 
 
 
 def summarize_clusters(cluster, length):
@@ -96,9 +112,9 @@ def summarize_clusters(cluster, length):
                            inplace=True)
     cluster_summary.rename(index=int, inplace=True)
     logger.info('{} bp in {} valid clusters'
-                    .format(cluster_summary.total_length.sum(),
-                            cluster_summary.shape[0])
-               )
+                .format(cluster_summary.total_length.sum(),
+                        cluster_summary.shape[0])
+                )
     logger.info('Top 10 clusters:\n\n{}'.format(cluster_summary.head(10)))
     return cluster_summary
 
@@ -111,23 +127,21 @@ if __name__ == "__main__":
     parser.add_argument('--min-bin-size', type=int, default=100000,
                         help=('the minimum size (in bp) of a cluster'
                               ' (default: %(default)s)'))
+    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--verbosity', default='DEBUG')
     parser.add_argument('--summary',
-                        help='Print summary of clusters to path')
+                        help='print summary of clusters to path')
 
-    # Add subparsers for different methods.
-    subparsers = parser.add_subparsers(title='clustering methods', dest='method')
-    gmm_p = subparsers.add_parser('gmm')
-    gmmss_p = subparsers.add_parser('gmm-ss', help='GMM on subsample of data')
-    optics_p = subparsers.add_parser('optics')
-
-    # Add arguments to subparsers.
-    optics_p.add_argument('--threads', type=int, default=1)
-    for subparser in [gmm_p, gmmss_p]:
-        subparser.add_argument('--max-nbins', type=int, default=1000)
-        subparser.add_argument('--prob-min', type=float, default=0.0,
-                               help='posterior probability minimum to be assigned to a bin')
-    gmmss_p.add_argument('--frac', type=float, default=0.1, help='fraction of data used to fit initial GMM')
+    parser.add_argument('--max-nbins', type=int, default=1000)
+    parser.add_argument('--prob-min', type=float, default=0.0,
+                        help=('posterior probability minimum to be assigned to'
+                              ' a bin'))
+    parser.add_argument('--frac', type=float, default=1,
+                        help='fraction of data used to fit initial GMM')
+    parser.add_argument('--alpha', type=float, default=0,
+                        help=('concentration parameter on number of'
+                              'componenets; defaults to 0 meaning 1/MAX_NBINS')
+                        )
 
     args = parser.parse_args()
 
@@ -136,18 +150,23 @@ if __name__ == "__main__":
 
     data, length = load_data(args.data_path, args.length_path, args.min_length)
 
-    if args.method == 'optics':
-        all_clusters = cluster_optics(data, threads=args.threads)
-    elif args.method == 'gmm':
-        all_clusters = cluster_gmm(data, max_nbins=args.max_nbins)
-    elif args.method == 'gmm-ss':
-        all_clusters = cluster_gmmss(data, length,
-                                     max_nbins=args.max_nbins, frac=args.frac)
-    else:
-        raise NotImplementedError("The {args.method} clustering method has not yet been implemented.")
+    # Anything <= 0 is nonsensicle for concentration parameter, so we
+    # use these as a placeholder for the sklearn default (1 / n_components).
+    if args.alpha <= 0:
+        args.alpha = None
+
+    all_clusters = cluster_gmm(data, length,
+                               max_nbins=args.max_nbins,
+                               alpha=args.alpha,
+                               seed=args.seed,
+                               frac=args.frac,
+                               prob_min=args.prob_min,
+                               )
 
     filt_clusters = filt_by_total_size(all_clusters, length,
-                                       min_bin_size=args.min_bin_size)
+                                       min_bin_size=args.min_bin_size,
+                                       )
+    filt_clusters = rename_clusters(filt_clusters, length)
     cluster_summary = summarize_clusters(filt_clusters, length)
 
     if args.summary:

@@ -91,7 +91,13 @@ rule alias_raw_reads:
         alias_fmt("{input.r1}", "{output.r1}") +
         alias_fmt("{input.r2}", "{output.r2}")
 
-localrules: alias_raw_reads
+# See scripts/query_longev_rrs_relative_abundance.sql
+rule link_rabund_info:
+    output: 'res/core.r.rabund.tsv'
+    input: 'raw/longev_rrs_relative_abundance.tsv'
+    shell: alias_recipe
+
+localrules: alias_raw_reads, link_rabund_info
 
 # {{{1 Metagenomics
 
@@ -306,28 +312,24 @@ rule tally_links:
     output: 'res/{stem}.linkage_tally.tsv'
     input: 'res/{stem}.bam'
     threads: max_threads
+    params: min_hits=10, min_quality=40
     shell:
         r"""
-        # printf 'contig_id_A\tcontig_id_B\ttally\n' > {output}
+        printf 'contig_id_A\tcontig_id_B\ttally\n' > {output}
         # For Flags explained see: https://broadinstitute.github.io/picard/explain-flags.html
         samtools view --threads={threads} -F3852 {input} | awk '($7 != "=") && ($7 != "*")' \
             | awk '{{print $3, $7, $1, $5}}' \
-            | awk -v OFS='\t' '{{if ($1 > $2) {{print $3, "LEFT", $2, $1, $4}} else {{print $3, "RIGHT", $1, $2, $4}}}}' \
-            | sort | tee scaffold.tsv \
+            | awk -v OFS='\t' \
+                  '{{if ($1 > $2) {{print $3, "LEFT", $2, $1, $4}} \
+                     else {{print $3, "RIGHT", $1, $2, $4}} \
+                   }}' \
+            | sort \
             | paste - - \
-            | awk -v OFS='\t' '($5 > 40) && ($10 > 40) {{print $3, $4}}' \
+            | awk -v OFS='\t' -v q={params.min_quality} \
+                  '($5 > q) && ($10 > q) {{print $3, $4}}' \
+            | sort | uniq -c \
+            | awk -v OFS='\t' '$1 > {params.min_hits} {{print $2, $3, $1}}' \
             >> {output}
-            # | awk -v OFS='\t' '{{print $1, $3, $4, $5, $10}}' \
-            # | cut -f1,3,4,5,10 \
-            # | awk -v OFS='\t' '  ($1 == $5) \
-            #                   && ($2 == $8) \
-            #                   && ($4 == $6) \
-            #                   && ($3 > 20) \
-            #                   && ($7 > 20) \
-            #                   {{print $2,$4}} \
-            #                   ' \
-            # | awk -v OFS='\t' '{{if ($1 > $2) {{print $2, $1}} else {{print $1, $2}}}}' \
-            # | sort | uniq -c | awk -v OFS='\t' '{{print $2, $3, $1}}' \
         """
 
 
@@ -702,18 +704,36 @@ rule pull_out_phylogenetic_marker_genes_amino_ormerod:
         done
         """
 
+
+# {{{1 Compile all data
+
 rule generate_database:
     output: 'res/{group}.results.db'
     input:
         schema='schema.sql',
-        script='scripts/setup_db.sql',
-        data1='meta/library.noheader.tsv',
-        data2='res/{group}.a.proc.contigs.nlength.noheader.tsv',
-        data3='res/{group}.a.proc.contigs.bins.noheader.tsv',
-        data4='res/{group}.a.proc.contigs.cvrg.noheader.tsv',
-        data5='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
+        library='meta/library.noheader.tsv',
+        contig='res/{group}.a.proc.contigs.nlength.noheader.tsv',
+        contig_bin='res/{group}.a.proc.contigs.bins.noheader.tsv',
+        contig_coverage='res/{group}.a.proc.contigs.cvrg.noheader.tsv',
+        bin_checkm='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
+        rrs_taxon_rabund='res/{group}.r.rabund.noheader.tsv',
+        contig_linkage='res/{group}.a.proc.core-map.sort.linkage_tally.noheader.tsv',
     shell:
-        """
+        r"""
         rm -f {output}
-        sqlite3 {output} < {input.script}
+        sqlite3 {output} <<<EOF
+            .bail ON
+            .read {input.schema}
+            PRAGMA cache_size = 1000000;
+            PRAGMA foreign_keys = TRUE;
+            .separator \t
+            .import {input.library} library
+            .import {input.contig} contig
+            .import {input.contig_linkage} contig_linkage
+            .import {input.contig_bin} contig_bin
+            .import {input.contig_coverage} contig_coverage
+            .import {input.bin_checkm} bin_checkm
+            .import {input.rrs_taxon_rabund} rrs_taxon_rabund
+            ANALYZE;
+        EOF
         """

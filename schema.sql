@@ -37,6 +37,31 @@ CREATE TABLE contig_bin
   );
 CREATE INDEX idx_contig_bin__bin_id ON contig_bin(bin_id);
 
+CREATE TABLE rrs_taxon_rabund
+  ( extraction_id TEXT
+  , taxon_id TEXT
+  , relative_abundance FLOAT
+
+  , PRIMARY KEY (extraction_id, taxon_id)
+  );
+CREATE INDEX idx_rrs_taxon_rabund__taxon_id ON rrs_taxon_rabund(taxon_id);
+
+CREATE TABLE contig_linkage
+  ( contig_id_1 TEXT
+  , contig_id_2 TEXT
+  , tally INT
+
+  , PRIMARY KEY (contig_id_1, contig_id_2)
+  );
+CREATE TRIGGER trigger_contig_linkage_add_flipped_records
+  AFTER INSERT ON contig_linkage FOR EACH ROW
+  BEGIN
+    INSERT INTO contig_linkage
+      VALUES (NEW.contig_id_2, NEW.contig_id_1, NEW.tally)
+    ;
+  END
+;
+CREATE INDEX idx_contig_linkage__contig_id_2 ON contig_linkage(contig_id_2);
 
 
 -- {{{1 Views

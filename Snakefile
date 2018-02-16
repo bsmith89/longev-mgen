@@ -294,13 +294,13 @@ rule backmap_reads_to_fragmented_assembly:
             | samtools sort --output-fmt=BAM -o {output}
         """
 
-# {{{2 Build scaffolds
+# {{{2 Scaffolding
 
 
 rule combine_bams:
     output: 'res/{group}.a.{proc}.{group}-map.sort.bam'
     input: lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.sort.bam' for library in config['asmbl_group'][wildcards.group]]
-    threads: max_threads
+    threads: 8
     shell:
         """
         tmpfile=$(mktemp -p $TMPDIR)
@@ -311,8 +311,8 @@ rule combine_bams:
 rule tally_links:
     output: 'res/{stem}.linkage_tally.tsv'
     input: 'res/{stem}.bam'
-    threads: max_threads
-    params: min_hits=10, min_quality=40
+    threads: 4
+    params: min_hits=3, min_quality=40
     shell:
         r"""
         printf 'contig_id_A\tcontig_id_B\ttally\n' > {output}
@@ -326,9 +326,9 @@ rule tally_links:
             | sort \
             | paste - - \
             | awk -v OFS='\t' -v q={params.min_quality} \
-                  '($5 > q) && ($10 > q) {{print $3, $4}}' \
+                  '($5 >= q) && ($10 >= q) {{print $3, $4}}' \
             | sort | uniq -c \
-            | awk -v OFS='\t' '$1 > {params.min_hits} {{print $2, $3, $1}}' \
+            | awk -v OFS='\t' '$1 >= {params.min_hits} {{print $2, $3, $1}}' \
             >> {output}
         """
 

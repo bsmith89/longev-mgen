@@ -288,6 +288,49 @@ rule backmap_reads_to_fragmented_assembly:
             | samtools sort --output-fmt=BAM -o {output}
         """
 
+# {{{2 Build scaffolds
+
+
+rule combine_bams:
+    output: 'res/{group}.a.{proc}.{group}-map.sort.bam'
+    input: lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.sort.bam' for library in config['asmbl_group'][wildcards.group]]
+    threads: max_threads
+    shell:
+        """
+        tmpfile=$(mktemp -p $TMPDIR)
+        samtools merge -f --threads {threads} $tmpfile {input}
+        mv $tmpfile {output}
+        """
+
+rule tally_links:
+    output: 'res/{stem}.linkage_tally.tsv'
+    input: 'res/{stem}.bam'
+    threads: max_threads
+    shell:
+        r"""
+        # printf 'contig_id_A\tcontig_id_B\ttally\n' > {output}
+        # For Flags explained see: https://broadinstitute.github.io/picard/explain-flags.html
+        samtools view --threads={threads} -F3852 {input} | awk '($7 != "=") && ($7 != "*")' \
+            | awk '{{print $3, $7, $1, $5}}' \
+            | awk -v OFS='\t' '{{if ($1 > $2) {{print $3, "LEFT", $2, $1, $4}} else {{print $3, "RIGHT", $1, $2, $4}}}}' \
+            | sort | tee scaffold.tsv \
+            | paste - - \
+            | awk -v OFS='\t' '($5 > 40) && ($10 > 40) {{print $3, $4}}' \
+            >> {output}
+            # | awk -v OFS='\t' '{{print $1, $3, $4, $5, $10}}' \
+            # | cut -f1,3,4,5,10 \
+            # | awk -v OFS='\t' '  ($1 == $5) \
+            #                   && ($2 == $8) \
+            #                   && ($4 == $6) \
+            #                   && ($3 > 20) \
+            #                   && ($7 > 20) \
+            #                   {{print $2,$4}} \
+            #                   ' \
+            # | awk -v OFS='\t' '{{if ($1 > $2) {{print $2, $1}} else {{print $1, $2}}}}' \
+            # | sort | uniq -c | awk -v OFS='\t' '{{print $2, $3, $1}}' \
+        """
+
+
 # {{{2 Calculate statistics
 
 # {{{3 Sequence lengths
@@ -454,8 +497,6 @@ rule bin_contigs:
                 > {output.out}
         """
 
-# {{{3 Shuffle sequences
-
 rule rename_clusters_to_bins:
     output: 'res/{stem}.{contigs,s?contigs}.bins.tsv'
     input: 'res/{stem}.{contigs}.cluster.tsv'
@@ -518,6 +559,7 @@ rule generate_checkm_markerset:
     shell:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
+# {{{3 Refine bins
 rule checkm_content_merge:
     output:
         checkm_work=temp('res/{stem}.bins.checkm_merge.d'),

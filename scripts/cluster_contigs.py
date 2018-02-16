@@ -97,6 +97,7 @@ def filt_by_total_size(cluster, length, min_bin_size):
     return filt_cluster
 
 
+# TODO: Institute this.
 def rename_clusters(cluster, length):
     cluster_length = length.groupby(cluster).sum()
     rename_by = (-cluster_length).argsort()
@@ -172,4 +173,3 @@ if __name__ == "__main__":
     if args.summary:
         cluster_summary.to_csv(args.summary, sep='\t')
     filt_clusters.to_csv(sys.stdout, sep='\t', header=True)
-

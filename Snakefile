@@ -188,7 +188,7 @@ rule fragment_contigs:
     output: 'seq/{stem}.scontigs.fn'
     input: seqs='seq/{stem}.contigs.fn', script='scripts/fragment_seqs.py'
     params:
-        length=10000, overlap=0
+        length=10000, overlap=1000
     shell:
         """
         {input.script} {params.length} {params.overlap} {input.seqs} > {output}
@@ -470,10 +470,10 @@ rule rename_clusters_to_bins:
         """
 
 rule split_out_bins:
-    output: 'seq/{stem}.bins.d'
+    output: 'seq/{stem}.{bins,m?bins}.d'
     input:
         script='scripts/fetch_bin.sh',
-        bins='res/{stem}.bins.tsv',
+        bins='res/{stem}.{bins}.tsv',
         contigs='seq/{stem}.fn',
     threads: max_threads
     shell:
@@ -481,7 +481,7 @@ rule split_out_bins:
         rm -rf {output}
         mkdir {output}
         bins=$(sed '1,1d' {input.bins} | cut -f 2 | sort | uniq)
-        parallel --jobs {threads} {input.script} {input.contigs} {input.bins} {{1}} {output}/{{1}}.fn ::: $bins
+        parallel --progress --jobs {threads} {input.script} {input.contigs} {input.bins} {{1}} {output}/{{1}}.fn ::: $bins
         """
 
 # TODO: refine bins (scaffolds, contig extension, splitting/merging
@@ -490,9 +490,10 @@ rule split_out_bins:
 
 rule checkm_bins:
     output:
-        outdir=temp('res/{stem}.bins.checkm.d'),
-        summary='res/{stem}.bins.checkm.tsv'
-    input: 'seq/{stem}.bins.d'
+        outdir=temp('res/{stem}.{bins}.checkm.d'),
+        summary='res/{stem}.{bins}.checkm.tsv'
+    wildcard_constraints: bins='m?bins'
+    input: 'seq/{stem}.{bins}.d'
     threads: max_threads
     shell:
         r"""
@@ -503,19 +504,27 @@ rule checkm_bins:
                 {input} {output.outdir}
         """
 
+rule reformat_checkm_output:
+    output: 'res/{stem}.checkm_details.tsv'
+    input: 'res/{stem}.checkm.tsv'
+    shell:
+        """
+        cut -f1,4,12-15 {input} > {output}
+        """
+
 rule generate_checkm_markerset:
     output:
         'res/{level}_{taxon}.ms'
     shell:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
-rule checkm_merge:
+rule checkm_content_merge:
     output:
         checkm_work=temp('res/{stem}.bins.checkm_merge.d'),
-        result='res/{stem}.bins.merge.tsv'
+        result='res/{stem}.bins.checkm_merge_stats.tsv',
     input:
         bins='seq/{stem}.bins.d',
-        markerset='res/kingdom_Bacteria.ms'
+        markerset='res/domain_Bacteria.ms',
     threads: max_threads
     shell:
         """
@@ -523,6 +532,20 @@ rule checkm_merge:
         checkm merge --threads {threads} -x fn {input.markerset} {input.bins} {output.checkm_work}
         head -1 {output.checkm_work}/merger.tsv > {output.result}
         sed '1,1d' {output.checkm_work}/merger.tsv | sort -k9,9rn >> {output.result}
+        """
+
+rule checkm_merge_bins:
+    output: 'res/{stem}.mbins.tsv'
+    input:
+        script='scripts/merge_bins_by_checkm.py',
+        bins='res/{stem}.bins.tsv',
+        merge_list='res/{stem}.bins.checkm_merge_stats.tsv',
+    params:
+        min_complete_delta=30,
+        max_contam_delta=2,
+    shell:
+        """
+        {input.script} {input.bins} {input.merge_list} {params.min_complete_delta} {params.max_contam_delta} > {output}
         """
 
 
@@ -635,4 +658,20 @@ rule pull_out_phylogenetic_marker_genes_amino_ormerod:
         for file in {input}; do
             seqtk subseq $file <(grep '{params.search_string}' $file | sed 's:^>\([^ ]*\).*:\1:') >> {output}
         done
+        """
+
+rule generate_database:
+    output: 'res/{group}.results.db'
+    input:
+        schema='schema.sql',
+        script='scripts/setup_db.sql',
+        data1='meta/library.noheader.tsv',
+        data2='res/{group}.a.proc.contigs.nlength.noheader.tsv',
+        data3='res/{group}.a.proc.contigs.bins.noheader.tsv',
+        data4='res/{group}.a.proc.contigs.cvrg.noheader.tsv',
+        data5='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
+    shell:
+        """
+        rm -f {output}
+        sqlite3 {output} < {input.script}
         """

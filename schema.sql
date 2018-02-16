@@ -46,22 +46,14 @@ CREATE TABLE rrs_taxon_rabund
   );
 CREATE INDEX idx_rrs_taxon_rabund__taxon_id ON rrs_taxon_rabund(taxon_id);
 
-CREATE TABLE contig_linkage
-  ( contig_id_1 TEXT
-  , contig_id_2 TEXT
-  , tally INT
+CREATE TABLE _contig_linkage
+  ( contig_id_1        TEXT REFERENCES contig(contig_id)
+  , contig_id_2        TEXT REFERENCES contig(contig_id)
+  , tally              INT
 
   , PRIMARY KEY (contig_id_1, contig_id_2)
   );
-CREATE TRIGGER trigger_contig_linkage_add_flipped_records
-  AFTER INSERT ON contig_linkage FOR EACH ROW
-  BEGIN
-    INSERT INTO contig_linkage
-      VALUES (NEW.contig_id_2, NEW.contig_id_1, NEW.tally)
-    ;
-  END
-;
-CREATE INDEX idx_contig_linkage__contig_id_2 ON contig_linkage(contig_id_2);
+CREATE INDEX idx__contig_linkage__contig_id_2 ON _contig_linkage(contig_id_2);
 
 
 -- {{{1 Views
@@ -88,4 +80,24 @@ CREATE VIEW bin_coverage AS
   JOIN contig_bin USING (contig_id)
   JOIN bin_length USING (bin_id)
   GROUP BY bin_id, library_id
+;
+
+CREATE VIEW contig_linkage AS
+  SELECT contig_id_1 AS contig_id, contig_id_2 AS contig_id_linked, tally
+  FROM (SELECT * FROM _contig_linkage
+        UNION
+        SELECT contig_id_2 AS contig_id_1, contig_id_1 AS contig_id_2, tally FROM _contig_linkage)
+;
+
+CREATE VIEW bin_linkage AS
+SELECT
+    b1.bin_id AS bin_id_1
+  , b2.bin_id AS bin_id_2
+  , COUNT(DISTINCT b1.contig_id) AS contig_count_1
+  , COUNT(DISTINCT b2.contig_id) AS contig_count_2
+  , SUM(tally) AS tally
+FROM contig_linkage
+JOIN contig_bin AS b1 USING (contig_id)
+JOIN contig_bin AS b2 ON contig_id_linked = b2.contig_id
+GROUP BY (bin_id_1, bin_id_2)
 ;

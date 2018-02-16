@@ -721,19 +721,20 @@ rule generate_database:
     shell:
         r"""
         rm -f {output}
-        sqlite3 {output} <<<EOF
-            .bail ON
-            .read {input.schema}
-            PRAGMA cache_size = 1000000;
-            PRAGMA foreign_keys = TRUE;
-            .separator \t
-            .import {input.library} library
-            .import {input.contig} contig
-            .import {input.contig_linkage} contig_linkage
-            .import {input.contig_bin} contig_bin
-            .import {input.contig_coverage} contig_coverage
-            .import {input.bin_checkm} bin_checkm
-            .import {input.rrs_taxon_rabund} rrs_taxon_rabund
-            ANALYZE;
-        EOF
+        echo '
+.bail ON
+.read {input.schema}
+PRAGMA cache_size = 1000000;
+PRAGMA foreign_keys = TRUE;
+.separator \t
+.import {input.library} library
+.import {input.contig} contig
+.import {input.contig_linkage} _contig_linkage
+.import {input.contig_bin} contig_bin
+.import {input.contig_coverage} contig_coverage
+.import {input.bin_checkm} bin_checkm
+.import {input.rrs_taxon_rabund} rrs_taxon_rabund
+ANALYZE;
+             ' \
+        | sqlite3 {output}
         """

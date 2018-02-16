@@ -565,7 +565,7 @@ rule generate_checkm_markerset:
 rule checkm_content_merge:
     output:
         checkm_work=temp('res/{stem}.bins.checkm_merge.d'),
-        result='res/{stem}.bins.checkm_merge_stats.tsv',
+        merge_stats='res/{stem}.bins.checkm_merge_stats.tsv',
     input:
         bins='seq/{stem}.bins.d',
         markerset='res/domain_Bacteria.ms',
@@ -575,7 +575,8 @@ rule checkm_content_merge:
         rm -rf {output.checkm_work}
         checkm merge --threads {threads} -x fn {input.markerset} {input.bins} {output.checkm_work}
         head -1 {output.checkm_work}/merger.tsv > {output.result}
-        sed '1,1d' {output.checkm_work}/merger.tsv | sort -k9,9rn >> {output.result}
+        printf 'bin_id_1\tbin_id_2\tscore\n' > {output.result}
+        sed '1,1d' {output.checkm_work}/merger.tsv | cut -f1,2,9 >> {output.merge_stats}
         """
 
 rule checkm_merge_bins:
@@ -718,6 +719,7 @@ rule generate_database:
         bin_checkm='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
         rrs_taxon_rabund='res/{group}.r.rabund.noheader.tsv',
         contig_linkage='res/{group}.a.proc.core-map.sort.linkage_tally.noheader.tsv',
+        checkm_merge='res/{group}.a.proc.contigs.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
         rm -f {output}
@@ -728,6 +730,7 @@ PRAGMA cache_size = 1000000;
 PRAGMA foreign_keys = TRUE;
 .separator \t
 .import {input.library} library
+.import {input.checkm_merge} _bin_complementarity
 .import {input.contig} contig
 .import {input.contig_linkage} _contig_linkage
 .import {input.contig_bin} contig_bin

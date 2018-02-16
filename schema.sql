@@ -55,6 +55,14 @@ CREATE TABLE _contig_linkage
   );
 CREATE INDEX idx__contig_linkage__contig_id_2 ON _contig_linkage(contig_id_2);
 
+CREATE TABLE _bin_complementarity
+  ( bin_id_1 TEXT
+  , bin_id_2 TEXT
+  , score FLOAT
+
+  , PRIMARY KEY (bin_id_1, bin_id_2)
+  );
+CREATE INDEX idx__bin_complementarity__bin_id_2 ON _bin_complementarity(bin_id_2);
 
 -- {{{1 Views
 
@@ -89,6 +97,17 @@ CREATE VIEW contig_linkage AS
         SELECT contig_id_2 AS contig_id_1, contig_id_1 AS contig_id_2, tally FROM _contig_linkage)
 ;
 
+
+CREATE VIEW bin_complementarity AS
+  SELECT
+      bin_id_1 AS bin_id
+    , bin_id_2 AS bin_id_combined
+    , score
+  FROM (SELECT * FROM _bin_complementarity
+        UNION
+        SELECT bin_id_2 AS bin_id_1, bin_id_1 AS bin_id_2, score FROM _bin_complementarity)
+;
+
 CREATE VIEW bin_linkage AS
 SELECT
     b1.bin_id AS bin_id_1
@@ -99,5 +118,5 @@ SELECT
 FROM contig_linkage
 JOIN contig_bin AS b1 USING (contig_id)
 JOIN contig_bin AS b2 ON contig_id_linked = b2.contig_id
-GROUP BY (bin_id_1, bin_id_2)
+GROUP BY bin_id_1, bin_id_2
 ;

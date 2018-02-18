@@ -335,7 +335,12 @@ rule tally_links:
             | sort \
             | paste - - \
             | awk -v OFS='\t' -v q={params.min_quality} \
-                  '($5 >= q) && ($10 >= q) {{print $3, $4}}' \
+                  '   ($5 >= q) \
+                   && ($10 >= q) \
+                   && ($2 == "LEFT") \
+                   && ($7 == "RIGHT") \
+                   {{print $3, $4}} \
+                  ' \
             | sort | uniq -c \
             | awk -v OFS='\t' '$1 >= {params.min_hits} {{print $2, $3, $1}}' \
             >> {output}

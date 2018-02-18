@@ -46,6 +46,11 @@ rule drop_header:
     input: '{stem}.{ext}'
     shell: 'sed 1,1d {input} > {output}'
 
+rule drop_header_meta:
+    output: 'res/{stem}.noheader.{ext,(tsv|csv)}'
+    input: 'meta/{stem}.{ext}'
+    shell: 'sed 1,1d {input} > {output}'
+
 # Here we have a template for aliasing
 alias_recipe = "ln -rs {input} {output}"
 alias_fmt = lambda input, output: alias_recipe.format(input=input, output=output)
@@ -628,7 +633,7 @@ rule generate_database:
     output: 'res/{group}.results.db'
     input:
         schema='schema.sql',
-        library='meta/library.noheader.tsv',
+        library='res/library.noheader.tsv',
         contig='res/{group}.a.proc.contigs.nlength.noheader.tsv',
         contig_bin='res/{group}.a.proc.contigs.bins.noheader.tsv',
         contig_coverage='res/{group}.a.proc.contigs.cvrg.noheader.tsv',

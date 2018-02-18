@@ -3,5 +3,5 @@ log/
 raw/
 res/
 seq/
-test/
+build/
 local.snake

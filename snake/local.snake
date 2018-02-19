@@ -5,5 +5,5 @@
 rule setup_git_locally:
     shell:
         """
-        git update-index --skip-worktree local.snake
+        git update-index --skip-worktree snake/local.snake
         """

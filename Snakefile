@@ -28,10 +28,10 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
     config['asmbl_group'][group] = list(d['library_id'])
 
 # {{{3 Local includes
-include: 'local.snake'
+include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
-include: 'ormerod.snake'
+include: 'snake/ormerod.snake'
 
 # {{{1 Utility rules/recipes/templates
 

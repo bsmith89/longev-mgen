@@ -49,11 +49,13 @@ CREATE INDEX idx_rrs_taxon_rabund__taxon_id ON rrs_taxon_rabund(taxon_id);
 CREATE TABLE _contig_linkage
   ( contig_id_1        TEXT REFERENCES contig(contig_id)
   , contig_id_2        TEXT REFERENCES contig(contig_id)
+  , library_id         TEXT REFERENCES library(library_id)
   , tally              INT
 
-  , PRIMARY KEY (contig_id_1, contig_id_2)
+  , PRIMARY KEY (contig_id_1, contig_id_2, library_id)
   );
-CREATE INDEX idx__contig_linkage__contig_id_2 ON _contig_linkage(contig_id_2);
+CREATE INDEX idx_contig_linkage__contig_id_2 ON _contig_linkage(contig_id_2);
+CREATE INDEX idx_contig_linkage__library_id ON _contig_linkage(library_id);
 
 CREATE TABLE _bin_complementarity
   ( bin_id_1 TEXT
@@ -91,12 +93,11 @@ CREATE VIEW bin_coverage AS
 ;
 
 CREATE VIEW contig_linkage AS
-  SELECT contig_id_1 AS contig_id, contig_id_2 AS contig_id_linked, tally
+  SELECT contig_id_1 AS contig_id, contig_id_2 AS contig_id_linked, library_id, tally
   FROM (SELECT * FROM _contig_linkage
         UNION
-        SELECT contig_id_2 AS contig_id_1, contig_id_1 AS contig_id_2, tally FROM _contig_linkage)
+        SELECT contig_id_2 AS contig_id_1, contig_id_1 AS contig_id_2, library_id, tally FROM _contig_linkage)
 ;
-
 
 CREATE VIEW bin_complementarity AS
   SELECT
@@ -115,8 +116,33 @@ SELECT
   , COUNT(DISTINCT b1.contig_id) AS contig_count_1
   , COUNT(DISTINCT b2.contig_id) AS contig_count_2
   , SUM(tally) AS tally
-FROM contig_linkage
+FROM (SELECT contig_id, contig_id_linked, SUM(tally) AS tally
+      FROM contig_linkage
+      GROUP BY contig_id, contig_id_linked
+     )
 JOIN contig_bin AS b1 USING (contig_id)
 JOIN contig_bin AS b2 ON contig_id_linked = b2.contig_id
 GROUP BY bin_id_1, bin_id_2
+;
+
+CREATE VIEW contig_total_coverage AS
+  SELECT contig_id, SUM(coverage) AS coverage
+  FROM contig_coverage
+  GROUP BY contig_id
+;
+
+CREATE VIEW bin_total_coverage AS
+  SELECT bin_id, SUM(coverage) AS coverage
+  FROM bin_coverage
+  GROUP BY bin_id
+;
+
+CREATE VIEW contig_total_linkage AS
+  SELECT
+      contig_id
+    , contig_id_linked
+    , COUNT(DISTINCT library_id) AS library_count
+    , SUM(tally) AS tally
+  FROM contig_linkage
+  GROUP BY contig_id, contig_id_linked
 ;

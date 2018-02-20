@@ -312,7 +312,7 @@ rule tally_links:
     params: min_hits=1, min_quality=40
     shell:
         r"""
-        printf 'contig_id_A\tcontig_id_B\ttally\n' > {output}
+        printf 'contig_id_1\tcontig_id_2\tlibrary_id\ttally\n' > {output}
         # For Flags explained see: https://broadinstitute.github.io/picard/explain-flags.html
         samtools view -F3852 {input} | awk '($7 != "=") && ($7 != "*")' \
             | awk '{{print $3, $7, $1, $5}}' \
@@ -331,8 +331,9 @@ rule tally_links:
                   ' \
             | sort | uniq -c \
             | awk -v OFS='\t' \
+                  -v library_id='{wildcards.library}' \
                   -v min_hits='{params.min_hits}' \
-                  '$1 >= min_hits {{print $2, $3, $1}}' \
+                  '$1 >= min_hits {{print $2, $3, library_id, $1}}' \
             >> {output}
         """
 
@@ -344,7 +345,7 @@ rule combine_linkage_tallies:
                           ]
     shell:
         """
-        printf 'contig_id_1\tcontig_id_2\ttally\n' > {output}
+        printf 'contig_id_1\tcontig_id_2\tlibrary_id\ttally\n' > {output}
         for file in {input}; do
             sed 1,1d $file >> {output}
         done

@@ -306,27 +306,15 @@ rule backmap_reads_to_fragmented_assembly:
 # {{{2 Scaffolding
 
 
-rule combine_bams:
-    output: 'res/{group}.a.{proc}.{group}-map.sort.bam'
-    input: lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.sort.bam' for library in config['asmbl_group'][wildcards.group]]
-    threads: 8
-    shell:
-        """
-        tmpfile=$(mktemp -p $TMPDIR)
-        samtools merge -f --threads {threads} $tmpfile {input}
-        mv $tmpfile {output}
-        """
-
 rule tally_links:
-    output: 'res/{stem}.linkage_tally.tsv'
-    input: 'res/{stem}.bam'
-    threads: 4
-    params: min_hits=3, min_quality=40
+    output: 'res/{library}.m.{stem}.linkage_tally.tsv'
+    input: 'res/{library}.m.{stem}.bam'
+    params: min_hits=1, min_quality=40
     shell:
         r"""
         printf 'contig_id_A\tcontig_id_B\ttally\n' > {output}
         # For Flags explained see: https://broadinstitute.github.io/picard/explain-flags.html
-        samtools view --threads={threads} -F3852 {input} | awk '($7 != "=") && ($7 != "*")' \
+        samtools view -F3852 {input} | awk '($7 != "=") && ($7 != "*")' \
             | awk '{{print $3, $7, $1, $5}}' \
             | awk -v OFS='\t' \
                   '{{if ($1 > $2) {{print $3, "LEFT", $2, $1, $4}} \
@@ -342,9 +330,26 @@ rule tally_links:
                    {{print $3, $4}} \
                   ' \
             | sort | uniq -c \
-            | awk -v OFS='\t' '$1 >= {params.min_hits} {{print $2, $3, $1}}' \
+            | awk -v OFS='\t' \
+                  -v min_hits='{params.min_hits}' \
+                  '$1 >= min_hits {{print $2, $3, $1}}' \
             >> {output}
         """
+
+rule combine_linkage_tallies:
+    output: 'res/{group}.a.{proc}.{group}-map.sort.linkage_tally.tsv'
+    input:
+        lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.sort.linkage_tally.tsv'
+                           for library in config['asmbl_group'][wildcards.group]
+                          ]
+    shell:
+        """
+        printf 'contig_id_1\tcontig_id_2\ttally\n' > {output}
+        for file in {input}; do
+            sed 1,1d $file >> {output}
+        done
+        """
+
 
 
 # {{{2 Calculate statistics

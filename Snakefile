@@ -694,3 +694,16 @@ ANALYZE;
              ' \
         | sqlite3 {output}
         """
+
+rule denormalize_database:
+    output: 'res/{stem}.denorm.db'
+    input:
+        db='res/{stem}.db',
+        script='scripts/schema_denormalize.sql',
+    shell:
+        """
+        tmpfile=$(mktemp -p $TMPDIR)
+        cp {input.db} $tmpfile
+        cat <(echo "PRAGMA cache_size = 1000000;") {input.script} | sqlite3 $tmpfile
+        cp $tmpfile {output}
+        """

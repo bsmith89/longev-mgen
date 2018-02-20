@@ -646,6 +646,7 @@ rule generate_database_0:
     input:
         schema='schema.sql',
         library='res/library.noheader.tsv',
+        asmbl_group='res/asmbl_group.noheader.tsv',
         rrs_taxon_rabund='res/{group}.r.rabund.noheader.tsv',
     shell:
         r"""
@@ -657,6 +658,7 @@ PRAGMA foreign_keys = TRUE;
 .read {input.schema}
 .separator \t
 .import {input.library} library
+.import {input.asmbl_group} library_asmbl_group
 .import {input.rrs_taxon_rabund} rrs_taxon_rabund
 ANALYZE;
              ' \

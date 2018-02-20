@@ -8,6 +8,11 @@ CREATE TABLE library
   , file_r2 TEXT
   );
 
+CREATE TABLE library_asmbl_group
+  ( library_id TEXT REFERENCES library
+  , asmbl_group TEXT
+  );
+
 CREATE TABLE contig
   ( contig_id TEXT PRIMARY KEY
   , length INT

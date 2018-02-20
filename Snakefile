@@ -35,6 +35,12 @@ include: 'snake/ormerod.snake'
 
 # {{{1 Utility rules/recipes/templates
 
+rule all:
+    shell:
+        """
+        echo "Figure out what you really want!"
+        """
+
 rule print_config:
     shell:
         '{config}'

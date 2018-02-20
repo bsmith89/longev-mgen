@@ -640,35 +640,54 @@ rule extract_ec_numbers:
 
 # {{{1 Compile all data
 
-rule generate_database:
-    output: 'res/{group}.results.db'
+# Base database, containing static metadata.
+rule generate_database_0:
+    output: 'res/{group}.0.db'
     input:
         schema='schema.sql',
         library='res/library.noheader.tsv',
-        contig='res/{group}.a.proc.contigs.nlength.noheader.tsv',
-        contig_bin='res/{group}.a.proc.contigs.bins.noheader.tsv',
-        contig_coverage='res/{group}.a.proc.contigs.cvrg.noheader.tsv',
-        bin_checkm='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
         rrs_taxon_rabund='res/{group}.r.rabund.noheader.tsv',
-        contig_linkage='res/{group}.a.proc.core-map.sort.linkage_tally.noheader.tsv',
-        checkm_merge='res/{group}.a.proc.contigs.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
         rm -f {output}
         echo '
 .bail ON
+PRAGMA cache_size = 1000000;
+PRAGMA foreign_keys = TRUE;
 .read {input.schema}
+.separator \t
+.import {input.library} library
+.import {input.rrs_taxon_rabund} rrs_taxon_rabund
+ANALYZE;
+             ' \
+        | sqlite3 {output}
+        """
+
+# First iteration of results db; this might be used to e.g. find scaffolds.
+rule generate_database_1:
+    output: 'res/{group}.1.db'
+    input:
+        db='res/{group}.0.db',
+        contig='res/{group}.a.proc.contigs.nlength.noheader.tsv',
+        contig_bin='res/{group}.a.proc.contigs.bins.noheader.tsv',
+        contig_coverage='res/{group}.a.proc.contigs.cvrg.noheader.tsv',
+        bin_checkm='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
+        contig_linkage='res/{group}.a.proc.core-map.sort.linkage_tally.noheader.tsv',
+        checkm_merge='res/{group}.a.proc.contigs.bins.checkm_merge_stats.noheader.tsv',
+    shell:
+        r"""
+        cp {input.db} {output}
+        echo '
+.bail ON
 PRAGMA cache_size = 1000000;
 PRAGMA foreign_keys = TRUE;
 .separator \t
-.import {input.library} library
 .import {input.checkm_merge} _bin_complementarity
 .import {input.contig} contig
 .import {input.contig_linkage} _contig_linkage
 .import {input.contig_bin} contig_bin
 .import {input.contig_coverage} contig_coverage
 .import {input.bin_checkm} bin_checkm
-.import {input.rrs_taxon_rabund} rrs_taxon_rabund
 ANALYZE;
              ' \
         | sqlite3 {output}

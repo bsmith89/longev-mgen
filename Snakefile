@@ -705,7 +705,7 @@ rule denormalize_database:
     output: 'res/{stem}.denorm.db'
     input:
         db='res/{stem}.db',
-        script='scripts/schema_denormalize.sql',
+        script='scripts/denormalize_db.sql',
     shell:
         """
         tmpfile=$(mktemp -p $TMPDIR)

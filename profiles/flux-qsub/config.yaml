@@ -9,3 +9,4 @@ cluster: >-
          -o {cluster.stdout_file} -e {cluster.stderr_file}
 notemp: true
 timestamp: true
+local-cores: 6

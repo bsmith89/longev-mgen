@@ -8,7 +8,7 @@ import pandas as pd
 # {{{2 Params
 
 # Default params
-max_threads = 24
+max_threads = 30
 
 # {{{2 Project configuration
 
@@ -41,6 +41,8 @@ rule all:
         echo "Figure out what you really want!"
         """
 
+localrules: all
+
 rule print_config:
     shell:
         '{config}'
@@ -56,6 +58,10 @@ rule drop_header_meta:
     output: 'res/{stem}.noheader.{ext,(tsv|csv)}'
     input: 'meta/{stem}.{ext}'
     shell: 'sed 1,1d {input} > {output}'
+
+localrules: drop_header, drop_header_meta
+
+ruleorder: drop_header_meta > drop_header
 
 # Here we have a template for aliasing
 alias_recipe = "ln -rs {input} {output}"
@@ -73,6 +79,13 @@ rule download_salask_reference:
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000356.1&rettype=fasta&retmode=text'
     shell: curl_recipe
 
+rule download_m_intestinale_genome:
+    output: 'raw/ref/muribaculum_intestinale_yl27.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
+    shell: curl_recipe
+
+
 rule download_illumina_adapters:
     output: 'raw/ref/illumina_adapters.fn'
     params:
@@ -85,8 +98,6 @@ rule download_mouse_reference:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Mus_musculus/latest_assembly_versions/GCA_001632575.1_C3H_HeJ_v1/GCA_001632575.1_C3H_HeJ_v1_genomic.fna.gz'
     shell: curl_unzip_recipe
 
-localrules: download_salask_reference, download_illumina_adapters, download_mouse_reference
-
 rule download_sra_data:
     output: 'raw/sra/{sra_id}.fn'
     shell:
@@ -94,17 +105,21 @@ rule download_sra_data:
         fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
         """
 
+localrules: download_salask_reference, download_illumina_adapters,
+            download_mouse_reference, download_sra_data
+
+
 # {{{2 Raw data
-rule alias_raw_reads:
-    output:
-        r1='seq/{library}.m.r1.fq.gz',
-        r2='seq/{library}.m.r2.fq.gz'
-    input:
-        unpack(lambda wildcards: {'r1': 'raw/mgen/' + config['library'][wildcards.library]['r1'],
-                                  'r2': 'raw/mgen/' + config['library'][wildcards.library]['r2']})
-    shell:
-        alias_fmt("{input.r1}", "{output.r1}") +
-        alias_fmt("{input.r2}", "{output.r2}")
+
+rule alias_raw_read_r1:
+    output: 'seq/{library}.m.r1.fq.gz',
+    input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r1'])
+    shell: alias_recipe
+
+rule alias_raw_read_r2:
+    output: 'seq/{library}.m.r2.fq.gz',
+    input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r2'])
+    shell: alias_recipe
 
 # See scripts/query_longev_rrs_relative_abundance.sql
 rule link_rabund_info:
@@ -112,7 +127,7 @@ rule link_rabund_info:
     input: 'raw/longev_rrs_relative_abundance.tsv'
     shell: alias_recipe
 
-localrules: alias_raw_reads, link_rabund_info
+localrules: alias_raw_read_r1, alias_raw_read_r2, link_rabund_info
 
 # {{{1 Metagenomics
 
@@ -138,7 +153,7 @@ rule trim_adapters:
     log: 'log/{stem}.scythe.log'
     shell:
         """
-        scythe -a {input.adapters} {input.seqs} > {output} 2>{log}
+        scythe -a {input.adapters} {input.seqs} >{output} 2>{log}
         ! grep -Fxq 'Blank FASTA header or sequence in adapters file.' {log}
         """
 
@@ -154,7 +169,7 @@ rule quality_trim_reads:
         qual_type='sanger',
         qual_thresh=20
     shell:
-        """
+        r"""
         sickle pe -t {params.qual_type} -q {params.qual_thresh} --gzip-output \
             --pe-file1 {input.r1} --pe-file2 {input.r2} \
             --output-pe1 {output.r1} --output-pe2 {output.r2} \
@@ -177,8 +192,11 @@ localrules: alias_read_processing
 
 rule assemble_mgen:
     output:
-        contigs='seq/{group,[^.]+}.a.{proc}.contigs.fn',
+        fasta='seq/{group}.a.{proc}.contigs.fn',
         outdir=temp('seq/{group}.a.{proc}.megahit.d'),
+        fastg='seq/{group}.a.{proc}.contigs.fg',
+    wildcard_constraints:
+        group='[^.]+',
     input:
         lambda wildcards: [f'seq/{library}.m.{read}.{wildcards.proc}.fq.gz'
                            for library, read
@@ -201,7 +219,9 @@ rule assemble_mgen:
             --out-dir {output.outdir} \
             --num-cpu-threads {threads} \
             --verbose
-        sed 's:^>k:>{wildcards.group}-k:' {output.outdir}/final.contigs.fa > {output.contigs}
+        sed 's:^>k:>{wildcards.group}-k:' {output.outdir}/final.contigs.fa > {output.fasta}
+        # TODO: Fix this hard-coding of k-parameters.
+        megahit_toolkit contig2fastg 141 {output.outdir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
         cp {output.outdir}/log {log}
         """
 
@@ -253,16 +273,16 @@ rule bowtie_index_build:
         'seq/{stem}.rev.2.bt2'
     input: 'seq/{stem}.fn'
     log: 'log/{stem}.bowtie2-build.log'
-    threads: max_threads
+    threads: min(max_threads, 14)
     shell:
         """
-        bowtie2-build --threads {threads} {input} seq/{wildcards.stem} 2>&1 >{log}
+        bowtie2-build --threads {threads} {input} seq/{wildcards.stem} >{log} 2>&1
         """
 
 # {{{3 Backmap to an assembly
 
 # Backmap with assembly from reads processed identically
-rule backmap_reads_to_assembly:
+rule map_reads_to_assembly:
     output: 'res/{library}.m.{proc}.{group}-map.sort.bam'
     wildcard_constraints:
         library='[^.]+',
@@ -285,29 +305,6 @@ rule backmap_reads_to_assembly:
             | samtools sort --output-fmt=BAM -o {output}
         """
 
-# Backmap with assembly from reads processed identically
-rule backmap_reads_to_fragmented_assembly:
-    output: 'res/{library}.m.{proc}.{group}-map.frag.sort.bam'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+'
-    input:
-        r1='seq/{library}.m.r1.{proc}.fq.gz',
-        r2='seq/{library}.m.r2.{proc}.fq.gz',
-        inx_1='seq/{group}.a.{proc}.scontigs.1.bt2',
-        inx_2='seq/{group}.a.{proc}.scontigs.2.bt2',
-        inx_3='seq/{group}.a.{proc}.scontigs.3.bt2',
-        inx_4='seq/{group}.a.{proc}.scontigs.4.bt2',
-        inx_rev1='seq/{group}.a.{proc}.scontigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.{proc}.scontigs.rev.2.bt2'
-    threads: max_threads
-    shell:
-        r"""
-        bowtie2 --threads {threads} \
-                -x seq/{wildcards.group}.a.{wildcards.proc}.scontigs \
-                -1 {input.r1} -2 {input.r2} \
-            | samtools sort --output-fmt=BAM -o {output}
-        """
 
 # {{{2 Scaffolding
 
@@ -318,7 +315,7 @@ rule tally_links:
     params: min_hits=1, min_quality=40
     shell:
         r"""
-        printf 'contig_id_1\tcontig_id_2\tlibrary_id\ttally\n' > {output}
+        printf 'contig_id_1\tcontig_id_2\tlibrary_id\tread_count\n' > {output}
         # For Flags explained see: https://broadinstitute.github.io/picard/explain-flags.html
         samtools view -F3852 {input} | awk '($7 != "=") && ($7 != "*")' \
             | awk '{{print $3, $7, $1, $5}}' \
@@ -350,8 +347,8 @@ rule combine_linkage_tallies:
                            for library in config['asmbl_group'][wildcards.group]
                           ]
     shell:
-        """
-        printf 'contig_id_1\tcontig_id_2\tlibrary_id\ttally\n' > {output}
+        r"""
+        printf 'contig_id_1\tcontig_id_2\tlibrary_id\tread_count\n' > {output}
         for file in {input}; do
             sed 1,1d $file >> {output}
         done
@@ -481,7 +478,8 @@ rule unstack_cvrg:
 
 rule transform_contig_space:
     output:
-        out='res/{stem}.{contigs}.pca.csv',
+        pca='res/{stem}.{contigs}.concoct.pca.tsv',
+        raw='res/{stem}.{contigs}.concoct.tsv',
         dir=temp('res/{stem}.{contigs}.concoct.d')
     wildcard_constraints:
         contigs='s?contigs'
@@ -498,41 +496,49 @@ rule transform_contig_space:
                 --length_threshold={params.length_threshold} \
                 --basename={output.dir}/ \
                 --cluster=10 --iterations=1 --num-threads={threads} --epsilon=1 --converge_out
-        mv {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv {output.out}
+        sed 's:,:\t:g' {output.dir}/original_data_gt{params.length_threshold}.csv | sed '1,1s:^:contig_id:' > {output.raw}
+        sed 's:,:\t:g' {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv > {output.pca}
         """
 
 # {{{3 Clustering
 
-rule bin_contigs:
+rule cluster_contigs:
     output:
         out='res/{stem}.{contigs,s?contigs}.cluster.tsv',
         summary='res/{stem}.{contigs}.cluster.summary.tsv',
     input:
         script='scripts/cluster_contigs.py',
-        pca='res/{stem}.{contigs}.pca.csv',
+        pca='res/{stem}.{contigs}.concoct.pca.tsv',
         length='res/{stem}.{contigs}.nlength.tsv',
+    log: 'log/{stem}.{contigs}.cluster.log'
     params:
-        min_total_length=100000,
         min_contig_length=1000,
         frac=0.10,
+        alpha=1,
+        max_clusters=2000,
+        seed=1,
     shell:
         r"""
         {input.script} {input.pca} {input.length} \
                 --min-length {params.min_contig_length} \
-                --min-bin-size {params.min_total_length} \
-                --summary {output.summary} \
                 --frac {params.frac} \
-                > {output.out}
+                --max-nbins {params.max_clusters} \
+                --alpha {params.alpha} \
+                --seed {params.seed} \
+                --summary {output.summary} \
+                > {output.out} 2> {log}
         """
 
 rule rename_clusters_to_bins:
     output: 'res/{stem}.{contigs,s?contigs}.bins.tsv'
     input: 'res/{stem}.{contigs}.cluster.tsv'
+    params:
+        padding=4,
     shell:
         r"""
         awk -v OFS='\t' \
             'BEGIN   {{print "contig_id", "bin_id"}}
-             FNR > 1 {{printf "%s\tbin%03d\n", $1, $2}}
+             FNR > 1 {{printf "%s\tbin%0{params.padding}d\n", $1, $2}}
             ' \
             < {input} \
             > {output}
@@ -600,8 +606,7 @@ rule checkm_content_merge:
         """
         rm -rf {output.checkm_work}
         checkm merge --threads {threads} -x fn {input.markerset} {input.bins} {output.checkm_work}
-        head -1 {output.checkm_work}/merger.tsv > {output.result}
-        printf 'bin_id_1\tbin_id_2\tscore\n' > {output.result}
+        printf 'bin_id_1\tbin_id_2\tscore\n' > {output.merge_stats}
         sed '1,1d' {output.checkm_work}/merger.tsv | cut -f1,2,9 >> {output.merge_stats}
         """
 
@@ -622,6 +627,7 @@ rule checkm_merge_bins:
 
 # {{{2 Annotation
 
+# TODO: Output the individual files rather than the directory
 rule annotate_bin:
     output: 'res/{stem}.bins.prokka.d/{bin_id}.d'
     input: 'seq/{stem}.bins.d/{bin_id}.fn'
@@ -630,7 +636,7 @@ rule annotate_bin:
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
-                --outdir {output} --prefix prokka
+                --outdir {output} --prefix prokka \
                 --locustag {wildcards.bin_id} --rawproduct \
                 >{log} 2>&1
         """
@@ -640,7 +646,7 @@ rule extract_ec_numbers:
     input: 'res/{stem}.bins.prokka.d/{bin_id}.d'
     shell:
         """
-        grep eC_number {input}/prokka.gff  | cut -f9 | cut -d';' -f2 | cut -d'=' -f2 | awk '{{print "ec:"$1}}' > {output}
+        grep eC_number {input}/{wildcards.bin_id}.gff  | cut -f9 | cut -d';' -f2 | cut -d'=' -f2 | awk '{{print "ec:"$1}}' | sort > {output}
         """
 
 
@@ -684,7 +690,8 @@ rule generate_database_1:
         checkm_merge='res/{group}.a.proc.contigs.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
-        cp {input.db} {output}
+        tmpfile=$(mktemp -p $TMPDIR)
+        cp {input.db} $tmpfile
         echo '
 .bail ON
 PRAGMA cache_size = 1000000;
@@ -698,7 +705,8 @@ PRAGMA foreign_keys = TRUE;
 .import {input.bin_checkm} bin_checkm
 ANALYZE;
              ' \
-        | sqlite3 {output}
+        | sqlite3 $tmpfile
+        cp $tmpfile {output}
         """
 
 rule denormalize_database:

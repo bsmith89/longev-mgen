@@ -55,7 +55,7 @@ CREATE TABLE _contig_linkage
   ( contig_id_1        TEXT REFERENCES contig(contig_id)
   , contig_id_2        TEXT REFERENCES contig(contig_id)
   , library_id         TEXT REFERENCES library(library_id)
-  , tally              INT
+  , read_count              INT
 
   , PRIMARY KEY (contig_id_1, contig_id_2, library_id)
   );
@@ -98,10 +98,10 @@ CREATE VIEW bin_coverage AS
 ;
 
 CREATE VIEW contig_linkage AS
-  SELECT contig_id_1 AS contig_id, contig_id_2 AS contig_id_linked, library_id, tally
+  SELECT contig_id_1 AS contig_id, contig_id_2 AS contig_id_linked, library_id, read_count
   FROM (SELECT * FROM _contig_linkage
         UNION
-        SELECT contig_id_2 AS contig_id_1, contig_id_1 AS contig_id_2, library_id, tally FROM _contig_linkage)
+        SELECT contig_id_2 AS contig_id_1, contig_id_1 AS contig_id_2, library_id, read_count FROM _contig_linkage)
 ;
 
 CREATE VIEW bin_complementarity AS
@@ -120,8 +120,8 @@ SELECT
   , b2.bin_id AS bin_id_2
   , COUNT(DISTINCT b1.contig_id) AS contig_count_1
   , COUNT(DISTINCT b2.contig_id) AS contig_count_2
-  , SUM(tally) AS tally
-FROM (SELECT contig_id, contig_id_linked, SUM(tally) AS tally
+  , SUM(read_count) AS read_count
+FROM (SELECT contig_id, contig_id_linked, SUM(read_count) AS read_count
       FROM contig_linkage
       GROUP BY contig_id, contig_id_linked
      )
@@ -146,8 +146,10 @@ CREATE VIEW contig_total_linkage AS
   SELECT
       contig_id
     , contig_id_linked
+    , COUNT(DISTINCT extraction_id) AS extraction_count
     , COUNT(DISTINCT library_id) AS library_count
-    , SUM(tally) AS tally
+    , SUM(read_count) AS read_count
   FROM contig_linkage
+  JOIN library USING (library_id)
   GROUP BY contig_id, contig_id_linked
 ;

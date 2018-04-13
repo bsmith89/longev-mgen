@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def load_data(data_path, length_path, min_length):
     # Load from file.
-    data = pd.read_csv(args.data_path, index_col='contig_id')
+    data = pd.read_table(args.data_path, index_col='contig_id')
     length = pd.read_table(args.length_path, index_col='contig_id').length
     # Align indices.
     length = length.loc[data.index]
@@ -34,6 +34,7 @@ def _fit_gmm(data, max_nbins, alpha=None, seed=None):
     logger.info('Fitting a VBGMM model:'
                 f' max_nbins={max_nbins}, alpha={alpha}, seed={seed}')
     model = BayesianGaussianMixture(max_nbins, covariance_type='full',
+                                    weight_concentration_prior_type='dirichlet_process',
                                     weight_concentration_prior=alpha,
                                     random_state=seed,
                                     verbose=2, verbose_interval=1)
@@ -125,9 +126,6 @@ if __name__ == "__main__":
     parser.add_argument('data_path', metavar='CONCOCT_PCA_TRANSFORM_CSV')
     parser.add_argument('length_path', metavar='CONTIG_LENGTH_TSV')
     parser.add_argument('--min-length', type=int, default=0)
-    parser.add_argument('--min-bin-size', type=int, default=100000,
-                        help=('the minimum size (in bp) of a cluster'
-                              ' (default: %(default)s)'))
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--verbosity', default='DEBUG')
     parser.add_argument('--summary',
@@ -143,6 +141,8 @@ if __name__ == "__main__":
                         help=('concentration parameter on number of'
                               'componenets; defaults to 0 meaning 1/MAX_NBINS')
                         )
+    parser.add_argument('--outfile', '-o', type=argparse.FileType('w'),
+                        default=sys.stdout)
 
     args = parser.parse_args()
 
@@ -156,20 +156,17 @@ if __name__ == "__main__":
     if args.alpha <= 0:
         args.alpha = None
 
-    all_clusters = cluster_gmm(data, length,
-                               max_nbins=args.max_nbins,
-                               alpha=args.alpha,
-                               seed=args.seed,
-                               frac=args.frac,
-                               prob_min=args.prob_min,
-                               )
+    clusters = cluster_gmm(data, length,
+                           max_nbins=args.max_nbins,
+                           alpha=args.alpha,
+                           seed=args.seed,
+                           frac=args.frac,
+                           prob_min=args.prob_min,
+                           )
 
-    filt_clusters = filt_by_total_size(all_clusters, length,
-                                       min_bin_size=args.min_bin_size,
-                                       )
-    filt_clusters = rename_clusters(filt_clusters, length)
-    cluster_summary = summarize_clusters(filt_clusters, length)
+    clusters = rename_clusters(clusters, length)
+    cluster_summary = summarize_clusters(clusters, length)
 
     if args.summary:
         cluster_summary.to_csv(args.summary, sep='\t')
-    filt_clusters.to_csv(sys.stdout, sep='\t', header=True)
+    clusters.to_csv(args.outfile, sep='\t', header=True)

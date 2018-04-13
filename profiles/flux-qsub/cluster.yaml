@@ -2,22 +2,31 @@ __default__:
   queue: 'fluxm'
   alloc: 'schmidti_fluxm'
   walltime: '00:02:00:00'
-  pmem: 24000
+  pmem: 10000
   ppn: '{threads}'
   mail_options: 'n'
   user_list: 'bjsm@umich.edu'
   stdout_file: '/dev/null'
   stderr_file: '/dev/null'
 assemble_mgen:
+    pmem: 25000
     walltime: '04:00:00:00'
+deduplicate_reads:
+    pmem: 25000
 bowtie_index_build:
     walltime: '00:04:00:00'
-backmap_reads_to_assembly:
+map_reads_to_assembly:
     walltime: '00:04:00:00'
-    ppn: '4'
+    ppn: 4
 transform_contig_space:
-    walltime: '00:05:00:00'
-bin_contigs:
-    walltime: '02:00:00:00'
+    walltime: '00:10:00:00'
+cluster_contigs:
+    pmem: 25000
+    walltime: '03:00:00:00'
 checkm_bins:
     walltime: '01:00:00:00'
+checkm_content_merge:
+    walltime: '12:00:00:00'
+annotate_bin:
+    walltime: '00:01:00:00'
+    ppn: 4

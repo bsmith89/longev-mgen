@@ -34,6 +34,7 @@ config['ormerod'] = \
         'M8'                                          : 'LUJS01000000',
         'M9'                                          : 'LUJT01000000',
         'Candidatus_Homeothermus_arabinoxylanisolvens': 'LUJO01000000',
+        'Muribaculum_intestinale'                     : 'CP021421',
         }
 
 config['marker_gene'] = {}

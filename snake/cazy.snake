@@ -1,0 +1,34 @@
+rule download_dbCAN_hmm:
+    output: "raw/ref/dbCAN-fam-HMMs.txt"
+    params:
+        url = "http://csbl.bmb.uga.edu/dbCAN/download/dbCAN-fam-HMMs.txt"
+    shell:
+        "curl '{params.url}' > {output}"
+
+rule link_dbCAN_hmm:
+    output: "ref/dbCANfam.hmm"
+    input: "raw/ref/dbCAN-fam-HMMs.txt"
+    shell:
+        "ln -rsf {input} {output}"
+
+rule press_dbCAN_hmm:
+    output: "ref/dbCANfam.hmm.h3f", "ref/dbCANfam.hmm.h3i", "ref/dbCANfam.hmm.h3m", "ref/dbCANfam.hmm.h3p"
+    input: "ref/dbCANfam.hmm"
+    shell:
+        "hmmpress {input}"
+
+rule search_dbCAN_hmm:
+    output: "res/{stem}.prokka.d/{name}.d/dbcan.txt"
+    input:
+        faa = "res/{stem}.prokka.d/{name}.d/prokka.faa",
+        hmm = "ref/dbCANfam.hmm",
+        h3f = "ref/dbCANfam.hmm.h3f",
+        h3i = "ref/dbCANfam.hmm.h3i",
+        h3m = "ref/dbCANfam.hmm.h3m",
+        h3p = "ref/dbCANfam.hmm.h3p"
+    threads: 10
+    shell:
+        """
+        hmmsearch --cut_nc --cpu {threads} {input.hmm} {input.faa} > {output}
+        """
+

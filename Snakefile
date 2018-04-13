@@ -32,6 +32,7 @@ include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
 include: 'snake/ormerod.snake'
+include: 'snake/cazy.snake'
 
 # {{{1 Utility rules/recipes/templates
 

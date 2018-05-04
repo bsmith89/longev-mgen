@@ -546,10 +546,10 @@ rule rename_clusters_to_bins:
         """
 
 rule split_out_bins:
-    output: 'seq/{stem}.{bins,m?bins}.d'
+    output: 'seq/{stem}.bins.d'
     input:
         script='scripts/fetch_bin.sh',
-        bins='res/{stem}.{bins}.tsv',
+        bins='res/{stem}.bins.tsv',
         contigs='seq/{stem}.fn',
     threads: max_threads
     shell:
@@ -566,10 +566,9 @@ rule split_out_bins:
 
 rule checkm_bins:
     output:
-        outdir=temp('res/{stem}.{bins}.checkm.d'),
-        summary='res/{stem}.{bins}.checkm.tsv'
-    wildcard_constraints: bins='m?bins'
-    input: 'seq/{stem}.{bins}.d'
+        outdir=temp('res/{stem}.bins.checkm.d'),
+        summary='res/{stem}.bins.checkm.tsv'
+    input: 'seq/{stem}.bins.d'
     threads: max_threads
     shell:
         r"""
@@ -611,18 +610,12 @@ rule checkm_content_merge:
         sed '1,1d' {output.checkm_work}/merger.tsv | cut -f1,2,9 >> {output.merge_stats}
         """
 
-rule checkm_merge_bins:
-    output: 'res/{stem}.mbins.tsv'
-    input:
-        script='scripts/merge_bins_by_checkm.py',
-        bins='res/{stem}.bins.tsv',
-        merge_list='res/{stem}.bins.checkm_merge_stats.tsv',
-    params:
-        min_complete_delta=30,
-        max_contam_delta=2,
+rule compile_merge_stats:
+    output: 'res/{stem}.bin_merge_stats.tsv'
+    input: sql='scripts/query_bin_merger.sql', db='res/{stem}.1.denorm.db'
     shell:
         """
-        {input.script} {input.bins} {input.merge_list} {params.min_complete_delta} {params.max_contam_delta} > {output}
+        sqlite3 -header -separator '\t' {input.db} < {input.sql} > {output}
         """
 
 

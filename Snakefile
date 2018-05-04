@@ -534,7 +534,7 @@ rule rename_clusters_to_bins:
     output: 'res/{stem}.{contigs,s?contigs}.bins.tsv'
     input: 'res/{stem}.{contigs}.cluster.tsv'
     params:
-        padding=4,
+        padding=5
     shell:
         r"""
         awk -v OFS='\t' \

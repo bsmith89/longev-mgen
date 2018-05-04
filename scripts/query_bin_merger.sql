@@ -16,6 +16,6 @@ JOIN bin_checkm AS d1 ON d1.bin_id = bin_id_1
 JOIN bin_checkm AS d2 ON d2.bin_id = bin_id_2
 JOIN (SELECT bin_id, SUM(coverage) AS coverage FROM bin_coverage GROUP BY bin_id) AS c1 ON c1.bin_id = bin_id_1
 JOIN (SELECT bin_id, SUM(coverage) AS coverage FROM bin_coverage GROUP BY bin_id) AS c2 ON c2.bin_id = bin_id_2
-JOIN bin_complementarity m ON m.bin_id = bin_id_1 AND m.bin_id_combined = bin_id_2
-ORDER BY read_count DESC
+LEFT JOIN bin_complementarity AS m ON m.bin_id = bin_id_1 AND m.bin_id_combined = bin_id_2
+ORDER BY read_count DESC, complementarity_score DESC
 ;

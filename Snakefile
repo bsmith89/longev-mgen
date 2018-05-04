@@ -594,6 +594,9 @@ rule generate_checkm_markerset:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
 # {{{3 Refine bins
+# TODO: Understand what field 9 in checkM output file is.
+# (I _think_ it's the difference between the increased completeness and the
+# increased contamination.)
 rule checkm_content_merge:
     output:
         checkm_work=temp('res/{stem}.bins.checkm_merge.d'),
@@ -616,6 +619,15 @@ rule compile_merge_stats:
     shell:
         """
         sqlite3 -header -separator '\t' {input.db} < {input.sql} > {output}
+        """
+
+
+rule manual_polish_bins:
+    output: 'chkpt/{stem}.{name}.fn'
+    input: 'res/{stem}.bins.checkm_merge_stats.tsv'
+    shell:
+        """
+        false  # {input} is new.  Create or touch {output} to declare that it's up-to-date.
         """
 
 

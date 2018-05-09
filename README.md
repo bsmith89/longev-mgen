@@ -172,3 +172,20 @@ How conservative should I be to answer my particular questions?
 I'm increasingly interested in looking at these large genomic
 differences.
 Maybe I should just grab everything into one OTU1 including the whole pangenome.
+
+# Proposal
+
+The mammalian gut microbiome is a complex ecological system that influences
+energy balance, pathogen resistance, and inflammation, among other processes
+with importance to host health.
+Understanding how the bacterial inhabitants of the gut respond to environmental
+perturbations is a major step in developing a predictive framework for
+microbiome-based therapies.
+Acarbose (ACA) is an alpha-amylase and alpha-glucosidase inhibitor that
+has been shown to increase the amount of starch entering the lower
+digestive system after a meal.
+In mice, rats, and humans, individuals treated with ACA have increased
+concentrations of short-chain fatty acids (SCFAs) in feces, presumably as
+a result of greater bacterial fermentation of this polysaccharide substrate.
+Interestingly, ACA increase median lifespan by 20% in male mice, and 5% in
+females.

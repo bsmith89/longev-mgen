@@ -1,6 +1,24 @@
+# Always ignore
+.DS_Store
+*.swp
+.ipynb_checkpoints/
+*.pyc
+*.html
+*.docx
+*.pdf
+*.log
+*.plan
+*.top
+
 .snakemake/
 log/
 raw/
+ref/
 res/
 seq/
 build/
+
+local.snake
+.venv
+src/*
+.Rproj.user

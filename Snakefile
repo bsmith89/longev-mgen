@@ -93,6 +93,20 @@ rule download_m_intestinale_genome:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
     shell: curl_recipe
 
+rule download_tigrfam:
+    output: "raw/ref/TIGRFAMs_14.0_HMM.tar.gz"
+    params:
+        url="ftp://ftp.jcvi.org/pub/data/TIGRFAMs/14.0_Release/TIGRFAMs_14.0_HMM.tar.gz"
+    shell:
+        curl_recipe
+
+rule extract_tigrfam_hmm:
+    output: "ref/hmm/TIGR{num}.hmm"
+    input: "raw/ref/TIGRFAMs_14.0_HMM.tar.gz"
+    shell:
+        """
+        tar -xzf {input} TIGR{wildcards.num}.HMM -O > {output}
+        """
 
 rule download_illumina_adapters:
     output: 'raw/ref/illumina_adapters.fn'
@@ -114,7 +128,8 @@ rule download_sra_data:
         """
 
 localrules: download_salask_reference, download_illumina_adapters,
-            download_mouse_reference, download_sra_data
+            download_mouse_reference, download_sra_data, download_tigrfam,
+            extract_tigrfam_hmm
 
 
 # {{{2 Raw data
@@ -602,6 +617,8 @@ rule manual_polish_bins:
 
 # {{{2 Annotation
 
+# TODO: Be more explicit than {stem} in the below:
+
 # TODO: Output the individual files rather than the directory
 rule annotate_bin:
     output: 'res/{stem}.bins.prokka.d/{bin_id}.d'
@@ -623,6 +640,139 @@ rule extract_ec_numbers:
         """
         grep eC_number {input}/{wildcards.bin_id}.gff  | cut -f9 | cut -d';' -f2 | cut -d'=' -f2 | awk '{{print "ec:"$1}}' | sort > {output}
         """
+
+rule find_orfs:
+    output: nucl="{stem}.orfs.fn", prot="{stem}.orfs.fa"
+    input: "{stem}.fn"
+    shell:
+        "prodigal -q -p meta -i {input} -o /dev/null -d {output.nucl} -a {output.prot}"
+
+rule press_hmm:
+    output: "ref/hmm/{stem}.hmm.h3f",
+            "ref/hmm/{stem}.hmm.h3i",
+            "ref/hmm/{stem}.hmm.h3m",
+            "ref/hmm/{stem}.hmm.h3p"
+    input: "ref/hmm/{stem}.hmm"
+    shell:
+        "hmmpress {input}"
+
+rule search_hmm:
+    output: "res/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv"
+    wildcard_constraints:
+        cutoff='ga|nc|tc'
+    input:
+        faa = "seq/{stem}.fa",
+        hmm = "ref/hmm/{hmm}.hmm",
+        h3f = "ref/hmm/{hmm}.hmm.h3f",
+        h3i = "ref/hmm/{hmm}.hmm.h3i",
+        h3m = "ref/hmm/{hmm}.hmm.h3m",
+        h3p = "ref/hmm/{hmm}.hmm.h3p"
+    threads: 10
+    shell:
+        """
+        echo "orf_id\tmodel_id\tscore" > {output}
+        hmmsearch --cut_{wildcards.cutoff} \\
+                  --cpu {threads} \\
+                  --tblout >(grep -v '^#' | sed 's:\s\+:\\t:g' | cut -f1,3,6 >> {output}) \\
+                  {input.hmm} {input.faa} > /dev/null
+        """
+
+# {{{2 Sequences Analysis
+
+# "Permissive" means that we include low scoring and partial hits.
+# TODO: Are there cases where I want to pull this gene not permissively?
+rule gather_hit_orfs_permissive:
+    output:
+        nucl="seq/{stem}.orfs.{hmm}-hits.fn",
+        prot="seq/{stem}.orfs.{hmm}-hits.fa"
+    input:
+        hit_table="res/{stem}.orfs.{hmm}-hits.hmmer-nc.tsv",
+        nucl="seq/{stem}.orfs.fn",
+        prot="seq/{stem}.orfs.fa"
+    shell:
+        """
+        seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.nucl}
+        seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.prot}
+        """
+
+# rule gather_hit_complete_orfs:
+#     output:
+#         nucl="seq/{stem}.orfs.{hmm}-hits.fn",
+#         prot="seq/{stem}.orfs.{hmm}-hits.fa"
+#     input:
+#         hit_table="res/{stem}.orfs.{hmm}-hits.hmmer-ga.tsv",
+#         nucl="seq/{stem}.orfs.fn",
+#         prot="seq/{stem}.orfs.fa"
+#     shell:
+#         """
+#         seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1) | grep --no-group-separator -A1 'partial=00' > {output.nucl}
+#         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) | grep --no-group-separator -A1 'partial=00' > {output.prot}
+#         """
+#
+
+rule hmmalign_orfs:
+    output: "seq/{stem}.orfs.{hmm}-hits.afa",
+    input:
+        prot="seq/{stem}.orfs.{hmm}-hits.fa",
+        hmm="ref/hmm/{hmm}.hmm"
+    shell:
+        """
+        hmmalign --informat FASTA {input.hmm} {input.prot} | convert -f stockholm -t fasta > {output}
+        """
+
+rule codonalign:
+    output: "seq/{stem}.codonalign.afn"
+    input:
+        prot="seq/{stem}.afa",
+        nucl="seq/{stem}.fn"
+    shell:
+        "codonalign {input.prot} {input.nucl} > {output}"
+
+rule squeeze_codon_alignment:
+    output: "seq/{stem}.codonalign.sqz.afn"
+    input:
+        script="scripts/squeeze_alignment.py",
+        seq="seq/{stem}.codonalign.afn"
+    shell: "{input.script} '-.acgtu' < {input.seq} > {output}"
+
+rule squeeze_hmmalign_alignment:
+    output: "seq/{stem}.orfs.{hmm}-hits.sqz.afa"
+    wildcard_constraints:
+        hmm="[^.]*"
+    input:
+        script="scripts/squeeze_alignment.py",
+        seq="seq/{stem}.orfs.{hmm}-hits.afa"
+    shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
+
+rule estimate_phylogeny_afn:
+    output: "res/{stem}.sqz.nucl.nwk"
+    input: "seq/{stem}.sqz.afn"
+    shell: "FastTree -nt < {input} > {output}"
+
+rule estimate_phylogeny_afa:
+    output: "res/{stem}.sqz.prot.nwk"
+    input: "seq/{stem}.sqz.afa"
+    shell: "FastTree < {input} > {output}"
+
+# TODO: Am I sure I want to use the nucleotide tree for sorting?
+rule tree_sort_afn:
+    output: "seq/{stem}.tree-sort.afn"
+    input:
+        script="scripts/get_ordered_leaves.py",
+        tree="res/{stem}.nucl.nwk",
+        seqs="seq/{stem}.afn"
+    shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
+
+rule tree_sort_afa:
+    output: "seq/{stem}.tree-sort.afa"
+    input:
+        script="scripts/get_ordered_leaves.py",
+        tree="res/{stem}.prot.nwk",
+        seqs="seq/{stem}.afa"
+    shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
+
+
+
 
 
 # {{{1 Compile all data

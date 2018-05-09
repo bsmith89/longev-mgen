@@ -5,10 +5,17 @@ import pandas as pd
 
 # {{{1 Configuration
 
+# {{{2 Nomenclature
+
+wildcard_constraints:
+    group='[^.]+',
+    library='[^.]+'
+
 # {{{2 Params
 
 # Default params
 max_threads = 30
+
 
 # {{{2 Project configuration
 
@@ -180,12 +187,17 @@ rule quality_trim_reads:
 # {{{3 Aliasing after processing
 
 # This processing intended for mapping.
-rule alias_read_processing:
-    output: 'seq/{library_id}.m.{r}.proc.fq.gz'
-    input: 'seq/{library_id}.m.{r}.dedup.deadapt.qtrim.fq.gz'
+rule alias_read_processing_r1:
+    output: 'seq/{library_id}.m.r1.proc.fq.gz'
+    input: 'seq/{library_id}.m.r1.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
 
-localrules: alias_read_processing
+rule alias_read_processing_r2:
+    output: 'seq/{library_id}.m.r2.proc.fq.gz'
+    input: 'seq/{library_id}.m.r2.dedup.deadapt.qtrim.fq.gz'
+    shell: alias_recipe
+
+localrules: alias_read_processing_r1, alias_read_processing_r2
 
 # {{{2 Assembly
 
@@ -193,23 +205,23 @@ localrules: alias_read_processing
 
 rule assemble_mgen:
     output:
-        fasta='seq/{group}.a.{proc}.contigs.fn',
-        outdir=temp('seq/{group}.a.{proc}.megahit.d'),
-        fastg='seq/{group}.a.{proc}.contigs.fg',
+        fasta='seq/{group}.a.contigs.fn',
+        outdir=temp('seq/{group}.a.megahit.d'),
+        fastg='seq/{group}.a.contigs.fg',
     wildcard_constraints:
         group='[^.]+',
     input:
-        lambda wildcards: [f'seq/{library}.m.{read}.{wildcards.proc}.fq.gz'
+        lambda wildcards: [f'seq/{library}.m.{read}.proc.fq.gz'
                            for library, read
                            in product(config['asmbl_group'][wildcards.group],
                                       ['r1', 'r2'])
                           ]
-    log: 'log/{group}.a.{proc}.log'
+    log: 'log/{group}.a.megahit.log'
     threads: max_threads
     params:
-        r1=lambda wildcards: ','.join([f'seq/{library}.m.r1.{wildcards.proc}.fq.gz'
+        r1=lambda wildcards: ','.join([f'seq/{library}.m.r1.proc.fq.gz'
                                       for library in config['asmbl_group'][wildcards.group]]),
-        r2=lambda wildcards: ','.join([f'seq/{library}.m.r2.{wildcards.proc}.fq.gz'
+        r2=lambda wildcards: ','.join([f'seq/{library}.m.r2.proc.fq.gz'
                                       for library in config['asmbl_group'][wildcards.group]]),
     shell:
         r"""
@@ -226,38 +238,18 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
-rule fragment_contigs:
-    output: 'seq/{stem}.scontigs.fn'
-    input: seqs='seq/{stem}.contigs.fn', script='scripts/fragment_seqs.py'
-    params:
-        length=10000, overlap=1000
-    shell:
-        """
-        {input.script} {params.length} {params.overlap} {input.seqs} > {output}
-        """
-
-localrules: fragment_contigs
-
 # {{{3 QC Assembly
 
 rule quality_asses_assembly_with_spike:
-    output: 'res/{stem}.{contigs,s?contigs}.metaquast.d'
-    input: contigs='seq/{stem}.{contigs}.fn', ref='raw/ref/salask.fn'
+    output: 'res/{group}.a.contigs.metaquast.d'
+    wildcard_constraints:
+        group='[^.]+',
+    input: contigs='seq/{group}.a.contigs.fn', ref='raw/ref/salask.fn'
     threads: max_threads
     params: min_contig_length=1000,
     shell:
         """
         metaquast.py --threads={threads} --min-contig {params.min_contig_length} -R {input.ref} --output-dir {output} {input.contigs}
-        """
-
-rule quality_asses_assembly:
-    output: 'res/{stem}.{contigs,s?contigs}.metaquast2.d'
-    input: contigs='seq/{stem}.{contigs}.fn'
-    threads: max_threads
-    params: min_contig_length=1000,
-    shell:
-        """
-        metaquast.py --threads={threads} --min-contig {params.min_contig_length} --output-dir {output} {input.contigs}
         """
 
 # {{{2 Mapping
@@ -266,42 +258,44 @@ rule quality_asses_assembly:
 
 rule bowtie_index_build:
     output:
-        'seq/{stem}.1.bt2',
-        'seq/{stem}.2.bt2',
-        'seq/{stem}.3.bt2',
-        'seq/{stem}.4.bt2',
-        'seq/{stem}.rev.1.bt2',
-        'seq/{stem}.rev.2.bt2'
-    input: 'seq/{stem}.fn'
-    log: 'log/{stem}.bowtie2-build.log'
+        'seq/{group}.a.contigs.1.bt2',
+        'seq/{group}.a.contigs.2.bt2',
+        'seq/{group}.a.contigs.3.bt2',
+        'seq/{group}.a.contigs.4.bt2',
+        'seq/{group}.a.contigs.rev.1.bt2',
+        'seq/{group}.a.contigs.rev.2.bt2'
+    wildcard_constraints:
+        group='[^.]+',
+    input: 'seq/{group}.a.contigs.fn'
+    log: 'log/{group}.a.contigs.bowtie2-build.log'
     threads: min(max_threads, 14)
     shell:
         """
-        bowtie2-build --threads {threads} {input} seq/{wildcards.stem} >{log} 2>&1
+        bowtie2-build --threads {threads} {input} seq/{wildcards.group}.a.contigs >{log} 2>&1
         """
 
 # {{{3 Backmap to an assembly
 
 # Backmap with assembly from reads processed identically
 rule map_reads_to_assembly:
-    output: 'res/{library}.m.{proc}.{group}-map.sort.bam'
+    output: 'res/{library}.m.{group}-map.sort.bam'
     wildcard_constraints:
         library='[^.]+',
         group='[^.]+'
     input:
-        r1='seq/{library}.m.r1.{proc}.fq.gz',
-        r2='seq/{library}.m.r2.{proc}.fq.gz',
-        inx_1='seq/{group}.a.{proc}.contigs.1.bt2',
-        inx_2='seq/{group}.a.{proc}.contigs.2.bt2',
-        inx_3='seq/{group}.a.{proc}.contigs.3.bt2',
-        inx_4='seq/{group}.a.{proc}.contigs.4.bt2',
-        inx_rev1='seq/{group}.a.{proc}.contigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.{proc}.contigs.rev.2.bt2'
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.contigs.1.bt2',
+        inx_2='seq/{group}.a.contigs.2.bt2',
+        inx_3='seq/{group}.a.contigs.3.bt2',
+        inx_4='seq/{group}.a.contigs.4.bt2',
+        inx_rev1='seq/{group}.a.contigs.rev.1.bt2',
+        inx_rev2='seq/{group}.a.contigs.rev.2.bt2'
     threads: max_threads
     shell:
         r"""
         bowtie2 --threads {threads} \
-                -x seq/{wildcards.group}.a.{wildcards.proc}.contigs \
+                -x seq/{wildcards.group}.a.contigs \
                 -1 {input.r1} -2 {input.r2} \
             | samtools sort --output-fmt=BAM -o {output}
         """
@@ -311,8 +305,11 @@ rule map_reads_to_assembly:
 
 
 rule tally_links:
-    output: 'res/{library}.m.{stem}.linkage_tally.tsv'
-    input: 'res/{library}.m.{stem}.bam'
+    output: 'res/{library}.m.{group}-map.linkage_tally.tsv'
+    wildcard_constraints:
+        library='[^.]+',
+        group='[^.]+'
+    input: 'res/{library}.m.{group}-map.bam'
     params: min_hits=1, min_quality=40
     shell:
         r"""
@@ -342,9 +339,9 @@ rule tally_links:
         """
 
 rule combine_linkage_tallies:
-    output: 'res/{group}.a.{proc}.{group}-map.sort.linkage_tally.tsv'
+    output: 'res/{group}.a.linkage_tally.tsv'
     input:
-        lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.sort.linkage_tally.tsv'
+        lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.linkage_tally.tsv'
                            for library in config['asmbl_group'][wildcards.group]
                           ]
     shell:
@@ -394,30 +391,14 @@ rule calculate_mapping_depth:
         """
 
 rule estimate_contig_cvrg:
-    output: 'res/{library}.m.{proc}.{group}-map.cvrg.tsv'
+    output: 'res/{library}.m.{group}-map.cvrg.tsv'
     wildcard_constraints:
         library='[^.]+',
         group='[^.]+'
     input:
         script='scripts/estimate_contig_coverage.py',
-        depth='res/{library}.m.{proc}.{group}-map.depth.tsv',
-        length='res/{group}.a.{proc}.contigs.nlength.tsv'
-    params:
-        float_fmt='%.6g'
-    shell:
-        """
-        {input.script} {input.depth} {input.length} {params.float_fmt} > {output}
-        """
-
-rule estimate_fragmented_contig_cvrg:
-    output: 'res/{library}.m.{proc}.{group}-map.frag.cvrg.tsv'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+'
-    input:
-        script='scripts/estimate_contig_coverage.py',
-        depth='res/{library}.m.{proc}.{group}-map.frag.depth.tsv',
-        length='res/{group}.a.{proc}.scontigs.nlength.tsv'
+        depth='res/{library}.m.{group}-map.depth.tsv',
+        length='res/{group}.a.contigs.nlength.tsv'
     params:
         float_fmt='%.6g'
     shell:
@@ -426,30 +407,12 @@ rule estimate_fragmented_contig_cvrg:
         """
 
 rule combine_cvrg:
-    output: 'res/{group}.a.{proc}.contigs.cvrg.tsv'
+    output: 'res/{group}.a.contigs.cvrg.tsv'
     wildcard_constraints:
         group='[^.]+'
     input:
         script='scripts/concat_tables.py',
-        tables=lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.cvrg.tsv'
-                                  for library
-                                  in config['asmbl_group'][wildcards.group]
-                                 ]
-    shell:
-        r"""
-        printf 'library_id\tcontig_id\tcoverage\n' > {output}
-        for file in {input.tables}; do
-            awk -v OFS='\t' -v library_id=$(basename ${{file%%.*}}) 'FNR > 1 {{print library_id, $0}}' $file >> {output}
-        done
-        """
-
-rule combine_fragmented_cvrg:
-    output: 'res/{group}.a.{proc}.scontigs.cvrg.tsv'
-    wildcard_constraints:
-        group='[^.]+'
-    input:
-        script='scripts/concat_tables.py',
-        tables=lambda wildcards: [f'res/{library}.m.{wildcards.proc}.{wildcards.group}-map.frag.cvrg.tsv'
+        tables=lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.cvrg.tsv'
                                   for library
                                   in config['asmbl_group'][wildcards.group]
                                  ]
@@ -462,10 +425,12 @@ rule combine_fragmented_cvrg:
         """
 
 rule unstack_cvrg:
-    output: 'res/{stem}.{contigs,s?contigs}.cvrg.unstack.tsv'
+    output: 'res/{group}.a.contigs.cvrg.unstack.tsv'
+    wildcard_constraints:
+        group='[^.]+'
     input:
         script='scripts/unstack_cvrg.py',
-        cvrg='res/{stem}.{contigs}.cvrg.tsv',
+        cvrg='res/{group}.a.contigs.cvrg.tsv',
     params:
         float_format='%.6g'
     shell:
@@ -479,14 +444,14 @@ rule unstack_cvrg:
 
 rule transform_contig_space:
     output:
-        pca='res/{stem}.{contigs}.concoct.pca.tsv',
-        raw='res/{stem}.{contigs}.concoct.tsv',
-        dir=temp('res/{stem}.{contigs}.concoct.d')
+        pca='res/{group}.a.contigs.concoct.pca.tsv',
+        raw='res/{group}.a.contigs.concoct.tsv',
+        dir=temp('res/{group}.a.contigs.concoct.d')
     wildcard_constraints:
-        contigs='s?contigs'
+        group='[^.]+'
     input:
-        cvrg='res/{stem}.{contigs}.cvrg.unstack.tsv',
-        seqs='seq/{stem}.{contigs}.fn'
+        cvrg='res/{group}.a.contigs.cvrg.unstack.tsv',
+        seqs='seq/{group}.a.contigs.fn'
     threads: max_threads
     params:
         length_threshold=1000
@@ -505,13 +470,15 @@ rule transform_contig_space:
 
 rule cluster_contigs:
     output:
-        out='res/{stem}.{contigs,s?contigs}.cluster.tsv',
-        summary='res/{stem}.{contigs}.cluster.summary.tsv',
+        out='res/{group}.a.contigs.cluster.tsv',
+        summary='res/{group}.a.contigs.cluster.summary.tsv',
+    wildcard_constraints:
+        group='[^.]+'
     input:
         script='scripts/cluster_contigs.py',
-        pca='res/{stem}.{contigs}.concoct.pca.tsv',
-        length='res/{stem}.{contigs}.nlength.tsv',
-    log: 'log/{stem}.{contigs}.cluster.log'
+        pca='res/{group}.a.contigs.concoct.pca.tsv',
+        length='res/{group}.a.contigs.nlength.tsv',
+    log: 'log/{group}.a.contigs.cluster.log'
     params:
         min_contig_length=1000,
         frac=0.10,
@@ -531,8 +498,10 @@ rule cluster_contigs:
         """
 
 rule rename_clusters_to_bins:
-    output: 'res/{stem}.{contigs,s?contigs}.bins.tsv'
-    input: 'res/{stem}.{contigs}.cluster.tsv'
+    output: 'res/{group}.a.contigs.bins.tsv'
+    wildcard_constraints:
+        group='[^.]+'
+    input: 'res/{group}.a.contigs.cluster.tsv'
     params:
         padding=5
     shell:
@@ -546,11 +515,11 @@ rule rename_clusters_to_bins:
         """
 
 rule split_out_bins:
-    output: 'seq/{stem}.bins.d'
+    output: 'seq/{group}.a.bins.d'
     input:
         script='scripts/fetch_bin.sh',
-        bins='res/{stem}.bins.tsv',
-        contigs='seq/{stem}.fn',
+        bins='res/{group}.a.contigs.bins.tsv',
+        contigs='seq/{group}.a.contigs.fn',
     threads: max_threads
     shell:
         r"""
@@ -566,9 +535,9 @@ rule split_out_bins:
 
 rule checkm_bins:
     output:
-        outdir=temp('res/{stem}.bins.checkm.d'),
-        summary='res/{stem}.bins.checkm.tsv'
-    input: 'seq/{stem}.bins.d'
+        outdir=temp('res/{group}.a.bins.checkm.d'),
+        summary='res/{group}.a.bins.checkm.tsv'
+    input: 'seq/{group}.a.bins.d'
     threads: max_threads
     shell:
         r"""
@@ -580,8 +549,8 @@ rule checkm_bins:
         """
 
 rule reformat_checkm_output:
-    output: 'res/{stem}.checkm_details.tsv'
-    input: 'res/{stem}.checkm.tsv'
+    output: 'res/{group}.a.bins.checkm_details.tsv'
+    input: 'res/{group}.a.bins.checkm.tsv'
     shell:
         """
         cut -f1,4,12-15 {input} > {output}
@@ -599,10 +568,10 @@ rule generate_checkm_markerset:
 # increased contamination.)
 rule checkm_content_merge:
     output:
-        checkm_work=temp('res/{stem}.bins.checkm_merge.d'),
-        merge_stats='res/{stem}.bins.checkm_merge_stats.tsv',
+        checkm_work=temp('res/{group}.a.bins.checkm_merge.d'),
+        merge_stats='res/{group}.a.bins.checkm_merge_stats.tsv',
     input:
-        bins='seq/{stem}.bins.d',
+        bins='seq/{group}.a.bins.d',
         markerset='res/domain_Bacteria.ms',
     threads: max_threads
     shell:
@@ -614,8 +583,8 @@ rule checkm_content_merge:
         """
 
 rule compile_merge_stats:
-    output: 'res/{stem}.bin_merge_stats.tsv'
-    input: sql='scripts/query_bin_merger.sql', db='res/{stem}.1.denorm.db'
+    output: 'res/{group}.a.bin_merge_stats.tsv'
+    input: sql='scripts/query_bin_merger.sql', db='res/{group}.1.denorm.db'
     shell:
         """
         sqlite3 -header -separator '\t' {input.db} < {input.sql} > {output}
@@ -623,8 +592,8 @@ rule compile_merge_stats:
 
 
 rule manual_polish_bins:
-    output: 'chkpt/{stem}.{name}.fn'
-    input: 'res/{stem}.bins.checkm_merge_stats.tsv'
+    output: 'chkpt/{group}.a.{name}.fn'
+    input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         false  # {input} is new.  Create or touch {output} to declare that it's up-to-date.
@@ -688,12 +657,12 @@ rule generate_database_1:
     output: 'res/{group}.1.db'
     input:
         db='res/{group}.0.db',
-        contig='res/{group}.a.proc.contigs.nlength.noheader.tsv',
-        contig_bin='res/{group}.a.proc.contigs.bins.noheader.tsv',
-        contig_coverage='res/{group}.a.proc.contigs.cvrg.noheader.tsv',
-        bin_checkm='res/{group}.a.proc.contigs.bins.checkm_details.noheader.tsv',
-        contig_linkage='res/{group}.a.proc.core-map.sort.linkage_tally.noheader.tsv',
-        checkm_merge='res/{group}.a.proc.contigs.bins.checkm_merge_stats.noheader.tsv',
+        contig='res/{group}.a.contigs.nlength.noheader.tsv',
+        contig_bin='res/{group}.a.contigs.bins.noheader.tsv',
+        contig_coverage='res/{group}.a.contigs.cvrg.noheader.tsv',
+        bin_checkm='res/{group}.a.contigs.bins.checkm_details.noheader.tsv',
+        contig_linkage='res/{group}.a.core-map.linkage_tally.noheader.tsv',
+        checkm_merge='res/{group}.a.contigs.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
         tmpfile=$(mktemp -p $TMPDIR)

@@ -71,6 +71,9 @@ localrules: drop_header, drop_header_meta
 
 ruleorder: drop_header_meta > drop_header
 
+rule start_jupyter:
+    jupyter notebook --config=nb/jupyter_notebook_config.py --notebook-dir=nb/
+
 # Here we have a template for aliasing
 alias_recipe = "ln -rs {input} {output}"
 alias_fmt = lambda input, output: alias_recipe.format(input=input, output=output)

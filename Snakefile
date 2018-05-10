@@ -791,7 +791,7 @@ rule generate_database_0:
         extraction='res/extraction.noheader.tsv',
         library='res/library.noheader.tsv',
         asmbl_group='res/asmbl_group.noheader.tsv',
-        rrs_taxon_rabund='res/{group}.r.rabund.noheader.tsv',
+        rrs_taxon_count='res/{group}.r.count.noheader.tsv',
     shell:
         r"""
         rm -f {output}
@@ -806,7 +806,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.extraction} extraction
 .import {input.library} library
 .import {input.asmbl_group} library_asmbl_group
-.import {input.rrs_taxon_rabund} rrs_taxon_rabund
+.import {input.rrs_taxon_count} rrs_taxon_count
 ANALYZE;
              ' \
         | sqlite3 {output}

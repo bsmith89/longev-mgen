@@ -86,14 +86,15 @@ CREATE TABLE contig_bin
   );
 CREATE INDEX idx_contig_bin__bin_id ON contig_bin(bin_id);
 
-CREATE TABLE rrs_taxon_rabund
+CREATE TABLE rrs_taxon_count
   ( extraction_id TEXT
-  , taxon_id TEXT
-  , relative_abundance FLOAT
+  , sequence_id TEXT
+  , otu_id TEXT
+  , tally INT
 
-  , PRIMARY KEY (extraction_id, taxon_id)
-  );
-CREATE INDEX idx_rrs_taxon_rabund__taxon_id ON rrs_taxon_rabund(taxon_id);
+  PRIMARY KEY (extraction_id, sequence_id)
+  )
+CREATE INDEX idx_rrs_taxon_count__sequence_id ON rrs_taxon_count(sequence_id);
 
 CREATE TABLE _contig_linkage
   ( contig_id_1        TEXT REFERENCES contig(contig_id)

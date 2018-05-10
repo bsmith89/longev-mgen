@@ -797,7 +797,7 @@ rule generate_database_0:
         extraction='res/extraction.noheader.tsv',
         library='res/library.noheader.tsv',
         asmbl_group='res/asmbl_group.noheader.tsv',
-        rrs_taxon_count='res/{group}.r.count.noheader.tsv',
+        rrs_taxon_count='res/core.r.count.noheader.tsv',
     shell:
         r"""
         rm -f {output}

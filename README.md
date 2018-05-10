@@ -1,3 +1,13 @@
+# TODO
+
+-   [ ] Import unique sequence abundance, taxonomy, and OTU abundance from longev 16S results
+-   [ ] Automate bin combination w/ 16S results
+-   [ ] Look for evidence of strain variation in gene content
+-   [ ] File rather than directory based PROKKA output
+-   [ ] COGs to Modules
+-   [ ] Check OTU-2 bin assembly against Lactobacillus johnsonii
+-   [ ] "Strain resolved analysis of an abundant Muribaculaceae species across murine hosts"
+
 # Bin refinement
 
 TODO: Encapsulate this work in a script/recipes.

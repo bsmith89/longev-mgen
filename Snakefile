@@ -147,6 +147,8 @@ rule alias_raw_read_r2:
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r2'])
     shell: alias_recipe
 
+localrules: alias_raw_read_r1, alias_raw_read_r2, link_rabund_info
+
 # {{{3 Import results from 16S libraries
 
 rule query_count_info:
@@ -154,7 +156,7 @@ rule query_count_info:
     input: script='scripts/query_longev_rrs_count.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
 
-localrules: alias_raw_read_r1, alias_raw_read_r2, link_rabund_info
+localrules: query_count_info
 
 # {{{1 Metagenomics
 
@@ -601,13 +603,15 @@ rule checkm_content_merge:
         sed '1,1d' {output.checkm_work}/merger.tsv | cut -f1,2,9 >> {output.merge_stats}
         """
 
-rule compile_merge_stats:
+rule query_merge_stats:
     output: 'res/{group}.a.bin_merge_stats.tsv'
     input: sql='scripts/query_bin_merger.sql', db='res/{group}.1.denorm.db'
     shell:
         """
         sqlite3 -header -separator '\t' {input.db} < {input.sql} > {output}
         """
+
+localrules: query_merge_stats
 
 
 rule manual_polish_bins:
@@ -617,6 +621,8 @@ rule manual_polish_bins:
         """
         false  # {input} is new.  Create or touch {output} to declare that it's up-to-date.
         """
+
+localrules: manual_polish_bins
 
 
 # {{{2 Annotation

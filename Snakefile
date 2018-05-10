@@ -854,5 +854,6 @@ rule denormalize_database:
         tmpfile=$(mktemp -p $TMPDIR)
         cp {input.db} $tmpfile
         cat <(echo "PRAGMA cache_size = 1000000;") {input.script} | sqlite3 $tmpfile
+        sqlite3 $tmpfile "VACUUM; ANALYZE;"
         cp $tmpfile {output}
         """

@@ -147,11 +147,12 @@ rule alias_raw_read_r2:
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r2'])
     shell: alias_recipe
 
-# See scripts/query_longev_rrs_relative_abundance.sql
-rule link_rabund_info:
-    output: 'res/core.r.rabund.tsv'
-    input: 'raw/longev_rrs_relative_abundance.tsv'
-    shell: alias_recipe
+# {{{3 Import results from 16S libraries
+
+rule query_count_info:
+    output: 'res/core.r.count.tsv'
+    input: script='scripts/query_longev_rrs_count.sql', db='raw/longev_rrs_results.db'
+    shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
 
 localrules: alias_raw_read_r1, alias_raw_read_r2, link_rabund_info
 

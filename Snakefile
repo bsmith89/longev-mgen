@@ -328,7 +328,7 @@ rule tally_links:
     wildcard_constraints:
         library='[^.]+',
         group='[^.]+'
-    input: 'res/{library}.m.{group}-map.bam'
+    input: 'res/{library}.m.{group}-map.sort.bam'
     params: min_hits=1, min_quality=40
     shell:
         r"""
@@ -820,9 +820,9 @@ rule generate_database_1:
         contig='res/{group}.a.contigs.nlength.noheader.tsv',
         contig_bin='res/{group}.a.contigs.bins.noheader.tsv',
         contig_coverage='res/{group}.a.contigs.cvrg.noheader.tsv',
-        bin_checkm='res/{group}.a.contigs.bins.checkm_details.noheader.tsv',
-        contig_linkage='res/{group}.a.core-map.linkage_tally.noheader.tsv',
-        checkm_merge='res/{group}.a.contigs.bins.checkm_merge_stats.noheader.tsv',
+        bin_checkm='res/{group}.a.bins.checkm_details.noheader.tsv',
+        contig_linkage='res/{group}.a.linkage_tally.noheader.tsv',
+        checkm_merge='res/{group}.a.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
         tmpfile=$(mktemp -p $TMPDIR)

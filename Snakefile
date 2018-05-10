@@ -156,7 +156,12 @@ rule query_count_info:
     input: script='scripts/query_longev_rrs_count.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
 
-localrules: query_count_info
+rule query_taxonomy_info:
+    output: 'res/core.r.taxonomy.tsv'
+    input: script='scripts/query_longev_rrs_taxonomy.sql', db='raw/longev_rrs_results.db'
+    shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
+
+localrules: query_count_info, query_taxonomy_info
 
 # {{{1 Metagenomics
 
@@ -798,6 +803,7 @@ rule generate_database_0:
         library='res/library.noheader.tsv',
         asmbl_group='res/asmbl_group.noheader.tsv',
         rrs_taxon_count='res/core.r.count.noheader.tsv',
+        rrs_taxonomy='res/core.r.taxonomy.noheader.tsv',
     shell:
         r"""
         rm -f {output}
@@ -813,6 +819,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.library} library
 .import {input.asmbl_group} library_asmbl_group
 .import {input.rrs_taxon_count} rrs_taxon_count
+.import {input.rrs_taxonomy} rrs_taxonomy
 ANALYZE;
              ' \
         | sqlite3 {output}

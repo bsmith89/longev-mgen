@@ -96,6 +96,16 @@ CREATE TABLE rrs_taxon_count
   );
 CREATE INDEX idx_rrs_taxon_count__sequence_id ON rrs_taxon_count(sequence_id);
 
+CREATE TABLE taxonomy
+  ( sequence_id TEXT PRIMARY KEY
+  , domain_ TEXT
+  , phylum_ TEXT
+  , class_ TEXT
+  , order_ TEXT
+  , family_ TEXT
+  , genus_ TEXT
+  );
+
 CREATE TABLE _contig_linkage
   ( contig_id_1        TEXT REFERENCES contig(contig_id)
   , contig_id_2        TEXT REFERENCES contig(contig_id)

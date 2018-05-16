@@ -23,10 +23,10 @@ transform_contig_space:
 cluster_contigs:
     pmem: 25000
     walltime: '03:00:00:00'
-checkm_bins:
+checkm_bins_or_mags:
     walltime: '01:00:00:00'
 checkm_content_merge:
     walltime: '12:00:00:00'
-annotate_bin:
+annotate_mag:
     walltime: '00:01:00:00'
     ppn: 4

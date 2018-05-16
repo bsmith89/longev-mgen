@@ -570,11 +570,13 @@ rule split_out_bins:
 
 # {{{3 QC bins
 
-rule checkm_bins:
+rule checkm_bins_or_mags:
     output:
-        outdir=temp('res/{group}.a.bins.checkm.d'),
-        summary='res/{group}.a.bins.checkm.tsv'
-    input: 'seq/{group}.a.bins.d'
+        outdir=temp('res/{stem}.{bins_or_mags}.checkm.d'),
+        summary='res/{stem}.{bins_or_mags}.checkm.tsv'
+    input: 'seq/{stem}.{bins_or_mags}.d'
+    wildcard_constraints:
+        bins_or_mags = 'bins|mags'
     threads: max_threads
     shell:
         r"""
@@ -630,15 +632,15 @@ rule query_merge_stats:
 localrules: query_merge_stats
 
 
-rule manual_polish_bins:
-    output: 'chkpt/{group}.a.{name}.fn'
+rule manually_construct_mag:
+    output: 'seq/{group}.a.mags.d/{bin_id}.fn'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
-        false  # {input} is new.  Create or touch {output} to declare that it's up-to-date.
+        false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-localrules: manual_polish_bins
+localrules: manually_construct_mag
 
 
 # {{{2 Annotation
@@ -646,26 +648,55 @@ localrules: manual_polish_bins
 # TODO: Be more explicit than {stem} in the below:
 
 # TODO: Output the individual files rather than the directory
-rule annotate_bin:
-    output: 'res/{stem}.bins.prokka.d/{bin_id}.d'
-    input: 'seq/{stem}.bins.d/{bin_id}.fn'
-    log: 'log/{bin_id}.prokka.log'
+rule annotate_mag:
+    output:
+        fa="seq/{stem}.mags.annot.d/{mag_id}.prokka.fa",
+        fn="seq/{stem}.mags.annot.d/{mag_id}.prokka.fn",
+        gbk="seq/{stem}.mags.annot.d/{mag_id}.prokka.gbk",
+        tbl="res/{stem}.mags.annot.d/{mag_id}.prokka.tbl",
+        tsv="res/{stem}.mags.annot.d/{mag_id}.prokka.tsv",
+        gff="res/{stem}.mags.annot.d/{mag_id}.prokka.gff",
+    input: "seq/{stem}.mags.d/{mag_id}.fn"
     threads: max_threads
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
-                --outdir {output} --prefix prokka \
-                --locustag {wildcards.bin_id} --rawproduct \
-                >{log} 2>&1
+                --outdir res/{wildcards.stem}.mags.prokka_temp.d --prefix {wildcards.mag_id} \
+                --locustag {wildcards.mag_id}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.faa {output.fa}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.ffn {output.fn}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.gbk {output.gbk}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.tbl {output.tbl}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.tsv {output.tsv}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.gff {output.gff}
         """
 
 rule extract_ec_numbers:
-    output: 'res/{stem}.{bin_id}.ec.list'
-    input: 'res/{stem}.bins.prokka.d/{bin_id}.d'
+    output: 'res/{stem}.ec.tsv'
+    input: 'res/{stem}.prokka.tsv'
     shell:
         """
-        grep eC_number {input}/{wildcards.bin_id}.gff  | cut -f9 | cut -d';' -f2 | cut -d'=' -f2 | awk '{{print "ec:"$1}}' | sort > {output}
+        cut -f1,5 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
         """
+
+rule extract_cogs:
+    output: 'res/{stem}.cogs.tsv'
+    input: 'res/{stem}.prokka.tsv'
+    shell:
+        """
+        cut -f1,6 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
+        """
+
+rule convert_cogs_to_ko:
+    output: 'res/{stem}.ko.tsv'
+    input: mapping='ref/cog_to_ko.tsv', cogs='res/{stem}.cogs.tsv'
+    shell:
+        """
+        join -t '\t' <(sort -k2 {input.cogs}) -1 2 <(sort -k1 {input.mapping}) -2 1 | cut -f2,3 > {output}
+        """
+
+
+localrules: extract_cogs, extract_ec_numbers
 
 rule find_orfs:
     output: nucl="{stem}.orfs.fn", prot="{stem}.orfs.fa"

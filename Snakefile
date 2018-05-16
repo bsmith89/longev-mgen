@@ -129,10 +129,21 @@ rule download_sra_data:
         """
         fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
         """
+rule download_cog_to_ko_mapping:
+    output: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
+    params:
+        url="http://pathways2.embl.de/data/cog_from_string7_to_ko20080319_filtered_005.txt.gz"
+    shell: curl_unzip_recipe
+
+rule alias_cog_to_ko_mapping:
+    output: 'ref/cog_to_ko.tsv'
+    input: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
+    shell: alias_recipe
+
 
 localrules: download_salask_reference, download_illumina_adapters,
             download_mouse_reference, download_sra_data, download_tigrfam,
-            extract_tigrfam_hmm
+            extract_tigrfam_hmm, download_cog_to_ko_mapping, alias_cog_to_ko_mapping
 
 
 # {{{2 Raw data

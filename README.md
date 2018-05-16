@@ -8,6 +8,12 @@
 -   [ ] Check OTU-2 bin assembly against Lactobacillus johnsonii
 -   [ ] "Strain resolved analysis of an abundant Muribaculaceae species across murine hosts"
 
+# Requirements
+
+-   prokka
+    -   With dbCAN family level database installed see http://csbl.bmb.uga.edu/dbCAN/download.php
+-   TODO
+
 # Bin refinement
 
 TODO: Encapsulate this work in a script/recipes.

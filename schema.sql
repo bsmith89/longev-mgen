@@ -92,7 +92,7 @@ CREATE TABLE rrs_taxon_count
   , otu_id TEXT
   , tally INT
 
-  PRIMARY KEY (extraction_id, sequence_id)
+  , PRIMARY KEY (extraction_id, sequence_id)
   );
 CREATE INDEX idx_rrs_taxon_count__sequence_id ON rrs_taxon_count(sequence_id);
 

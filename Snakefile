@@ -586,8 +586,8 @@ rule checkm_bins:
         """
 
 rule reformat_checkm_output:
-    output: 'res/{group}.a.bins.checkm_details.tsv'
-    input: 'res/{group}.a.bins.checkm.tsv'
+    output: 'res/{group}.checkm_details.tsv'
+    input: 'res/{group}.checkm.tsv'
     shell:
         """
         cut -f1,4,12-15 {input} > {output}
@@ -813,8 +813,8 @@ rule generate_database_0:
         extraction='res/extraction.noheader.tsv',
         library='res/library.noheader.tsv',
         asmbl_group='res/asmbl_group.noheader.tsv',
-        rrs_taxon_count='res/core.r.count.noheader.tsv',
-        rrs_taxonomy='res/core.r.taxonomy.noheader.tsv',
+        rrs_taxon_count='res/{group}.r.count.noheader.tsv',
+        rrs_taxonomy='res/{group}.r.taxonomy.noheader.tsv',
     shell:
         r"""
         rm -f {output}

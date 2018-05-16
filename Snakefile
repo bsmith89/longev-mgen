@@ -613,6 +613,7 @@ rule checkm_content_merge:
         bins='seq/{group}.a.bins.d',
         markerset='res/domain_Bacteria.ms',
     threads: max_threads
+    shadow: 'full'
     shell:
         """
         rm -rf {output.checkm_work}
@@ -658,6 +659,7 @@ rule annotate_mag:
         gff="res/{stem}.mags.annot.d/{mag_id}.prokka.gff",
     input: "seq/{stem}.mags.d/{mag_id}.fn"
     threads: max_threads
+    shadow: 'full'
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
@@ -866,6 +868,8 @@ ANALYZE;
              ' \
         | sqlite3 {output}
         """
+
+localrules: generate_database_0
 
 # First iteration of results db; this might be used to e.g. find scaffolds.
 rule generate_database_1:

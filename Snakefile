@@ -38,7 +38,7 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
-include: 'snake/ormerod.snake'
+include: 'snake/reference_genomes.snake'
 include: 'snake/cazy.snake'
 
 # {{{1 Utility rules/recipes/templates

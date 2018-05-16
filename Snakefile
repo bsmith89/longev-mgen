@@ -479,6 +479,18 @@ rule unstack_cvrg:
 
 # {{{3 Prepare input data
 
+
+# rule count_tetramers:
+#     output: "res/{stem}.contigs.4mers.tsv"
+#     input: script="scripts/count_kmers.py", seq="seq/{stem}.contigs.fn"
+#     threads: 1
+#     shell:
+#         """
+#         {input.script} 4 ACGT {input.seq} | sed '1,1s:seq_id:contig_id:' > {output}
+#         """
+#
+# TODO: scripts/count_kmers.py
+# TODO: scripts/transform_contig_space.py
 rule transform_contig_space:
     output:
         pca='res/{group}.a.contigs.concoct.pca.tsv',
@@ -505,6 +517,8 @@ rule transform_contig_space:
 
 # {{{3 Clustering
 
+# TODO: Don't rename as a separate stem.
+# TODO: Refine this script.
 rule cluster_contigs:
     output:
         out='res/{group}.a.contigs.cluster.tsv',

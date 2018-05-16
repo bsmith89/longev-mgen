@@ -2,3 +2,4 @@ module use /dept/geology/geomicro/data9/flux/modulefiles/ && module load geomicr
 module load intel/17.0.1 bowtie2/2.3.3 hmmer/3.1b2
 source activate longev-mgen
 `snakemake --bash-completion`
+alias smake="snakemake --profile profiles/flux"

@@ -74,6 +74,20 @@ ruleorder: drop_header_meta > drop_header
 rule start_jupyter:
     shell: "jupyter notebook --config=nb/jupyter_notebook_config.py --notebook-dir=nb/"
 
+rule configure_git:
+    shell:
+        """
+        # IPYNB Filter
+        git config --local filter.dropoutput_ipynb.clean scripts/ipynb_output_filter.py
+        git config --local filter.dropoutput_ipynb.smudge cat
+        # Pager Config
+        git config --local core.pager 'less -x4'
+        # Daff config
+        git config --local diff.daff-csv.command "daff.py diff --git"
+        git config --local merge.daff-csv.name "daff.py tabular merge"
+        git config --local merge.daff-csv.driver "daff.py merge --output %A %O %A %B"
+        """
+
 # Here we have a template for aliasing
 alias_recipe = "ln -rs {input} {output}"
 alias_fmt = lambda input, output: alias_recipe.format(input=input, output=output)

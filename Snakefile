@@ -91,10 +91,10 @@ rule download_salask_reference:
     shell: curl_recipe
 
 rule download_m_intestinale_genome:
-    output: 'raw/ref/muribaculum_intestinale_yl27.fn'
+    output: 'raw/ref/Muribaculum_intestinale_yl27.fn'
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
-    shell: curl_recipe
+    shell: curl_unzip_recipe
 
 rule download_tigrfam:
     output: "raw/ref/TIGRFAMs_14.0_HMM.tar.gz"
@@ -673,7 +673,6 @@ rule annotate_mag:
         gff="res/{stem}.mags.annot.d/{mag_id}.prokka.gff",
     input: "seq/{stem}.mags.d/{mag_id}.fn"
     threads: max_threads
-    shadow: 'full'
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
@@ -696,7 +695,7 @@ rule extract_ec_numbers:
         """
 
 rule extract_cogs:
-    output: 'res/{stem}.cogs.tsv'
+    output: 'res/{stem}.cog.tsv'
     input: 'res/{stem}.prokka.tsv'
     shell:
         """
@@ -705,7 +704,7 @@ rule extract_cogs:
 
 rule convert_cogs_to_ko:
     output: 'res/{stem}.ko.tsv'
-    input: mapping='ref/cog_to_ko.tsv', cogs='res/{stem}.cogs.tsv'
+    input: mapping='ref/cog_to_ko.tsv', cogs='res/{stem}.cog.tsv'
     shell:
         """
         join -t '\t' <(sort -k2 {input.cogs}) -1 2 <(sort -k1 {input.mapping}) -2 1 | cut -f2,3 > {output}

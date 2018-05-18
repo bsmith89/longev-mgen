@@ -4,38 +4,39 @@
 
 config['ormerod'] = \
         {
-        'GP1'                               : 'DAAI01000000',
-        'GP2'                               : 'DAAJ01000000',
-        'GP3'                               : 'DAAK01000000',
-        'GP4'                               : 'DAAL01000000',
-        'H1'                                : 'DAAM01000000',
-        'H10'                               : 'DAAV01000000',
-        'H2'                                : 'DAAO01000000',
-        'H3'                                : 'DAAN01000000',
-        'H4'                                : 'DAAP01000000',
-        'H5'                                : 'DAAQ01000000',
-        'H6'                                : 'DAAR01000000',
-        'H7'                                : 'DAAS01000000',
-        'H8'                                : 'DAAT01000000',
-        'H9'                                : 'DAAU01000000',
-        'K1'                                : 'LUJZ01000000',
-        'K10'                               : 'LUKA01000000',
-        'M1'                                : 'LUJL01000000',
-        'M10'                               : 'LUJU01000000',
-        'M11'                               : 'LUJV01000000',
-        'M12'                               : 'LUJW01000000',
-        'M13'                               : 'LUJX01000000',
-        'M14'                               : 'LUJY01000000',
-        'M2'                                : 'LUJM01000000',
-        'M3'                                : 'LUJN01000000',
-        'M5'                                : 'LUJP01000000',
-        'M6'                                : 'LUJQ01000000',
-        'M7'                                : 'LUJR01000000',
-        'M8'                                : 'LUJS01000000',
-        'M9'                                : 'LUJT01000000',
-        'Homeothermus_arabinoxylanisolvens' : 'LUJO01000000',
-        # 'Muribaculum_intestinale'          : 'CP021421',
+        'GP1'                               : {'sra_id': 'DAAI01000000'},
+        'GP2'                               : {'sra_id': 'DAAJ01000000'},
+        'GP3'                               : {'sra_id': 'DAAK01000000'},
+        'GP4'                               : {'sra_id': 'DAAL01000000'},
+        'H1'                                : {'sra_id': 'DAAM01000000'},
+        'H10'                               : {'sra_id': 'DAAV01000000'},
+        'H2'                                : {'sra_id': 'DAAO01000000'},
+        'H3'                                : {'sra_id': 'DAAN01000000'},
+        'H4'                                : {'sra_id': 'DAAP01000000'},
+        'H5'                                : {'sra_id': 'DAAQ01000000'},
+        'H6'                                : {'sra_id': 'DAAR01000000'},
+        'H7'                                : {'sra_id': 'DAAS01000000'},
+        'H8'                                : {'sra_id': 'DAAT01000000'},
+        'H9'                                : {'sra_id': 'DAAU01000000'},
+        'K1'                                : {'sra_id': 'LUJZ01000000'},
+        'K10'                               : {'sra_id': 'LUKA01000000'},
+        'M1'                                : {'sra_id': 'LUJL01000000'},
+        'M10'                               : {'sra_id': 'LUJU01000000'},
+        'M11'                               : {'sra_id': 'LUJV01000000'},
+        'M12'                               : {'sra_id': 'LUJW01000000'},
+        'M13'                               : {'sra_id': 'LUJX01000000'},
+        'M14'                               : {'sra_id': 'LUJY01000000'},
+        'M2'                                : {'sra_id': 'LUJM01000000'},
+        'M3'                                : {'sra_id': 'LUJN01000000'},
+        'M5'                                : {'sra_id': 'LUJP01000000'},
+        'M6'                                : {'sra_id': 'LUJQ01000000'},
+        'M7'                                : {'sra_id': 'LUJR01000000'},
+        'M8'                                : {'sra_id': 'LUJS01000000'},
+        'M9'                                : {'sra_id': 'LUJT01000000'},
+        'Homeothermus_arabinoxylanisolvens' : {'sra_id': 'LUJO01000000'},
         }
+
+# 'Muribaculum_intestinale'          : 'CP021421',  # Not an SRA dataset, so I'll need to download it some other way.
 
 # config['marker_gene'] = {}
 # config['marker_gene']['search_string'] = \
@@ -46,14 +47,22 @@ config['ormerod'] = \
 # }}}
 
 rule alias_ormerod_mags:
-    output: 'seq/ormerod.mags.d/{mag_id}.fn'
-    input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['ormerod'][wildcards.mag_id])
+    output: 'seq/ref.mags.d/{mag_id}.fn'
+    input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['ormerod'][wildcards.mag_id]['sra_id'])
     shell: "ln -rs {input} {output}"
 
-rule alias_all_ormerod_mags:
-    input: expand('seq/ormerod.mags.d/{mag_id}.fn', mag_id=config['ormerod'].keys())
+rule alias_m_intestinale_genome:
+    output: 'seq/ref.mags.d/Muribaculum_intestinale_yl27.fn'
+    input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
+    shell: "ln -rs {input} {output}"
 
-localrules: alias_ormerod_mags, alias_all_ormerod_mags
+ruleorder: alias_m_intestinale_genome > alias_ormerod_mags
+
+rule alias_all_reference_mags_and_genomes:
+    input: expand('seq/ref.mags.d/{mag_id}.fn', mag_id=config['ormerod'].keys()),
+           'seq/ref.mags.d/Muribaculum_intestinale_yl27.fn'
+
+localrules: alias_ormerod_mags, alias_all_reference_mags_and_genomes
 
 # rule process_ormerod_bins:
 #     input:

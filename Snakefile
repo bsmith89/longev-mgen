@@ -612,11 +612,11 @@ rule split_out_bins:
 
 rule checkm_bins_or_mags:
     output:
-        outdir=temp('res/{stem}.{bins_or_mags}.checkm.d'),
-        summary='res/{stem}.{bins_or_mags}.checkm.tsv'
-    input: 'seq/{stem}.{bins_or_mags}.d'
+        outdir=temp('res/{stem}.{bins_or_mbins}.checkm.d'),
+        summary='res/{stem}.{bins_or_mbins}.checkm.tsv'
+    input: 'seq/{stem}.{bins_or_mbins}.d'
     wildcard_constraints:
-        bins_or_mags = 'bins|mags'
+        bins_or_mbins = 'bins|mbins|mags'
     threads: max_threads
     shell:
         r"""
@@ -673,15 +673,15 @@ rule query_merge_stats:
 localrules: query_merge_stats
 
 
-rule manually_construct_mag:
-    output: 'seq/{group}.a.mags.d/{bin_id}.fn'
+rule construct_metabin:
+    output: 'seq/{group}.a.mbins.d/{bin_id}.fn'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-localrules: manually_construct_mag
+localrules: construct_metabin
 
 
 # {{{2 Annotation

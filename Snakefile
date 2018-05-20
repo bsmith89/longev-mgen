@@ -143,6 +143,18 @@ rule download_sra_data:
         """
         fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
         """
+
+rule download_cog_function_mapping:
+    output: 'raw/ref/cognames2003-2014.tab'
+    params:
+        url="ftp://ftp.ncbi.nih.gov/pub/COG/COG2014/data/cognames2003-2014.tab"
+    shell: curl_recipe
+
+rule process_cog_function_mapping:
+    output: 'ref/cog_function.tsv'
+    input: 'raw/ref/cognames2003-2014.tab'
+    shell: "iconv -f LATIN1 -t UTF-8 {input} | sed '1,1s:^# COG\tfunc\tname:cog_id\tfunction_categories\tfunction_name:' > {output}"
+
 rule download_cog_to_ko_mapping:
     output: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
     params:

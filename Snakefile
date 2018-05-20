@@ -700,6 +700,17 @@ rule construct_metabin:
 
 localrules: construct_metabin
 
+rule extract_mbin_reads:
+    output: 'seq/{group}.a.mbins.d/{bin_id}.m.pe.fq.gz'
+    input: sorting_script='scripts/match_paired_reads.py', bam='res/{group}.a.contigs.map.sort.bam', mbin='seq/{group}.a.mbins.d/{bin_id}.fn'
+    threads: 4
+    shell:
+        r"""
+        samtools view -b -@ {threads} {input.bam} \
+                `grep '^>' {input.mbin} | cut -d' ' -f1 | sed 's:^>::'`\
+            | samtools fastq - | {input.sorting_script} | gzip > {output}
+        """
+
 
 # {{{2 Annotation
 

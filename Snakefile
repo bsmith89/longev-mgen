@@ -363,6 +363,23 @@ rule map_reads_to_assembly:
             | samtools sort --output-fmt=BAM -o {output}
         """
 
+rule merge_read_mappings:
+    output: 'res/{group}.a.contigs.map.sort.bam'
+    input:
+        lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.sort.bam'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    shell:
+        """
+        samtools merge {output} {input}
+        """
+
+rule index_read_mappings:
+    output: 'res/{stem}.sort.bam.bai'
+    input: 'res/{stem}.sort.bam'
+    shell: 'samtools index {input} {output}'
+
 
 # {{{2 Scaffolding
 

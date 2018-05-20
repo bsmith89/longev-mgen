@@ -419,7 +419,7 @@ rule tally_links:
         """
 
 rule combine_linkage_tallies:
-    output: 'res/{group}.a.linkage_tally.tsv'
+    output: 'res/{group}.a.contigs.linkage_tally.tsv'
     input:
         lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.linkage_tally.tsv'
                            for library in config['asmbl_group'][wildcards.group]
@@ -936,7 +936,7 @@ rule generate_database_1:
         contig_bin='res/{group}.a.contigs.bins.noheader.tsv',
         contig_coverage='res/{group}.a.contigs.cvrg.noheader.tsv',
         bin_checkm='res/{group}.a.bins.checkm_details.noheader.tsv',
-        contig_linkage='res/{group}.a.linkage_tally.noheader.tsv',
+        contig_linkage='res/{group}.a.contigs.linkage_tally.noheader.tsv',
         checkm_merge='res/{group}.a.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""

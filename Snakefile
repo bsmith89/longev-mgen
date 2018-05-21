@@ -719,15 +719,65 @@ rule construct_metabin:
 
 localrules: construct_metabin
 
+rule get_mbin_contig_ids:
+    output: 'res/{group}.a.mbins.d/{bin_id}.list'
+    input: 'seq/{group}.a.mbins.d/{bin_id}.fn'
+    shell: 'ls_ids < {input} > {output}'
+
+# TODO: Also extract paired-ends that didn't map to mbin directly.
+# TODO: Filter out unmatched lines before the fastq step, so that we can keep
+# all of the metadata.
+# TODO: How to get at those reads?
+# TODO: How to make -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
 rule extract_mbin_reads:
-    output: 'seq/{group}.a.mbins.d/{bin_id}.m.pe.fq.gz'
-    input: sorting_script='scripts/match_paired_reads.py', bam='res/{group}.a.contigs.map.sort.bam', mbin='seq/{group}.a.mbins.d/{bin_id}.fn'
-    threads: 4
+    output:
+        fqgz='seq/{group}.a.mbins.d/{bin_id}.m.pe.fq.gz',
+        sam=temp('res/{group}.a.mbins.d/{bin_id}.m.sam'),
+        tmp1=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.1.temp'),
+        tmp2=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.2.temp'),
+        tmp3=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.3.temp')
+    input:
+        script='scripts/match_paired_reads.py',
+        bam='res/{group}.a.contigs.map.sort.bam',
+        bai='res/{group}.a.contigs.map.sort.bam.bai',
+        contig_ids='res/{group}.a.mbins.d/{bin_id}.list'
+    threads: 2
     shell:
         r"""
-        samtools view -b -@ {threads} {input.bam} \
-                `grep '^>' {input.mbin} | cut -d' ' -f1 | sed 's:^>::'`\
-            | samtools fastq - | {input.sorting_script} | gzip > {output}
+        echo "Outputting header for {wildcards.bin_id}"
+        samtools view -H {input.bam} > {output.sam}
+
+        echo "Collecting intra-bin linking pairs for {wildcards.bin_id}"
+        samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
+            | {input.script} {output.tmp1} >> {output.sam}
+
+        # TODO: Figure out how to control memory usage for such a large 'samtool | grep'
+        # echo "Collecting inter-bin linking pairs for {wildcards.bin_id}"
+        # Find all of the linked out-of-bin contigs (output.tmp1).
+        # Pull discordant reads that map to these contigs.
+        # Then filter by the list of contigs that are in the bin and output
+        # these lines to the sam-file.
+        # samtools view -@ {threads} -f 1 -F 3854 {input.bam} \
+        #         $(cut -f7 {output.tmp1} | sort | uniq) \
+        #     | grep -wf {input.contig_ids} >> {output.tmp2}
+        # cat {output.tmp1} {output.tmp2} | {input.script} \
+        #     >> {output.sam}
+        touch {output.tmp2}
+
+        echo "Collecting singly mapped pairs for {wildcards.bin_id}"
+        samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
+            | grep -wf {input.contig_ids} > {output.tmp3}
+        samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
+            >> {output.tmp3}
+        {input.script} < {output.tmp3} \
+            >> {output.sam}
+
+        echo "Collecting proper pairs for {wildcards.bin_id}"
+        samtools view -@ {threads} -f 3 -F 3852 {input.bam} $(cat {input.contig_ids}) \
+            | {input.script} >> {output.sam}
+
+        echo "Converting to GZIPed FASTQ for {wildcards.bin_id}"
+        samtools view -u {output.sam} | samtools fastq - | gzip > {output.fqgz}
         """
 
 

@@ -5,41 +5,28 @@ from Bio.SeqIO import parse, write
 import sys
 
 
-def chunk_fastq(lines):
-    chunk = []
-    for i, line in enumerate(lines):
-        if i % 4 == 0:
-            if chunk:
-                yield chunk
-            chunk = [line]
-        else:
-            chunk.append(line)
-    yield chunk
-
-
-def get_seq_id(chunk):
-    return chunk[0][1:-1]
+def get_seq_id(line):
+    return line.split('\t')[0]
 
 if __name__ == "__main__":
     unmatched_reads = {}
-    for chunk in chunk_fastq(sys.stdin):
-        seq_id = get_seq_id(chunk)
-        pair_id = seq_id[:-2]
+    for line in sys.stdin:
+        pair_id, _ = line.split('\t', 1)
         if pair_id in unmatched_reads:
-            read_a = unmatched_reads[pair_id]
-            read_b = chunk
-            if get_seq_id(read_a) < get_seq_id(read_b):
-                print(''.join(read_a), end='')
-                print(''.join(read_b), end='')
-            else:
-                print(''.join(read_b), end='')
-                print(''.join(read_a), end='')
+            print(unmatched_reads[pair_id], end='')
+            print(line, end='')
             del unmatched_reads[pair_id]
         else:
-            unmatched_reads[pair_id] = chunk
-    if unmatched_reads:
-        print('{} unmatched reads appended to end of output'.format(len(unmatched_reads)),
-              file=sys.stderr)
-        for chunk in unmatched_reads.values:
-            print(''.join(chunk), end='')
+            unmatched_reads[pair_id] = line
+    print('{} unmatched reads'.format(len(unmatched_reads)),
+        file=sys.stderr)
+    if len(sys.argv) > 1:  # User provided filename for unmatched read IDs
+        with open(sys.argv[1], 'w') as handle:
+            print('Opening {} to output unmatched reads'.format(sys.argv[1]),
+                file=sys.stderr)
+            for read in unmatched_reads.values():
+                print(read, file=handle, end='')
+    else:
+        print('No unmatched read filename provided.', file=sys.stderr)
+
 

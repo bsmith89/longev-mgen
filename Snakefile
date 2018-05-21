@@ -301,6 +301,23 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
+
+rule alias_mbin_contig_file_for_spades:
+    output: 'seq/{group}.a.mbins.d/{mbin_id}.fasta'
+    input: 'seq/{group}.a.mbins.d/{mbin_id}.fn'
+    shell: alias_recipe
+
+localrules: alias_mbin_contig_file_for_spades
+
+rule assemble_mbin:
+    output: 'seq/{group}.a.mbins.d/{mbin_id}.a.spades.d'
+    input: reads='seq/{group}.a.mbins.d/{mbin_id}.m.pe.fq.gz', contigs='seq/{group}.a.mbins.d/{mbin_id}.fasta'
+    threads: max_threads
+    shell:
+        """
+        spades.py --threads {threads} --careful --12 {input.reads} --untrusted-contigs {input.contigs} -o {output}
+        """
+
 # {{{3 QC Assembly
 
 rule quality_asses_assembly_with_spike:

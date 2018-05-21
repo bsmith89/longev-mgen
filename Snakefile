@@ -376,20 +376,22 @@ rule map_reads_to_assembly:
         r"""
         bowtie2 --threads {threads} \
                 -x seq/{wildcards.group}.a.contigs \
+                -rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools sort --output-fmt=BAM -o {output}
         """
 
-rule merge_read_mappings:
+rule combine_read_mappings:
     output: 'res/{group}.a.contigs.map.sort.bam'
     input:
         lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
+    threads: 10
     shell:
         """
-        samtools merge {output} {input}
+        samtools merge -@ {threads} {output} {input}
         """
 
 rule index_read_mappings:

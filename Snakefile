@@ -708,7 +708,6 @@ rule query_merge_stats:
 
 localrules: query_merge_stats
 
-
 rule construct_metabin:
     output: 'seq/{group}.a.mbins.d/{bin_id}.fn'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'

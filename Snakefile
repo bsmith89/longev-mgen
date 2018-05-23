@@ -11,12 +11,6 @@ wildcard_constraints:
     group='[^.]+',
     library='[^.]+'
 
-# {{{2 Params
-
-# Default params
-max_threads = 30
-
-
 # {{{2 Project configuration
 
 # Configure the pipeline
@@ -40,6 +34,15 @@ include: 'snake/local.snake'
 # {{{3 Sub-project includes
 include: 'snake/reference_genomes.snake'
 include: 'snake/cazy.snake'
+
+# {{{2 Params
+
+# Default params
+max_threads = 30
+if 'max_threads' in config:
+    max_threads = config['max_threads']
+
+
 
 # {{{1 Utility rules/recipes/templates
 

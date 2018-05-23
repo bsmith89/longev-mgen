@@ -718,19 +718,23 @@ rule query_merge_stats:
 localrules: query_merge_stats
 
 rule construct_metabin:
-    output: 'seq/{group}.a.mbins.d/{bin_id}.fn'
+    output: 'res/{group}.a.mbins.d/{bin_id}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-localrules: construct_metabin
+rule get_mbin_contigs:
+    output: 'seq/{group}.a.mbins.d/{bin_id}.fn'
+    input:
+        ids='res/{group}.a.mbins.d/{bin_id}.contigs.list',
+        seqs='seq/{group}.a.contigs.fn'
+    input: 'res/{group}.a.mbins.d/{bin_id}.list'
+    shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-rule get_mbin_contig_ids:
-    output: 'res/{group}.a.mbins.d/{bin_id}.list'
-    input: 'seq/{group}.a.mbins.d/{bin_id}.fn'
-    shell: 'ls_ids < {input} > {output}'
+localrules: get_mbin_contigs construct_metabin
+
 
 # TODO: Also extract paired-ends that didn't map to mbin directly.
 # TODO: Filter out unmatched lines before the fastq step, so that we can keep
@@ -748,7 +752,7 @@ rule extract_mbin_reads:
         script='scripts/match_paired_reads.py',
         bam='res/{group}.a.contigs.map.sort.bam',
         bai='res/{group}.a.contigs.map.sort.bam.bai',
-        contig_ids='res/{group}.a.mbins.d/{bin_id}.list'
+        contig_ids='res/{group}.a.mbins.d/{bin_id}.contigs.list'
     threads: 2
     shell:
         r"""

@@ -313,12 +313,18 @@ rule alias_mbin_contig_file_for_spades:
 localrules: alias_mbin_contig_file_for_spades
 
 rule assemble_mbin:
-    output: 'seq/{group}.a.mbins.d/{mbin_id}.a.spades.d'
-    input: reads='seq/{group}.a.mbins.d/{mbin_id}.m.pe.fq.gz', contigs='seq/{group}.a.mbins.d/{mbin_id}.fasta'
+    output: fn='seq/{group}.a.mbins.d/{mbin_id}.reasmbl.fn',
+        dir=temp('seq/{group}.a.mbins.d/{mbin_id}.spades.d')
+    input:
+        r1='seq/{group}.a.mbins.d/{mbin_id}.m.r1.fq.gz',
+        r2='seq/{group}.a.mbins.d/{mbin_id}.m.r2.fq.gz',
+        contigs='seq/{group}.a.mbins.d/{mbin_id}.fasta'
     threads: max_threads
     shell:
         """
-        spades.py --threads {threads} --careful --12 {input.reads} --untrusted-contigs {input.contigs} -o {output}
+        spades.py --threads {threads} --careful -1 {input.r1} -2 {input.r2} --untrusted-contigs {input.contigs} -o {output.dir}
+        mv {output.dir}/scaffolds.fasta {output.fn}
+        ln -rs {output.fn} {output.dir}/scaffolds.fasta
         """
 
 # {{{3 QC Assembly

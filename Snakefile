@@ -743,7 +743,8 @@ localrules: get_mbin_contigs construct_metabin
 # TODO: How to make -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
 rule extract_mbin_reads:
     output:
-        fqgz='seq/{group}.a.mbins.d/{bin_id}.m.pe.fq.gz',
+        r1_fqgz='seq/{group}.a.mbins.d/{bin_id}.m.r1.fq.gz',
+        r2_fqgz='seq/{group}.a.mbins.d/{bin_id}.m.r2.fq.gz',
         sam=temp('res/{group}.a.mbins.d/{bin_id}.m.sam'),
         tmp1=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.1.temp'),
         tmp2=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.2.temp'),
@@ -789,7 +790,8 @@ rule extract_mbin_reads:
             | {input.script} >> {output.sam}
 
         echo "Converting to GZIPed FASTQ for {wildcards.bin_id}"
-        samtools view -u {output.sam} | samtools fastq - | gzip > {output.fqgz}
+        samtools view -u {output.sam} \
+            | samtools fastq -@ {threads} -c 6 -1 {output.r1_fqgz} -2 {output.r2_fqgz} -
         """
 
 

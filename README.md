@@ -189,6 +189,50 @@ I'm increasingly interested in looking at these large genomic
 differences.
 Maybe I should just grab everything into one OTU1 including the whole pangenome.
 
+## Decision
+
+For OTU-1 and OTU-4 (here called OTU-7), I used the following to put
+all relevant contigs together:
+
+```
+cat seq/core.a.bins.d/{bin00560,bin01257,bin00855,bin00955,bin00293,bin01178,bin01965,bin01811,bin01568}.fn > seq/core.a.mbins.d/Otu0007.fn
+cat seq/core.a.bins.d/{bin01311,bin00503,bin01379,bin01256,bin01169,bin01408,bin00491,bin01449,bin01784,bin01832,bin01178,bin01464,bin00820}.fn > seq/core.a.mbins.d/Otu0001.fn
+```
+
+(date: 2018-05-
+Binning, metabinning, and strain-variation finding all in one step?
+All three of these things revolve around finding nested components.
+As in: there's a main component that describes the bin, then there's
+a meta-component that describes bins that go together
+(just without any tetranucleotide component), and finally there's a
+search bins/contigs that are less abundant than the core, but that co-vary
+with the core in SOME samples.
+
+Levels:
+
+-   fine-grained covariance will identify contigs that ALWAYS go together
+    these could be core genomes or any other fragments of sequence that
+    always go together
+-   Then there's nesting, where the coverage of core genomes accounts for
+    the maximum abundance of fragments that belong to that species, but
+    cannot predict lower-abundances, since the framgnet might be missing
+    from some or all of the community.
+-   I wonder if these cassettes nest at all, like is there a fractal structure?
+-   This all breaks down if the same sequnce is variably present across multiple
+    other genomes.  It would also break down with biased coverage estimation
+    (which could be due to multiple copies).  This second option seems like
+    it could be dealt with in the model.
+-   I have a general sense that we get lots of extra information from the clustering
+    pattern; like, if one sample has suprisingly high abundance of a particular
+    sequence, we can put it in the context of its "cassette" and we don't have
+    to think that that sequence is variably present, because it could just be
+    measurement error.
+-   Lots of opportunities for regularization.
+-   The presence/absence of large sequence fragments from a core genome might
+    (hypothesis!) mirror SNP variation (assuming there's no HGT)
+
+
+
 # Proposal
 
 The mammalian gut microbiome is a complex ecological system that influences

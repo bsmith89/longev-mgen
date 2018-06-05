@@ -14,3 +14,7 @@ ALTER TABLE __contig_linkage RENAME TO contig_linkage;
 CREATE TABLE __bin_linkage AS SELECT * FROM bin_linkage;
 DROP VIEW bin_linkage;
 ALTER TABLE __bin_linkage RENAME TO bin_linkage;
+
+CREATE TABLE __library_total_coverage AS SELECT * FROM library_total_coverage;
+DROP VIEW library_total_coverage;
+ALTER TABLE __library_total_coverage RENAME TO library_total_coverage;

@@ -26,7 +26,8 @@ if __name__ == "__main__":
     logger.debug('PCA calculated.')
 
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.scatter(pca.x00, pca.x01, s=1, alpha=0.2, color='gray')
+    ax.scatter(pca.x00, pca.x01, s=1, alpha=0.2, color='gray', rasterized=True,
+               label='_nolegend_')
     logger.debug('Background points plotted.')
 
     # TODO: Correct the column names for .bins.tsv files.
@@ -39,4 +40,6 @@ if __name__ == "__main__":
         pca_bin = pca.loc[contig_names]
         ax.scatter(pca_bin.x00, pca_bin.x01, s=4, lw=1, label=bin_id, alpha=0.5)
     ax.legend()
+    ax.set_xticks([])
+    ax.set_yticks([])
     fig.savefig(sys.argv[-1], dpi=240)

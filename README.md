@@ -12,6 +12,7 @@
 
 -   prokka
     -   With dbCAN family level database installed see http://csbl.bmb.uga.edu/dbCAN/download.php
+-   MinPath (v1.4, patched shebang line to 'python2' not 'python'
 -   TODO
 
 # Bin refinement

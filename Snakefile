@@ -169,10 +169,32 @@ rule alias_cog_to_ko_mapping:
     input: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
     shell: alias_recipe
 
+rule download_metacyc_pathways_page:
+    output: 'raw/ref/metacyc_pathway_page.html'
+    params: url='https://biocyc.org/META/class-subs-instances?object=Pathways'
+    shell:
+        """
+        wget -O {output} {params.url}
+        """
+
+# TODO: Improve this
+rule scrape_metacyc_pathways_table:
+    output: 'ref/metacyc_pathway_descriptions.tsv'
+    input: 'raw/ref/metacyc_pathway_page.html'
+    shell:
+        r"""
+        grep '^<li><a href=/META/NEW-IMAGE?type=PATHWAY&object=' {input} \
+            | sed 's:.*object=\([^<>]*\)>\(.*\)</a>$:\1\t\2:' \
+            | sed -e 's:\(<[iI]>\|</[iI]>\|<sup>\|</sup>\|<sub>\|</sub>\|<SUB>\|</SUB>\)::g' \
+            | sort | uniq \
+            > {output}
+        """
+
 
 localrules: download_salask_reference, download_illumina_adapters,
             download_mouse_reference, download_sra_data, download_tigrfam,
-            extract_tigrfam_hmm, download_cog_to_ko_mapping, alias_cog_to_ko_mapping
+            extract_tigrfam_hmm, download_cog_to_ko_mapping, alias_cog_to_ko_mapping,
+            scrape_metacyc_pathways_table
 
 
 # {{{2 Raw data
@@ -717,23 +739,22 @@ rule query_merge_stats:
 
 localrules: query_merge_stats
 
-rule construct_metabin:
-    output: 'res/{group}.a.mbins.d/{bin_id}.contigs.list'
+rule construct_mag:
+    output: 'res/{group}.a.mags.d/{bin_id}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-rule get_mbin_contigs:
-    output: 'seq/{group}.a.mbins.d/{bin_id}.fn'
+rule get_mag_contigs:
+    output: 'seq/{group}.a.mags.d/{bin_id}.fn'
     input:
-        ids='res/{group}.a.mbins.d/{bin_id}.contigs.list',
+        ids='res/{group}.a.mags.d/{bin_id}.contigs.list',
         seqs='seq/{group}.a.contigs.fn'
-    input: 'res/{group}.a.mbins.d/{bin_id}.list'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-localrules: get_mbin_contigs construct_metabin
+localrules: get_mag_contigs construct_mag
 
 
 # TODO: Also extract paired-ends that didn't map to mbin directly.
@@ -847,8 +868,32 @@ rule convert_cogs_to_ko:
         join -t '\t' <(sort -k2 {input.cogs}) -1 2 <(sort -k1 {input.mapping}) -2 1 | cut -f2,3 > {output}
         """
 
+# TODO: Figure out how to stop MinPath from overwriting its own processing files
+# (which makes parallel jobs impossible).
+rule annotate_pathways:
+    output:
+        report='res/{stem}.ec.minpath.report.tsv',
+        details='res/{stem}.ec.minpath.details.txt'
+    input:
+        'res/{stem}.ec.tsv'
+    log:
+        'res/{stem}.ec.minpath.log'
+    threads: max_threads
+    shell:
+        """
+        MinPath1.4.py -any {input} -map ec2path -report {output.report} -details {output.details} >{log} 2>&1
+        """
 
-localrules: extract_cogs, extract_ec_numbers
+rule extract_metacyc_list:
+    output: 'res/{stem}.ec.minpath.list'
+    input: 'res/{stem}.ec.minpath.report.tsv'
+    shell:
+        """
+        awk '$8==1{{print $14}}' {input} > {output}
+        """
+
+
+localrules: extract_cogs, extract_ec_numbers, annotate_pathways, extract_metacyc_list
 
 rule find_orfs:
     output: nucl="{stem}.orfs.fn", prot="{stem}.orfs.fa"

@@ -511,13 +511,14 @@ localrules: count_seq_lengths_nucl, count_seq_lengths_aa
 # {{{3 Coverage
 
 # NOTE: The depth file format is lacking a header.
+# TODO params: -Q flag (mapping_quality_thresh), -d 0 flag (no maximum mapping depth)
 rule calculate_mapping_depth:
     output: temp('res/{stem}.depth.tsv')
     input: 'res/{stem}.sort.bam'
     shadow: 'full'
     shell:
         """
-        samtools depth {input} >> {output}
+        samtools depth -d 0 {input} > {output}
         """
 
 rule estimate_contig_cvrg:

@@ -685,13 +685,14 @@ rule checkm_bins_or_mags:
     wildcard_constraints:
         bins_or_mbins = 'bins|mbins|mags'
     threads: max_threads
+    log: 'log/{stem}.{bins_or_mbins}.checkm.log'
     shell:
         r"""
         rm -rf {output}
         checkm lineage_wf -x fn \
                 --threads {threads} --pplacer_threads {threads} \
                 --file {output.summary} --tab_table \
-                {input} {output.outdir}
+                {input} {output.outdir} > {log} 2>&1
         """
 
 rule reformat_checkm_output:

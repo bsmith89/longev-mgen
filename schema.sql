@@ -98,6 +98,7 @@ CREATE INDEX idx_rrs_taxon_count__sequence_id ON rrs_taxon_count(sequence_id);
 
 CREATE TABLE taxonomy
   ( sequence_id TEXT PRIMARY KEY
+  , otu_id TEXT
   , domain_ TEXT
   , phylum_ TEXT
   , class_ TEXT

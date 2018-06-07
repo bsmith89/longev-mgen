@@ -1,4 +1,4 @@
-# Compare to Ormerod2016
+# Compare my MAGs to reference genomes (e.g. Ormerod2016)
 
 # {{{1 Metadata
 
@@ -36,15 +36,38 @@ config['ormerod'] = \
         'Homeothermus_arabinoxylanisolvens' : {'sra_id': 'LUJO01000000'},
         }
 
-# 'Muribaculum_intestinale'          : 'CP021421',  # Not an SRA dataset, so I'll need to download it some other way.
+config['mags'] = \
+        {
+        'OTU-3'                               : {'taxon': 'Sphingopyxis alaskensis'},
+        'OTU-2'                               : {'taxon': 'Lactobacillus johnsonii'},
+        'OTU-1-UM'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-1-UT'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-7'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-9'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-5'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-4'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-49'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-17'                               : {'taxon': 'Muribaculaceae sp.'},
+        'OTU-15'                               : {'taxon': 'Lachnospiraceae sp.'},
+        'OTU-25'                               : {'taxon': 'Lachnospiraceae sp.'},
+        'OTU-32'                               : {'taxon': 'Lachnospiraceae sp.'},
+        'OTU-12'                               : {'taxon': 'Ruminiclostridium sp.'},
+        'OTU-6'                               : {'taxon': 'Turicibacter sp.'},
+        'OTU-20'                               : {'taxon': 'Ruminococcaceae sp.'},
+        'OTU-35'                               : {'taxon': 'Ruminococcaceae sp.'},
+        'OTU-58'                               : {'taxon': 'Mollicutes sp.'},
+        'OTU-41'                               : {'taxon': 'Bacteroides sp.'},
+        }
 
-# config['marker_gene'] = {}
-# config['marker_gene']['search_string'] = \
-#     {'rpoB': 'DNA-directed RNA polymerase subunit beta$',
-#      'gyrB': 'DNA gyrase subunit B$',
-#      'rrnS': '16S ribosomal RNA$'}
-#
-# }}}
+config['marker_gene'] = {}
+# How to find this marker gene in the Prokka output:
+config['marker_gene']['search_string'] = \
+    {'rpoB': 'DNA-directed RNA polymerase subunit beta$',
+     'gyrB': 'DNA gyrase subunit B$',
+     'rrnS': '16S ribosomal RNA$'}
+config['marker_gene']['tigrfam'] = \
+    {'rpoB': 'TIGR02013',
+     'gyrB': 'TIGR01059'}
 
 rule alias_ormerod_mags:
     output: 'seq/ref.mags.d/{mag_id}.fn'
@@ -63,6 +86,24 @@ rule alias_all_reference_mags_and_genomes:
            'seq/ref.mags.d/Muribaculum_intestinale_yl27.fn'
 
 localrules: alias_ormerod_mags, alias_all_reference_mags_and_genomes
+
+rule combine_marker_genes_from_mags:
+    output:
+        fa='seq/{group}.a.mags.{gene_id}.fa',
+        fn='seq/{group}.a.mags.{gene_id}.fn'
+    input:
+        fa=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.{gene_id}.fa'
+                                  .format(group=wildcards.group,
+                                          mag_id=mag_id,
+                                          gene_id=wildcards.gene_id)
+                              for mag_id
+                              in list(config['ormerod'].keys()) + list(config['mags'].keys())],
+        fn=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.{gene_id}.fn'
+                                  .format(group=wildcards.group,
+                                          mag_id=mag_id,
+                                          gene_id=wildcards.gene_id)
+                              for mag_id
+                              in list(config['ormerod'].keys()) + list(config['mags'].keys())],
 
 # rule process_ormerod_bins:
 #     input:

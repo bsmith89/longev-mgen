@@ -128,6 +128,12 @@ rule extract_tigrfam_hmm:
         tar -xzf {input} TIGR{wildcards.num}.HMM -O > {output}
         """
 
+rule alias_tigrfam_hmm:
+    output: "ref/hmm/{alias}.hmm"
+    input: lambda wildcards: "ref/hmm/{}.hmm".format(config['marker_gene']['tigrfam'][wildcards.alias])
+    shell: alias_recipe
+
+
 rule download_dBCAN_hmms:
     output: "raw/ref/dbCAN.hmm"
     params:
@@ -221,7 +227,7 @@ rule scrape_metacyc_pathways_table:
 
 localrules: download_salask_reference, download_illumina_adapters,
             download_mouse_reference, download_sra_data, download_tigrfam,
-            extract_tigrfam_hmm, download_cog_to_ko_mapping,
+            extract_tigrfam_hmm, alias_tigrfam_hmm, download_cog_to_ko_mapping,
             alias_cog_to_ko_mapping, scrape_metacyc_pathways_table,
             download_dBCAN_hmms, download_dbCAN_meta,
             filter_dbCAN_hmms, filter_dbCAN_meta
@@ -937,6 +943,38 @@ rule find_orfs:
 
 # {{{3 Targetted
 
+# {{{4 From Prokka
+
+rule pull_annotated_marker_genes:
+    output: fn='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}.fn',
+            fa='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}.fa'
+    input:
+        fn='seq/{stem}.mags.annot.d/{mag_id}.prokka.fn',
+        fa='seq/{stem}.mags.annot.d/{mag_id}.prokka.fa',
+        tsv='res/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
+    params:
+        search_string=lambda wildcards: config['marker_gene']['search_string'][wildcards.gene_id]
+    shell:
+        """
+        # Nucleotide
+        seqtk subseq {input.fn} \
+            <(awk -v FS='\t' \
+                  -v search_string='{params.search_string}' \
+                  '$7~search_string{{print $1}}' {input.tsv} \
+             ) \
+            > {output.fn}
+        # Amino-acid
+        seqtk subseq {input.fa} \
+            <(awk -v FS='\t' \
+                  -v search_string='{params.search_string}' \
+                  '$7~search_string{{print $1}}' {input.tsv} \
+             ) \
+            > {output.fa}
+        """
+
+# {{{4 Independent of Prokka
+
+
 rule press_hmm:
     output: "ref/hmm/{stem}.hmm.h3f",
             "ref/hmm/{stem}.hmm.h3i",
@@ -997,18 +1035,26 @@ rule gather_hit_orfs_permissive:
 #         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) | grep --no-group-separator -A1 'partial=00' > {output.prot}
 #         """
 #
-
-rule hmmalign_orfs:
+rule hmmalign_hit_orfs:
     output: "seq/{stem}.orfs.{hmm}-hits.afa",
     input:
         prot="seq/{stem}.orfs.{hmm}-hits.fa",
         hmm="ref/hmm/{hmm}.hmm"
     shell:
         """
-        hmmalign --informat FASTA {input.hmm} {input.prot} | convert -f stockholm -t fasta > {output}
+        hmmalign --informat fasta {input.hmm} {input.prot} | convert -f stockholm -t fasta > {output}
         """
 
+
 # {{{2 Sequences Analysis
+
+rule hmmalign:
+    output: "seq/{stem}.{hmm}.afa"
+    input: fa="seq/{stem}.{hmm}.fa", hmm="ref/hmm/{hmm}.hmm"
+    shell:
+        """
+        hmmalign --informat fasta {input.hmm} {input.fa} | convert -f stockholm -t fasta > {output}
+        """
 
 rule codonalign:
     output: "seq/{stem}.codonalign.afn"
@@ -1026,12 +1072,12 @@ rule squeeze_codon_alignment:
     shell: "{input.script} '-.acgtu' < {input.seq} > {output}"
 
 rule squeeze_hmmalign_alignment:
-    output: "seq/{stem}.orfs.{hmm}-hits.sqz.afa"
+    output: "seq/{stem}.{hmm}-hits.sqz.afa"
     wildcard_constraints:
         hmm="[^.]*"
     input:
         script="scripts/squeeze_alignment.py",
-        seq="seq/{stem}.orfs.{hmm}-hits.afa"
+        seq="seq/{stem}.{hmm}-hits.afa"
     shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
 
 rule estimate_phylogeny_afn:

@@ -32,7 +32,7 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
-include: 'snake/reference_genomes.snake'
+include: 'snake/genome_comparison.snake'
 include: 'snake/cazy.snake'
 
 # {{{2 Params
@@ -101,17 +101,31 @@ curl_unzip_recipe = "curl '{params.url}' | zcat > {output}"
 
 # {{{2 Reference data
 
+# {{{3 General purpose reference genomes
+
 rule download_salask_reference:
     output: 'raw/ref/salask.fn'
     params:
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000356.1&rettype=fasta&retmode=text'
     shell: curl_recipe
 
-rule download_m_intestinale_genome:
-    output: 'raw/ref/Muribaculum_intestinale_yl27.fn'
+rule download_mouse_reference:
+    output: 'raw/ref/mouse.fn'
     params:
-        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Mus_musculus/latest_assembly_versions/GCA_001632575.1_C3H_HeJ_v1/GCA_001632575.1_C3H_HeJ_v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+
+rule download_sra_data:
+    output: 'raw/sra/{sra_id}.fn'
+    shell:
+        """
+        fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
+        """
+
+localrules: download_salask_reference,
+            download_mouse_reference, download_sra_data,
+
+# {{{3 TIGRFAM
 
 rule download_tigrfam:
     output: "raw/ref/TIGRFAMs_14.0_HMM.tar.gz"
@@ -130,9 +144,22 @@ rule extract_tigrfam_hmm:
 
 rule alias_tigrfam_hmm:
     output: "ref/hmm/{alias}.hmm"
-    input: lambda wildcards: "ref/hmm/{}.hmm".format(config['marker_gene']['tigrfam'][wildcards.alias])
+    input: lambda wildcards: "ref/hmm/{}.hmm".format(config['gene_to_tigrfam'][wildcards.alias])
     shell: alias_recipe
 
+localrules: download_tigrfam, extract_tigrfam_hmm, alias_tigrfam_hmm
+
+# {{{3 Metadata for sequence processing
+
+rule download_illumina_adapters:
+    output: 'raw/ref/illumina_adapters.fn'
+    params:
+        url='https://raw.githubusercontent.com/vsbuffalo/scythe/master/illumina_adapters.fa'
+    shell: curl_recipe
+
+localrules: download_illumina_adapters
+
+# {{{3 dbCAN
 
 rule download_dBCAN_hmms:
     output: "raw/ref/dbCAN.hmm"
@@ -162,24 +189,7 @@ rule filter_dbCAN_meta:
         sed '1s:^#Family\t::' {input} > {output}
         """
 
-rule download_illumina_adapters:
-    output: 'raw/ref/illumina_adapters.fn'
-    params:
-        url='https://raw.githubusercontent.com/vsbuffalo/scythe/master/illumina_adapters.fa'
-    shell: curl_recipe
-
-rule download_mouse_reference:
-    output: 'raw/ref/mouse.fn'
-    params:
-        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Mus_musculus/latest_assembly_versions/GCA_001632575.1_C3H_HeJ_v1/GCA_001632575.1_C3H_HeJ_v1_genomic.fna.gz'
-    shell: curl_unzip_recipe
-
-rule download_sra_data:
-    output: 'raw/sra/{sra_id}.fn'
-    shell:
-        """
-        fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
-        """
+# {{{3 COG
 
 rule download_cog_function_mapping:
     output: 'raw/ref/cognames2003-2014.tab'
@@ -203,6 +213,11 @@ rule alias_cog_to_ko_mapping:
     input: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
     shell: alias_recipe
 
+localrules: download_cog_to_ko_mapping, download_cog_function_mapping,
+            alias_cog_to_ko_mapping, process_cog_function_mapping
+
+# {{{3 MetaCyc
+
 rule download_metacyc_pathways_page:
     output: 'raw/ref/metacyc_pathway_page.html'
     params: url='https://biocyc.org/META/class-subs-instances?object=Pathways'
@@ -224,14 +239,9 @@ rule scrape_metacyc_pathways_table:
             > {output}
         """
 
-
-localrules: download_salask_reference, download_illumina_adapters,
-            download_mouse_reference, download_sra_data, download_tigrfam,
-            extract_tigrfam_hmm, alias_tigrfam_hmm, download_cog_to_ko_mapping,
-            alias_cog_to_ko_mapping, scrape_metacyc_pathways_table,
+localrules: scrape_metacyc_pathways_table,
             download_dBCAN_hmms, download_dbCAN_meta,
             filter_dbCAN_hmms, filter_dbCAN_meta
-
 
 # {{{2 Raw data
 
@@ -868,7 +878,7 @@ rule annotate_mag:
         tbl="res/{stem}.mags.annot.d/{mag_id}.prokka.tbl",
         tsv="res/{stem}.mags.annot.d/{mag_id}.prokka.tsv",
         gff="res/{stem}.mags.annot.d/{mag_id}.prokka.gff",
-    input: "seq/{stem}.mags.d/{mag_id}.fn"
+    input: "seq/{stem}.mags.d/{mag_id}.contigs.fn"
     threads: max_threads
     shell:
         r"""
@@ -945,15 +955,15 @@ rule find_orfs:
 
 # {{{4 From Prokka
 
-rule pull_annotated_marker_genes:
-    output: fn='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}.fn',
-            fa='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}.fa'
+rule pull_annotated_genes:
+    output: fn='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fn',
+            fa='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
     input:
         fn='seq/{stem}.mags.annot.d/{mag_id}.prokka.fn',
         fa='seq/{stem}.mags.annot.d/{mag_id}.prokka.fa',
         tsv='res/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
     params:
-        search_string=lambda wildcards: config['marker_gene']['search_string'][wildcards.gene_id]
+        search_string=lambda wildcards: config['gene_to_search_string'][wildcards.gene_id]
     shell:
         """
         # Nucleotide
@@ -1049,8 +1059,8 @@ rule hmmalign_hit_orfs:
 # {{{2 Sequences Analysis
 
 rule hmmalign:
-    output: "seq/{stem}.{hmm}.afa"
-    input: fa="seq/{stem}.{hmm}.fa", hmm="ref/hmm/{hmm}.hmm"
+    output: "seq/{stem}.{hmm}-hits.afa"
+    input: fa="seq/{stem}.{hmm}-hits.fa", hmm="ref/hmm/{hmm}.hmm"
     shell:
         """
         hmmalign --informat fasta {input.hmm} {input.fa} | convert -f stockholm -t fasta > {output}

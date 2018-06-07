@@ -38,41 +38,66 @@ config['ormerod'] = \
 
 config['mags'] = \
         {
-        'OTU-3'                               : {'taxon': 'Sphingopyxis alaskensis'},
-        'OTU-2'                               : {'taxon': 'Lactobacillus johnsonii'},
-        'OTU-1-UM'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-1-UT'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-7'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-9'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-5'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-4'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-49'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-17'                               : {'taxon': 'Muribaculaceae sp.'},
-        'OTU-15'                               : {'taxon': 'Lachnospiraceae sp.'},
-        'OTU-25'                               : {'taxon': 'Lachnospiraceae sp.'},
-        'OTU-32'                               : {'taxon': 'Lachnospiraceae sp.'},
-        'OTU-12'                               : {'taxon': 'Ruminiclostridium sp.'},
-        'OTU-6'                               : {'taxon': 'Turicibacter sp.'},
-        'OTU-20'                               : {'taxon': 'Ruminococcaceae sp.'},
-        'OTU-35'                               : {'taxon': 'Ruminococcaceae sp.'},
-        'OTU-58'                               : {'taxon': 'Mollicutes sp.'},
-        'OTU-41'                               : {'taxon': 'Bacteroides sp.'},
+        'OTU-3'     : {'taxon' : 'Sphingopyxis alaskensis'},
+        'OTU-2'     : {'taxon' : 'Lactobacillus johnsonii'},
+        'OTU-1-UM'  : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-1-UT'  : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-7'     : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-9'     : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-5'     : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-4'     : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-49'    : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-17'    : {'taxon' : 'Muribaculaceae sp.'},
+        'OTU-15'    : {'taxon' : 'Lachnospiraceae sp.'},
+        'OTU-25'    : {'taxon' : 'Lachnospiraceae sp.'},
+        'OTU-32'    : {'taxon' : 'Lachnospiraceae sp.'},
+        'OTU-12'    : {'taxon' : 'Ruminiclostridium sp.'},
+        'OTU-6'     : {'taxon' : 'Turicibacter sp.'},
+        'OTU-20-UM' : {'taxon' : 'Ruminococcaceae sp.'},
+        'OTU-20-UT' : {'taxon' : 'Ruminococcaceae sp.'},
+        'OTU-35'    : {'taxon' : 'Ruminococcaceae sp.'},
+        'OTU-58'    : {'taxon' : 'Mollicutes sp.'},
+        'OTU-41'    : {'taxon' : 'Bacteroides sp.'},
         }
 
-config['marker_gene'] = {}
-# How to find this marker gene in the Prokka output:
-config['marker_gene']['search_string'] = \
+config['marker_genes'] = \
+    ['rpoB',
+     'gyrB',
+     'rpoA',
+     'rpoC',
+     'lepA',
+    ]
+
+config['gene_to_search_string'] = \
     {'rpoB': 'DNA-directed RNA polymerase subunit beta$',
      'gyrB': 'DNA gyrase subunit B$',
+     'rpoA': 'DNA-directed RNA polymerase subunit alpha$',
+     'rpoC': 'DNA-directed RNA polymerase subunit beta\'$',
+     'lepA': 'Elongation factor 4$',
      'rrnS': '16S ribosomal RNA$'}
-config['marker_gene']['tigrfam'] = \
+
+config['gene_to_tigrfam'] = \
     {'rpoB': 'TIGR02013',
-     'gyrB': 'TIGR01059'}
+     'gyrB': 'TIGR01059',
+     'rpoA': 'TIGR02027',
+     'rpoC': 'TIGR02386',
+     'lepA': 'TIGR01393',
+     }
+
+# {{{1 Link data
 
 rule alias_ormerod_mags:
     output: 'seq/ref.mags.d/{mag_id}.fn'
     input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['ormerod'][wildcards.mag_id]['sra_id'])
+    wildcard_constraints:
+        mag_id='[^.]+'
     shell: "ln -rs {input} {output}"
+
+rule download_m_intestinale_genome:
+    output: 'raw/ref/Muribaculum_intestinale_yl27.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
 
 rule alias_m_intestinale_genome:
     output: 'seq/ref.mags.d/Muribaculum_intestinale_yl27.fn'
@@ -85,25 +110,49 @@ rule alias_all_reference_mags_and_genomes:
     input: expand('seq/ref.mags.d/{mag_id}.fn', mag_id=config['ormerod'].keys()),
            'seq/ref.mags.d/Muribaculum_intestinale_yl27.fn'
 
-localrules: alias_ormerod_mags, alias_all_reference_mags_and_genomes
+localrules: alias_ormerod_mags, download_m_intestinale_genome,
+            alias_m_intestinale_genome, alias_all_reference_mags_and_genomes
 
-rule combine_marker_genes_from_mags:
+# {{{1 Compile data
+
+rule combine_genes_from_mags:
     output:
-        fa='seq/{group}.a.mags.{gene_id}.fa',
-        fn='seq/{group}.a.mags.{gene_id}.fn'
+        fa='seq/{group}.a.mags.{gene_id}-hits.fa',
+        fn='seq/{group}.a.mags.{gene_id}-hits.fn'
+    wildcard_constraints:
+        gene_id='[^.]+'
     input:
-        fa=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.{gene_id}.fa'
+        mags_fa=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
                                   .format(group=wildcards.group,
                                           mag_id=mag_id,
                                           gene_id=wildcards.gene_id)
                               for mag_id
-                              in list(config['ormerod'].keys()) + list(config['mags'].keys())],
-        fn=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.{gene_id}.fn'
+                              in config['mags'].keys()],
+        ormd_fa=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
                                   .format(group=wildcards.group,
                                           mag_id=mag_id,
                                           gene_id=wildcards.gene_id)
                               for mag_id
-                              in list(config['ormerod'].keys()) + list(config['mags'].keys())],
+                              in config['ormerod'].keys()],
+        mags_fn=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.{gene_id}-hits.fn'
+                                  .format(group=wildcards.group,
+                                          mag_id=mag_id,
+                                          gene_id=wildcards.gene_id)
+                              for mag_id
+                              in config['mags'].keys()],
+        ormd_fn=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.{gene_id}-hits.fn'
+                                  .format(group=wildcards.group,
+                                          mag_id=mag_id,
+                                          gene_id=wildcards.gene_id)
+                              for mag_id
+                              in config['ormerod'].keys()],
+    shell:
+        """
+        cat {input.mags_fn} {input.ormd_fn} > {output.fn}
+        cat {input.mags_fa} {input.ormd_fa} > {output.fa}
+        """
+
+localrules: combine_genes_from_mags
 
 # rule process_ormerod_bins:
 #     input:

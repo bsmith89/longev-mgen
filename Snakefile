@@ -128,6 +128,34 @@ rule extract_tigrfam_hmm:
         tar -xzf {input} TIGR{wildcards.num}.HMM -O > {output}
         """
 
+rule download_dBCAN_hmms:
+    output: "raw/ref/dbCAN.hmm"
+    params:
+        url="http://csbl.bmb.uga.edu/dbCAN/download/dbCAN-fam-HMMs.txt.v6"
+    shell: curl_recipe
+
+rule download_dbCAN_meta:
+    output: "raw/ref/dbCAN.tsv"
+    params:
+        url="http://csbl.bmb.uga.edu/dbCAN/download/FamInfo.txt"
+    shell: curl_recipe
+
+rule filter_dbCAN_hmms:
+    output: "ref/dbCAN.hmm"
+    input: "raw/ref/dbCAN.hmm"
+    shell:
+        r"""
+        sed 's:^NAME  \(.*\).hmm$:NAME  \1\nDESC  hypothetical carbohydrate-active domain (\1) containing protein:' {input} > {output}
+        """
+
+rule filter_dbCAN_meta:
+    output: "ref/dbCAN.tsv"
+    input: "raw/ref/dbCAN.tsv"
+    shell:
+        r"""
+        sed '1s:^#Family\t::' {input} > {output}
+        """
+
 rule download_illumina_adapters:
     output: 'raw/ref/illumina_adapters.fn'
     params:
@@ -193,8 +221,10 @@ rule scrape_metacyc_pathways_table:
 
 localrules: download_salask_reference, download_illumina_adapters,
             download_mouse_reference, download_sra_data, download_tigrfam,
-            extract_tigrfam_hmm, download_cog_to_ko_mapping, alias_cog_to_ko_mapping,
-            scrape_metacyc_pathways_table
+            extract_tigrfam_hmm, download_cog_to_ko_mapping,
+            alias_cog_to_ko_mapping, scrape_metacyc_pathways_table,
+            download_dBCAN_hmms, download_dbCAN_meta,
+            filter_dbCAN_hmms, filter_dbCAN_meta
 
 
 # {{{2 Raw data
@@ -822,6 +852,7 @@ rule extract_mbin_reads:
 
 # TODO: Be more explicit than {stem} in the below:
 
+# {{{3 Untargetted
 # TODO: Output the individual files rather than the directory
 rule annotate_mag:
     output:
@@ -837,7 +868,8 @@ rule annotate_mag:
         r"""
         prokka --force --cpus {threads} {input} \
                 --outdir res/{wildcards.stem}.mags.prokka_temp.d --prefix {wildcards.mag_id} \
-                --locustag {wildcards.mag_id}
+                --locustag {wildcards.mag_id} \
+                --metagenome
         mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.faa {output.fa}
         mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.ffn {output.fn}
         mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.gbk {output.gbk}
@@ -903,6 +935,8 @@ rule find_orfs:
     shell:
         "prodigal -q -p meta -i {input} -o /dev/null -d {output.nucl} -a {output.prot}"
 
+# {{{3 Targetted
+
 rule press_hmm:
     output: "ref/hmm/{stem}.hmm.h3f",
             "ref/hmm/{stem}.hmm.h3i",
@@ -932,8 +966,6 @@ rule search_hmm:
                   --tblout >(grep -v '^#' | sed 's:\s\+:\\t:g' | cut -f1,3,6 >> {output}) \\
                   {input.hmm} {input.faa} > /dev/null
         """
-
-# {{{2 Sequences Analysis
 
 # "Permissive" means that we include low scoring and partial hits.
 # TODO: Are there cases where I want to pull this gene not permissively?
@@ -975,6 +1007,8 @@ rule hmmalign_orfs:
         """
         hmmalign --informat FASTA {input.hmm} {input.prot} | convert -f stockholm -t fasta > {output}
         """
+
+# {{{2 Sequences Analysis
 
 rule codonalign:
     output: "seq/{stem}.codonalign.afn"

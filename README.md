@@ -12,6 +12,9 @@
 
 -   prokka
     -   With dbCAN family level database installed see http://csbl.bmb.uga.edu/dbCAN/download.php
+    -   Be sure to insteall dbCAN alphabetically after HAMAP, or else it'll supersede
+        the more interprettable HAMAP annotations.
+    -   TODO: Consider naming these HMM dbs as 0.HAMAP 1.dbCAN etc.
 -   MinPath (v1.4, patched shebang line to 'python2' not 'python'
 -   TODO
 

@@ -1,3 +1,5 @@
+from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
+
 # Compare my MAGs to reference genomes (e.g. Ormerod2016)
 
 # {{{1 Metadata

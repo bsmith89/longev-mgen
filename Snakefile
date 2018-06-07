@@ -2,6 +2,7 @@
 
 from itertools import product
 import pandas as pd
+from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
 
 # {{{1 Configuration
 
@@ -90,12 +91,6 @@ rule configure_git:
         git config --local merge.daff-csv.name "daff.py tabular merge"
         git config --local merge.daff-csv.driver "daff.py merge --output %A %O %A %B"
         """
-
-# Here we have a template for aliasing
-alias_recipe = "ln -rs {input} {output}"
-alias_fmt = lambda input, output: alias_recipe.format(input=input, output=output)
-curl_recipe = "curl '{params.url}' > {output}"
-curl_unzip_recipe = "curl '{params.url}' | zcat > {output}"
 
 # {{{1 Downloading and linking data
 

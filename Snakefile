@@ -372,25 +372,26 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
+# rule alias_mag_contig_file_for_spades:
+#     output: 'seq/{group}.a.mags.d/{mag_id}.fasta'
+#     input: 'seq/{group}.a.mags.d/{mag_id}.fn'
+#     shell: alias_recipe
+#
+# localrules: alias_mag_contig_file_for_spades
 
-rule alias_mbin_contig_file_for_spades:
-    output: 'seq/{group}.a.mbins.d/{mbin_id}.fasta'
-    input: 'seq/{group}.a.mbins.d/{mbin_id}.fn'
-    shell: alias_recipe
-
-localrules: alias_mbin_contig_file_for_spades
-
-rule assemble_mbin:
-    output: fn='seq/{group}.a.mbins.d/{mbin_id}.reasmbl.fn',
-        dir=temp('seq/{group}.a.mbins.d/{mbin_id}.spades.d')
+# TODO: Swap in megahit??
+# TODO: Add back --untrusted-contigs seq/{group}.a.mags.d/{mag_id}.fasta ???
+# TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
+rule reassemble_mag:
+    output: fn='seq/{group}.a.mags.d/{mag_id}.reasmbl.fn',
+        dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
     input:
-        r1='seq/{group}.a.mbins.d/{mbin_id}.m.r1.fq.gz',
-        r2='seq/{group}.a.mbins.d/{mbin_id}.m.r2.fq.gz',
-        contigs='seq/{group}.a.mbins.d/{mbin_id}.fasta'
+        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz',
     threads: max_threads
     shell:
         """
-        spades.py --threads {threads} --careful -1 {input.r1} -2 {input.r2} --untrusted-contigs {input.contigs} -o {output.dir}
+        spades.py --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
         mv {output.dir}/scaffolds.fasta {output.fn}
         ln -rs {output.fn} {output.dir}/scaffolds.fasta
         """
@@ -407,6 +408,18 @@ rule quality_asses_assembly_with_spike:
     shell:
         """
         metaquast.py --threads={threads} --min-contig {params.min_contig_length} -R {input.ref} --output-dir {output} {input.contigs}
+        """
+
+rule quality_asses_reassembly_with_spike:
+    output: 'res/{group}.a.mags.d/{mag_id}.metaquast.d'
+    wildcard_constraints:
+        group='[^.]+',
+    input: contigs='seq/{group}.a.mags.d/{mag_id}.reasmble.fn'
+    threads: max_threads
+    params: min_contig_length=1000,
+    shell:
+        """
+        metaquast.py --threads={threads} --min-contig {params.min_contig_length} --output-dir {output} {input.contigs}
         """
 
 # {{{2 Mapping
@@ -787,54 +800,56 @@ rule query_merge_stats:
 
 localrules: query_merge_stats
 
+# TODO: Automate this??
 rule construct_mag:
-    output: 'res/{group}.a.mags.d/{bin_id}.contigs.list'
+    output: 'res/{group}.a.mags.d/{mag_id}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
+    wildcard_constraints:
+        mag_id='[^.]+'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
 rule get_mag_contigs:
-    output: 'seq/{group}.a.mags.d/{bin_id}.fn'
+    output: 'seq/{group}.a.mags.d/{bin_id}.contigs.fn'
     input:
         ids='res/{group}.a.mags.d/{bin_id}.contigs.list',
         seqs='seq/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-localrules: get_mag_contigs construct_mag
+localrules:  construct_mag, get_mag_contigs
 
 
-# TODO: Also extract paired-ends that didn't map to mbin directly.
+# TODO: Also extract paired-ends that didn't map to mag directly.
 # TODO: Filter out unmatched lines before the fastq step, so that we can keep
 # all of the metadata.
-# TODO: How to get at those reads?
-# TODO: How to make -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
-rule extract_mbin_reads:
+# TODO: How to make (e.g.) -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
+rule extract_mag_reads:
     output:
-        r1_fqgz='seq/{group}.a.mbins.d/{bin_id}.m.r1.fq.gz',
-        r2_fqgz='seq/{group}.a.mbins.d/{bin_id}.m.r2.fq.gz',
-        sam=temp('res/{group}.a.mbins.d/{bin_id}.m.sam'),
-        tmp1=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.1.temp'),
-        tmp2=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.2.temp'),
-        tmp3=temp('res/{group}.a.mbins.d/{bin_id}.m.sam.3.temp')
+        r1_fqgz='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
+        r2_fqgz='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz',
+        sam=temp('res/{group}.a.mags.d/{mag_id}.m.sam'),
+        tmp1=temp('res/{group}.a.mags.d/{mag_id}.m.sam.1.temp'),
+        tmp2=temp('res/{group}.a.mags.d/{mag_id}.m.sam.2.temp'),
+        tmp3=temp('res/{group}.a.mags.d/{mag_id}.m.sam.3.temp')
     input:
         script='scripts/match_paired_reads.py',
         bam='res/{group}.a.contigs.map.sort.bam',
         bai='res/{group}.a.contigs.map.sort.bam.bai',
-        contig_ids='res/{group}.a.mbins.d/{bin_id}.contigs.list'
-    threads: 2
+        contig_ids='res/{group}.a.mags.d/{mag_id}.contigs.list'
+    threads: 6
     shell:
         r"""
-        echo "Outputting header for {wildcards.bin_id}"
+        echo "Outputting header for {wildcards.mag_id}"
         samtools view -H {input.bam} > {output.sam}
 
-        echo "Collecting intra-bin linking pairs for {wildcards.bin_id}"
+        echo "Collecting intra-bin linking pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
             | {input.script} {output.tmp1} >> {output.sam}
 
         # TODO: Figure out how to control memory usage for such a large 'samtool | grep'
-        # echo "Collecting inter-bin linking pairs for {wildcards.bin_id}"
+        # echo "Collecting inter-bin linking pairs for {wildcards.mag_id}"
         # Find all of the linked out-of-bin contigs (output.tmp1).
         # Pull discordant reads that map to these contigs.
         # Then filter by the list of contigs that are in the bin and output
@@ -846,7 +861,7 @@ rule extract_mbin_reads:
         #     >> {output.sam}
         touch {output.tmp2}
 
-        echo "Collecting singly mapped pairs for {wildcards.bin_id}"
+        echo "Collecting singly mapped pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
             | grep -wf {input.contig_ids} > {output.tmp3}
         samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
@@ -854,12 +869,12 @@ rule extract_mbin_reads:
         {input.script} < {output.tmp3} \
             >> {output.sam}
 
-        echo "Collecting proper pairs for {wildcards.bin_id}"
+        echo "Collecting proper pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 3 -F 3852 {input.bam} $(cat {input.contig_ids}) \
             | {input.script} >> {output.sam}
 
-        echo "Converting to GZIPed FASTQ for {wildcards.bin_id}"
-        samtools view -u {output.sam} \
+        echo "Converting to GZIPed FASTQ for {wildcards.mag_id}"
+        samtools view -@ {threads} -u {output.sam} \
             | samtools fastq -@ {threads} -c 6 -1 {output.r1_fqgz} -2 {output.r2_fqgz} -
         """
 

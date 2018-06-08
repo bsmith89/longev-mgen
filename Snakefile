@@ -367,18 +367,14 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
-# rule alias_mag_contig_file_for_spades:
-#     output: 'seq/{group}.a.mags.d/{mag_id}.fasta'
-#     input: 'seq/{group}.a.mags.d/{mag_id}.fn'
-#     shell: alias_recipe
-#
-# localrules: alias_mag_contig_file_for_spades
-
 # TODO: Swap in megahit??
 # TODO: Add back --untrusted-contigs seq/{group}.a.mags.d/{mag_id}.fasta ???
 # TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
+# TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
 rule reassemble_mag:
-    output: fn='seq/{group}.a.mags.d/{mag_id}.reasmbl.fn',
+    output:
+        scaffolds='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
+        contigs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
         dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
     input:
         r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
@@ -387,14 +383,24 @@ rule reassemble_mag:
     shell:
         """
         spades.py --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
-        mv {output.dir}/scaffolds.fasta {output.fn}
-        ln -rs {output.fn} {output.dir}/scaffolds.fasta
+        mv {output.dir}/scaffolds.fasta {output.scaffolds}
+        mv {output.dir}/contigs.fasta {output.contigs}
+        ln -rs {output.scaffolds} {output.dir}/scaffolds.fasta
+        ln -rs {output.contigs} {output.dir}/contigs.fasta
+        """
+
+rule filter_reassembled_contigs:
+    output: 'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn'
+    input: 'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn'
+    shell:
+        """
+        seqtk seq -L 1000 {input} > {output}
         """
 
 # {{{3 QC Assembly
 
 rule quality_asses_assembly_with_spike:
-    output: 'res/{group}.a.contigs.metaquast.d'
+    output: 'res/{group}.a.metaquast.d'
     wildcard_constraints:
         group='[^.]+',
     input: contigs='seq/{group}.a.contigs.fn', ref='raw/ref/salask.fn'
@@ -406,15 +412,18 @@ rule quality_asses_assembly_with_spike:
         """
 
 rule quality_asses_reassembly_with_spike:
-    output: 'res/{group}.a.mags.d/{mag_id}.metaquast.d'
+    output: 'res/{group}.a.mags.d/{mag_id}.a.reasmbl.metaquast.d'
     wildcard_constraints:
         group='[^.]+',
-    input: contigs='seq/{group}.a.mags.d/{mag_id}.reasmble.fn'
+    input:
+        original='seq/{group}.a.mags.d/{mag_id}.contigs.fn',
+        contigs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
+        scaffolds='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn'
     threads: max_threads
     params: min_contig_length=1000,
     shell:
         """
-        metaquast.py --threads={threads} --min-contig {params.min_contig_length} --output-dir {output} {input.contigs}
+        metaquast.py --threads={threads} --min-contig {params.min_contig_length} --output-dir {output} {input.original} {input.contigs} {input.scaffolds}
         """
 
 # {{{2 Mapping
@@ -734,13 +743,13 @@ rule split_out_bins:
 
 rule checkm_bins_or_mags:
     output:
-        outdir=temp('res/{stem}.{bins_or_mbins}.checkm.d'),
-        summary='res/{stem}.{bins_or_mbins}.checkm.tsv'
-    input: 'seq/{stem}.{bins_or_mbins}.d'
+        outdir=temp('res/{stem}.{bins_or_mags}.checkm.d'),
+        summary='res/{stem}.{bins_or_mags}.checkm.tsv'
+    input: 'seq/{stem}.{bins_or_mags}.d'
     wildcard_constraints:
-        bins_or_mbins = 'bins|mbins|mags'
+        bins_or_mags = 'bins|mags'
     threads: max_threads
-    log: 'log/{stem}.{bins_or_mbins}.checkm.log'
+    log: 'log/{stem}.{bins_or_mags}.checkm.log'
     shell:
         r"""
         rm -rf {output}
@@ -811,6 +820,8 @@ rule get_mag_contigs:
     input:
         ids='res/{group}.a.mags.d/{bin_id}.contigs.list',
         seqs='seq/{group}.a.contigs.fn'
+    wildcard_constraints:
+        bin_id='[^.]+'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
 localrules:  construct_mag, get_mag_contigs
@@ -833,7 +844,7 @@ rule extract_mag_reads:
         bam='res/{group}.a.contigs.map.sort.bam',
         bai='res/{group}.a.contigs.map.sort.bam.bai',
         contig_ids='res/{group}.a.mags.d/{mag_id}.contigs.list'
-    threads: 6
+    threads: 5
     shell:
         r"""
         echo "Outputting header for {wildcards.mag_id}"

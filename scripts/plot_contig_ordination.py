@@ -43,3 +43,4 @@ if __name__ == "__main__":
     ax.set_xticks([])
     ax.set_yticks([])
     fig.savefig(sys.argv[-1], dpi=240)
+    logger.debug('Figure saved to {}'.format(sys.argv[-1]))

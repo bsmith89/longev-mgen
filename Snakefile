@@ -378,7 +378,7 @@ rule reassemble_mag:
         dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
     input:
         r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz'
     threads: max_threads
     shell:
         """
@@ -833,55 +833,57 @@ localrules:  construct_mag, get_mag_contigs
 # TODO: How to make (e.g.) -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
 rule extract_mag_reads:
     output:
-        r1_fqgz='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
-        r2_fqgz='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz',
-        sam=temp('res/{group}.a.mags.d/{mag_id}.m.sam'),
-        tmp1=temp('res/{group}.a.mags.d/{mag_id}.m.sam.1.temp'),
-        tmp2=temp('res/{group}.a.mags.d/{mag_id}.m.sam.2.temp'),
-        tmp3=temp('res/{group}.a.mags.d/{mag_id}.m.sam.3.temp')
+        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz',
     input:
         script='scripts/match_paired_reads.py',
         bam='res/{group}.a.contigs.map.sort.bam',
         bai='res/{group}.a.contigs.map.sort.bam.bai',
         contig_ids='res/{group}.a.mags.d/{mag_id}.contigs.list'
     threads: 5
+    params:
+        sam=temp('res/{group}.a.mags.d/{mag_id}.m.sam'),
+        tmp1=temp('res/{group}.a.mags.d/{mag_id}.m.sam.1.temp'),
+        tmp2=temp('res/{group}.a.mags.d/{mag_id}.m.sam.2.temp'),
+        tmp3=temp('res/{group}.a.mags.d/{mag_id}.m.sam.3.temp')
     shell:
         r"""
         echo "Outputting header for {wildcards.mag_id}"
-        samtools view -H {input.bam} > {output.sam}
+        samtools view -H {input.bam} > {params.sam}
 
         echo "Collecting intra-bin linking pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} {output.tmp1} >> {output.sam}
+            | {input.script} {params.tmp1} >> {params.sam}
 
         # TODO: Figure out how to control memory usage for such a large 'samtool | grep'
         # echo "Collecting inter-bin linking pairs for {wildcards.mag_id}"
-        # Find all of the linked out-of-bin contigs (output.tmp1).
+        # Find all of the linked out-of-bin contigs (params.tmp1).
         # Pull discordant reads that map to these contigs.
         # Then filter by the list of contigs that are in the bin and output
         # these lines to the sam-file.
         # samtools view -@ {threads} -f 1 -F 3854 {input.bam} \
-        #         $(cut -f7 {output.tmp1} | sort | uniq) \
-        #     | grep -wf {input.contig_ids} >> {output.tmp2}
-        # cat {output.tmp1} {output.tmp2} | {input.script} \
-        #     >> {output.sam}
-        touch {output.tmp2}
+        #         $(cut -f7 {params.tmp1} | sort | uniq) \
+        #     | grep -wf {input.contig_ids} >> {params.tmp2}
+        # cat {params.tmp1} {params.tmp2} | {input.script} \
+        #     >> {params.sam}
+        touch {params.tmp2}
 
         echo "Collecting singly mapped pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
-            | grep -wf {input.contig_ids} > {output.tmp3}
+            | grep -wf {input.contig_ids} > {params.tmp3}
         samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
-            >> {output.tmp3}
-        {input.script} < {output.tmp3} \
-            >> {output.sam}
+            >> {params.tmp3}
+        {input.script} < {params.tmp3} \
+            >> {params.sam}
 
         echo "Collecting proper pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 3 -F 3852 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} >> {output.sam}
+            | {input.script} >> {params.sam}
 
         echo "Converting to GZIPed FASTQ for {wildcards.mag_id}"
-        samtools view -@ {threads} -u {output.sam} \
-            | samtools fastq -@ {threads} -c 6 -1 {output.r1_fqgz} -2 {output.r2_fqgz} -
+        samtools view -@ {threads} -u {params.sam} \
+            | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
+        rm -rf {params.sam} {params.tmp1} {params.tmp2} {params.tmp3}
         """
 
 

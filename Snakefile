@@ -367,35 +367,79 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
-# TODO: Swap in megahit??
-# TODO: Add back --untrusted-contigs seq/{group}.a.mags.d/{mag_id}.fasta ???
+
+
+rule diginorm_reads:
+    output:
+        r1='seq/{stem}.r1.dnorm.fq.gz',
+        r2='seq/{stem}.r2.dnorm.fq.gz',
+        hash='res/{stem}.diginorm.kh'
+    input:
+        r1='seq/{stem}.r1.fq.gz',
+        r2='seq/{stem}.r2.fq.gz'
+    params:
+        ksize=20,
+        thresh=20,
+        maxmem='6e9'
+    threads: 5
+    shell:
+        r"""
+        tmpfile1=$(mktemp)
+        tmpfile2=$(mktemp)
+        tmpfile3=$(mktemp)
+        tmpfile4=$(mktemp)
+        echo "Interleaving paired-end reads > $tmpfile1"
+        paste <(zcat {input.r1}) <(zcat {input.r2})  | paste - - - - \
+                | awk -v OFS="\n" -v FS="\t" '{{print($1"/1",$3,$5,$7,$2"/2",$4,$6,$8)}}' \
+                > $tmpfile1
+        echo "Downsampling high-coverage reads > $tmpfile2"
+        normalize-by-median.py -p \
+                -k {params.ksize} -C {params.thresh} --max-memory-usage {params.maxmem} \
+                -s $tmpfile3 --output $tmpfile2 $tmpfile1
+        echo "Bloom-filter > $tmpfile3"
+        echo "Trimming likely-erroneous sequence > $tmpfile4"
+        filter-abund.py -T {threads} --variable-coverage -f --output $tmpfile4 $tmpfile3 $tmpfile2
+        echo "Splitting paired-ends > {output.r1} and > {output.r2}"
+        seqtk seq -1 >(gzip {output.r1}) -2 >(gzip {output.r2}) $tmpfile4
+        echo "Copying bloom-filter > {output.hash}"
+        cp $tmpfile3 {output.hash}
+        """
+
 # TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
 # TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
+# TODO: Rename contigs with mag_id stem.
 rule reassemble_mag:
     output:
         scaffolds='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
         contigs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
         dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
     input:
-        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz'
+        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.dnorm.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.dnorm.fq.gz'
     threads: max_threads
     shell:
         """
-        spades.py --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
-        mv {output.dir}/scaffolds.fasta {output.scaffolds}
-        mv {output.dir}/contigs.fasta {output.contigs}
-        ln -rs {output.scaffolds} {output.dir}/scaffolds.fasta
-        ln -rs {output.contigs} {output.dir}/contigs.fasta
+        spades.py --continue --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
+        cp {output.dir}/scaffolds.fasta {output.scaffolds}
+        cp {output.dir}/contigs.fasta {output.contigs}
         """
 
 rule filter_reassembled_contigs:
-    output: 'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn'
-    input: 'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn'
+    output: 'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.{contigs_or_scaffolds}.fn'
+    input:
+        script='scripts/filter_spades_contigs.py',
+        seqs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.{contigs_or_scaffolds}.unfilt.fn'
+    wildcard_constraints:
+        contigs_or_scaffolds='contigs|scaffolds'
+    params:
+        length_threshold = 1000,
+        coverage_threshold = 0.1
     shell:
         """
-        seqtk seq -L 1000 {input} > {output}
+        {input.script} {params.length_threshold} {params.coverage_threshold} < {input.seqs} > {output}
         """
+
+localrules: filter_reassembled_contigs
 
 # {{{3 QC Assembly
 

@@ -24,9 +24,13 @@ cluster_contigs:
     pmem: 25000
     walltime: '03:00:00:00'
 checkm_bins_or_mags:
-    walltime: '01:00:00:00'
+    walltime: '00:10:00:00'
 checkm_content_merge:
     walltime: '12:00:00:00'
 annotate_mag:
     walltime: '00:01:00:00'
     ppn: 4
+extract_mag_reads:
+    walltime: '00:08:00:00'
+reassemble_mag:
+    walltime: '01:00:00:00'

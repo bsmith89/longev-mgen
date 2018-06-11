@@ -34,3 +34,5 @@ extract_mag_reads:
     walltime: '00:08:00:00'
 reassemble_mag:
     walltime: '01:00:00:00'
+diginorm_reads:
+    walltime: '00:08:00:00'

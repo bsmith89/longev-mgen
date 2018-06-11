@@ -444,7 +444,7 @@ localrules: filter_reassembled_contigs
 # {{{3 QC Assembly
 
 rule quality_asses_assembly_with_spike:
-    output: 'res/{group}.a.metaquast.d'
+    output: 'res/{group}.a.quast.d'
     wildcard_constraints:
         group='[^.]+',
     input: contigs='seq/{group}.a.contigs.fn', ref='raw/ref/salask.fn'
@@ -455,20 +455,25 @@ rule quality_asses_assembly_with_spike:
         metaquast.py --threads={threads} --min-contig {params.min_contig_length} -R {input.ref} --output-dir {output} {input.contigs}
         """
 
-rule quality_asses_reassembly_with_spike:
-    output: 'res/{group}.a.mags.d/{mag_id}.a.reasmbl.metaquast.d'
+# TODO: Custom (non-16S) blast db for reference finding
+# see http://quast.bioinf.spbau.ru/manual.html#faq_q12
+rule quality_asses_reassembly:
+    output: 'res/{group}.a.mags.d/{mag_id}.a.reasmbl.quast.d'
     wildcard_constraints:
         group='[^.]+',
     input:
-        original='seq/{group}.a.mags.d/{mag_id}.contigs.fn',
-        contigs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
-        scaffolds='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn'
-    threads: max_threads
-    params: min_contig_length=1000,
+        'seq/{group}.a.mags.d/{mag_id}.contigs.fn',
+        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
+        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
+        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
+        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn'
+    threads: 5
     shell:
         """
-        metaquast.py --threads={threads} --min-contig {params.min_contig_length} --output-dir {output} {input.original} {input.contigs} {input.scaffolds}
+        quast.py --threads={threads} --min-contig 0 --output-dir {output} {input}
         """
+
+localrules: quality_asses_reassembly
 
 # {{{2 Mapping
 

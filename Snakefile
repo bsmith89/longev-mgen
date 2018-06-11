@@ -367,44 +367,6 @@ rule assemble_mgen:
         cp {output.outdir}/log {log}
         """
 
-
-
-rule diginorm_reads:
-    output:
-        r1='seq/{stem}.r1.dnorm.fq.gz',
-        r2='seq/{stem}.r2.dnorm.fq.gz',
-        hash='res/{stem}.diginorm.kh'
-    input:
-        r1='seq/{stem}.r1.fq.gz',
-        r2='seq/{stem}.r2.fq.gz'
-    params:
-        ksize=20,
-        thresh=20,
-        maxmem='6e9'
-    threads: 5
-    shell:
-        r"""
-        tmpfile1=$(mktemp)
-        tmpfile2=$(mktemp)
-        tmpfile3=$(mktemp)
-        tmpfile4=$(mktemp)
-        echo "Interleaving paired-end reads > $tmpfile1"
-        paste <(zcat {input.r1}) <(zcat {input.r2})  | paste - - - - \
-                | awk -v OFS="\n" -v FS="\t" '{{print($1"/1",$3,$5,$7,$2"/2",$4,$6,$8)}}' \
-                > $tmpfile1
-        echo "Downsampling high-coverage reads > $tmpfile2"
-        normalize-by-median.py -p \
-                -k {params.ksize} -C {params.thresh} --max-memory-usage {params.maxmem} \
-                -s $tmpfile3 --output $tmpfile2 $tmpfile1
-        echo "Bloom-filter > $tmpfile3"
-        echo "Trimming likely-erroneous sequence > $tmpfile4"
-        filter-abund.py -T {threads} --variable-coverage -f --output $tmpfile4 $tmpfile3 $tmpfile2
-        echo "Splitting paired-ends > {output.r1} and > {output.r2}"
-        seqtk seq -1 >(gzip {output.r1}) -2 >(gzip {output.r2}) $tmpfile4
-        echo "Copying bloom-filter > {output.hash}"
-        cp $tmpfile3 {output.hash}
-        """
-
 # TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
 # TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
 # TODO: Rename contigs with mag_id stem.
@@ -935,6 +897,24 @@ rule extract_mag_reads:
         rm -rf {params.sam} {params.tmp1} {params.tmp2} {params.tmp3}
         """
 
+rule diginorm_reads:
+    output:
+        r1='seq/{stem}.r1.dnorm.fq.gz',
+        r2='seq/{stem}.r2.dnorm.fq.gz'
+    input:
+        r1='seq/{stem}.r1.fq.gz',
+        r2='seq/{stem}.r2.fq.gz'
+    params:
+        ksize=32,
+        tablecols=1024,
+        tablerows=10
+    threads: 2
+    shell:
+        """
+        Bignorm -1 {input.r1} -2 {input.r2} -k {params.ksize} --both -m {params.tablecols} -t {params.tablerows} -z
+        mv {input.r1}_keep.gz {output.r1}
+        mv {input.r2}_keep.gz {output.r2}
+        """
 
 # {{{2 Annotation
 

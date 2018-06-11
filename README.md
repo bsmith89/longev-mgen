@@ -16,6 +16,7 @@
         the more interprettable HAMAP annotations.
     -   TODO: Consider naming these HMM dbs as 0.HAMAP 1.dbCAN etc.
 -   MinPath (v1.4, patched shebang line to 'python2' not 'python'
+-   Bignorm (see https://git.informatik.uni-kiel.de/axw/Bignorm)
 -   TODO
 
 # Bin refinement

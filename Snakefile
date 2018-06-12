@@ -852,10 +852,23 @@ rule get_mag_contigs:
 localrules:  construct_mag, get_mag_contigs
 
 
-# TODO: Also extract paired-ends that didn't map to mag directly.
 # TODO: Filter out unmatched lines before the fastq step, so that we can keep
 # all of the metadata.
 # TODO: How to make (e.g.) -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
+# TODO: Extract reads from only the samples with the highest abundance of each MAG
+# TODO: Also extract paired-ends that didn't map to mag directly.
+# TODO: Figure out how to control memory usage for the following
+# large 'samtool | grep':
+# echo "Collecting inter-bin linking pairs for {wildcards.mag_id}"
+# Find all of the linked out-of-bin contigs (params.tmp1).
+# Pull discordant reads that map to these contigs.
+# Then filter by the list of contigs that are in the bin and output
+# these lines to the sam-file.
+# samtools view -@ {threads} -f 1 -F 3854 {input.bam} \
+#         $(cut -f7 {params.tmp1} | sort | uniq) \
+#     | grep -wf {input.contig_ids} >> {params.tmp3}
+# cat {params.tmp1} {params.tmp3} | {input.script} \
+#     >> {params.sam}
 rule extract_mag_reads:
     output:
         r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
@@ -869,8 +882,7 @@ rule extract_mag_reads:
     params:
         sam=temp('res/{group}.a.mags.d/{mag_id}.m.sam'),
         tmp1=temp('res/{group}.a.mags.d/{mag_id}.m.sam.1.temp'),
-        tmp2=temp('res/{group}.a.mags.d/{mag_id}.m.sam.2.temp'),
-        tmp3=temp('res/{group}.a.mags.d/{mag_id}.m.sam.3.temp')
+        tmp2=temp('res/{group}.a.mags.d/{mag_id}.m.sam.3.temp')
     shell:
         r"""
         echo "Outputting header for {wildcards.mag_id}"
@@ -880,25 +892,12 @@ rule extract_mag_reads:
         samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
             | {input.script} {params.tmp1} >> {params.sam}
 
-        # TODO: Figure out how to control memory usage for such a large 'samtool | grep'
-        # echo "Collecting inter-bin linking pairs for {wildcards.mag_id}"
-        # Find all of the linked out-of-bin contigs (params.tmp1).
-        # Pull discordant reads that map to these contigs.
-        # Then filter by the list of contigs that are in the bin and output
-        # these lines to the sam-file.
-        # samtools view -@ {threads} -f 1 -F 3854 {input.bam} \
-        #         $(cut -f7 {params.tmp1} | sort | uniq) \
-        #     | grep -wf {input.contig_ids} >> {params.tmp2}
-        # cat {params.tmp1} {params.tmp2} | {input.script} \
-        #     >> {params.sam}
-        touch {params.tmp2}
-
         echo "Collecting singly mapped pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
-            | grep -wf {input.contig_ids} > {params.tmp3}
+            | grep -wf {input.contig_ids} > {params.tmp2}
         samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
-            >> {params.tmp3}
-        {input.script} < {params.tmp3} \
+            >> {params.tmp2}
+        {input.script} < {params.tmp2} \
             >> {params.sam}
 
         echo "Collecting proper pairs for {wildcards.mag_id}"
@@ -908,7 +907,7 @@ rule extract_mag_reads:
         echo "Converting to GZIPed FASTQ for {wildcards.mag_id}"
         samtools view -@ {threads} -u {params.sam} \
             | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
-        rm -rf {params.sam} {params.tmp1} {params.tmp2} {params.tmp3}
+        rm -rf {params.sam} {params.tmp1} {params.tmp2}
         """
 
 rule diginorm_reads:

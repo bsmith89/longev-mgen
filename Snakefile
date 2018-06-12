@@ -142,9 +142,9 @@ rule extract_tigrfam_hmm:
         tar -xzf {input} TIGR{wildcards.num}.HMM -O > {output}
         """
 
-rule alias_tigrfam_hmm:
+rule alias_hmm:
     output: "ref/hmm/{alias}.hmm"
-    input: lambda wildcards: "ref/hmm/{}.hmm".format(config['gene_to_tigrfam'][wildcards.alias])
+    input: lambda wildcards: "ref/hmm/{}.hmm".format(config['gene_to_hmm'][wildcards.alias])
     shell: alias_recipe
 
 localrules: download_tigrfam, extract_tigrfam_hmm, alias_tigrfam_hmm
@@ -948,10 +948,11 @@ rule diginorm_reads:
 
 # {{{3 Untargetted
 # TODO: Output the individual files rather than the directory
+# TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="seq/{stem}.mags.annot.d/{mag_id}.prokka.fa",
-        fn="seq/{stem}.mags.annot.d/{mag_id}.prokka.fn",
+        fa="seq/{stem}.mags.annot.d/{mag_id}.cds.fa",
+        fn="seq/{stem}.mags.annot.d/{mag_id}.cds.fn",
         gbk="seq/{stem}.mags.annot.d/{mag_id}.prokka.gbk",
         tbl="res/{stem}.mags.annot.d/{mag_id}.prokka.tbl",
         tsv="res/{stem}.mags.annot.d/{mag_id}.prokka.tsv",
@@ -1023,44 +1024,8 @@ rule extract_metacyc_list:
 
 localrules: extract_cogs, extract_ec_numbers, annotate_pathways, extract_metacyc_list
 
-rule find_orfs:
-    output: nucl="{stem}.orfs.fn", prot="{stem}.orfs.fa"
-    input: "{stem}.fn"
-    shell:
-        "prodigal -q -p meta -i {input} -o /dev/null -d {output.nucl} -a {output.prot}"
 
 # {{{3 Targetted
-
-# {{{4 From Prokka
-
-rule pull_annotated_genes:
-    output: fn='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fn',
-            fa='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
-    input:
-        fn='seq/{stem}.mags.annot.d/{mag_id}.prokka.fn',
-        fa='seq/{stem}.mags.annot.d/{mag_id}.prokka.fa',
-        tsv='res/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
-    params:
-        search_string=lambda wildcards: config['gene_to_search_string'][wildcards.gene_id]
-    shell:
-        """
-        # Nucleotide
-        seqtk subseq {input.fn} \
-            <(awk -v FS='\t' \
-                  -v search_string='{params.search_string}' \
-                  '$7~search_string{{print $1}}' {input.tsv} \
-             ) \
-            > {output.fn}
-        # Amino-acid
-        seqtk subseq {input.fa} \
-            <(awk -v FS='\t' \
-                  -v search_string='{params.search_string}' \
-                  '$7~search_string{{print $1}}' {input.tsv} \
-             ) \
-            > {output.fa}
-        """
-
-# {{{4 Independent of Prokka
 
 
 rule press_hmm:
@@ -1095,14 +1060,14 @@ rule search_hmm:
 
 # "Permissive" means that we include low scoring and partial hits.
 # TODO: Are there cases where I want to pull this gene not permissively?
-rule gather_hit_orfs_permissive:
+rule gather_hit_cds_permissive:
     output:
-        nucl="seq/{stem}.orfs.{hmm}-hits.fn",
-        prot="seq/{stem}.orfs.{hmm}-hits.fa"
+        nucl="seq/{stem}.cds.{hmm}-hits.fn",
+        prot="seq/{stem}.cds.{hmm}-hits.fa"
     input:
-        hit_table="res/{stem}.orfs.{hmm}-hits.hmmer-nc.tsv",
-        nucl="seq/{stem}.orfs.fn",
-        prot="seq/{stem}.orfs.fa"
+        hit_table="res/{stem}.cds.{hmm}-hits.hmmer-nc.tsv",
+        nucl="seq/{stem}.cds.fn",
+        prot="seq/{stem}.cds.fa"
     shell:
         """
         seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.nucl}
@@ -1123,16 +1088,6 @@ rule gather_hit_orfs_permissive:
 #         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) | grep --no-group-separator -A1 'partial=00' > {output.prot}
 #         """
 #
-rule hmmalign_hit_orfs:
-    output: "seq/{stem}.orfs.{hmm}-hits.afa",
-    input:
-        prot="seq/{stem}.orfs.{hmm}-hits.fa",
-        hmm="ref/hmm/{hmm}.hmm"
-    shell:
-        """
-        hmmalign --informat fasta {input.hmm} {input.prot} | convert -f stockholm -t fasta > {output}
-        """
-
 
 # {{{2 Sequences Analysis
 

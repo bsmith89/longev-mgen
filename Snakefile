@@ -799,6 +799,7 @@ rule generate_checkm_markerset:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
 # {{{3 Refine bins
+
 # TODO: Understand what field 9 in checkM output file is.
 # (I _think_ it's the difference between the increased completeness and the
 # increased contamination.)
@@ -1010,7 +1011,6 @@ rule extract_metacyc_list:
 
 
 localrules: extract_cogs, extract_ec_numbers, annotate_pathways, extract_metacyc_list
-
 
 # {{{3 Targetted
 

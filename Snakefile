@@ -104,6 +104,11 @@ rule download_salask_reference:
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000356.1&rettype=fasta&retmode=text'
     shell: curl_recipe
 
+rule alias_salask_reference:
+    output: 'ref/salask.fn'
+    input: 'raw/ref/salask.fn'
+    shell: alias_recipe
+
 rule download_mouse_reference:
     output: 'raw/ref/mouse.fn'
     params:
@@ -117,7 +122,7 @@ rule download_sra_data:
         fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
         """
 
-localrules: download_salask_reference,
+localrules: download_salask_reference, alias_salask_reference,
             download_mouse_reference, download_sra_data,
 
 # {{{3 TIGRFAM
@@ -424,15 +429,36 @@ rule quality_asses_reassembly:
     wildcard_constraints:
         group='[^.]+',
     input:
-        'seq/{group}.a.mags.d/{mag_id}.contigs.fn',
-        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
-        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
-        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
-        'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn'
+        asmbl=['seq/{group}.a.mags.d/{mag_id}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn']
     threads: 5
     shell:
         """
-        quast.py --threads={threads} --min-contig 0 --output-dir {output} {input}
+        metaquast.py --max-ref-number 1 --threads={threads} --min-contig 0 --output-dir {output} \
+                --labels "Original, Contigs (unfiltered), Scaffolds (unfiltered), Contigs, Scaffolds" \
+                {input.asmbl}
+        """
+
+# TODO: Custom (non-16S) blast db for reference finding
+# see http://quast.bioinf.spbau.ru/manual.html#faq_q12
+rule quality_asses_spike_reassembly:
+    output: 'res/{group}.a.mags.d/{mag_id}.a.reasmbl.quast-spike.d'
+    wildcard_constraints:
+        group='[^.]+',
+    input:
+        ref='ref/salask.fn',
+        asmbl=['seq/{group}.a.mags.d/{mag_id}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn']
+    threads: 5
+    shell:
+        """
+        quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.ref} {input.asmbl}
         """
 
 localrules: quality_asses_reassembly

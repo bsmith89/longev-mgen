@@ -401,7 +401,7 @@ rule filter_reassembled_contigs:
         contigs_or_scaffolds='contigs|scaffolds'
     params:
         length_threshold = 1000,
-        coverage_threshold = 0.1
+        coverage_threshold = 0.05
     shell:
         """
         {input.script} {params.length_threshold} {params.coverage_threshold} < {input.seqs} > {output}

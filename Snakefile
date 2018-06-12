@@ -386,7 +386,7 @@ rule reassemble_mag:
     threads: max_threads
     shell:
         """
-        spades.py --continue --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
+        spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
         cp {output.dir}/scaffolds.fasta {output.scaffolds}
         cp {output.dir}/contigs.fasta {output.contigs}
         """

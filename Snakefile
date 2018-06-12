@@ -673,18 +673,6 @@ rule unstack_cvrg:
 
 # {{{3 Prepare input data
 
-
-# rule count_tetramers:
-#     output: "res/{stem}.contigs.4mers.tsv"
-#     input: script="scripts/count_kmers.py", seq="seq/{stem}.contigs.fn"
-#     threads: 1
-#     shell:
-#         """
-#         {input.script} 4 ACGT {input.seq} | sed '1,1s:seq_id:contig_id:' > {output}
-#         """
-#
-# TODO: scripts/count_kmers.py
-# TODO: scripts/transform_contig_space.py
 rule transform_contig_space:
     output:
         pca='res/{group}.a.contigs.concoct.pca.tsv',
@@ -1027,6 +1015,34 @@ localrules: extract_cogs, extract_ec_numbers, annotate_pathways, extract_metacyc
 
 # {{{3 Targetted
 
+# rule pull_annotated_genes:
+#     output: fn='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fn',
+#             fa='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
+#     input:
+#         fn='seq/{stem}.mags.annot.d/{mag_id}.prokka.fn',
+#         fa='seq/{stem}.mags.annot.d/{mag_id}.prokka.fa',
+#         tsv='res/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
+#     params:
+#         search_string=lambda wildcards: config['gene_to_search_string'][wildcards.gene_id]
+#     shell:
+#         """
+#         # Nucleotide
+#         seqtk subseq {input.fn} \
+#             <(awk -v FS='\t' \
+#                   -v search_string='{params.search_string}' \
+#                   '$7~search_string{{print $1}}' {input.tsv} \
+#              ) \
+#             > {output.fn}
+#         # Amino-acid
+#         seqtk subseq {input.fa} \
+#             <(awk -v FS='\t' \
+#                   -v search_string='{params.search_string}' \
+#                   '$7~search_string{{print $1}}' {input.tsv} \
+#              ) \
+#             > {output.fa}
+#         """
+#
+# localrules: pull_annotated_genes
 
 rule press_hmm:
     output: "ref/hmm/{stem}.hmm.h3f",
@@ -1073,21 +1089,6 @@ rule gather_hit_cds_permissive:
         seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.nucl}
         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.prot}
         """
-
-# rule gather_hit_complete_orfs:
-#     output:
-#         nucl="seq/{stem}.orfs.{hmm}-hits.fn",
-#         prot="seq/{stem}.orfs.{hmm}-hits.fa"
-#     input:
-#         hit_table="res/{stem}.orfs.{hmm}-hits.hmmer-ga.tsv",
-#         nucl="seq/{stem}.orfs.fn",
-#         prot="seq/{stem}.orfs.fa"
-#     shell:
-#         """
-#         seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1) | grep --no-group-separator -A1 'partial=00' > {output.nucl}
-#         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) | grep --no-group-separator -A1 'partial=00' > {output.prot}
-#         """
-#
 
 # {{{2 Sequences Analysis
 

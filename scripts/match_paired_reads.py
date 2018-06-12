@@ -28,8 +28,8 @@ if __name__ == "__main__":
                 print(read, file=handle, end='')
     else:
         print('No unmatched read filename provided.', file=sys.stderr)
-    if len(unmatched_reads) > 0:
-        print('WARNING: Unmatched reads will not be saved.'.format(sys.argv[1]),
-            file=sys.stderr)
+        if len(unmatched_reads) > 0:
+            print('WARNING: Unmatched reads will not be saved.'.format(sys.argv[1]),
+                file=sys.stderr)
 
 

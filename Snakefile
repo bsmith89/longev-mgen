@@ -881,35 +881,34 @@ rule extract_mag_reads:
         bai='res/{group}.a.contigs.map.sort.bam.bai',
         contig_ids='res/{group}.a.mags.d/{mag_id}.contigs.list'
     threads: 5
-    params:
-        sam=temp('res/{group}.a.mags.d/{mag_id}.m.sam'),
-        tmp1=temp('res/{group}.a.mags.d/{mag_id}.m.sam.1.temp'),
-        tmp2=temp('res/{group}.a.mags.d/{mag_id}.m.sam.3.temp')
     shell:
         r"""
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        sam=$(mktemp)
+
         echo "Outputting header for {wildcards.mag_id}"
-        samtools view -H {input.bam} > {params.sam}
+        samtools view -H {input.bam} > $sam
 
         echo "Collecting intra-bin linking pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} {params.tmp1} >> {params.sam}
+            | {input.script} $tmp1 >> $sam
 
         echo "Collecting singly mapped pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
-            | grep -wf {input.contig_ids} > {params.tmp2}
+            | grep -wf {input.contig_ids} > $tmp2
         samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
-            >> {params.tmp2}
-        {input.script} < {params.tmp2} \
-            >> {params.sam}
+            >> $tmp2
+        {input.script} < $tmp2 \
+            >> $sam
 
         echo "Collecting proper pairs for {wildcards.mag_id}"
         samtools view -@ {threads} -f 3 -F 3852 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} >> {params.sam}
+            | {input.script} >> $sam
 
         echo "Converting to GZIPed FASTQ for {wildcards.mag_id}"
-        samtools view -@ {threads} -u {params.sam} \
+        samtools view -@ {threads} -u $sam \
             | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
-        rm -rf {params.sam} {params.tmp1} {params.tmp2}
         """
 
 rule diginorm_reads:

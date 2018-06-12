@@ -337,6 +337,7 @@ localrules: alias_read_processing_r1, alias_read_processing_r2
 
 # {{{3 MEGAHIT
 
+# TODO: Consider dropping the contig renaming since it's redundant with the filename.
 rule assemble_mgen:
     output:
         fasta='seq/{group}.a.contigs.fn',

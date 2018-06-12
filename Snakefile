@@ -383,7 +383,7 @@ rule reassemble_mag:
     input:
         r1='seq/{group}.a.mags.d/{mag_id}.m.r1.dnorm.fq.gz',
         r2='seq/{group}.a.mags.d/{mag_id}.m.r2.dnorm.fq.gz'
-    threads: max_threads
+    threads: 15
     shell:
         """
         spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}

@@ -480,7 +480,7 @@ rule bowtie_index_build:
         group='[^.]+',
     input: 'seq/{group}.a.contigs.fn'
     log: 'log/{group}.a.contigs.bowtie2-build.log'
-    threads: min(max_threads, 14)
+    threads: 15
     shell:
         """
         bowtie2-build --threads {threads} {input} seq/{wildcards.group}.a.contigs >{log} 2>&1

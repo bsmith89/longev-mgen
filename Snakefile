@@ -470,38 +470,20 @@ localrules: quality_asses_reassembly
 
 rule bowtie_index_build:
     output:
-        'seq/{group}.a.contigs.1.bt2',
-        'seq/{group}.a.contigs.2.bt2',
-        'seq/{group}.a.contigs.3.bt2',
-        'seq/{group}.a.contigs.4.bt2',
-        'seq/{group}.a.contigs.rev.1.bt2',
-        'seq/{group}.a.contigs.rev.2.bt2'
+        'seq/{group}.1.bt2',
+        'seq/{group}.2.bt2',
+        'seq/{group}.3.bt2',
+        'seq/{group}.4.bt2',
+        'seq/{group}.rev.1.bt2',
+        'seq/{group}.rev.2.bt2'
     wildcard_constraints:
         group='[^.]+',
-    input: 'seq/{group}.a.contigs.fn'
-    log: 'log/{group}.a.contigs.bowtie2-build.log'
+    input: 'seq/{stem}.fn'
+    log: 'log/{stem}.bowtie2-build.log'
     threads: 15
     shell:
         """
-        bowtie2-build --threads {threads} {input} seq/{wildcards.group}.a.contigs >{log} 2>&1
-        """
-
-rule bowtie_mag_reassembly_index_build:
-    output:
-        inx_1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.2.bt2',
-    wildcard_constraints:
-        group='[^.]+',
-    input: 'seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.fn'
-    log: 'log/{group}.a.{mag}-contigs.bowtie2-build.log'
-    threads: 15
-    shell:
-        """
-        bowtie2-build --threads {threads} {input} seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.reasmbl.contigs >{log} 2>&1
+        bowtie2-build --threads {threads} {input} seq/{wildcards.stem} >{log} 2>&1
         """
 
 # {{{3 Backmap to an assembly

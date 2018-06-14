@@ -129,9 +129,9 @@ CREATE INDEX idx__bin_complementarity__bin_id_2 ON _bin_complementarity(bin_id_2
 
 -- {{{1 Views
 
-CREATE VIEW library_total_coverage AS
-  SELECT library_id, SUM(coverage) AS coverage
-  FROM contig_coverage
+CREATE VIEW library_total_nucleotides_mapping AS
+  SELECT library_id, SUM(mapping_count) AS mapping_count
+  FROM total_nucleotides_mapping
   GROUP BY library_id
 ;
 

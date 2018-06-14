@@ -506,11 +506,12 @@ rule map_reads_metagenome_assembly:
     threads: max_threads
     shell:
         r"""
+        tmp=$(mktemp)
         bowtie2 --threads {threads} \
                 -x seq/{wildcards.group}.a.contigs \
-                -rg-id {wildcards.library} \
-                -1 {input.r1} -2 {input.r2} \
-            | samtools sort --output-fmt=BAM -o {output}
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} -S $tmp
+        samtools sort -@ {threads} --output-fmt=BAM -o {output} $tmp
         """
 
 rule map_reads_to_mag_reassembly:

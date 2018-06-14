@@ -486,10 +486,28 @@ rule bowtie_index_build:
         bowtie2-build --threads {threads} {input} seq/{wildcards.group}.a.contigs >{log} 2>&1
         """
 
+rule bowtie_mag_reassembly_index_build:
+    output:
+        inx_1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.2.bt2',
+    wildcard_constraints:
+        group='[^.]+',
+    input: 'seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.fn'
+    log: 'log/{group}.a.{mag}-contigs.bowtie2-build.log'
+    threads: 15
+    shell:
+        """
+        bowtie2-build --threads {threads} {input} seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.reasmbl.contigs >{log} 2>&1
+        """
+
 # {{{3 Backmap to an assembly
 
 # Backmap with assembly from reads processed identically
-rule map_reads_to_assembly:
+rule map_reads_metagenome_assembly:
     output: 'res/{library}.m.{group}-map.sort.bam'
     wildcard_constraints:
         library='[^.]+',
@@ -511,6 +529,31 @@ rule map_reads_to_assembly:
                 -rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools sort --output-fmt=BAM -o {output}
+        """
+
+rule map_reads_to_mag_reassembly:
+    output: 'res/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
+    wildcard_constraints:
+        library='[^.]+',
+        group='[^.]+',
+        mag='[^.]+',
+    input:
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.2.bt2',
+    threads: max_threads
+    shell:
+        r"""
+        bowtie2 --threads {threads} \
+                -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.reasmbl.contigs \
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} -S $tmp
+        samtools sort -@ {threads} --output-fmt=BAM -o {output} $tmp
         """
 
 rule combine_read_mappings:

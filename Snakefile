@@ -351,7 +351,7 @@ rule assemble_mgen:
                            in product(config['asmbl_group'][wildcards.group],
                                       ['r1', 'r2'])
                           ]
-    log: 'log/{group}.a.megahit.log'
+    log: 'seq/{group}.a.megahit.d/log'
     threads: max_threads
     params:
         r1=lambda wildcards: ','.join([f'seq/{library}.m.r1.proc.fq.gz'
@@ -370,7 +370,6 @@ rule assemble_mgen:
         sed 's:^>k:>{wildcards.group}-k:' {output.outdir}/final.contigs.fa > {output.fasta}
         # TODO: Fix this hard-coding of k-parameters.
         megahit_toolkit contig2fastg 141 {output.outdir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
-        cp {output.outdir}/log {log}
         """
 
 # TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77

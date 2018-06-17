@@ -485,8 +485,7 @@ rule bowtie_index_build:
 
 # {{{3 Backmap to an assembly
 
-# Backmap with assembly from reads processed identically
-rule map_reads_metagenome_assembly:
+rule map_reads_to_metagenome_assembly:
     output: 'res/{library}.m.{group}-map.sort.bam'
     wildcard_constraints:
         library='[^.]+',

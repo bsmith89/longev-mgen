@@ -367,7 +367,7 @@ rule assemble_mgen:
             --out-dir {output.outdir} \
             --num-cpu-threads {threads} \
             --verbose
-        sed 's:^>k:>{wildcards.group}-k:' {output.outdir}/final.contigs.fa > {output.fasta}
+        sed 's:^>k161_\([0-9]\+\):>{wildcards.group}_\1:' {output.outdir}/final.contigs.fa > {output.fasta}
         # TODO: Fix this hard-coding of k-parameters.
         megahit_toolkit contig2fastg 141 {output.outdir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
         """
@@ -387,8 +387,8 @@ rule reassemble_mag:
     shell:
         """
         spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
-        cp {output.dir}/scaffolds.fasta {output.scaffolds}
-        cp {output.dir}/contigs.fasta {output.contigs}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/contigs.fasta > {output.contigs}
         """
 
 rule filter_reassembled_contigs:

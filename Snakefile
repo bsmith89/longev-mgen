@@ -552,7 +552,8 @@ rule combine_read_mappings:
 rule index_read_mappings:
     output: 'res/{stem}.sort.bam.bai'
     input: 'res/{stem}.sort.bam'
-    shell: 'samtools index {input} {output}'
+    threads: 6
+    shell: 'samtools index -@ {threads} {input} {output}'
 
 
 # {{{2 Scaffolding

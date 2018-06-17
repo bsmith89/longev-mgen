@@ -39,7 +39,7 @@ include: 'snake/cazy.snake'
 # {{{2 Params
 
 # Default params
-MAX_THREADS = 30
+MAX_THREADS = 999
 if 'MAX_THREADS' in config:
     MAX_THREADS = config['MAX_THREADS']
 

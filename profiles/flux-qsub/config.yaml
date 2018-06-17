@@ -12,3 +12,4 @@ timestamp: true
 local-cores: 6
 keep-going: true
 printshellcmds: true
+config: MAX_THREADS=30

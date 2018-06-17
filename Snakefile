@@ -39,9 +39,9 @@ include: 'snake/cazy.snake'
 # {{{2 Params
 
 # Default params
-max_threads = 30
-if 'max_threads' in config:
-    max_threads = config['max_threads']
+MAX_THREADS = 30
+if 'MAX_THREADS' in config:
+    MAX_THREADS = config['MAX_THREADS']
 
 
 
@@ -352,7 +352,7 @@ rule assemble_mgen:
                                       ['r1', 'r2'])
                           ]
     log: 'seq/{group}.a.megahit.d/log'
-    threads: max_threads
+    threads: MAX_THREADS
     params:
         r1=lambda wildcards: ','.join([f'seq/{library}.m.r1.proc.fq.gz'
                                       for library in config['asmbl_group'][wildcards.group]]),
@@ -383,7 +383,7 @@ rule reassemble_mag:
     input:
         r1='seq/{group}.a.mags.d/{mag_id}.m.r1.dnorm.fq.gz',
         r2='seq/{group}.a.mags.d/{mag_id}.m.r2.dnorm.fq.gz'
-    threads: 15
+    threads: min(15, MAX_THREADS)
     shell:
         """
         spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
@@ -415,7 +415,7 @@ rule quality_asses_assembly_with_spike:
     wildcard_constraints:
         group='[^.]+',
     input: contigs='seq/{group}.a.contigs.fn', ref='raw/ref/salask.fn'
-    threads: max_threads
+    threads: MAX_THREADS
     params: min_contig_length=1000,
     shell:
         """
@@ -434,7 +434,7 @@ rule quality_asses_reassembly:
                'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
                'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
                'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn']
-    threads: 5
+    threads: min(5, MAX_THREADS)
     shell:
         """
         metaquast.py --max-ref-number 1 --threads={threads} --min-contig 0 --output-dir {output} \
@@ -455,7 +455,7 @@ rule quality_asses_spike_reassembly:
                'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
                'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
                'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn']
-    threads: 5
+    threads: min(5, MAX_THREADS)
     shell:
         """
         quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.ref} {input.asmbl}
@@ -479,7 +479,7 @@ rule bowtie_index_build:
         group='[^.]+',
     input: 'seq/{stem}.fn'
     log: 'log/{stem}.bowtie2-build.log'
-    threads: 15
+    threads: min(15, MAX_THREADS)
     shell:
         """
         bowtie2-build --threads {threads} {input} seq/{wildcards.stem} >{log} 2>&1
@@ -502,7 +502,7 @@ rule map_reads_metagenome_assembly:
         inx_4='seq/{group}.a.contigs.4.bt2',
         inx_rev1='seq/{group}.a.contigs.rev.1.bt2',
         inx_rev2='seq/{group}.a.contigs.rev.2.bt2'
-    threads: max_threads
+    threads: MAX_THREADS
     shell:
         r"""
         tmp=$(mktemp)
@@ -545,7 +545,7 @@ rule combine_read_mappings:
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
-    threads: 10
+    threads: min(30, MAX_THREADS)
     shell:
         """
         samtools merge -@ {threads} {output} {input}
@@ -709,7 +709,7 @@ rule transform_contig_space:
     input:
         cvrg='res/{group}.a.contigs.cvrg.unstack.tsv',
         seqs='seq/{group}.a.contigs.fn'
-    threads: max_threads
+    threads: MAX_THREADS
     params:
         length_threshold=1000
     shadow: 'full'
@@ -779,7 +779,7 @@ rule split_out_bins:
         script='scripts/fetch_bin.sh',
         bins='res/{group}.a.contigs.bins.tsv',
         contigs='seq/{group}.a.contigs.fn',
-    threads: max_threads
+    threads: MAX_THREADS
     shell:
         r"""
         rm -rf {output}
@@ -799,7 +799,7 @@ rule checkm_bins_or_mags:
     input: 'seq/{stem}.{bins_or_mags}.d'
     wildcard_constraints:
         bins_or_mags = 'bins|mags'
-    threads: max_threads
+    threads: MAX_THREADS
     log: 'log/{stem}.{bins_or_mags}.checkm.log'
     shell:
         r"""
@@ -836,7 +836,7 @@ rule checkm_content_merge:
     input:
         bins='seq/{group}.a.bins.d',
         markerset='res/domain_Bacteria.ms',
-    threads: max_threads
+    threads: MAX_THREADS
     shadow: 'full'
     shell:
         """
@@ -947,7 +947,7 @@ rule diginorm_reads:
         ksize=32,
         tablecols=1024,
         tablerows=10
-    threads: 2
+    threads: min(2, MAX_THREADS)
     shell:
         """
         Bignorm -1 {input.r1} -2 {input.r2} -k {params.ksize} --both -m {params.tablecols} -t {params.tablerows} -z
@@ -971,7 +971,7 @@ rule annotate_mag:
         tsv="res/{stem}.mags.annot.d/{mag_id}.prokka.tsv",
         gff="res/{stem}.mags.annot.d/{mag_id}.prokka.gff",
     input: "seq/{stem}.mags.d/{mag_id}.contigs.fn"
-    threads: max_threads
+    threads: MAX_THREADS
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
@@ -1020,7 +1020,7 @@ rule annotate_pathways:
         'res/{stem}.ec.tsv'
     log:
         'res/{stem}.ec.minpath.log'
-    threads: max_threads
+    threads: MAX_THREADS
     shell:
         """
         MinPath1.4.py -any {input} -map ec2path -report {output.report} -details {output.details} >{log} 2>&1
@@ -1088,7 +1088,7 @@ rule search_hmm:
         h3i = "ref/hmm/{hmm}.hmm.h3i",
         h3m = "ref/hmm/{hmm}.hmm.h3m",
         h3p = "ref/hmm/{hmm}.hmm.h3p"
-    threads: 10
+    threads: min(10, MAX_THREADS)
     shell:
         """
         echo "orf_id\tmodel_id\tscore" > {output}

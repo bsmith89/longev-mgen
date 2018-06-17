@@ -469,14 +469,12 @@ localrules: quality_asses_reassembly
 
 rule bowtie_index_build:
     output:
-        'seq/{group}.1.bt2',
-        'seq/{group}.2.bt2',
-        'seq/{group}.3.bt2',
-        'seq/{group}.4.bt2',
-        'seq/{group}.rev.1.bt2',
-        'seq/{group}.rev.2.bt2'
-    wildcard_constraints:
-        group='[^.]+',
+        'seq/{stem}.1.bt2',
+        'seq/{stem}.2.bt2',
+        'seq/{stem}.3.bt2',
+        'seq/{stem}.4.bt2',
+        'seq/{stem}.rev.1.bt2',
+        'seq/{stem}.rev.2.bt2'
     input: 'seq/{stem}.fn'
     log: 'log/{stem}.bowtie2-build.log'
     threads: min(15, MAX_THREADS)

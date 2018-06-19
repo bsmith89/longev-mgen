@@ -962,26 +962,26 @@ rule diginorm_reads:
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="seq/{stem}.mags.annot.d/{mag_id}.cds.fa",
-        fn="seq/{stem}.mags.annot.d/{mag_id}.cds.fn",
-        gbk="seq/{stem}.mags.annot.d/{mag_id}.prokka.gbk",
-        tbl="res/{stem}.mags.annot.d/{mag_id}.prokka.tbl",
-        tsv="res/{stem}.mags.annot.d/{mag_id}.prokka.tsv",
-        gff="res/{stem}.mags.annot.d/{mag_id}.prokka.gff",
-    input: "seq/{stem}.mags.d/{mag_id}.contigs.fn"
+        fa="seq/{stem}.mags.annot.d/{mag_stem}.cds.fa",
+        fn="seq/{stem}.mags.annot.d/{mag_stem}.cds.fn",
+        gbk="seq/{stem}.mags.annot.d/{mag_stem}.prokka.gbk",
+        tbl="res/{stem}.mags.annot.d/{mag_stem}.prokka.tbl",
+        tsv="res/{stem}.mags.annot.d/{mag_stem}.prokka.tsv",
+        gff="res/{stem}.mags.annot.d/{mag_stem}.prokka.gff",
+    input: "seq/{stem}.mags.d/{mag_stem}.fn"
     threads: MAX_THREADS
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
-                --outdir res/{wildcards.stem}.mags.prokka_temp.d --prefix {wildcards.mag_id} \
-                --locustag {wildcards.mag_id} \
+                --outdir res/{wildcards.stem}.mags.prokka_temp.d --prefix {wildcards.mag_stem} \
+                --locustag {wildcards.mag_stem} \
                 --metagenome
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.faa {output.fa}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.ffn {output.fn}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.gbk {output.gbk}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.tbl {output.tbl}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.tsv {output.tsv}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_id}.gff {output.gff}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.faa {output.fa}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.ffn {output.fn}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.gbk {output.gbk}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.tbl {output.tbl}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.tsv {output.tsv}
+        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.gff {output.gff}
         """
 
 rule extract_ec_numbers:
@@ -1227,8 +1227,8 @@ rule generate_database_1:
         checkm_merge='res/{group}.a.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
-        tmpfile=$(mktemp -p $TMPDIR)
-        cp {input.db} $tmpfile
+        tmp=$(mktemp)
+        cp {input.db} $tmp
         echo '
 .bail ON
 PRAGMA cache_size = 1000000;
@@ -1242,8 +1242,8 @@ PRAGMA foreign_keys = TRUE;
 .import {input.bin_checkm} bin_checkm
 ANALYZE;
              ' \
-        | sqlite3 $tmpfile
-        cp $tmpfile {output}
+        | sqlite3 $tmp
+        mv $tmp {output}
         """
 
 rule denormalize_database:
@@ -1253,9 +1253,9 @@ rule denormalize_database:
         script='scripts/denormalize_db.sql',
     shell:
         """
-        tmpfile=$(mktemp -p $TMPDIR)
-        cp {input.db} $tmpfile
-        cat <(echo "PRAGMA cache_size = 1000000;") {input.script} | sqlite3 $tmpfile
-        sqlite3 $tmpfile "VACUUM; ANALYZE;"
-        cp $tmpfile {output}
+        tmp=$(mktemp)
+        cp {input.db} $tmp
+        cat <(echo "PRAGMA cache_size = 1000000;") {input.script} | sqlite3 $tmp
+        sqlite3 $tmp "VACUUM; ANALYZE;"
+        mv $tmp {output}
         """

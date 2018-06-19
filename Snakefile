@@ -271,7 +271,7 @@ rule query_taxonomy_info:
 
 localrules: query_count_info, query_taxonomy_info
 
-# {{{1 Metagenomics
+# {{{1 Metagenomic Assembly
 
 # {{{2 Data pre-processing
 
@@ -333,7 +333,7 @@ rule alias_read_processing_r2:
 
 localrules: alias_read_processing_r1, alias_read_processing_r2
 
-# {{{2 Assembly
+# {{{2 Metagenome Assembly
 
 # {{{3 MEGAHIT
 
@@ -372,43 +372,7 @@ rule assemble_mgen:
         megahit_toolkit contig2fastg 141 {output.outdir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
         """
 
-# TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
-# TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
-# TODO: Rename contigs with mag_id stem.
-rule reassemble_mag:
-    output:
-        scaffolds='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
-        contigs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
-        dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
-    input:
-        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.dnorm.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.dnorm.fq.gz'
-    threads: min(15, MAX_THREADS)
-    shell:
-        """
-        spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
-        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
-        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/contigs.fasta > {output.contigs}
-        """
-
-rule filter_reassembled_contigs:
-    output: 'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.{contigs_or_scaffolds}.fn'
-    input:
-        script='scripts/filter_spades_contigs.py',
-        seqs='seq/{group}.a.mags.d/{mag_id}.a.reasmbl.{contigs_or_scaffolds}.unfilt.fn'
-    wildcard_constraints:
-        contigs_or_scaffolds='contigs|scaffolds'
-    params:
-        length_threshold = 1000,
-        coverage_threshold = 0.05
-    shell:
-        """
-        {input.script} {params.length_threshold} {params.coverage_threshold} < {input.seqs} > {output}
-        """
-
-localrules: filter_reassembled_contigs
-
-# {{{3 QC Assembly
+# {{{3 QC
 
 rule quality_asses_assembly_with_spike:
     output: 'res/{group}.a.quast.d'
@@ -421,47 +385,6 @@ rule quality_asses_assembly_with_spike:
         """
         metaquast.py --threads={threads} --min-contig {params.min_contig_length} -R {input.ref} --output-dir {output} {input.contigs}
         """
-
-# TODO: Custom (non-16S) blast db for reference finding
-# see http://quast.bioinf.spbau.ru/manual.html#faq_q12
-rule quality_asses_reassembly:
-    output: 'res/{group}.a.mags.d/{mag_id}.a.reasmbl.quast.d'
-    wildcard_constraints:
-        group='[^.]+',
-    input:
-        asmbl=['seq/{group}.a.mags.d/{mag_id}.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn']
-    threads: min(5, MAX_THREADS)
-    shell:
-        """
-        metaquast.py --max-ref-number 1 --threads={threads} --min-contig 0 --output-dir {output} \
-                --labels "Original, Contigs (unfiltered), Scaffolds (unfiltered), Contigs, Scaffolds" \
-                {input.asmbl}
-        """
-
-# TODO: Custom (non-16S) blast db for reference finding
-# see http://quast.bioinf.spbau.ru/manual.html#faq_q12
-rule quality_asses_spike_reassembly:
-    output: 'res/{group}.a.mags.d/{mag_id}.a.reasmbl.quast-spike.d'
-    wildcard_constraints:
-        group='[^.]+',
-    input:
-        ref='ref/salask.fn',
-        asmbl=['seq/{group}.a.mags.d/{mag_id}.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.unfilt.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.unfilt.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.reasmbl.scaffolds.fn']
-    threads: min(5, MAX_THREADS)
-    shell:
-        """
-        quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.ref} {input.asmbl}
-        """
-
-localrules: quality_asses_reassembly
 
 # {{{2 Mapping
 
@@ -483,7 +406,7 @@ rule bowtie_index_build:
         bowtie2-build --threads {threads} {input} seq/{wildcards.stem} >{log} 2>&1
         """
 
-# {{{3 Backmap to an assembly
+# {{{3 Backmap
 
 rule map_reads_to_metagenome_assembly:
     output: 'res/{library}.m.{group}-map.sort.bam'
@@ -503,40 +426,18 @@ rule map_reads_to_metagenome_assembly:
     shell:
         r"""
         tmp=$(mktemp)
+        echo "Writing temporary bamfile to $tmp for {output}"
         bowtie2 --threads {threads} \
                 -x seq/{wildcards.group}.a.contigs \
                 --rg-id {wildcards.library} \
-                -1 {input.r1} -2 {input.r2} -S $tmp
+                -1 {input.r1} -2 {input.r2} \
+            | samtools view -@ {threads} -b - \
+            > $tmp
         samtools sort -@ {threads} --output-fmt=BAM -o {output} $tmp
+        rm $tmp
         """
-
-rule map_reads_to_mag_reassembly:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+',
-        mag='[^.]+',
-    input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.a.reasmbl.contigs.rev.2.bt2',
-    threads: max_threads
-    shell:
-        r"""
-        bowtie2 --threads {threads} \
-                -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.reasmbl.contigs \
-                --rg-id {wildcards.library} \
-                -1 {input.r1} -2 {input.r2} -S $tmp
-        samtools sort -@ {threads} --output-fmt=BAM -o {output} $tmp
-        """
-
 rule combine_read_mappings:
-    output: 'res/{group}.a.contigs.map.sort.bam'
+    output: 'res/{group}.a.map.sort.bam'
     input:
         lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.sort.bam'
                            for library
@@ -547,7 +448,6 @@ rule combine_read_mappings:
         """
         samtools merge -@ {threads} {output} {input}
         """
-
 rule index_read_mappings:
     output: 'res/{stem}.sort.bam.bai'
     input: 'res/{stem}.sort.bam'
@@ -556,7 +456,6 @@ rule index_read_mappings:
 
 
 # {{{2 Scaffolding
-
 
 rule tally_links:
     output: 'res/{library}.m.{group}-map.linkage_tally.tsv'
@@ -606,8 +505,6 @@ rule combine_linkage_tallies:
         done
         """
 
-
-
 # {{{2 Calculate statistics
 
 # {{{3 Sequence lengths
@@ -636,10 +533,17 @@ localrules: count_seq_lengths_nucl, count_seq_lengths_aa
 
 # NOTE: The depth file format is lacking a header.
 # TODO params: -Q flag (mapping_quality_thresh), -d 0 flag (no maximum mapping depth)
-rule calculate_mapping_depth:
-    output: temp('res/{stem}.depth.tsv')
-    input: 'res/{stem}.sort.bam'
-    shadow: 'full'
+rule calculate_metagenome_mapping_depth:
+    output: temp('res/{group}.contigs.map.depth.tsv')
+    input: 'res/{group}.contigs.map.sort.bam'
+    shell:
+        """
+        samtools depth -d 0 {input} > {output}
+        """
+
+rule calculate_reassembly_mapping_depth:
+    output: temp('res/{group}.a.mags.d/{mag}.a.amap.depth.tsv')
+    input: 'res/{group}.a.mags.d/{mag}.a.amap.sort.bam'
     shell:
         """
         samtools depth -d 0 {input} > {output}
@@ -661,6 +565,18 @@ rule estimate_contig_cvrg:
         {input.script} {input.depth} {input.length} {params.float_fmt} > {output}
         """
 
+rule estimate_mag_coverage:
+    output: 'res/{group}.a.mags.d/{mag_stem}.map.cvrg.tsv'
+    input:
+        script='scripts/estimate_contig_coverage.py',
+        depth='res/{group}.a.mags.d/{mag_stem}.map.depth.tsv',
+        length='res/{group}.a.mags.d/{mag_stem}.contigs.nlength.tsv'
+    params:
+        float_fmt='%.6g'
+    shell:
+        """
+        {input.script} {input.depth} {input.length} {params.float_fmt} > {output}
+        """
 rule combine_cvrg:
     output: 'res/{group}.a.contigs.cvrg.tsv'
     wildcard_constraints:
@@ -693,7 +609,7 @@ rule unstack_cvrg:
         {input.script} {input.cvrg} '{params.float_format}' > {output}
         """
 
-# {{{2 Binning
+# {{{2 MAG Finding
 
 # {{{3 Prepare input data
 
@@ -822,7 +738,7 @@ rule generate_checkm_markerset:
     shell:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
-# {{{3 Refine bins
+# {{{3 Bins to MAGs
 
 # TODO: Understand what field 9 in checkM output file is.
 # (I _think_ it's the difference between the increased completeness and the
@@ -855,11 +771,23 @@ rule query_merge_stats:
 localrules: query_merge_stats
 
 # TODO: Automate this??
+# TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
 rule construct_mag:
     output: 'res/{group}.a.mags.d/{mag_id}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     wildcard_constraints:
         mag_id='[^.]+'
+    shell:
+        """
+        false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
+        """
+
+rule construct_mag_strain_specific_libraries:
+    output: 'res/{group}.a.mags.d/{mag_id}.{strain_desig}.library.list'
+    input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
+    wildcard_constraints:
+        mag_id='[^.]+',
+        strain_desig='[^.]+'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
@@ -874,9 +802,11 @@ rule get_mag_contigs:
         bin_id='[^.]+'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-localrules:  construct_mag, get_mag_contigs
+localrules:  construct_mag, construct_mag_strain_specific_libraries, get_mag_contigs
 
+# {{{2 MAG Refinement
 
+# {{{3 Prepare Data
 # TODO: Filter out unmatched lines before the fastq step, so that we can keep
 # all of the metadata.
 # TODO: How to make (e.g.) -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
@@ -894,44 +824,48 @@ localrules:  construct_mag, get_mag_contigs
 #     | grep -wf {input.contig_ids} >> {params.tmp3}
 # cat {params.tmp1} {params.tmp3} | {input.script} \
 #     >> {params.sam}
+# TODO: Parallelize
 rule extract_mag_reads:
     output:
-        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.fq.gz',
+        r1='seq/{group}.a.mags.d/{mag}.m.r1.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag}.m.r2.fq.gz',
     input:
         script='scripts/match_paired_reads.py',
-        bam='res/{group}.a.contigs.map.sort.bam',
-        bai='res/{group}.a.contigs.map.sort.bam.bai',
-        contig_ids='res/{group}.a.mags.d/{mag_id}.contigs.list'
-    threads: 5
+        bam='res/{group}.a.map.sort.bam',
+        bai='res/{group}.a.map.sort.bam.bai',
+        contig_ids='res/{group}.a.mags.d/{mag}.contigs.list'
+    wildcard_constraints: mag="[^.]+"
+    threads: min(5, MAX_THREADS)
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
-        sam=$(mktemp)
 
-        echo "Outputting header for {wildcards.mag_id}"
-        samtools view -H {input.bam} > $sam
+        echo "Outputting header for {wildcards.mag} into temporary file $tmp1"
+        samtools view -H {input.bam} > $tmp1
 
-        echo "Collecting intra-bin linking pairs for {wildcards.mag_id}"
+        echo "Collecting intra-bin linking pairs for {wildcards.mag}"
         samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} $tmp1 >> $sam
+            | {input.script} >> $tmp1
 
-        echo "Collecting singly mapped pairs for {wildcards.mag_id}"
+        echo "Collecting singly mapped pairs for {wildcards.mag} in temporary file $tmp2"
         samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
             | grep -wf {input.contig_ids} > $tmp2
         samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
             >> $tmp2
+        echo "Matching singly mapped pairs for {wildcards.mag} in temporary file $tmp1"
         {input.script} < $tmp2 \
-            >> $sam
+            >> $tmp1
+        rm $tmp2
 
-        echo "Collecting proper pairs for {wildcards.mag_id}"
+        echo "Collecting proper pairs for {wildcards.mag} in temporary file $tmp1"
         samtools view -@ {threads} -f 3 -F 3852 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} >> $sam
+            | {input.script} >> $tmp1
 
-        echo "Converting to GZIPed FASTQ for {wildcards.mag_id}"
-        samtools view -@ {threads} -u $sam \
+        echo "Converting $tmp1 to GZIPed FASTQ for {wildcards.mag}"
+        samtools view -@ {threads} -u $tmp1 \
             | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
+        rm $tmp1
         """
 
 rule diginorm_reads:
@@ -952,6 +886,247 @@ rule diginorm_reads:
         mv {input.r1}_keep.gz {output.r1}
         mv {input.r2}_keep.gz {output.r2}
         """
+
+# {{{3 Reassembly
+# TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
+# TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
+# TODO: Rename contigs with mag_id stem.
+rule reassemble_mag:
+    output:
+        scaffolds='seq/{group}.a.mags.d/{mag_id}.a.scaffolds.fn',
+        contigs='seq/{group}.a.mags.d/{mag_id}.a.contigs.fn',
+        dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
+    input:
+        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.dnorm.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.dnorm.fq.gz'
+    threads: min(15, MAX_THREADS)
+    shell:
+        r"""
+        spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/contigs.fasta > {output.contigs}
+        """
+
+# {{{3 Mapping 1
+
+# TODO: How do I know if this is doing what I expect?
+rule map_reads_to_mag_reassembly:
+    output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
+    wildcard_constraints:
+        library='[^.]+',
+        group='[^.]+',
+        mag='[^.]+',
+    input:
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.mags.d/{mag}.a.contigs.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.a.contigs.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.a.contigs.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.a.contigs.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.a.contigs.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.a.contigs.rev.2.bt2',
+    shell:
+        r"""
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        tmp3=$(mktemp)
+        echo "$tmp1 $tmp2 $tmp3 ({output})"
+        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.contigs \
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} \
+            | samtools view -G 12 -b - > $tmp1
+        # Header
+        samtools view -H $tmp1 > $tmp2
+        # Both mapped
+        samtools view -F 3852 $tmp1 >> $tmp2
+        # Only other read mapped
+        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
+        # Only other read unmapped
+        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
+        samtools view -b $tmp2 > $tmp3
+        samtools sort --output-fmt=BAM -o {output} $tmp3
+        rm $tmp1 $tmp2 $tmp3
+        """
+
+rule combine_mag_reassembly_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.amap.sort.bam'
+    input:
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    wildcard_constraints:
+        mag='[^.]+'
+    threads: MAX_THREADS
+    shell:
+        """
+        samtools merge -@ {threads} {output} {input}
+        """
+
+rule extract_strain_specific_mag_reassembly_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+    shell: "samtools view -b -R {input.libs} {input.bam} > {output}"
+
+# {{{3 Pilon Refinement
+
+rule alias_contigs_for_pilon:
+    output: 'seq/{stem}.fasta'
+    input: 'seq/{stem}.fn'
+    shell: alias_recipe
+
+rule pilon_refine_assembly:
+    output:
+        dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.d"),
+        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
+    input:
+        contigs="seq/{group}.a.mags.d/{mag}.a.contigs.fn",
+        bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
+        bai="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
+    resources:
+        mem_mb=100000
+    threads: MAX_THREADS
+    shell:
+        r"""
+        pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
+                --fix snps,indels,gaps,local,breaks \
+                --genome {input.contigs} --frags {input.bam} \
+                --changes --tracks --vcf --vcfqe --outdir {output.dir}
+        mv {output.dir}/pilon.fasta {output.fn}
+        """
+
+# {{{3 Mapping 2
+
+# TODO: How do I know if this is doing what I expect?
+rule map_reads_to_mag_refined_reassembly:
+    output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
+    wildcard_constraints:
+        library='[^.]+',
+        group='[^.]+',
+        mag='[^.]+',
+    input:
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.rev.2.bt2',
+    shell:
+        r"""
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        tmp3=$(mktemp)
+        echo "$tmp1 $tmp2 $tmp3 ({output})"
+        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.a.contigs.pilon \
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} \
+            | samtools view -G 12 -b - > $tmp1
+        # Header
+        samtools view -H $tmp1 > $tmp2
+        # Both mapped
+        samtools view -F 3852 $tmp1 >> $tmp2
+        # Only other read mapped
+        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
+        # Only other read unmapped
+        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
+        samtools view -b $tmp2 > $tmp3
+        samtools sort --output-fmt=BAM -o {output} $tmp3
+        rm $tmp1 $tmp2 $tmp3
+        """
+
+rule combine_mag_refined_reassembly_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
+    input:
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    wildcard_constraints:
+        mag='[^.]+'
+    threads: MAX_THREADS
+    shell:
+        """
+        samtools merge -@ {threads} {output} {input}
+        """
+
+rule extract_mag_refined_reassembly_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+    shell: "samtools view -b -R {input.libs} {input.bam} > {output}"
+
+# {{{3 Depth Trimming
+
+rule calculate_refined_reassembly_read_mapping_depth:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.depth.tsv'
+    input: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+    shell:
+        """
+        samtools depth -d 0 {input} > {output}
+        """
+
+rule depth_trim_refined_reassembly:
+    output: "seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn"
+    input:
+        script="scripts/depth_trim_contigs.py",
+        contigs="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
+        depth="res/{group}.a.mags.d/{mag}.v{strain}.map.depth.tsv",
+    params:
+        thresh=0.01,
+        window=100,
+        min_len=1000,
+    shell:
+        """
+        {input.script} {input.contigs} {input.depth} {params.thresh} {params.window} {params.min_len} > {output}
+        """
+
+# {{{3 QC
+
+# TODO: Custom (non-16S) blast db for reference finding
+# see http://quast.bioinf.spbau.ru/manual.html#faq_q12
+rule quality_asses_mag:
+    output: 'res/{group}.a.mags.d/{mag_id}.v{strain}.quast.d'
+    input:
+        asmbl=[
+               'seq/{group}.a.mags.d/{mag_id}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.fn',
+               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.dtrim.fn',
+               ]
+    threads: min(5, MAX_THREADS)
+    shell:
+        r"""
+        metaquast.py --max-ref-number 1 --threads={threads} --min-contig 0 --output-dir {output} \
+                --labels "Original, Reassembly, Pilon Refined, Depth Trimmed" \
+                {input.asmbl}
+        """
+
+# TODO: Custom (non-16S) blast db for reference finding
+# see http://quast.bioinf.spbau.ru/manual.html#faq_q12
+rule quality_asses_spike_mag:
+    output: 'res/{group}.a.mags.d/{mag_id}.v{strain}.quast-spike.d'
+    input:
+        ref='ref/salask.fn',
+        asmbl=[
+               'seq/{group}.a.mags.d/{mag_id}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.a.contigs.fn',
+               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.fn',
+               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.dtrim.fn',
+               ]
+    threads: min(6, MAX_THREADS)
+    shell:
+        r"""
+        quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.ref} \
+                --labels "Original, Reassembly, Pilon Refined, Depth Trimmed" \
+                {input.asmbl}
+        """
+
+localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 
 # {{{2 Annotation
 

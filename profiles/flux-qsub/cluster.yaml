@@ -18,6 +18,8 @@ bowtie_index_build:
 map_reads_to_metagenome_assembly:
     walltime: '00:04:00:00'
     ppn: 4
+map_reads_to_mag_reassembly:
+    ppn: 4
 transform_contig_space:
     walltime: '00:10:00:00'
 cluster_contigs:

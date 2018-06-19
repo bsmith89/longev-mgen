@@ -12,16 +12,18 @@ def depth_trim(data, thresh, window):
     end = data.position.max()
     left_most = None
     right_most = None
+    depth = np.zeros(end)
+    depth[data.position - 1] = data.depth
     for i in range(begin, end):
-        left = i - window / 2
-        right = i + window / 2
-        if data[(left < data.position) & (right > data.position)].depth.mean() > thresh:
+        left = i - window
+        right = i
+        if depth[left:right].sum() / window > thresh:
             left_most = i
             break
     for i in range(end, begin, -1):
-        left = i - window / 2
-        right = i + window / 2
-        if data[(left < data.position) & (right > data.position)].depth.sum() / window > thresh:
+        left = i
+        right = i + window
+        if depth[left:right].sum() / window > thresh:
             right_most = i
             break
     if (left_most is None) or (right_most is None):
@@ -40,7 +42,11 @@ if __name__ == "__main__":
     median_depth = data.depth.median()
     tally_seqs = 0
     tally_nucs = 0
-    for contig_id in tqdm(seqs.keys()):
+    contig_ids = list(seqs.keys())
+    for contig_id in tqdm(contig_ids):
+        if contig_id not in data.index:
+            print("\rWARNING: {} not found in depth data.".format(contig_id), file=sys.stderr)
+            continue
         trim = depth_trim(data.loc[contig_id], median_depth * thresh, window_size)
         if trim:
             left, right = trim

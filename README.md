@@ -1,11 +1,13 @@
 # TODO
 
--   [ ] Import unique sequence abundance, taxonomy, and OTU abundance from longev 16S results
+-   [ ] Add library ID tag to the backmapping BAMs (careful with the timestamps)
+-   [ ] Pilon for library-set specific genome reconstruction
+-   [x] Import unique sequence abundance, taxonomy, and OTU abundance from longev 16S results
 -   [ ] Automate bin combination w/ 16S results
--   [ ] Look for evidence of strain variation in gene content
--   [ ] File rather than directory based PROKKA output
--   [ ] COGs to Modules
--   [ ] Check OTU-2 bin assembly against Lactobacillus johnsonii
+-   [x] Look for evidence of strain variation in gene content
+-   [x] File rather than directory based PROKKA output
+-   [x] COGs to Modules
+-   [x] Check OTU-2 bin assembly against Lactobacillus johnsonii
 -   [ ] "Strain resolved analysis of an abundant Muribaculaceae species across murine hosts"
 
 # Requirements

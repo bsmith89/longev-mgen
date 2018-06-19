@@ -8,9 +8,12 @@ from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
 
 # {{{2 Nomenclature
 
+no_periods_regex_constraint = '[^.]+'
 wildcard_constraints:
-    group='[^.]+',
-    library='[^.]+'
+    group = no_periods_regex_constraint,
+    library = no_periods_regex_constraint,
+    mag = no_periods_regex_constraint,
+    strain = no_periods_regex_constraint,
 
 # {{{2 Project configuration
 
@@ -451,7 +454,7 @@ rule combine_read_mappings:
 rule index_read_mappings:
     output: 'res/{stem}.sort.bam.bai'
     input: 'res/{stem}.sort.bam'
-    threads: 6
+    threads: min(6, MAX_THREADS)
     shell: 'samtools index -@ {threads} {input} {output}'
 
 
@@ -565,18 +568,6 @@ rule estimate_contig_cvrg:
         {input.script} {input.depth} {input.length} {params.float_fmt} > {output}
         """
 
-rule estimate_mag_coverage:
-    output: 'res/{group}.a.mags.d/{mag_stem}.map.cvrg.tsv'
-    input:
-        script='scripts/estimate_contig_coverage.py',
-        depth='res/{group}.a.mags.d/{mag_stem}.map.depth.tsv',
-        length='res/{group}.a.mags.d/{mag_stem}.contigs.nlength.tsv'
-    params:
-        float_fmt='%.6g'
-    shell:
-        """
-        {input.script} {input.depth} {input.length} {params.float_fmt} > {output}
-        """
 rule combine_cvrg:
     output: 'res/{group}.a.contigs.cvrg.tsv'
     wildcard_constraints:
@@ -773,33 +764,33 @@ localrules: query_merge_stats
 # TODO: Automate this??
 # TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
 rule construct_mag:
-    output: 'res/{group}.a.mags.d/{mag_id}.contigs.list'
+    output: 'res/{group}.a.mags.d/{mag}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     wildcard_constraints:
-        mag_id='[^.]+'
+        mag='[^.]+'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
 rule construct_mag_strain_specific_libraries:
-    output: 'res/{group}.a.mags.d/{mag_id}.{strain_desig}.library.list'
+    output: 'res/{group}.a.mags.d/{mag}.{strain}.library.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     wildcard_constraints:
-        mag_id='[^.]+',
-        strain_desig='[^.]+'
+        mag='[^.]+',
+        strain='[^.]+'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
 rule get_mag_contigs:
-    output: 'seq/{group}.a.mags.d/{bin_id}.contigs.fn'
+    output: 'seq/{group}.a.mags.d/{bin}.contigs.fn'
     input:
-        ids='res/{group}.a.mags.d/{bin_id}.contigs.list',
+        ids='res/{group}.a.mags.d/{bin}.contigs.list',
         seqs='seq/{group}.a.contigs.fn'
     wildcard_constraints:
-        bin_id='[^.]+'
+        bin='[^.]+'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
 localrules:  construct_mag, construct_mag_strain_specific_libraries, get_mag_contigs
@@ -890,21 +881,21 @@ rule diginorm_reads:
 # {{{3 Reassembly
 # TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
 # TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
-# TODO: Rename contigs with mag_id stem.
+# TODO: Rename contigs with mag stem.
 rule reassemble_mag:
     output:
-        scaffolds='seq/{group}.a.mags.d/{mag_id}.a.scaffolds.fn',
-        contigs='seq/{group}.a.mags.d/{mag_id}.a.contigs.fn',
-        dir=temp('seq/{group}.a.mags.d/{mag_id}.spades.d')
+        scaffolds='seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
+        contigs='seq/{group}.a.mags.d/{mag}.a.contigs.fn',
+        dir=temp('seq/{group}.a.mags.d/{mag}.spades.d')
     input:
-        r1='seq/{group}.a.mags.d/{mag_id}.m.r1.dnorm.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag_id}.m.r2.dnorm.fq.gz'
+        r1='seq/{group}.a.mags.d/{mag}.m.r1.dnorm.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag}.m.r2.dnorm.fq.gz'
     threads: min(15, MAX_THREADS)
     shell:
         r"""
         spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
-        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
-        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag_id}_\1:' {output.dir}/contigs.fasta > {output.contigs}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag}_\1:' {output.dir}/contigs.fasta > {output.contigs}
         """
 
 # {{{3 Mapping 1
@@ -968,7 +959,19 @@ rule extract_strain_specific_mag_reassembly_read_mappings:
     input:
         bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
-    shell: "samtools view -b -R {input.libs} {input.bam} > {output}"
+    threads: MAX_THREADS
+    shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
+
+rule extract_strain_specific_mag_reassembly_read_mappings_all_libs:
+    output: 'res/{group}.a.mags.d/{mag}.v0.amap.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
+    threads: MAX_THREADS
+    shell: 'ln -rs {input.bam} {output}'
+
+ruleorder: extract_strain_specific_mag_reassembly_read_mappings_all_libs > extract_strain_specific_mag_reassembly_read_mappings
+
 
 # {{{3 Pilon Refinement
 
@@ -977,12 +980,12 @@ rule alias_contigs_for_pilon:
     input: 'seq/{stem}.fn'
     shell: alias_recipe
 
-rule pilon_refine_assembly:
+rule pilon_refine_reassembly:
     output:
         dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.d"),
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
     input:
-        contigs="seq/{group}.a.mags.d/{mag}.a.contigs.fn",
+        contigs="seq/{group}.a.mags.d/{mag}.a.contigs.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
         bai="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
     resources:
@@ -1000,7 +1003,7 @@ rule pilon_refine_assembly:
 # {{{3 Mapping 2
 
 # TODO: How do I know if this is doing what I expect?
-rule map_reads_to_mag_refined_reassembly:
+rule map_reads_to_pilon_refined_reassembly:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
     wildcard_constraints:
         library='[^.]+',
@@ -1038,7 +1041,7 @@ rule map_reads_to_mag_refined_reassembly:
         rm $tmp1 $tmp2 $tmp3
         """
 
-rule combine_mag_refined_reassembly_read_mappings:
+rule combine_refined_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     input:
         lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
@@ -1053,29 +1056,40 @@ rule combine_mag_refined_reassembly_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
-rule extract_mag_refined_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+rule extract_strain_specific_refined_reassembly_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     input:
         bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
-    shell: "samtools view -b -R {input.libs} {input.bam} > {output}"
+    threads: MAX_THREADS
+    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+
+rule extract_strain_specific_refined_reassembly_read_mappings_all_libs:
+    output: 'res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
+    threads: MAX_THREADS
+    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+
+ruleorder: extract_strain_specific_refined_reassembly_read_mappings_all_libs > extract_strain_specific_refined_reassembly_read_mappings
 
 # {{{3 Depth Trimming
 
-rule calculate_refined_reassembly_read_mapping_depth:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.depth.tsv'
-    input: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+rule calculate_strain_specific_refined_reassembly_read_mapping_depth:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv'
+    input: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     shell:
         """
         samtools depth -d 0 {input} > {output}
         """
 
-rule depth_trim_refined_reassembly:
+rule depth_trim_strain_specific_refined_reassembly:
     output: "seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn"
     input:
         script="scripts/depth_trim_contigs.py",
         contigs="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.map.depth.tsv",
+        depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
     params:
         thresh=0.01,
         window=100,
@@ -1090,13 +1104,13 @@ rule depth_trim_refined_reassembly:
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_mag:
-    output: 'res/{group}.a.mags.d/{mag_id}.v{strain}.quast.d'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.quast.d'
     input:
         asmbl=[
-               'seq/{group}.a.mags.d/{mag_id}.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.fn',
-               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.dtrim.fn',
+               'seq/{group}.a.mags.d/{mag}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag}.a.contigs.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn',
                ]
     threads: min(5, MAX_THREADS)
     shell:
@@ -1109,14 +1123,14 @@ rule quality_asses_mag:
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_spike_mag:
-    output: 'res/{group}.a.mags.d/{mag_id}.v{strain}.quast-spike.d'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.quast-spike.d'
     input:
         ref='ref/salask.fn',
         asmbl=[
-               'seq/{group}.a.mags.d/{mag_id}.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.a.contigs.fn',
-               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.fn',
-               'seq/{group}.a.mags.d/{mag_id}.v{strain}.a.contigs.pilon.dtrim.fn',
+               'seq/{group}.a.mags.d/{mag}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag}.a.contigs.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn',
                ]
     threads: min(6, MAX_THREADS)
     shell:

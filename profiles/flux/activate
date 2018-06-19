@@ -5,4 +5,5 @@ module load intel/17.0.1 bowtie2/2.3.3 hmmer/3.1b2
 source activate longev-mgen
 `snakemake --bash-completion`
 alias smake="snakemake --profile profiles/flux"
+alias smake-qsub="snakemake --profile profiles/flux-qsub"
 export MinPath=$HOME/.local/src/MinPath

@@ -446,7 +446,7 @@ rule combine_read_mappings:
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
-    threads: min(30, MAX_THREADS)
+    threads: min(10, MAX_THREADS)
     shell:
         """
         samtools merge -@ {threads} {output} {input}
@@ -948,7 +948,7 @@ rule combine_mag_reassembly_read_mappings:
                           ]
     wildcard_constraints:
         mag='[^.]+'
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell:
         """
         samtools merge -@ {threads} {output} {input}
@@ -959,7 +959,7 @@ rule extract_strain_specific_mag_reassembly_read_mappings:
     input:
         bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_mag_reassembly_read_mappings_all_libs:
@@ -967,7 +967,7 @@ rule extract_strain_specific_mag_reassembly_read_mappings_all_libs:
     input:
         bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v0.library.list',
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell: 'ln -rs {input.bam} {output}'
 
 ruleorder: extract_strain_specific_mag_reassembly_read_mappings_all_libs > extract_strain_specific_mag_reassembly_read_mappings
@@ -1050,7 +1050,7 @@ rule combine_refined_reassembly_read_mappings:
                           ]
     wildcard_constraints:
         mag='[^.]+'
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell:
         """
         samtools merge -@ {threads} {output} {input}
@@ -1061,7 +1061,7 @@ rule extract_strain_specific_refined_reassembly_read_mappings:
     input:
         bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_refined_reassembly_read_mappings_all_libs:
@@ -1069,7 +1069,7 @@ rule extract_strain_specific_refined_reassembly_read_mappings_all_libs:
     input:
         bam='res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v0.library.list',
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
 
 ruleorder: extract_strain_specific_refined_reassembly_read_mappings_all_libs > extract_strain_specific_refined_reassembly_read_mappings

@@ -536,17 +536,9 @@ localrules: count_seq_lengths_nucl, count_seq_lengths_aa
 
 # NOTE: The depth file format is lacking a header.
 # TODO params: -Q flag (mapping_quality_thresh), -d 0 flag (no maximum mapping depth)
-rule calculate_metagenome_mapping_depth:
-    output: temp('res/{group}.contigs.map.depth.tsv')
-    input: 'res/{group}.contigs.map.sort.bam'
-    shell:
-        """
-        samtools depth -d 0 {input} > {output}
-        """
-
-rule calculate_reassembly_mapping_depth:
-    output: temp('res/{group}.a.mags.d/{mag}.a.amap.depth.tsv')
-    input: 'res/{group}.a.mags.d/{mag}.a.amap.sort.bam'
+rule calculate_mapping_depth:
+    output: temp('res/{stem}.depth.tsv')
+    input: 'res/{stem}.sort.bam'
     shell:
         """
         samtools depth -d 0 {input} > {output}
@@ -1003,7 +995,7 @@ rule pilon_refine_reassembly:
 # {{{3 Mapping 2
 
 # TODO: How do I know if this is doing what I expect?
-rule map_reads_to_pilon_refined_reassembly:
+rule map_reads_to_refined_reassembly:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
     wildcard_constraints:
         library='[^.]+',
@@ -1076,13 +1068,7 @@ ruleorder: extract_strain_specific_refined_reassembly_read_mappings_all_libs > e
 
 # {{{3 Depth Trimming
 
-rule calculate_strain_specific_refined_reassembly_read_mapping_depth:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv'
-    input: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
-    shell:
-        """
-        samtools depth -d 0 {input} > {output}
-        """
+# See rule: calculate_mapping_depth.
 
 rule depth_trim_strain_specific_refined_reassembly:
     output: "seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn"

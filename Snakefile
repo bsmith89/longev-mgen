@@ -1138,12 +1138,16 @@ rule depth_trim_refined_reassembly:
     params:
         thresh=0.05,
         window=400,
+        flank=400,
         min_len=1000,
     shell:
         """
         {input.script} --depth-thresh={params.thresh} \
-                --window-size={params.window} --min-length={params.min_len} \
-                --depth-out {output.depth} {input.contigs} {input.depth} \
+                --window-size={params.window} \
+                --flank-size={params.flank} \
+                --min-length={params.min_len} \
+                --depth-out {output.depth} \
+                {input.contigs} {input.depth} \
                 > {output.fn}
         """
 
@@ -1158,12 +1162,16 @@ rule depth_trim_refined_mag:
     params:
         thresh=0.05,
         window=400,
+        flank=400,
         min_len=1000,
     shell:
         """
         {input.script} --depth-thresh={params.thresh} \
-                --window-size={params.window} --min-length={params.min_len} \
-                --depth-out {output.depth} {input.contigs} {input.depth} \
+                --window-size={params.window} \
+                --flank-size={params.flank} \
+                --min-length={params.min_len} \
+                --depth-out {output.depth} \
+                {input.contigs} {input.depth} \
                 > {output.fn}
         """
 

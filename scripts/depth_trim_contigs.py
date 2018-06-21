@@ -9,23 +9,23 @@ from tqdm import tqdm
 from copy import deepcopy
 import argparse
 
-def depth_trim(depth, thresh, window, offset=0):
+def depth_trim(depth, thresh, flank, window, offset=0):
     assert window % 2 == 0, "Window size must be an even number."
-    if len(depth) < window:
+    if len(depth) < flank:
         return []
     left_most = None
     right_most = None
     depth = np.asarray(depth)
     # Trim in from the left.
-    for i in range(0, len(depth) - window + 1):
+    for i in range(0, len(depth) - flank + 1):
         left = i
-        right = i + window
+        right = i + flank
         if depth[left:right].mean() > thresh:
             left_most = i
             break
     # Trim in from the right.
-    for i in range(len(depth), window - 1, -1):
-        left = i - window
+    for i in range(len(depth), flank - 1, -1):
+        left = i - flank
         right = i
         if depth[left:right].mean() > thresh:
             right_most = i
@@ -47,8 +47,8 @@ def depth_trim(depth, thresh, window, offset=0):
             return [(left_most + offset, right_most + offset)]
         else:
             # Found internal breakpoints recursively; concatenate and return.
-            left_frags_trimmed = depth_trim(depth[left_most:break_at], thresh, window, offset=left_most + offset)
-            right_frags_trimmed = depth_trim(depth[break_at:right_most], thresh, window, offset=break_at + offset)
+            left_frags_trimmed = depth_trim(depth[left_most:break_at], thresh, flank, window, offset=left_most + offset)
+            right_frags_trimmed = depth_trim(depth[break_at:right_most], thresh, flank, window, offset=break_at + offset)
             return left_frags_trimmed + right_frags_trimmed
 
 
@@ -57,8 +57,10 @@ if __name__ == "__main__":
     p.add_argument("--depth-thresh", "-d", type=float, dest='thresh',
                    default=0.01,
                    help="Fraction of median depth at which to trim/split contigs [%(default)s]")
+    p.add_argument("--flank-size", "-f", type=int, dest='flank_size',
+                   default=100, help="Flank size [%(default)s]")
     p.add_argument("--window-size", "-w", type=int, dest='window_size',
-                   default=100, help="Sliding window size width [%(default)s]")
+                   default=100, help="Window size [%(default)s]")
     p.add_argument("--min-length", "-l", type=int, dest='min_length',
                    default=1000, help="Minimum contig length to output [%(default)s]")
     p.add_argument('--depth-out', type=argparse.FileType('w'),
@@ -85,13 +87,13 @@ if __name__ == "__main__":
             continue
         depth = np.zeros(d.position.max() + 1)
         depth[d.position] = d.depth
-        for frag in depth_trim(depth, median_depth * args.thresh, args.window_size):
+        for frag in depth_trim(depth, median_depth * args.thresh, args.flank_size, args.window_size):
             left, right = frag
             if (right - left) > args.min_length:
                 tally_seqs += 1
                 tally_nucs += right - left
                 seq = seqs[contig_id].seq[left:right]
-                name = contig_id + '_dtrim_{}_{}'.format(left, right)
+                name = contig_id + '_{}_{}'.format(left, right)
                 print('>{}\n{}'.format(name, seq), file=sys.stdout)
                 if args.depth_out_handle:
                     (d[(d.position >= left) & (d.position < right)]

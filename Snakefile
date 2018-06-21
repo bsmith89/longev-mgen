@@ -741,13 +741,25 @@ rule construct_mag:
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-rule construct_mag_strain_specific_libraries:
+rule construct_strain_specific_libraries:
     output: 'res/{group}.a.mags.d/{mag}.{strain}.library.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
+
+rule construct_dummy_strain_specific_libraries:
+    output: "res/{group}.a.mags.d/DUMMY.v0.library.list"
+    input: "meta/asmbl_group.tsv"
+    shell: "awk -v group={wildcards.group} '$2==group {{print $1}}' meta/asmbl_group.tsv > {output}"
+
+rule link_dummy_strain_specific_libraries:
+    output: 'res/{group}.a.mags.d/{mag}.v0.library.list'
+    input: 'res/{group}.a.mags.d/DUMMY.library.list'
+    shell: alias_recipe
+
+ruleorder: link_dummy_strain_specific_libraries > construct_dummy_strain_specific_libraries > construct_strain_specific_libraries
 
 rule get_mag_contigs:
     output: 'seq/{group}.a.mags.d/{bin}.contigs.fn'
@@ -756,7 +768,9 @@ rule get_mag_contigs:
         seqs='seq/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-localrules:  construct_mag, construct_mag_strain_specific_libraries, get_mag_contigs
+localrules: construct_mag, link_dummy_strain_specific_libraries,
+            construct_dummy_strain_specific_libraries,
+            construct_mag_strain_specific_libraries, get_mag_contigs
 
 # {{{2 MAG Refinement
 
@@ -946,7 +960,27 @@ rule pilon_refine_reassembly:
         bai="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
     resources:
         mem_mb=100000
-    threads: MAX_THREADS
+    threads: min(16, MAX_THREADS)
+    shell:
+        r"""
+        pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
+                --fix snps,indels,gaps,local,breaks \
+                --genome {input.contigs} --frags {input.bam} \
+                --changes --tracks --vcf --vcfqe --outdir {output.dir}
+        mv {output.dir}/pilon.fasta {output.fn}
+        """
+
+rule pilon_refine_mag:
+    output:
+        dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.d"),
+        fn="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+    input:
+        contigs="seq/{group}.a.mags.d/{mag}.contigs.fasta",
+        bam="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
+        bai="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam.bai",
+    resources:
+        mem_mb=100000
+    threads: min(16, MAX_THREADS)
     shell:
         r"""
         pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
@@ -993,6 +1027,40 @@ rule map_reads_to_refined_reassembly:
         rm $tmp1 $tmp2 $tmp3
         """
 
+rule map_reads_to_refined_mag:
+    output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-rmap.sort.bam'
+    input:
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.2.bt2',
+    shell:
+        r"""
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        tmp3=$(mktemp)
+        echo "$tmp1 $tmp2 $tmp3 ({output})"
+        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.contigs.pilon \
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} \
+            | samtools view -G 12 -b - > $tmp1
+        # Header
+        samtools view -H $tmp1 > $tmp2
+        # Both mapped
+        samtools view -F 3852 $tmp1 >> $tmp2
+        # Only other read mapped
+        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
+        # Only other read unmapped
+        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
+        samtools view -b $tmp2 > $tmp3
+        samtools sort --output-fmt=BAM -o {output} $tmp3
+        rm $tmp1 $tmp2 $tmp3
+        """
+
 rule combine_refined_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     input:
@@ -1006,7 +1074,20 @@ rule combine_refined_reassembly_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
-rule extract_strain_specific_refined_reassembly_read_mappings:
+rule combine_refined_mag_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
+    input:
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-rmap.sort.bam'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    threads: min(10, MAX_THREADS)
+    shell:
+        """
+        samtools merge -@ {threads} {output} {input}
+        """
+
+rule extract_refined_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     input:
         bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam',
@@ -1014,7 +1095,7 @@ rule extract_strain_specific_refined_reassembly_read_mappings:
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
 
-rule extract_strain_specific_refined_reassembly_read_mappings_all_libs:
+rule extract_refined_reassembly_read_mappings_all_libs:
     output: 'res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam'
     input:
         bam='res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam',
@@ -1022,7 +1103,25 @@ rule extract_strain_specific_refined_reassembly_read_mappings_all_libs:
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
 
-ruleorder: extract_strain_specific_refined_reassembly_read_mappings_all_libs > extract_strain_specific_refined_reassembly_read_mappings
+ruleorder: extract_refined_reassembly_read_mappings_all_libs > extract_refined_reassembly_read_mappings
+
+rule extract_refined_mag_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+    threads: min(10, MAX_THREADS)
+    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+
+rule extract_refined_mag_read_mappings_all_libs:
+    output: 'res/{group}.a.mags.d/{mag}.v0.rmap.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.v0.rmap.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
+    threads: min(10, MAX_THREADS)
+    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+
+ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read_mappings
 
 # {{{3 Depth Trimming
 
@@ -1037,8 +1136,28 @@ rule depth_trim_refined_reassembly:
         contigs="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
         depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
     params:
-        thresh=0.01,
-        window=100,
+        thresh=0.05,
+        window=400,
+        min_len=1000,
+    shell:
+        """
+        {input.script} --depth-thresh={params.thresh} \
+                --window-size={params.window} --min-length={params.min_len} \
+                --depth-out {output.depth} {input.contigs} {input.depth} \
+                > {output.fn}
+        """
+
+rule depth_trim_refined_mag:
+    output:
+        fn="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.dtrim.fn",
+        depth="res/{group}.a.mags.d/{mag}.v{strain}.rmap.dtrim.depth.tsv"
+    input:
+        script="scripts/depth_trim_contigs.py",
+        contigs="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+        depth="res/{group}.a.mags.d/{mag}.v{strain}.rmap.depth.tsv",
+    params:
+        thresh=0.05,
+        window=400,
         min_len=1000,
     shell:
         """
@@ -1057,15 +1176,17 @@ rule quality_asses_mag:
     input:
         asmbl=[
                'seq/{group}.a.mags.d/{mag}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.dtrim.fn',
                'seq/{group}.a.mags.d/{mag}.a.contigs.fn',
                'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn',
                'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn',
                ]
-    threads: min(5, MAX_THREADS)
+    threads: min(7, MAX_THREADS)
     shell:
         r"""
-        metaquast.py --max-ref-number 1 --threads={threads} --min-contig 0 --output-dir {output} \
-                --labels "Original, Reassembly, Pilon Refined, Depth Trimmed" \
+        quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.asmbl[0]} \
+                --labels "Original, Refined, Refined+DTrimmed, Reassembled, Reassembled+Refined, Reassembled+Refined+DTrimmed" \
                 {input.asmbl}
         """
 
@@ -1077,6 +1198,8 @@ rule quality_asses_spike_mag:
         ref='ref/salask.fn',
         asmbl=[
                'seq/{group}.a.mags.d/{mag}.contigs.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn',
+               'seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.dtrim.fn',
                'seq/{group}.a.mags.d/{mag}.a.contigs.fn',
                'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn',
                'seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn',
@@ -1100,26 +1223,27 @@ localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="seq/{stem}.mags.annot.d/{mag_stem}.cds.fa",
-        fn="seq/{stem}.mags.annot.d/{mag_stem}.cds.fn",
-        gbk="seq/{stem}.mags.annot.d/{mag_stem}.prokka.gbk",
-        tbl="res/{stem}.mags.annot.d/{mag_stem}.prokka.tbl",
-        tsv="res/{stem}.mags.annot.d/{mag_stem}.prokka.tsv",
-        gff="res/{stem}.mags.annot.d/{mag_stem}.prokka.gff",
-    input: "seq/{stem}.mags.d/{mag_stem}.fn"
+        fa="seq/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.cds.fa",
+        fn="seq/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.cds.fn",
+        gbk="seq/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.gbk",
+        tbl="res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.tbl",
+        tsv="res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.tsv",
+        gff="res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.gff",
+        dir=temp("res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.d"),
+    input: "seq/{stem}.mags.d/{mag}.v{strain}.{proc_stem}.fn"
     threads: MAX_THREADS
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
-                --outdir res/{wildcards.stem}.mags.prokka_temp.d --prefix {wildcards.mag_stem} \
-                --locustag {wildcards.mag_stem} \
-                --metagenome
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.faa {output.fa}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.ffn {output.fn}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.gbk {output.gbk}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.tbl {output.tbl}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.tsv {output.tsv}
-        mv res/{wildcards.stem}.mags.prokka_temp.d/{wildcards.mag_stem}.gff {output.gff}
+                --outdir {output.dir} --prefix {wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem} \
+                --locustag {wildcards.mag}.v{wildcards.strain} \
+                --metagenome --cdsrnaolap
+        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.faa {output.fa}
+        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.ffn {output.fn}
+        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.gbk {output.gbk}
+        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.tbl {output.tbl}
+        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.tsv {output.tsv}
+        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.gff {output.gff}
         """
 
 rule extract_ec_numbers:

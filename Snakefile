@@ -14,6 +14,7 @@ wildcard_constraints:
     library = no_periods_regex_constraint,
     mag = no_periods_regex_constraint,
     strain = no_periods_regex_constraint,
+    bin = no_periods_regex_constraint,
 
 # {{{2 Project configuration
 
@@ -346,8 +347,6 @@ rule assemble_mgen:
         fasta='seq/{group}.a.contigs.fn',
         outdir=temp('seq/{group}.a.megahit.d'),
         fastg='seq/{group}.a.contigs.fg',
-    wildcard_constraints:
-        group='[^.]+',
     input:
         lambda wildcards: [f'seq/{library}.m.{read}.proc.fq.gz'
                            for library, read
@@ -379,8 +378,6 @@ rule assemble_mgen:
 
 rule quality_asses_assembly_with_spike:
     output: 'res/{group}.a.quast.d'
-    wildcard_constraints:
-        group='[^.]+',
     input: contigs='seq/{group}.a.contigs.fn', ref='raw/ref/salask.fn'
     threads: MAX_THREADS
     params: min_contig_length=1000,
@@ -413,9 +410,6 @@ rule bowtie_index_build:
 
 rule map_reads_to_metagenome_assembly:
     output: 'res/{library}.m.{group}-map.sort.bam'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+'
     input:
         r1='seq/{library}.m.r1.proc.fq.gz',
         r2='seq/{library}.m.r2.proc.fq.gz',
@@ -462,9 +456,6 @@ rule index_read_mappings:
 
 rule tally_links:
     output: 'res/{library}.m.{group}-map.linkage_tally.tsv'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+'
     input: 'res/{library}.m.{group}-map.sort.bam'
     params: min_hits=1, min_quality=40
     shell:
@@ -546,9 +537,6 @@ rule calculate_mapping_depth:
 
 rule estimate_contig_cvrg:
     output: 'res/{library}.m.{group}-map.cvrg.tsv'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+'
     input:
         script='scripts/estimate_contig_coverage.py',
         depth='res/{library}.m.{group}-map.depth.tsv',
@@ -562,8 +550,6 @@ rule estimate_contig_cvrg:
 
 rule combine_cvrg:
     output: 'res/{group}.a.contigs.cvrg.tsv'
-    wildcard_constraints:
-        group='[^.]+'
     input:
         script='scripts/concat_tables.py',
         tables=lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.cvrg.tsv'
@@ -580,8 +566,6 @@ rule combine_cvrg:
 
 rule unstack_cvrg:
     output: 'res/{group}.a.contigs.cvrg.unstack.tsv'
-    wildcard_constraints:
-        group='[^.]+'
     input:
         script='scripts/unstack_cvrg.py',
         cvrg='res/{group}.a.contigs.cvrg.tsv',
@@ -601,8 +585,6 @@ rule transform_contig_space:
         pca='res/{group}.a.contigs.concoct.pca.tsv',
         raw='res/{group}.a.contigs.concoct.tsv',
         dir=temp('res/{group}.a.contigs.concoct.d')
-    wildcard_constraints:
-        group='[^.]+'
     input:
         cvrg='res/{group}.a.contigs.cvrg.unstack.tsv',
         seqs='seq/{group}.a.contigs.fn'
@@ -628,8 +610,6 @@ rule cluster_contigs:
     output:
         out='res/{group}.a.contigs.cluster.tsv',
         summary='res/{group}.a.contigs.cluster.summary.tsv',
-    wildcard_constraints:
-        group='[^.]+'
     input:
         script='scripts/cluster_contigs.py',
         pca='res/{group}.a.contigs.concoct.pca.tsv',
@@ -655,8 +635,6 @@ rule cluster_contigs:
 
 rule rename_clusters_to_bins:
     output: 'res/{group}.a.contigs.bins.tsv'
-    wildcard_constraints:
-        group='[^.]+'
     input: 'res/{group}.a.contigs.cluster.tsv'
     params:
         padding=5
@@ -758,8 +736,6 @@ localrules: query_merge_stats
 rule construct_mag:
     output: 'res/{group}.a.mags.d/{mag}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
-    wildcard_constraints:
-        mag='[^.]+'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
@@ -768,9 +744,6 @@ rule construct_mag:
 rule construct_mag_strain_specific_libraries:
     output: 'res/{group}.a.mags.d/{mag}.{strain}.library.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
-    wildcard_constraints:
-        mag='[^.]+',
-        strain='[^.]+'
     shell:
         """
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
@@ -781,8 +754,6 @@ rule get_mag_contigs:
     input:
         ids='res/{group}.a.mags.d/{bin}.contigs.list',
         seqs='seq/{group}.a.contigs.fn'
-    wildcard_constraints:
-        bin='[^.]+'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
 localrules:  construct_mag, construct_mag_strain_specific_libraries, get_mag_contigs
@@ -817,7 +788,6 @@ rule extract_mag_reads:
         bam='res/{group}.a.map.sort.bam',
         bai='res/{group}.a.map.sort.bam.bai',
         contig_ids='res/{group}.a.mags.d/{mag}.contigs.list'
-    wildcard_constraints: mag="[^.]+"
     threads: min(5, MAX_THREADS)
     shell:
         r"""
@@ -895,10 +865,6 @@ rule reassemble_mag:
 # TODO: How do I know if this is doing what I expect?
 rule map_reads_to_mag_reassembly:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+',
-        mag='[^.]+',
     input:
         r1='seq/{library}.m.r1.proc.fq.gz',
         r2='seq/{library}.m.r2.proc.fq.gz',
@@ -938,8 +904,6 @@ rule combine_mag_reassembly_read_mappings:
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
-    wildcard_constraints:
-        mag='[^.]+'
     threads: min(10, MAX_THREADS)
     shell:
         """
@@ -997,10 +961,6 @@ rule pilon_refine_reassembly:
 # TODO: How do I know if this is doing what I expect?
 rule map_reads_to_refined_reassembly:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
-    wildcard_constraints:
-        library='[^.]+',
-        group='[^.]+',
-        mag='[^.]+',
     input:
         r1='seq/{library}.m.r1.proc.fq.gz',
         r2='seq/{library}.m.r2.proc.fq.gz',
@@ -1040,8 +1000,6 @@ rule combine_refined_reassembly_read_mappings:
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
-    wildcard_constraints:
-        mag='[^.]+'
     threads: min(10, MAX_THREADS)
     shell:
         """

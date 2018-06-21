@@ -1028,8 +1028,10 @@ ruleorder: extract_strain_specific_refined_reassembly_read_mappings_all_libs > e
 
 # See rule: calculate_mapping_depth.
 
-rule depth_trim_strain_specific_refined_reassembly:
-    output: "seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn"
+rule depth_trim_refined_reassembly:
+    output:
+        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn",
+        depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv"
     input:
         script="scripts/depth_trim_contigs.py",
         contigs="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
@@ -1040,7 +1042,10 @@ rule depth_trim_strain_specific_refined_reassembly:
         min_len=1000,
     shell:
         """
-        {input.script} {input.contigs} {input.depth} {params.thresh} {params.window} {params.min_len} > {output}
+        {input.script} --depth-thresh={params.thresh} \
+                --window-size={params.window} --min-length={params.min_len} \
+                --depth-out {output.depth} {input.contigs} {input.depth} \
+                > {output.fn}
         """
 
 # {{{3 QC

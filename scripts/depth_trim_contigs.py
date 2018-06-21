@@ -6,53 +6,96 @@ import pandas as pd
 from Bio.SeqIO import index, write
 import numpy as np
 from tqdm import tqdm
+from copy import deepcopy
+import argparse
 
-def depth_trim(data, thresh, window):
-    begin = data.position.min()
-    end = data.position.max()
+def depth_trim(depth, thresh, window, offset=0):
+    assert window % 2 == 0, "Window size must be an even number."
+    if len(depth) < window:
+        return []
     left_most = None
     right_most = None
-    depth = np.zeros(end)
-    depth[data.position - 1] = data.depth
-    for i in range(begin, end):
-        left = i - window
-        right = i
-        if depth[left:right].sum() / window > thresh:
-            left_most = i
-            break
-    for i in range(end, begin, -1):
+    depth = np.asarray(depth)
+    # Trim in from the left.
+    for i in range(0, len(depth) - window + 1):
         left = i
         right = i + window
-        if depth[left:right].sum() / window > thresh:
+        if depth[left:right].mean() > thresh:
+            left_most = i
+            break
+    # Trim in from the right.
+    for i in range(len(depth), window - 1, -1):
+        left = i - window
+        right = i
+        if depth[left:right].mean() > thresh:
             right_most = i
             break
+
     if (left_most is None) or (right_most is None):
-        return None
+        # We didn't find any part of the sequence with enough depth.
+        return []
     else:
-        return (left_most, right_most)
+        # Find internal breakpoint and recursively call depth_trim.
+        break_at = None
+        for i in range(left_most + window // 2, right_most - window // 2):
+            left = i - window // 2
+            right = i + window // 2
+            if depth[left:right].mean() < thresh:
+                break_at = i
+        if break_at is None:
+            # Found no internal breakpoints.
+            return [(left_most + offset, right_most + offset)]
+        else:
+            # Found internal breakpoints recursively; concatenate and return.
+            left_frags_trimmed = depth_trim(depth[left_most:break_at], thresh, window, offset=left_most + offset)
+            right_frags_trimmed = depth_trim(depth[break_at:right_most], thresh, window, offset=break_at + offset)
+            return left_frags_trimmed + right_frags_trimmed
 
 
 if __name__ == "__main__":
-    seqs = index(sys.argv[1], 'fasta')
-    data = pd.read_table(sys.argv[2], names=['contig_id', 'position', 'depth'],
-                          index_col='contig_id')
-    thresh = float(sys.argv[3])
-    window_size = int(sys.argv[4])
-    min_length = int(sys.argv[5])
+    p = argparse.ArgumentParser()
+    p.add_argument("--depth-thresh", "-d", type=float, dest='thresh',
+                   default=0.01,
+                   help="Fraction of median depth at which to trim/split contigs [%(default)s]")
+    p.add_argument("--window-size", "-w", type=int, dest='window_size',
+                   default=100, help="Sliding window size width [%(default)s]")
+    p.add_argument("--min-length", "-l", type=int, dest='min_length',
+                   default=1000, help="Minimum contig length to output [%(default)s]")
+    p.add_argument('--depth-out', type=argparse.FileType('w'),
+                   dest='depth_out_handle', metavar="DEPTH_OUT",
+                   help="Output trimmed depth file")
+    p.add_argument('seq_path', type=str, metavar="FASTA",
+                   help="Sequences to be trimmed.")
+    p.add_argument('depth_handle', type=argparse.FileType('r'),
+                   metavar="DEPTH", help="Depth table from `samtools depth`")
+    args = p.parse_args()
+
+    seqs = index(args.seq_path, 'fasta')
+    data = pd.read_table(args.depth_handle, names=['contig_id', 'position', 'depth'])
+    data.position = data.position - 1  # Convert to zero-indexed.
     median_depth = data.depth.median()
+    print("Median depth determined to be", median_depth, file=sys.stderr)
     tally_seqs = 0
     tally_nucs = 0
-    contig_ids = list(seqs.keys())
-    for contig_id in tqdm(contig_ids):
-        if contig_id not in data.index:
-            print("\rWARNING: {} not found in depth data.".format(contig_id), file=sys.stderr)
+    for contig_id in tqdm(list(seqs.keys())):
+        d = data[data.contig_id == contig_id]
+        if d.empty:
+            print("\rWARNING: {} not found in depth data.".format(contig_id),
+                  file=sys.stderr)
             continue
-        trim = depth_trim(data.loc[contig_id], median_depth * thresh, window_size)
-        if trim:
-            left, right = trim
-            if (right - left) > min_length:
+        depth = np.zeros(d.position.max() + 1)
+        depth[d.position] = d.depth
+        for frag in depth_trim(depth, median_depth * args.thresh, args.window_size):
+            left, right = frag
+            if (right - left) > args.min_length:
                 tally_seqs += 1
                 tally_nucs += right - left
-                write(seqs[contig_id][left:right], sys.stdout, 'fasta')
+                seq = seqs[contig_id].seq[left:right]
+                name = contig_id + '_dtrim_{}_{}'.format(left, right)
+                print('>{}\n{}'.format(name, seq), file=sys.stdout)
+                if args.depth_out_handle:
+                    (d[(d.position >= left) & (d.position < right)]
+                        .to_csv(args.depth_out_handle, sep='\t',
+                                header=False, index=False))
     print("Output {} sequences with {} positions.".format(tally_seqs, tally_nucs), file=sys.stderr)
 

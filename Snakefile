@@ -1208,11 +1208,28 @@ rule quality_asses_spike_mag:
     shell:
         r"""
         quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.ref} \
-                --labels "Original, Reassembly, Pilon Refined, Depth Trimmed" \
+                --labels "Original, Refined, Refined+DTrimmed, Reassembled, Reassembled+Refined, Reassembled+Refined+DTrimmed" \
                 {input.asmbl}
         """
 
 localrules: quality_asses_reassembly, quality_asses_spike_reassembly
+
+# TODO
+rule compare_strains:
+    output:
+        pdf="res/{group}.a.mags.d/{mag}.v{strain1}_v{strain2}.{proc_stem}.pdf"
+    input:
+        strain1="seq/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.fn",
+        strain2="seq/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.fn",
+    wildcard_constraints:
+        strain1=no_periods_regex_constraint,
+        strain2=no_periods_regex_constraint,
+    shell:
+        """
+        prefix=res/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain1}_v{wildcards.strain2}.{wildcards.proc_stem}.nucmer
+        mummer -mum -b -c {input.strain1} {input.strain2} > $prefix.mums
+        mummerplot -postscript -p $prefix $prefix.mums
+        """
 
 # {{{2 Annotation
 

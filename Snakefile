@@ -1288,18 +1288,6 @@ rule quality_asses_spike_mag:
 localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 
 # {{{3 Strain Comparison
-# TODO
-# FROM http://mummer.sourceforge.net/manual/#coords
-# When run with the -B option, output format will consist of 21 tab-delimited
-# columns. These are as follows: [1] query sequence ID [2] date of alignment
-# [3] length of query sequence [4] alignment type [5] reference file [6]
-# reference sequence ID [7] start of alignment in the query [8] end of
-# alignment in the query [9] start of alignment in the reference [10] end of
-# alignment in the reference [11] percent identity [12] percent similarity [13]
-# length of alignment in the query [14] 0 for compatibility [15] 0 for
-# compatibility [16] NULL for compatibility [17] 0 for compatibility [18]
-# strand of the query [19] length of the reference sequence [20] 0 for
-# compatibility [21] and 0 for compatibility.
 rule compare_strains:
     output:
         delta="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
@@ -1314,9 +1302,21 @@ rule compare_strains:
         nucmer --mum --delta {output.delta} {input.strain1} {input.strain2}
         """
 
+# TODO
+# FROM http://mummer.sourceforge.net/manual/#coords
+# When run with the -B option, output format will consist of 21 tab-delimited
+# columns. These are as follows: [1] query sequence ID [2] date of alignment
+# [3] length of query sequence [4] alignment type [5] reference file [6]
+# reference sequence ID [7] start of alignment in the query [8] end of
+# alignment in the query [9] start of alignment in the reference [10] end of
+# alignment in the reference [11] percent identity [12] percent similarity [13]
+# length of alignment in the query [14] 0 for compatibility [15] 0 for
+# compatibility [16] NULL for compatibility [17] 0 for compatibility [18]
+# strand of the query [19] length of the reference sequence [20] 0 for
+# compatibility [21] and 0 for compatibility.
 rule process_strain_comparison_table:
     output:
-        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords.tsv",
+        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
     input:
         delta="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     wildcard_constraints:
@@ -1324,9 +1324,7 @@ rule process_strain_comparison_table:
         strain2=no_periods_regex_constraint,
     shell:
         """
-        show-coords -B {input.delta} \
-                | cut -d'\t' -f1,3,6,7,8,9,10,11,18,19 \
-                > {output.coords}
+        show-coords -B {input.delta} > {output.coords}
         """
 
 rule plot_strain_comparison:
@@ -1334,7 +1332,7 @@ rule plot_strain_comparison:
         pdf="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
     input:
         script="scripts/plot_nucmer_comparison.py",
-        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords.tsv",
+        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
         length1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
         length2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv"
     shell:

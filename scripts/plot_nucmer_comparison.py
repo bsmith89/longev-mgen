@@ -11,25 +11,49 @@ USAGE: plot_nucmer_comparison.py <v1_v2.nucmer.coords.tsv> <v1.length.tsv> <v2.l
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
+import matplotlib.patches as mp
 from matplotlib.ticker import StrMethodFormatter
+from matplotlib.backends.backend_pdf import PdfPages
+from itertools import repeat
 import sys
 
 if __name__ == "__main__":
-    column_names = [  'contig_id_2'         # [ 1]
+# FROM http://mummer.sourceforge.net/manual/#coords
+# When run with the -B option, output format will consist of 21 tab-delimited
+# columns. These are as follows: [1] query sequence ID [2] date of alignment
+# [3] length of query sequence [4] alignment type [5] reference file [6]
+# reference sequence ID [7] start of alignment in the query [8] end of
+# alignment in the query [9] start of alignment in the reference [10] end of
+# alignment in the reference [11] percent identity [12] percent similarity [13]
+# length of alignment in the query [14] 0 for compatibility [15] 0 for
+# compatibility [16] NULL for compatibility [17] 0 for compatibility [18]
+# strand of the query [19] length of the reference sequence [20] 0 for
+# compatibility [21] and 0 for compatibility.
+    _column_names = [ 'contig_id_2'         # [ 1]
+                    , '_1'
                     , 'length_2'            # [ 3]
+                    , '_2'
+                    , '_3'
                     , 'contig_id_1'         # [ 6]
                     , 'start_2'             # [ 7] Start of alignment in the second variant's sequence
                     , 'end_2'               # [ 8] End of alignment in the second variant's sequence
                     , 'start_1'             # [ 9] Start of alignment in the first variant's sequence
                     , 'end_1'               # [10] End of alignment in the second variant's sequence
                     , 'aligned_identity'    # [11] Fraction of positions identical in alignment
+                    , '_4'
+                    , '_5'
+                    , '_6'
+                    , '_7'
+                    , '_8'
+                    , '_9'
                     , 'strand'              # [18] Is the second alignment inverted from the first?
                     , 'length_1'            # [19] 
+                    , '_10'
+                    , '_11'
                 ]
+    column_names = [n for n in _column_names if not n.startswith('_')]
 
-    data = pd.read_table(sys.argv[1],
-                        names=column_names)
-
+    data = pd.read_table(sys.argv[1], names=_column_names, usecols=column_names)
     # Calculate various quantities
     data['alength_1'] = (data.end_1 - data.start_1).abs()
     data['alength_2'] = (data.end_2 - data.start_2).abs()
@@ -67,8 +91,8 @@ if __name__ == "__main__":
     data[_fillna_cols] = data[_fillna_cols].fillna(0)
 
     # Sort alignments with long contigs first.
-    data['combined_length'] = data.length_1 + data.length_2
-    data.sort_values('combined_length', ascending=False, inplace=True)
+    data['sort_key'] = -data[['length_1', 'length_2']].max(1)
+    data.sort_values('sort_key', inplace=True)
 
     # Left hand side of alignment
     idx_right_1 = data[['contig_id_1', 'length_1']].drop_duplicates().set_index('contig_id_1').length_1.cumsum()
@@ -80,42 +104,85 @@ if __name__ == "__main__":
     data['idx_left_1'] = data.idx_right_1 - data.length_1  # Start of sequence_1 range
     data['idx_start_1'] = data.idx_left_1 + data.start_1   # Start of alignment_1 range
     data['idx_end_1'] = data.idx_left_1 + data.end_1       # End of alignment_1 range
+    data['idx_middle_1'] = (data.idx_start_1 + data.idx_end_1) / 2
 
     # Now the same for the query strand data
     data = data.join(idx_right_2, on='contig_id_2')        # End of sequence_2 range
     data['idx_left_2'] = data.idx_right_2 - data.length_2  # Start of sequence_2 range
     data['idx_start_2'] = data.idx_left_2 + data.start_2   # Start of alignment_2 range
     data['idx_end_2'] = data.idx_left_2 + data.end_2       # End of alignment_2 range
+    data['idx_middle_2'] = (data.idx_start_2 + data.idx_end_2) / 2
 
     d = data.copy()#[data.strand == -1]
-    plt.style.use('dark_background')
 
 
-    fig, ax = plt.subplots(figsize=(8, 8))
-    line_table = list(zip(zip(d.idx_start_1, d.idx_start_2), zip(d.idx_end_1, d.idx_end_2)))
-    lc = mc.LineCollection(line_table, color=d.strand.map({-1.: 'cyan', +1.: 'red'}).fillna('red'), lw=2)
-    ax.add_collection(lc)
-    #ax.axis('off')
-    ax.tick_params(axis='x', rotation=-90)
+    # Constants
+    color_inv = 'red'
+    color_fwd = 'blue'
+    d['color'] = d.strand.map({-1.: color_inv, +1.: color_fwd}).fillna(color_inv)
+    d.dropna(subset=['contig_id_1', 'contig_id_2',
+                     ], inplace=True)
+    padding = 0.02
 
-    left_min = min(d.idx_left_1.min(), d.idx_left_2.min())
-    right_max = max(d.idx_right_1.max(), d.idx_right_2.max())
-    axis_length = right_max - left_min
+    assert sys.argv[4].rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
+    with PdfPages(sys.argv[4]) as pdf:
+        # View 1 - "Dots"
+        fig, ax = plt.subplots(figsize=(15, 15))
+        line_table = list(zip(zip(d.idx_start_1, d.idx_start_2), zip(d.idx_end_1, d.idx_end_2)))
+        lc = mc.LineCollection(line_table, color=d.color, lw=2)
+        ax.add_collection(lc)
+        ax.tick_params(axis='x', rotation=-90)
 
-    ax.set_xlim(left_min - 0.05 * axis_length,
-                right_max + 0.05 * axis_length)
-    ax.set_ylim(left_min - 0.05 * axis_length,
-                right_max + 0.05 * axis_length)
+        left_min = min(d.idx_left_1.min(), d.idx_left_2.min())
+        right_max = max(d.idx_right_1.max(), d.idx_right_2.max())
+        axis_length = right_max - left_min
 
-    # Dummy artists for legend.
-    art1 = plt.plot([], [], color='red', label='same')
-    art2 = plt.plot([], [], color='cyan', label='inverted')
-    plt.legend({'same': art1, 'inverted': art2}, loc='lower right')
+        ax.set_xlim(left_min - padding * axis_length,
+                    right_max + padding * axis_length)
+        ax.set_ylim(left_min - padding * axis_length,
+                    right_max + padding * axis_length)
 
-    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
-    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
-    ax.set_aspect(aspect=1)
-    ax.set_xlabel("Strain 1")
-    ax.set_ylabel("Strain 2")
+        # Dummy artists for legend.
+        art_inv = plt.plot([], [], color=color_inv)
+        art_fwd = plt.plot([], [], color=color_fwd)
+        plt.legend({'same': art_fwd, 'inverted': art_inv}, loc='lower right')
 
-    fig.savefig(sys.argv[4])
+        ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
+        ax.set_aspect(aspect=1)
+        ax.set_xlabel("Strain 1")
+        ax.set_ylabel("Strain 2")
+        pdf.savefig(fig)
+        plt.close(fig)
+
+
+        # View 2 - Lines
+        fig, ax = plt.subplots(figsize=(15, 3))
+        width_coef = 1.5e4  # Conversion from summed alength's to linewidths
+
+        pcoords = (list(zip(zip(d.idx_start_1, repeat(0)), zip(d.idx_end_1, repeat(0)),
+                        zip(d.idx_end_2, repeat(1)), zip(d.idx_start_2, repeat(1)))))
+        pc = mc.PatchCollection([mp.Polygon(c, closed=True)
+                                for c in pcoords],
+                                color=d.strand.map({-1.: 'red', +1.: 'blue'}).fillna('red'),
+                                alpha=0.4, lw=0)
+        ax.add_collection(pc)
+
+        left_min = min(d.idx_left_1.min(), d.idx_left_2.min())
+        right_max = max(d.idx_right_1.max(), d.idx_right_2.max())
+        axis_length = right_max - left_min
+
+        ax.set_xlim(left_min - padding * axis_length,
+                    right_max + padding * axis_length)
+        ax.set_ylim(-0.1, 1.1)
+
+        # Dummy artists for legend.
+        art_inv = plt.plot([], [], color=color_inv)
+        art_fwd = plt.plot([], [], color=color_fwd)
+        plt.legend({'same': art_fwd, 'inverted': art_inv}, bbox_to_anchor=(1.12, 1))
+
+        ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
+        ax.set_yticks([0, 1])
+        ax.set_yticklabels(['Strain 1', 'Strain 2'])
+        pdf.savefig(fig)
+        plt.close(fig)

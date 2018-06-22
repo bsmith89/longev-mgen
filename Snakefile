@@ -1137,8 +1137,8 @@ rule depth_trim_refined_reassembly:
         depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
     params:
         thresh=0.05,
-        window=400,
-        flank=400,
+        window=500,
+        flank=100,
         min_len=1000,
     shell:
         """
@@ -1161,8 +1161,8 @@ rule depth_trim_refined_mag:
         depth="res/{group}.a.mags.d/{mag}.v{strain}.rmap.depth.tsv",
     params:
         thresh=0.05,
-        window=400,
-        flank=400,
+        window=500,
+        flank=100,
         min_len=1000,
     shell:
         """

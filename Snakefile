@@ -433,6 +433,7 @@ rule map_reads_to_metagenome_assembly:
         samtools sort -@ {threads} --output-fmt=BAM -o {output} $tmp
         rm $tmp
         """
+
 rule combine_read_mappings:
     output: 'res/{group}.a.map.sort.bam'
     input:
@@ -876,8 +877,7 @@ rule reassemble_mag:
 
 # {{{3 Mapping 1
 
-# TODO: How do I know if this is doing what I expect?
-rule map_reads_to_mag_reassembly:
+rule map_reads_to_reassembly:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
     input:
         r1='seq/{library}.m.r1.proc.fq.gz',
@@ -911,7 +911,41 @@ rule map_reads_to_mag_reassembly:
         rm $tmp1 $tmp2 $tmp3
         """
 
-rule combine_mag_reassembly_read_mappings:
+rule map_reads_to_mag:
+    output: 'res/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
+    input:
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.mags.d/{mag}.contigs.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.contigs.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.contigs.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.contigs.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.contigs.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.contigs.rev.2.bt2',
+    shell:
+        r"""
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        tmp3=$(mktemp)
+        echo "$tmp1 $tmp2 $tmp3 ({output})"
+        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.contigs \
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} \
+            | samtools view -G 12 -b - > $tmp1
+        # Header
+        samtools view -H $tmp1 > $tmp2
+        # Both mapped
+        samtools view -F 3852 $tmp1 >> $tmp2
+        # Only other read mapped
+        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
+        # Only other read unmapped
+        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
+        samtools view -b $tmp2 > $tmp3
+        samtools sort --output-fmt=BAM -o {output} $tmp3
+        rm $tmp1 $tmp2 $tmp3
+        """
+
+rule combine_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.amap.sort.bam'
     input:
         lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
@@ -924,7 +958,20 @@ rule combine_mag_reassembly_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
-rule extract_strain_specific_mag_reassembly_read_mappings:
+rule combine_mag_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.map.sort.bam'
+    input:
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-map.sort.bam'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    threads: min(10, MAX_THREADS)
+    shell:
+        """
+        samtools merge -@ {threads} {output} {input}
+        """
+
+rule extract_strain_specific_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam'
     input:
         bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
@@ -932,7 +979,7 @@ rule extract_strain_specific_mag_reassembly_read_mappings:
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
-rule extract_strain_specific_mag_reassembly_read_mappings_all_libs:
+rule extract_strain_specific_reassembly_read_mappings_all_libs:
     output: 'res/{group}.a.mags.d/{mag}.v0.amap.sort.bam'
     input:
         bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
@@ -940,7 +987,25 @@ rule extract_strain_specific_mag_reassembly_read_mappings_all_libs:
     threads: min(10, MAX_THREADS)
     shell: 'ln -rs {input.bam} {output}'
 
-ruleorder: extract_strain_specific_mag_reassembly_read_mappings_all_libs > extract_strain_specific_mag_reassembly_read_mappings
+ruleorder: extract_strain_specific_reassembly_read_mappings_all_libs > extract_strain_specific_reassembly_read_mappings
+
+rule extract_strain_specific_mag_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.map.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+    threads: min(10, MAX_THREADS)
+    shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
+
+rule extract_strain_specific_mag_read_mappings_all_libs:
+    output: 'res/{group}.a.mags.d/{mag}.v0.map.sort.bam'
+    input:
+        bam='res/{group}.a.mags.d/{mag}.map.sort.bam',
+        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
+    threads: min(10, MAX_THREADS)
+    shell: 'ln -rs {input.bam} {output}'
+
+ruleorder: extract_strain_specific_mag_read_mappings_all_libs > extract_strain_specific_mag_read_mappings
 
 
 # {{{3 Pilon Refinement
@@ -1236,9 +1301,7 @@ localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 # compatibility [21] and 0 for compatibility.
 rule compare_strains:
     output:
-        delta="res/{group}.a.mags.d/{mag}.v{strain1}_v{strain2}.{proc_stem}.delta",
-        # tiling="res/{group}.a.mags.d/{mag}.v{strain1}_v{strain2}.{proc_stem}.tiling",
-        coords="res/{group}.a.mags.d/{mag}.v{strain1}_v{strain2}.{proc_stem}.coords.tsv",
+        delta="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     input:
         strain1="seq/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.fn",
         strain2="seq/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.fn",
@@ -1248,7 +1311,19 @@ rule compare_strains:
     shell:
         """
         nucmer --mum --delta {output.delta} {input.strain1} {input.strain2}
-        show-coords -B {output.delta} \
+        """
+
+rule process_strain_comparison_table:
+    output:
+        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords.tsv",
+    input:
+        delta="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+    wildcard_constraints:
+        strain1=no_periods_regex_constraint,
+        strain2=no_periods_regex_constraint,
+    shell:
+        """
+        show-coords -B {input.delta} \
                 | cut -d'\t' -f1,3,6,7,8,9,10,11,18,19 \
                 > {output.coords}
         """

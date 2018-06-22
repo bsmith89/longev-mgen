@@ -1287,6 +1287,7 @@ rule quality_asses_spike_mag:
 
 localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 
+# {{{3 Strain Comparison
 # TODO
 # FROM http://mummer.sourceforge.net/manual/#coords
 # When run with the -B option, output format will consist of 21 tab-delimited
@@ -1327,6 +1328,20 @@ rule process_strain_comparison_table:
                 | cut -d'\t' -f1,3,6,7,8,9,10,11,18,19 \
                 > {output.coords}
         """
+
+rule plot_strain_comparison:
+    output:
+        pdf="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
+    input:
+        script="scripts/plot_nucmer_comparison.py",
+        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords.tsv",
+        length1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
+        length2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv"
+    shell:
+        """
+        {input.script} {input.coords} {input.length1} {input.length2} {output}
+        """
+
 
 # {{{2 Annotation
 

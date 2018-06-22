@@ -7,6 +7,7 @@
         contigs.
 -   [ ] Draft genome generation with reassembled scaffolds instead of contigs.
     -   I'm hoping this generates longer genome fragments.
+-   [ ] Use VCF output from pilon instead of re-mapping libraries.
 -   [ ] Consider writing about how most of the differences in OTU-1-A and -B
     can be described as duplication or deletion events of multi-copy genes (as
     opposed to novel genes).

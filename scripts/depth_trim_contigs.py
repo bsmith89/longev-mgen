@@ -34,6 +34,9 @@ def depth_trim(depth, thresh, flank, window, offset=0):
     if (left_most is None) or (right_most is None):
         # We didn't find any part of the sequence with enough depth.
         return []
+    elif (right_most - left_most) < window:
+        # The sequence is too short to try and split.
+        return [(left_most, right_most)]
     else:
         # Find internal breakpoint and recursively call depth_trim.
         break_at = None

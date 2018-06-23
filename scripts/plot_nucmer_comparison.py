@@ -10,7 +10,7 @@ USAGE: plot_nucmer_comparison.py <v1_v2.nucmer.coords.tsv> <v1.length.tsv> <v2.l
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib import collections  as mc
+from matplotlib import collections as mc
 import matplotlib.patches as mp
 from matplotlib.ticker import StrMethodFormatter
 from matplotlib.backends.backend_pdf import PdfPages
@@ -62,8 +62,11 @@ if __name__ == "__main__":
 
 
     # Make strand data something we can work with.
-    data.strand = data.strand.map({'Plus': +1, 'Minus': -1}).fillna(+1)
-    # If the inversion covers more than half of the contig, than it's not really an inversion, is it?
+    data.strand = data.strand.map({'Plus': +1, 'Minus': -1})
+    # TODO: If the inversion covers more than half of the contig,
+    # than it's not really an inversion, is it?
+    # TODO: Flip these alignments as though I took the reverse
+    # complement of the entire contig.
 
 
     # Change to python-style indexing
@@ -92,6 +95,9 @@ if __name__ == "__main__":
 
     # Sort alignments with long contigs first.
     data['sort_key'] = -data[['length_1', 'length_2']].max(1)
+    # TODO: Sort alignments by contig based on
+    # total (summed across all alignments) aligned length between the
+    # contigs.
     data.sort_values('sort_key', inplace=True)
 
     # Left hand side of alignment
@@ -113,20 +119,20 @@ if __name__ == "__main__":
     data['idx_end_2'] = data.idx_left_2 + data.end_2       # End of alignment_2 range
     data['idx_middle_2'] = (data.idx_start_2 + data.idx_end_2) / 2
 
-    d = data.copy()#[data.strand == -1]
-
 
     # Constants
     color_inv = 'red'
     color_fwd = 'blue'
-    d['color'] = d.strand.map({-1.: color_inv, +1.: color_fwd}).fillna(color_inv)
-    d.dropna(subset=['contig_id_1', 'contig_id_2',
-                     ], inplace=True)
+    data['color'] = data.strand.map({-1.: color_inv, +1.: color_fwd})
     padding = 0.02
 
     assert sys.argv[4].rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
     with PdfPages(sys.argv[4]) as pdf:
         # View 1 - "Dots"
+        d = data.copy()
+        d.dropna(subset=['contig_id_1', 'contig_id_2',
+                        ], inplace=True)
+
         fig, ax = plt.subplots(figsize=(15, 15))
         line_table = list(zip(zip(d.idx_start_1, d.idx_start_2), zip(d.idx_end_1, d.idx_end_2)))
         lc = mc.LineCollection(line_table, color=d.color, lw=2)
@@ -143,9 +149,9 @@ if __name__ == "__main__":
                     right_max + padding * axis_length)
 
         # Dummy artists for legend.
-        art_inv = plt.plot([], [], color=color_inv)
-        art_fwd = plt.plot([], [], color=color_fwd)
-        plt.legend({'same': art_fwd, 'inverted': art_inv}, loc='lower right')
+        art_inv, *_ = plt.plot([], [], color=color_inv)
+        art_fwd, *_ = plt.plot([], [], color=color_fwd)
+        plt.legend([art_fwd, art_inv], ['same', 'inverted'], loc='lower right')
 
         ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
@@ -160,29 +166,40 @@ if __name__ == "__main__":
         fig, ax = plt.subplots(figsize=(15, 3))
         width_coef = 1.5e4  # Conversion from summed alength's to linewidths
 
-        pcoords = (list(zip(zip(d.idx_start_1, repeat(0)), zip(d.idx_end_1, repeat(0)),
-                        zip(d.idx_end_2, repeat(1)), zip(d.idx_start_2, repeat(1)))))
+        # Plot alignments
+        da = data.dropna(subset=['contig_id_1', 'contig_id_2',
+                             ])
+        pcoords = (list(zip(zip(da.idx_start_1, repeat(1)), zip(da.idx_end_1, repeat(1)),
+                            zip(da.idx_end_2, repeat(2)), zip(da.idx_start_2, repeat(2)))))
         pc = mc.PatchCollection([mp.Polygon(c, closed=True)
                                 for c in pcoords],
-                                color=d.strand.map({-1.: 'red', +1.: 'blue'}).fillna('red'),
+                                color=da.color,
                                 alpha=0.4, lw=0)
         ax.add_collection(pc)
 
-        left_min = min(d.idx_left_1.min(), d.idx_left_2.min())
-        right_max = max(d.idx_right_1.max(), d.idx_right_2.max())
+        # Plot contigs
+        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1']].dropna().drop_duplicates()
+        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2']].dropna().drop_duplicates()
+        line_table = (list(zip(zip(d1.idx_left_1, repeat(1)), zip(d1.idx_right_1, repeat(1)))) +
+                      list(zip(zip(d2.idx_left_2, repeat(2)), zip(d2.idx_right_2, repeat(2)))))
+        lc = mc.LineCollection(line_table, color='k', lw=1, alpha=1)
+        ax.add_collection(lc)
+
+        left_min = min(data.idx_left_1.min(), data.idx_left_2.min())
+        right_max = max(data.idx_right_1.max(), data.idx_right_2.max())
         axis_length = right_max - left_min
 
         ax.set_xlim(left_min - padding * axis_length,
                     right_max + padding * axis_length)
-        ax.set_ylim(-0.1, 1.1)
+        ax.set_ylim(0.9, 2.1)
 
-        # Dummy artists for legend.
-        art_inv = plt.plot([], [], color=color_inv)
-        art_fwd = plt.plot([], [], color=color_fwd)
-        plt.legend({'same': art_fwd, 'inverted': art_inv}, bbox_to_anchor=(1.12, 1))
+        # # Dummy artists for legend.
+        # art_inv, *_ = plt.plot([], [], color=color_inv)
+        # art_fwd, *_ = plt.plot([], [], color=color_fwd)
+        # plt.legend([art_fwd, art_inv], ['same', 'inverted'], bbox_to_anchor=(1.12, 1))
 
         ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
-        ax.set_yticks([0, 1])
+        ax.set_yticks([1, 2])
         ax.set_yticklabels(['Strain 1', 'Strain 2'])
         pdf.savefig(fig)
         plt.close(fig)

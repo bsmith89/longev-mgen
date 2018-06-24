@@ -17,6 +17,16 @@ from matplotlib.backends.backend_pdf import PdfPages
 from itertools import repeat
 import sys
 
+def flip_inverted_contigs(df, check=True):
+    df = df.copy()
+    assert df.contig_id_2.unique().shape[0] == 1
+    if check:  # that the df should be flipped
+        if not (df.alength_2 * df.strand).sum() < 0:
+            return df
+    df[['start_2', 'end_2']] = df[['end_2', 'start_2']]
+    df.strand = df.strand * -1
+    return df
+
 if __name__ == "__main__":
 # FROM http://mummer.sourceforge.net/manual/#coords
 # When run with the -B option, output format will consist of 21 tab-delimited
@@ -63,10 +73,11 @@ if __name__ == "__main__":
 
     # Make strand data something we can work with.
     data.strand = data.strand.map({'Plus': +1, 'Minus': -1})
-    # TODO: If the inversion covers more than half of the contig,
+    # TODO: If the inversion covers more than half of the alignments,
     # than it's not really an inversion, is it?
     # TODO: Flip these alignments as though I took the reverse
     # complement of the entire contig.
+    data = data.groupby(['contig_id_2']).apply(flip_inverted_contigs)
 
 
     # Change to python-style indexing
@@ -93,12 +104,19 @@ if __name__ == "__main__":
                 ]
     data[_fillna_cols] = data[_fillna_cols].fillna(0)
 
+    # Calculate total aligned length for every match
+    contig_1 = data.groupby(['contig_id_1']).alength_1.sum()
+    contig_1.name = 'total_alength_1'
+    contig_2 = data.groupby(['contig_id_2']).alength_1.sum()
+    contig_2.name = 'total_alength_2'
+    data = data.join(contig_1, on='contig_id_1').join(contig_2, on='contig_id_2')
+
     # Sort alignments with long contigs first.
-    data['sort_key'] = -data[['length_1', 'length_2']].max(1)
-    # TODO: Sort alignments by contig based on
-    # total (summed across all alignments) aligned length between the
-    # contigs.
-    data.sort_values('sort_key', inplace=True)
+    data['length_longer'] = data[['length_1', 'length_2']].max(1)
+    data['total_alength_longer'] = data[['total_alength_1', 'total_alength_2']].max(1)
+    data['alength_longer'] = data[['alength_1', 'alength_2']].max(1)
+    data.sort_values(['total_alength_longer', 'alength_longer', 'length_longer'],
+                    ascending=False, inplace=True)
 
     # Left hand side of alignment
     idx_right_1 = data[['contig_id_1', 'length_1']].drop_duplicates().set_index('contig_id_1').length_1.cumsum()
@@ -125,6 +143,7 @@ if __name__ == "__main__":
     color_fwd = 'blue'
     data['color'] = data.strand.map({-1.: color_inv, +1.: color_fwd})
     padding = 0.02
+    tick_length = 0.01
 
     assert sys.argv[4].rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
     with PdfPages(sys.argv[4]) as pdf:
@@ -178,11 +197,20 @@ if __name__ == "__main__":
         ax.add_collection(pc)
 
         # Plot contigs
-        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1']].dropna().drop_duplicates()
-        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2']].dropna().drop_duplicates()
-        line_table = (list(zip(zip(d1.idx_left_1, repeat(1)), zip(d1.idx_right_1, repeat(1)))) +
-                      list(zip(zip(d2.idx_left_2, repeat(2)), zip(d2.idx_right_2, repeat(2)))))
-        lc = mc.LineCollection(line_table, color='k', lw=1, alpha=1)
+        plt.plot([data.idx_left_1.min(), data.idx_right_1.max()],
+                [1 - tick_length, 1 - tick_length],
+                color='k', lw=2, zorder=1)
+        plt.plot([data.idx_left_2.min(), data.idx_right_2.max()],
+                [2 + tick_length, 2 + tick_length],
+                color='k', lw=2, zorder=1)
+        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1']].dropna().drop_duplicates()
+        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2']].dropna().drop_duplicates()
+        line_table = (list(zip(zip(d1.idx_right_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1)))) +
+                    list(zip(zip(d2.idx_right_2, repeat(2)), zip(d2.idx_right_2, repeat(2 + tick_length))))
+                    )
+        lc = mc.LineCollection(line_table, color='w',
+                            lw=0.5,
+                            alpha=0.75)
         ax.add_collection(lc)
 
         left_min = min(data.idx_left_1.min(), data.idx_left_2.min())
@@ -193,12 +221,7 @@ if __name__ == "__main__":
                     right_max + padding * axis_length)
         ax.set_ylim(0.9, 2.1)
 
-        # # Dummy artists for legend.
-        # art_inv, *_ = plt.plot([], [], color=color_inv)
-        # art_fwd, *_ = plt.plot([], [], color=color_fwd)
-        # plt.legend([art_fwd, art_inv], ['same', 'inverted'], bbox_to_anchor=(1.12, 1))
-
-        ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
+        ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}'))
         ax.set_yticks([1, 2])
         ax.set_yticklabels(['Strain 1', 'Strain 2'])
         pdf.savefig(fig)

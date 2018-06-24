@@ -378,7 +378,7 @@ rule assemble_mgen:
 
 rule quality_asses_assembly_with_spike:
     output: 'res/{group}.a.quast.d'
-    input: contigs='seq/{group}.a.contigs.fn', ref='raw/ref/salask.fn'
+    input: contigs='seq/{group}.a.contigs.fn', ref='ref/salask.fn'
     threads: MAX_THREADS
     params: min_contig_length=1000,
     shell:

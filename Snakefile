@@ -1053,6 +1053,7 @@ rule pilon_refine_reassembly_contigs:
     output:
         dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.d"),
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
+        vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
     input:
         contigs="seq/{group}.a.mags.d/{mag}.a.contigs.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
@@ -1067,12 +1068,14 @@ rule pilon_refine_reassembly_contigs:
                 --genome {input.contigs} --frags {input.bam} \
                 --changes --tracks --vcf --vcfqe --outdir {output.dir}
         mv {output.dir}/pilon.fasta {output.fn}
+        mv {output.dir}/pilon.vcf {output.vcf}
         """
 
 rule pilon_refine_reassembly_scaffold:
     output:
         dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d"),
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
+        vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
     input:
         scaffolds="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
@@ -1087,12 +1090,14 @@ rule pilon_refine_reassembly_scaffold:
                 --genome {input.scaffolds} --frags {input.bam} \
                 --changes --tracks --vcf --vcfqe --outdir {output.dir}
         mv {output.dir}/pilon.fasta {output.fn}
+        mv {output.dir}/pilon.vcf {output.vcf}
         """
 
 rule pilon_refine_mag:
     output:
         dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.d"),
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+        vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
     input:
         contigs="seq/{group}.a.mags.d/{mag}.contigs.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
@@ -1107,6 +1112,7 @@ rule pilon_refine_mag:
                 --genome {input.contigs} --frags {input.bam} \
                 --changes --tracks --vcf --vcfqe --outdir {output.dir}
         mv {output.dir}/pilon.fasta {output.fn}
+        mv {output.dir}/pilon.vcf {output.vcf}
         """
 
 # {{{3 Mapping 2

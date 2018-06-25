@@ -71,7 +71,6 @@ if __name__ == "__main__":
     data['coverage_1'] = data.alength_1 / data.length_1
     data['coverage_2'] = data.alength_2 / data.length_2
 
-
     # Make strand data something we can work with.
     data.strand = data.strand.map({'Plus': +1, 'Minus': -1})
     # TODO: If the inversion covers more than half of the alignments,
@@ -79,7 +78,6 @@ if __name__ == "__main__":
     # TODO: Flip these alignments as though I took the reverse
     # complement of the entire contig.
     data = data.groupby(['contig_id_2']).apply(flip_inverted_contigs)
-
 
     # Change to python-style indexing
     data[['start_1', 'start_2']] -= 1
@@ -142,6 +140,7 @@ if __name__ == "__main__":
     layout_loss = np.sqrt(((data.idx_left_1 - data.idx_left_2)**2 + (data.idx_right_1 - data.idx_right_2)**2).sum())
     print("Log layout loss:", np.log(layout_loss), file=sys.stderr)
 
+    # Plotting
     # Constants
     color_inv = 'red'
     color_fwd = 'blue'
@@ -183,7 +182,6 @@ if __name__ == "__main__":
         ax.set_ylabel("Strain 2")
         pdf.savefig(fig)
         plt.close(fig)
-
 
         # View 2 - Lines
         fig, ax = plt.subplots(figsize=(15, 3))

@@ -16,6 +16,7 @@ from matplotlib.ticker import StrMethodFormatter
 from matplotlib.backends.backend_pdf import PdfPages
 from itertools import repeat
 import sys
+import numpy as np
 
 def flip_inverted_contigs(df, check=True):
     df = df.copy()
@@ -137,6 +138,9 @@ if __name__ == "__main__":
     data['idx_end_2'] = data.idx_left_2 + data.end_2       # End of alignment_2 range
     data['idx_middle_2'] = (data.idx_start_2 + data.idx_end_2) / 2
 
+    # Calculate how good the arrangement is.
+    layout_loss = np.sqrt(((data.idx_left_1 - data.idx_left_2)**2 + (data.idx_right_1 - data.idx_right_2)**2).sum())
+    print("Log layout loss:", np.log(layout_loss), file=sys.stderr)
 
     # Constants
     color_inv = 'red'

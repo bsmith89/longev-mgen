@@ -1377,7 +1377,8 @@ rule quality_asses_mag:
     threads: min(7, MAX_THREADS)
     shell:
         r"""
-        quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.asmbl[0]} \
+        quast.py --threads={threads} --min-contig 0 --output-dir {output} \
+                -R {input.asmbl[0]} --fragmented \
                 --labels "Original, Refined, Refined+DTrimmed, Reassembled, Reassembled+Refined, Reassembled+Refined+DTrimmed" \
                 {input.asmbl}
         """
@@ -1399,7 +1400,8 @@ rule quality_asses_spike_mag:
     threads: min(6, MAX_THREADS)
     shell:
         r"""
-        quast.py --threads={threads} --min-contig 0 --output-dir {output} -R {input.ref} \
+        quast.py --threads={threads} --min-contig 0 --output-dir {output} \
+                -R {input.ref} \
                 --labels "Original, Refined, Refined+DTrimmed, Reassembled, Reassembled+Refined, Reassembled+Refined+DTrimmed" \
                 {input.asmbl}
         """

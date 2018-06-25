@@ -877,40 +877,6 @@ rule reassemble_mag:
 
 # {{{3 Mapping 1
 
-rule map_reads_to_reassembly_contigs:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
-    input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.a.contigs.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.a.contigs.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.a.contigs.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.a.contigs.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.a.contigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.a.contigs.rev.2.bt2',
-    shell:
-        r"""
-        tmp1=$(mktemp)
-        tmp2=$(mktemp)
-        tmp3=$(mktemp)
-        echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.contigs \
-                --rg-id {wildcards.library} \
-                -1 {input.r1} -2 {input.r2} \
-            | samtools view -G 12 -b - > $tmp1
-        # Header
-        samtools view -H $tmp1 > $tmp2
-        # Both mapped
-        samtools view -F 3852 $tmp1 >> $tmp2
-        # Only other read mapped
-        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
-        # Only other read unmapped
-        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
-        samtools view -b $tmp2 > $tmp3
-        samtools sort --output-fmt=BAM -o {output} $tmp3
-        rm $tmp1 $tmp2 $tmp3
-        """
-
 rule map_reads_to_reassembly_scaffolds:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
     input:
@@ -1049,28 +1015,6 @@ rule alias_seqs_for_pilon:
     input: 'seq/{stem}.fn'
     shell: alias_recipe
 
-rule pilon_refine_reassembly_contigs:
-    output:
-        dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.d"),
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
-        vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
-    input:
-        contigs="seq/{group}.a.mags.d/{mag}.a.contigs.fasta",
-        bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
-        bai="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
-    resources:
-        mem_mb=100000
-    threads: min(16, MAX_THREADS)
-    shell:
-        r"""
-        pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
-                --fix snps,indels,gaps,local,breaks \
-                --genome {input.contigs} --frags {input.bam} \
-                --changes --tracks --vcf --vcfqe --outdir {output.dir}
-        mv {output.dir}/pilon.fasta {output.fn}
-        mv {output.dir}/pilon.vcf {output.vcf}
-        """
-
 rule pilon_refine_reassembly_scaffold:
     output:
         dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d"),
@@ -1118,40 +1062,6 @@ rule pilon_refine_mag:
 # {{{3 Mapping 2
 
 # TODO: How do I know if this is doing what I expect?
-rule map_reads_to_refined_reassembly_contigs:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
-    input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.rev.2.bt2',
-    shell:
-        r"""
-        tmp1=$(mktemp)
-        tmp2=$(mktemp)
-        tmp3=$(mktemp)
-        echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.a.contigs.pilon \
-                --rg-id {wildcards.library} \
-                -1 {input.r1} -2 {input.r2} \
-            | samtools view -G 12 -b - > $tmp1
-        # Header
-        samtools view -H $tmp1 > $tmp2
-        # Both mapped
-        samtools view -F 3852 $tmp1 >> $tmp2
-        # Only other read mapped
-        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
-        # Only other read unmapped
-        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
-        samtools view -b $tmp2 > $tmp3
-        samtools sort --output-fmt=BAM -o {output} $tmp3
-        rm $tmp1 $tmp2 $tmp3
-        """
-
 
 rule map_reads_to_refined_reassembly_scaffolds:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
@@ -1286,30 +1196,6 @@ ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read
 # {{{3 Depth Trimming
 
 # See rule: calculate_mapping_depth.
-
-rule depth_trim_refined_reassembly_contigs:
-    output:
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.dtrim.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv"
-    input:
-        script="scripts/depth_trim_contigs.py",
-        contigs="seq/{group}.a.mags.d/{mag}.v{strain}.a.contigs.pilon.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
-    params:
-        thresh=0.05,
-        window=500,
-        flank=100,
-        min_len=1000,
-    shell:
-        """
-        {input.script} --depth-thresh={params.thresh} \
-                --window-size={params.window} \
-                --flank-size={params.flank} \
-                --min-length={params.min_len} \
-                --depth-out {output.depth} \
-                {input.contigs} {input.depth} \
-                > {output.fn}
-        """
 
 rule depth_trim_refined_reassembly_scaffolds:
     output:

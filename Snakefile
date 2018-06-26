@@ -1137,6 +1137,9 @@ ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read
 
 # See rule: calculate_mapping_depth.
 
+# TODO: Filter contigs by coverage covariance
+# TODO: Trim contigs by depth covariance (over samples) compared to flanking
+# windows
 rule depth_trim_refined_reassembly_scaffolds:
     output:
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.fn",

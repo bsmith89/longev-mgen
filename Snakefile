@@ -750,7 +750,6 @@ rule construct_strain_specific_libraries:
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-
 rule get_mag_contigs:
     output: 'seq/{group}.a.mags.d/{bin}.contigs.fn'
     input:

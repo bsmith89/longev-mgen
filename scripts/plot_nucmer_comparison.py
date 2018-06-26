@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-USAGE: plot_nucmer_comparison.py <v1_v2.nucmer.coords.tsv> <v1.length.tsv> <v2.length.tsv> output.[png|pdf]
+USAGE: plot_nucmer_comparison.py <v1_v2.nucmer.coords.tsv> <v1.nlength.tsv> <v2.nlength.tsv> <v1.depth.tsv> <v2.depth.tsv> output.[png|pdf]
 
 <v1_v2.nucmer.coords.tsv> : A processed version of Mummer4's show-coords -B format (see column_names)
 <[v1|v2].length.tsv> : TSVs of contig lengths
@@ -109,13 +109,13 @@ if __name__ == "__main__":
     # TODO: Is this right?  Do I need to move the end_i index too?
     data[['start_1', 'start_2']] -= 1
 
-    # Add entries for unaligned contigs
-    contigs_1 = (pd.read_table(sys.argv[2])
+   # Add entries for unaligned contigs
+    length_1 = (pd.read_table(sys.argv[2])
                     .rename(columns={'contig_id': 'contig_id_1', 'length': 'length_1'}))
-    contigs_2 = (pd.read_table(sys.argv[3])
+    length_2 = (pd.read_table(sys.argv[3])
                     .rename(columns={'contig_id': 'contig_id_2', 'length': 'length_2'}))
-    data = pd.merge(data, contigs_1, how='outer', on='contig_id_1', suffixes=('', '_1'))
-    data = pd.merge(data, contigs_2, how='outer', on='contig_id_2', suffixes=('', '_2'))
+    data = pd.merge(data, length_1, how='outer', on='contig_id_1', suffixes=('', '_1'))
+    data = pd.merge(data, length_2, how='outer', on='contig_id_2', suffixes=('', '_2'))
 
     # Check data integrity and then transfer contig lengths into correct columns.
     assert data.dropna(subset=['length_1']).apply(lambda x: x.length_1 == x.length_1_1, axis=1).all()
@@ -124,6 +124,21 @@ if __name__ == "__main__":
     data.length_2.fillna(data.length_2_2, inplace=True)
     data.drop(['length_1_1', 'length_2_2'], axis=1, inplace=True)
 
+    # Import depth data.
+    depth_1 = pd.read_table(sys.argv[4], names=['contig_id', 'position', 'depth'])
+    depth_2 = pd.read_table(sys.argv[5], names=['contig_id', 'position', 'depth'])
+    # Check that all positions have depth data
+    # TODO: (I may need to drop this check, because it may not always be true.)
+    assert ~(((depth_1.position[:-1] - depth_1.position[1:]).dropna() == 0) == depth_1.shape[0] - 2).any()
+    assert ~(((depth_2.position[:-1] - depth_2.position[1:]).dropna() == 0) == depth_2.shape[0] - 2).any()
+    coverage_1 = (depth_1.groupby('contig_id')
+                         .apply(lambda x: pd.Series({'total_depth_1': x.depth.sum()})))
+    coverage_2 = (depth_2.groupby('contig_id')
+                         .apply(lambda x: pd.Series({'total_depth_2': x.depth.sum()})))
+    data = pd.merge(data, coverage_1, how='outer', left_on='contig_id_1', right_index=True, suffixes=('', '_1'))
+    data = pd.merge(data, coverage_2, how='outer', left_on='contig_id_2', right_index=True, suffixes=('', '_2'))
+
+
     # Everything except the contig_ids can be replaced with 0 when there's no alignment.
     _fillna_cols = ['start_1', 'end_1', 'start_2', 'end_2',
                     'aligned_identity', 'length_1', 'length_2'
@@ -131,11 +146,11 @@ if __name__ == "__main__":
     data[_fillna_cols] = data[_fillna_cols].fillna(0)
 
     # Calculate total aligned length for every match
-    contig_1 = data.groupby(['contig_id_1'])['alength_1'].sum()
-    contig_1.name = 'total_alength_1'
-    contig_2 = data.groupby(['contig_id_2'])['alength_2'].sum()
-    contig_2.name = 'total_alength_2'
-    data = data.join(contig_1, on='contig_id_1').join(contig_2, on='contig_id_2')
+    alength_1 = data.groupby(['contig_id_1'])['alength_1'].sum()
+    alength_1.name = 'total_alength_1'
+    alength_2 = data.groupby(['contig_id_2'])['alength_2'].sum()
+    alength_2.name = 'total_alength_2'
+    data = data.join(alength_1, on='contig_id_1').join(alength_2, on='contig_id_2')
 
     # TODO: Optimize layout.
     # Approach: ("pick teams") where each round the next best contig is ordered
@@ -196,10 +211,10 @@ if __name__ == "__main__":
     color_fwd = 'blue'
     data['color'] = data.strand.map({-1.: color_inv, +1.: color_fwd})
     padding = 0.02
-    tick_length = 0.01
+    tick_length = 0.05
 
-    assert sys.argv[4].rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
-    with PdfPages(sys.argv[4]) as pdf:
+    assert sys.argv[6].rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
+    with PdfPages(sys.argv[6]) as pdf:
         # View 1 - "Dots"
         d = data.copy()
         d.dropna(subset=['contig_id_1', 'contig_id_2',
@@ -249,20 +264,15 @@ if __name__ == "__main__":
         ax.add_collection(pc)
 
         # Plot contigs
-        plt.plot([data.idx_left_1.min(), data.idx_right_1.max()],
-                [1 - tick_length, 1 - tick_length],
-                color='k', lw=2, zorder=1)
-        plt.plot([data.idx_left_2.min(), data.idx_right_2.max()],
-                [2 + tick_length, 2 + tick_length],
-                color='k', lw=2, zorder=1)
-        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1']].dropna().drop_duplicates()
-        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2']].dropna().drop_duplicates()
-        line_table = (list(zip(zip(d1.idx_right_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1)))) +
-                    list(zip(zip(d2.idx_right_2, repeat(2)), zip(d2.idx_right_2, repeat(2 + tick_length))))
+        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1', 'coverage_1']].dropna().drop_duplicates()
+        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2', 'coverage_2']].dropna().drop_duplicates()
+        line_table = (list(zip(zip(d1.idx_left_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1 - tick_length)))) +
+                      list(zip(zip(d2.idx_left_2, repeat(2 + tick_length)), zip(d2.idx_right_2, repeat(2 + tick_length))))
                     )
-        lc = mc.LineCollection(line_table, color='w',
-                            lw=0.5,
-                            alpha=0.75)
+        lc = mc.LineCollection(line_table,
+                               linewidths=list(d1.coverage_1 * 5 / d1.coverage_1.max()) +
+                                          list(d2.coverage_2 * 5 / d2.coverage_2.max()),
+                               alpha=0.9, color='k')
         ax.add_collection(lc)
 
         left_min = min(data.idx_left_1.min(), data.idx_left_2.min())

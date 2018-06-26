@@ -1274,6 +1274,11 @@ rule process_strain_comparison_table:
         show-coords -B {input.delta} > {output.coords}
         """
 
+rule alias_dtrimmed_refined_reassembly_depth_data:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.depth.tsv'
+    input: 'res/core.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv'
+    shell: alias_recipe
+
 rule plot_strain_comparison:
     output:
         pdf="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
@@ -1281,10 +1286,12 @@ rule plot_strain_comparison:
         script="scripts/plot_nucmer_comparison.py",
         coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
         length1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
-        length2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv"
+        length2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
+        depth1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.depth.tsv",
+        depth2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.depth.tsv",
     shell:
         """
-        {input.script} {input.coords} {input.length1} {input.length2} {output}
+        {input.script} {input.coords} {input.length1} {input.length2} {input.depth1} {input.depth2} {output}
         """
 
 

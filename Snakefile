@@ -435,7 +435,7 @@ rule map_reads_to_metagenome_assembly:
         """
 
 rule combine_read_mappings:
-    output: 'res/{group}.a.map.sort.bam'
+    output: 'res/{group}.a.map-{group}.sort.bam'
     input:
         lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.sort.bam'
                            for library
@@ -750,17 +750,6 @@ rule construct_strain_specific_libraries:
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-rule construct_dummy_strain_specific_libraries:
-    output: "res/{group}.a.mags.d/DUMMY.v0.library.list"
-    input: "meta/asmbl_group.tsv"
-    shell: "awk -v group={wildcards.group} '$2==group {{print $1}}' meta/asmbl_group.tsv > {output}"
-
-rule link_dummy_strain_specific_libraries:
-    output: 'res/{group}.a.mags.d/{mag}.v0.library.list'
-    input: 'res/{group}.a.mags.d/DUMMY.library.list'
-    shell: alias_recipe
-
-ruleorder: link_dummy_strain_specific_libraries > construct_dummy_strain_specific_libraries > construct_strain_specific_libraries
 
 rule get_mag_contigs:
     output: 'seq/{group}.a.mags.d/{bin}.contigs.fn'
@@ -774,142 +763,7 @@ localrules: construct_mag, link_dummy_strain_specific_libraries,
             construct_mag_strain_specific_libraries, get_mag_contigs
 
 # {{{2 MAG Refinement
-
-# {{{3 Prepare Data
-# TODO: Filter out unmatched lines before the fastq step, so that we can keep
-# all of the metadata.
-# TODO: How to make (e.g.) -F3844 more expressive? https://broadinstitute.github.io/picard/explain-flags.html
-# TODO: Extract reads from only the samples with the highest abundance of each MAG
-# TODO: Also extract paired-ends that didn't map to mag directly.
-# TODO: Figure out how to control memory usage for the following
-# large 'samtool | grep':
-# echo "Collecting inter-bin linking pairs for {wildcards.mag_id}"
-# Find all of the linked out-of-bin contigs (params.tmp1).
-# Pull discordant reads that map to these contigs.
-# Then filter by the list of contigs that are in the bin and output
-# these lines to the sam-file.
-# samtools view -@ {threads} -f 1 -F 3854 {input.bam} \
-#         $(cut -f7 {params.tmp1} | sort | uniq) \
-#     | grep -wf {input.contig_ids} >> {params.tmp3}
-# cat {params.tmp1} {params.tmp3} | {input.script} \
-#     >> {params.sam}
-# TODO: Parallelize
-rule extract_mag_reads:
-    output:
-        r1='seq/{group}.a.mags.d/{mag}.m.r1.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag}.m.r2.fq.gz',
-    input:
-        script='scripts/match_paired_reads.py',
-        bam='res/{group}.a.map.sort.bam',
-        bai='res/{group}.a.map.sort.bam.bai',
-        contig_ids='res/{group}.a.mags.d/{mag}.contigs.list'
-    threads: min(5, MAX_THREADS)
-    shell:
-        r"""
-        tmp1=$(mktemp)
-        tmp2=$(mktemp)
-
-        echo "Outputting header for {wildcards.mag} into temporary file $tmp1"
-        samtools view -H {input.bam} > $tmp1
-
-        echo "Collecting intra-bin linking pairs for {wildcards.mag}"
-        samtools view -@ {threads} -f 1 -F 3842 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} >> $tmp1
-
-        echo "Collecting singly mapped pairs for {wildcards.mag} in temporary file $tmp2"
-        samtools view -@ {threads} -f 5 -F 3848 {input.bam} \
-            | grep -wf {input.contig_ids} > $tmp2
-        samtools view -@ {threads} -f 9 -F 3844 {input.bam} $(cat {input.contig_ids}) \
-            >> $tmp2
-        echo "Matching singly mapped pairs for {wildcards.mag} in temporary file $tmp1"
-        {input.script} < $tmp2 \
-            >> $tmp1
-        rm $tmp2
-
-        echo "Collecting proper pairs for {wildcards.mag} in temporary file $tmp1"
-        samtools view -@ {threads} -f 3 -F 3852 {input.bam} $(cat {input.contig_ids}) \
-            | {input.script} >> $tmp1
-
-        echo "Converting $tmp1 to GZIPed FASTQ for {wildcards.mag}"
-        samtools view -@ {threads} -u $tmp1 \
-            | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
-        rm $tmp1
-        """
-
-rule diginorm_reads:
-    output:
-        r1='seq/{stem}.r1.dnorm.fq.gz',
-        r2='seq/{stem}.r2.dnorm.fq.gz'
-    input:
-        r1='seq/{stem}.r1.fq.gz',
-        r2='seq/{stem}.r2.fq.gz'
-    params:
-        ksize=32,
-        tablecols=1024,
-        tablerows=10
-    threads: min(2, MAX_THREADS)
-    shell:
-        """
-        Bignorm -1 {input.r1} -2 {input.r2} -k {params.ksize} --both -m {params.tablecols} -t {params.tablerows} -z
-        mv {input.r1}_keep.gz {output.r1}
-        mv {input.r2}_keep.gz {output.r2}
-        """
-
-# {{{3 Reassembly
-# TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
-# TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
-# TODO: Rename contigs with mag stem.
-rule reassemble_mag:
-    output:
-        scaffolds='seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-        contigs='seq/{group}.a.mags.d/{mag}.a.contigs.fn',
-        dir=temp('seq/{group}.a.mags.d/{mag}.spades.d')
-    input:
-        r1='seq/{group}.a.mags.d/{mag}.m.r1.dnorm.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag}.m.r2.dnorm.fq.gz'
-    threads: min(15, MAX_THREADS)
-    shell:
-        r"""
-        spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
-        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
-        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag}_\1:' {output.dir}/contigs.fasta > {output.contigs}
-        """
-
-# {{{3 Mapping 1
-
-rule map_reads_to_reassembly_scaffolds:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
-    input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.a.scaffolds.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.a.scaffolds.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.a.scaffolds.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.a.scaffolds.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.a.scaffolds.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.a.scaffolds.rev.2.bt2',
-    shell:
-        r"""
-        tmp1=$(mktemp)
-        tmp2=$(mktemp)
-        tmp3=$(mktemp)
-        echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.scaffolds \
-                --rg-id {wildcards.library} \
-                -1 {input.r1} -2 {input.r2} \
-            | samtools view -G 12 -b - > $tmp1
-        # Header
-        samtools view -H $tmp1 > $tmp2
-        # Both mapped
-        samtools view -F 3852 $tmp1 >> $tmp2
-        # Only other read mapped
-        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
-        # Only other read unmapped
-        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
-        samtools view -b $tmp2 > $tmp3
-        samtools sort --output-fmt=BAM -o {output} $tmp3
-        rm $tmp1 $tmp2 $tmp3
-        """
+# {{{3 Mapping 0
 
 rule map_reads_to_mag:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
@@ -945,10 +799,10 @@ rule map_reads_to_mag:
         rm $tmp1 $tmp2 $tmp3
         """
 
-rule combine_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.amap.sort.bam'
+rule combine_mag_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.map-{group}.sort.bam'
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-map.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -958,10 +812,108 @@ rule combine_reassembly_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
-rule combine_mag_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.map.sort.bam'
+
+# {{{3 Prepare Data
+
+rule convert_mag_mapped_reads_to_fastq:
+    output:
+        r1='seq/{group}.a.mags.d/{mag}.map-{group}.r1.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag}.map-{group}.r2.fq.gz',
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-map.sort.bam'
+        bam='res/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+        script='scripts/match_paired_reads.py',
+    threads: min(10, MAX_THREADS)
+    shell:
+        r"""
+        # TODO
+        (
+            samtools view -H {input.bam}
+            samtools view -@ {threads} {input.bam} | {input.script}
+        ) \
+            | samtools view -@ {threads} -u - \
+            | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
+        """
+
+rule diginorm_reads:
+    output:
+        r1='seq/{stem}.r1.dnorm.fq.gz',
+        r2='seq/{stem}.r2.dnorm.fq.gz'
+    input:
+        r1='seq/{stem}.r1.fq.gz',
+        r2='seq/{stem}.r2.fq.gz'
+    params:
+        ksize=32,
+        tablecols=1024,
+        tablerows=10
+    threads: min(2, MAX_THREADS)
+    shell:
+        """
+        Bignorm -1 {input.r1} -2 {input.r2} -k {params.ksize} --both -m {params.tablecols} -t {params.tablerows} -z
+        mv {input.r1}_keep.gz {output.r1}
+        mv {input.r2}_keep.gz {output.r2}
+        """
+
+# {{{3 Reassembly
+
+# TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
+# TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
+# TODO: Rename contigs with mag stem.
+rule reassemble_mag:
+    output:
+        scaffolds='seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
+        contigs='seq/{group}.a.mags.d/{mag}.a.contigs.fn',
+        dir=temp('seq/{group}.a.mags.d/{mag}.spades.d')
+    input:
+        r1='seq/{group}.a.mags.d/{mag}.map-{group}.r1.dnorm.fq.gz',
+        r2='seq/{group}.a.mags.d/{mag}.map-{group}.r2.dnorm.fq.gz'
+    threads: min(15, MAX_THREADS)
+    shell:
+        r"""
+        spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag}_\1:' {output.dir}/scaffolds.fasta > {output.scaffolds}
+        sed 's:^>NODE_\([0-9]\+\)_length_[0-9]\+_cov_[0-9]\+.[0-9]\+$:>{wildcards.mag}_\1:' {output.dir}/contigs.fasta > {output.contigs}
+        """
+
+# {{{3 Mapping 1
+
+rule map_reads_to_reassembly:
+    output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
+    input:
+        r1='seq/{library}.m.r1.proc.fq.gz',
+        r2='seq/{library}.m.r2.proc.fq.gz',
+        inx_1='seq/{group}.a.mags.d/{mag}.a.scaffolds.1.bt2',
+        inx_2='seq/{group}.a.mags.d/{mag}.a.scaffolds.2.bt2',
+        inx_3='seq/{group}.a.mags.d/{mag}.a.scaffolds.3.bt2',
+        inx_4='seq/{group}.a.mags.d/{mag}.a.scaffolds.4.bt2',
+        inx_rev1='seq/{group}.a.mags.d/{mag}.a.scaffolds.rev.1.bt2',
+        inx_rev2='seq/{group}.a.mags.d/{mag}.a.scaffolds.rev.2.bt2',
+    shell:
+        r"""
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        tmp3=$(mktemp)
+        echo "$tmp1 $tmp2 $tmp3 ({output})"
+        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.scaffolds \
+                --rg-id {wildcards.library} \
+                -1 {input.r1} -2 {input.r2} \
+            | samtools view -G 12 -b - > $tmp1
+        # Header
+        samtools view -H $tmp1 > $tmp2
+        # Both mapped
+        samtools view -F 3852 $tmp1 >> $tmp2
+        # Only other read mapped
+        samtools view -f 4 -F 3848 $tmp1 >> $tmp2
+        # Only other read unmapped
+        samtools view -f 8 -F 3844 $tmp1 >> $tmp2
+        samtools view -b $tmp2 > $tmp3
+        samtools sort --output-fmt=BAM -o {output} $tmp3
+        rm $tmp1 $tmp2 $tmp3
+        """
+
+rule combine_reassembly_read_mappings:
+    output: 'res/{group}.a.mags.d/{mag}.amap-{group}.sort.bam'
+    input:
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -974,36 +926,30 @@ rule combine_mag_read_mappings:
 rule extract_strain_specific_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
+        bam='res/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_reassembly_read_mappings_all_libs:
     output: 'res/{group}.a.mags.d/{mag}.v0.amap.sort.bam'
-    input:
-        bam='res/{group}.a.mags.d/{mag}.amap.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
-    threads: min(10, MAX_THREADS)
-    shell: 'ln -rs {input.bam} {output}'
+    input: 'res/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
+    shell: alias_recipe
 
 ruleorder: extract_strain_specific_reassembly_read_mappings_all_libs > extract_strain_specific_reassembly_read_mappings
 
 rule extract_strain_specific_mag_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.map.sort.bam',
+        bam='res/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_mag_read_mappings_all_libs:
     output: 'res/{group}.a.mags.d/{mag}.v0.map.sort.bam'
-    input:
-        bam='res/{group}.a.mags.d/{mag}.map.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
-    threads: min(10, MAX_THREADS)
-    shell: 'ln -rs {input.bam} {output}'
+    input: 'res/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+    shell: alias_recipe
 
 ruleorder: extract_strain_specific_mag_read_mappings_all_libs > extract_strain_specific_mag_read_mappings
 
@@ -1019,7 +965,6 @@ rule pilon_refine_reassembly_scaffold:
     output:
         dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d"),
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
     input:
         scaffolds="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
@@ -1034,7 +979,6 @@ rule pilon_refine_reassembly_scaffold:
                 --genome {input.scaffolds} --frags {input.bam} \
                 --changes --tracks --vcf --vcfqe --outdir {output.dir}
         mv {output.dir}/pilon.fasta {output.fn}
-        mv {output.dir}/pilon.vcf {output.vcf}
         """
 
 rule pilon_refine_mag:
@@ -1060,8 +1004,6 @@ rule pilon_refine_mag:
         """
 
 # {{{3 Mapping 2
-
-# TODO: How do I know if this is doing what I expect?
 
 rule map_reads_to_refined_reassembly_scaffolds:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
@@ -1132,7 +1074,7 @@ rule map_reads_to_refined_mag:
         """
 
 rule combine_refined_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam'
     input:
         lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
                            for library
@@ -1145,7 +1087,7 @@ rule combine_refined_reassembly_read_mappings:
         """
 
 rule combine_refined_mag_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'
     input:
         lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-rmap.sort.bam'
                            for library
@@ -1157,39 +1099,37 @@ rule combine_refined_mag_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
+# TODO: Fix this circular reference
 rule extract_refined_reassembly_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam',
+        bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
-    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+    shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
+# TODO: Fix this circular reference
 rule extract_refined_reassembly_read_mappings_all_libs:
     output: 'res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam'
-    input:
-        bam='res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
-    threads: min(10, MAX_THREADS)
-    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+    input: 'res/{group}.a.mags.d/{mag}.v0.ramap-{group}.sort.bam',
+    shell: alias_recipe
 
 ruleorder: extract_refined_reassembly_read_mappings_all_libs > extract_refined_reassembly_read_mappings
 
+# TODO: Fix this circular reference
 rule extract_refined_mag_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam',
+        bam='res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam',
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
-    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+    shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
+# TODO: Fix this circular reference
 rule extract_refined_mag_read_mappings_all_libs:
     output: 'res/{group}.a.mags.d/{mag}.v0.rmap.sort.bam'
-    input:
-        bam='res/{group}.a.mags.d/{mag}.v0.rmap.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v0.library.list',
-    threads: min(10, MAX_THREADS)
-    shell: "samtools view -@ {threads} -b -r {input.libs} {input.bam} > {output}"
+    input: 'res/{group}.a.mags.d/{mag}.v0.rmap-{group}.sort.bam',
+    shell: alias_recipe
 
 ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read_mappings
 

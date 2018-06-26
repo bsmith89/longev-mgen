@@ -28,6 +28,32 @@ def flip_inverted_contigs(df, check=True):
     df.strand = df.strand * -1
     return df
 
+def union_of_intervals(interval_list):
+    interval_list = [(min(start, end), max(start, end)) for start, end in interval_list]
+    out = []
+    for start, end in sorted(interval_list):
+        if out and out[-1][1] >= start - 1:
+            out[-1][1] = max(out[-1][1], end)
+        else:
+            out.append([start, end])
+    return out
+
+def sum_aligned_length(interval_list):
+    tally = 0
+    for start, end in interval_list:
+        tally += end - start
+    return tally
+
+def calc_unique_aligned_length(df):
+    """Calculate total length aligned for each contig included in the data.
+
+    *df* : data[['contig_id', 'start', 'end']].dropna()
+    """
+    out = (df.groupby('contig_id')
+             .apply(lambda x: union_of_intervals(zip(x.start, x.end)))
+             .apply(sum_aligned_length))
+    return out
+
 if __name__ == "__main__":
 # FROM http://mummer.sourceforge.net/manual/#coords
 # When run with the -B option, output format will consist of 21 tab-delimited
@@ -80,6 +106,7 @@ if __name__ == "__main__":
     data = data.groupby(['contig_id_2']).apply(flip_inverted_contigs)
 
     # Change to python-style indexing
+    # TODO: Is this right?  Do I need to move the end_i index too?
     data[['start_1', 'start_2']] -= 1
 
     # Add entries for unaligned contigs
@@ -104,18 +131,22 @@ if __name__ == "__main__":
     data[_fillna_cols] = data[_fillna_cols].fillna(0)
 
     # Calculate total aligned length for every match
-    contig_1 = data.groupby(['contig_id_1']).alength_1.sum()
+    contig_1 = data.groupby(['contig_id_1'])['alength_1'].sum()
     contig_1.name = 'total_alength_1'
-    contig_2 = data.groupby(['contig_id_2']).alength_1.sum()
+    contig_2 = data.groupby(['contig_id_2'])['alength_2'].sum()
     contig_2.name = 'total_alength_2'
     data = data.join(contig_1, on='contig_id_1').join(contig_2, on='contig_id_2')
+
+    # TODO: Optimize layout.
+    # Approach: ("pick teams") where each round the next best contig is ordered
+    # at the end of the sequence.
 
     # Sort alignments with long contigs first.
     data['length_longer'] = data[['length_1', 'length_2']].max(1)
     data['total_alength_longer'] = data[['total_alength_1', 'total_alength_2']].max(1)
     data['alength_longer'] = data[['alength_1', 'alength_2']].max(1)
     data.sort_values(['total_alength_longer', 'alength_longer', 'length_longer'],
-                    ascending=False, inplace=True)
+                     ascending=[False, False, False], inplace=True)
 
     # Left hand side of alignment
     idx_right_1 = data[['contig_id_1', 'length_1']].drop_duplicates().set_index('contig_id_1').length_1.cumsum()
@@ -139,6 +170,25 @@ if __name__ == "__main__":
     # Calculate how good the arrangement is.
     layout_loss = np.sqrt(((data.idx_left_1 - data.idx_left_2)**2 + (data.idx_right_1 - data.idx_right_2)**2).sum())
     print("Log layout loss:", np.log(layout_loss), file=sys.stderr)
+
+    # Calculate how much alignment there is for each genome
+    total_length_1 = data[['contig_id_1', 'length_1']].drop_duplicates().length_1.sum()
+    total_alength_1 = (calc_unique_aligned_length(data[['contig_id_1', 'start_1', 'end_1']]
+                                                    .rename(columns=lambda x: x[:-2]))
+                                                .sum())
+    total_length_2 = data[['contig_id_2', 'length_2']].drop_duplicates().length_2.sum()
+    total_alength_2 = (calc_unique_aligned_length(data[['contig_id_2', 'start_2', 'end_2']]
+                                                    .rename(columns=lambda x: x[:-2]))
+                                                .sum())
+    print('{} of {} nucleotides ({:0.1%}) aligned in Strain 1'
+              .format(int(total_alength_1), int(total_length_1),
+                      total_alength_1 / total_length_1),
+          file=sys.stderr)
+    print('{} of {} nucleotides ({:0.1%}) aligned in Strain 2'
+              .format(int(total_alength_2), int(total_length_2),
+                      total_alength_2 / total_length_2),
+          file=sys.stderr)
+
 
     # Plotting
     # Constants

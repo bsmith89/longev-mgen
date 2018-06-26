@@ -1,5 +1,9 @@
 # TODO
 
+-   [ ] Are the differences between the mice at UT that we KNOW have
+        vA and those with vB?
+-   [ ] Construct OTU-3.vB (based on the libraries chosen fro OTU-1.vB) as a
+        feel for how much effect there is of poor-er sampling of vB.
 -   [x] Regenerate non-reassembled, refined, depth-trimmed draft genome comparison for OTU-1
     -   The back-mapping of reads to the un-assembled genome may not have been done correctly.
 -   [x] Regenerate quast reports for OTU-1-A and OTU-1-B

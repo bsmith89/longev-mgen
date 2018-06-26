@@ -83,6 +83,9 @@ if __name__ == "__main__":
     tally_seqs = 0
     tally_nucs = 0
     for contig_id in tqdm(list(seqs.keys())):
+        seq = seqs[contig_id].seq
+        if len(seq) < args.min_length:
+            continue
         d = data[data.contig_id == contig_id]
         if d.empty:
             print("\rWARNING: {} not found in depth data.".format(contig_id),
@@ -95,12 +98,10 @@ if __name__ == "__main__":
             if (right - left) > args.min_length:
                 tally_seqs += 1
                 tally_nucs += right - left
-                seq = seqs[contig_id].seq[left:right]
                 name = contig_id + '_{}_{}'.format(left, right)
-                print('>{}\n{}'.format(name, seq), file=sys.stdout)
+                print('>{}\n{}'.format(name, seq[left:right]), file=sys.stdout)
                 if args.depth_out_handle:
                     (d[(d.position >= left) & (d.position < right)]
                         .to_csv(args.depth_out_handle, sep='\t',
                                 header=False, index=False))
     print("Output {} sequences with {} positions.".format(tally_seqs, tally_nucs), file=sys.stderr)
-

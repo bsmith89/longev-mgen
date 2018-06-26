@@ -1,13 +1,14 @@
 # TODO
 
--   [ ] Regenerate non-reassembled, refined, depth-trimmed draft genome comparison for OTU-1
+-   [x] Regenerate non-reassembled, refined, depth-trimmed draft genome comparison for OTU-1
     -   The back-mapping of reads to the un-assembled genome may not have been done correctly.
--   [ ] Regenerate quast reports for OTU-1-A and OTU-1-B
+-   [x] Regenerate quast reports for OTU-1-A and OTU-1-B
     -   The depth trimming parameters have been changed, and I'm hoping they result in longer
         contigs.
--   [ ] Draft genome generation with reassembled scaffolds instead of contigs.
+-   [x] Draft genome generation with reassembled scaffolds instead of contigs.
     -   I'm hoping this generates longer genome fragments.
--   [ ] Use VCF output from pilon instead of re-mapping libraries.
+-   [ ] Rerun refinement for OTU-2 and OTU-4
+-   [ ] Generate genomes/refinement for Muribaculaceae MAGs
 -   [ ] Consider writing about how most of the differences in OTU-1-A and -B
     can be described as duplication or deletion events of multi-copy genes (as
     opposed to novel genes).
@@ -19,7 +20,7 @@
         Real duplication events would not have the same dip in coverage.
 -   CheckM draft OTU-1, OTU-7 genomes.
 -   [ ] Add library ID tag to the backmapping BAMs (careful with the timestamps)
--   [ ] Pilon for library-set specific genome reconstruction
+-   [x] Pilon for library-set specific genome reconstruction
 -   [x] Import unique sequence abundance, taxonomy, and OTU abundance from longev 16S results
 -   [ ] Automate bin combination w/ 16S results
 -   [x] Look for evidence of strain variation in gene content

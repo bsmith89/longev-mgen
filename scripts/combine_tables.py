@@ -11,21 +11,27 @@ import sys
 
 if __name__ == "__main__":
     table_args = sys.argv[1:]
-    tables = []
     n_cols = None
     for table_str in table_args:
         *custom, path = table_str.split('=')
-        this_table = pd.read_table(path, header=None)
+        table = pd.read_table(path, header=None)
+
+        # Defensively check column count.
         if n_cols is not None:
-            assert n_cols == this_table.shape[1], \
+            assert n_cols == table.shape[1], \
                     f"All tables must have the same number of columns {n_cols}."
         else:
-            n_cols = this_table.shape[1]
+            n_cols = table.shape[1]
+
+        # Add a custom value if it exists.
         if custom:
-            this_table['custom'] = custom
-        tables.append(this_table)
-    out = pd.concat(tables)
-    if 'custom' in out.columns:  # Make sure that custom is the last column.
-        out = out[list(range(n_cols)) + ['custom']]
-    out.to_csv(sys.stdout, sep='\t', header=False, index=False)
+            table['custom'] = custom[0]
+
+        # Defensively assign column order.
+        if 'custom' in table.columns:
+            table = table[list(range(n_cols)) + ['custom']]
+        else:
+            table = table[list(range(n_cols))]
+
+        table.to_csv(sys.stdout, sep='\t', header=False, index=False)
 

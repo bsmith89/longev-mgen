@@ -1087,6 +1087,25 @@ rule combine_refined_reassembly_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
+rule combine_refined_reassembly_depths:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.depth.tsv'
+    input:
+        script=scripts/combine_tables.py,
+        depths=lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    params:
+        args=lambda wildcards: [f'{library}=res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
+                                for library
+                                in config['asmbl_group'][wildcards.group]
+                               ]
+    shell:
+        """
+        {input.script} {params.args} > {output}
+        """
+
+
 rule combine_refined_mag_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'
     input:

@@ -345,7 +345,7 @@ localrules: alias_read_processing_r1, alias_read_processing_r2
 rule assemble_mgen:
     output:
         fasta='seq/{group}.a.contigs.fn',
-        outdir=temp('seq/{group}.a.megahit.d'),
+        dir='seq/{group}.a.megahit.d',
         fastg='seq/{group}.a.contigs.fg',
     input:
         lambda wildcards: [f'seq/{library}.m.{read}.proc.fq.gz'
@@ -366,12 +366,12 @@ rule assemble_mgen:
             -1 {params.r1} \
             -2 {params.r2} \
             --k-min 21 --k-max 161 --k-step 20 \
-            --out-dir {output.outdir} \
+            --out-dir {output.dir} \
             --num-cpu-threads {threads} \
             --verbose
-        sed 's:^>k161_\([0-9]\+\):>{wildcards.group}_\1:' {output.outdir}/final.contigs.fa > {output.fasta}
+        sed 's:^>k161_\([0-9]\+\):>{wildcards.group}_\1:' {output.dir}/final.contigs.fa > {output.fasta}
         # TODO: Fix this hard-coding of k-parameters.
-        megahit_toolkit contig2fastg 141 {output.outdir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
+        megahit_toolkit contig2fastg 141 {output.dir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
         """
 
 # {{{3 QC
@@ -529,7 +529,7 @@ localrules: count_seq_lengths_nucl, count_seq_lengths_aa
 # NOTE: The depth file format is lacking a header.
 # TODO params: -Q flag (mapping_quality_thresh), -d 0 flag (no maximum mapping depth)
 rule calculate_mapping_depth:
-    output: temp('res/{stem}.depth.tsv')
+    output: 'res/{stem}.depth.tsv'
     input: 'res/{stem}.sort.bam'
     shell:
         """
@@ -670,7 +670,7 @@ rule split_out_bins:
 
 rule checkm_bins_or_mags:
     output:
-        outdir=temp('res/{stem}.{bins_or_mags}.checkm.d'),
+        dir=temp('res/{stem}.{bins_or_mags}.checkm.d'),
         summary='res/{stem}.{bins_or_mags}.checkm.tsv'
     input: 'seq/{stem}.{bins_or_mags}.d'
     wildcard_constraints:
@@ -683,7 +683,7 @@ rule checkm_bins_or_mags:
         checkm lineage_wf -x fn \
                 --threads {threads} --pplacer_threads {threads} \
                 --file {output.summary} --tab_table \
-                {input} {output.outdir} > {log} 2>&1
+                {input} {output.dir} > {log} 2>&1
         """
 
 rule reformat_checkm_output:
@@ -861,7 +861,7 @@ rule reassemble_mag:
     output:
         scaffolds='seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
         contigs='seq/{group}.a.mags.d/{mag}.a.contigs.fn',
-        dir=temp('seq/{group}.a.mags.d/{mag}.spades.d')
+        dir='seq/{group}.a.mags.d/{mag}.spades.d',
     input:
         r1='seq/{group}.a.mags.d/{mag}.map-{group}.r1.dnorm.fq.gz',
         r2='seq/{group}.a.mags.d/{mag}.map-{group}.r2.dnorm.fq.gz'
@@ -962,7 +962,7 @@ rule alias_seqs_for_pilon:
 
 rule pilon_refine_reassembly_scaffold:
     output:
-        dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d"),
+        dir="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d",
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
     input:
         scaffolds="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
@@ -982,7 +982,7 @@ rule pilon_refine_reassembly_scaffold:
 
 rule pilon_refine_mag:
     output:
-        dir=temp("res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.d"),
+        dir="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.d",
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
         vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
     input:

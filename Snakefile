@@ -1090,7 +1090,7 @@ rule combine_refined_reassembly_read_mappings:
 rule combine_refined_reassembly_depths:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.depth.tsv'
     input:
-        script=scripts/combine_tables.py,
+        script="scripts/combine_tables.py",
         depths=lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
                            for library
                            in config['asmbl_group'][wildcards.group]

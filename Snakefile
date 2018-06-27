@@ -974,7 +974,7 @@ rule pilon_refine_reassembly_scaffold:
     shell:
         r"""
         pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
-                --fix snps,indels,gaps,local,breaks \
+                --fix snps,indels,gaps,local,breaks,amb \
                 --genome {input.scaffolds} --frags {input.bam} \
                 --changes --tracks --vcf --vcfqe --outdir {output.dir}
         mv {output.dir}/pilon.fasta {output.fn}
@@ -995,7 +995,7 @@ rule pilon_refine_mag:
     shell:
         r"""
         pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
-                --fix snps,indels,gaps,local,breaks \
+                --fix snps,indels,gaps,local,breaks,amb \
                 --genome {input.contigs} --frags {input.bam} \
                 --changes --tracks --vcf --vcfqe --outdir {output.dir}
         mv {output.dir}/pilon.fasta {output.fn}

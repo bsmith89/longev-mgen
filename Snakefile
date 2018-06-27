@@ -1088,23 +1088,22 @@ rule combine_refined_reassembly_read_mappings:
         """
 
 rule combine_refined_reassembly_depths:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.depth.tsv'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.library-depth.tsv'
     input:
-        script="scripts/combine_tables.py",
-        depths=lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
-    params:
-        args=lambda wildcards: [f'{library}=res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
-                                for library
-                                in config['asmbl_group'][wildcards.group]
-                               ]
     shell:
         """
-        {input.script} {params.args} > {output}
+        rm -f {output}
+        for file in {input}
+        do
+            library=$(basename --suffix=.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv $file)
+            echo $library
+            awk -v OFS='\t' -v library=$library '{{print library,$0}}' $file >> {output}
+        done
         """
-
 
 rule combine_refined_mag_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'

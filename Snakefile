@@ -1088,24 +1088,6 @@ rule combine_refined_reassembly_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 
-rule combine_refined_reassembly_depths:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.library-depth.tsv'
-    input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
-                           for library
-                           in config['asmbl_group'][wildcards.group]
-                          ]
-    shell:
-        """
-        rm -f {output}
-        for file in {input}
-        do
-            library=$(basename --suffix=.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv $file)
-            echo $library
-            awk -v OFS='\t' -v library=$library '{{print library,$0}}' $file >> {output}
-        done
-        """
-
 rule combine_refined_mag_read_mappings:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'
     input:
@@ -1207,6 +1189,31 @@ rule depth_trim_refined_mag:
                 {input.contigs} {input.depth} \
                 > {output.fn}
         """
+
+# {{{3 Correlation Trimming
+
+rule combine_refined_reassembly_depths:
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.library-depth.tsv'
+    input:
+        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
+                           for library
+                           in config['asmbl_group'][wildcards.group]
+                          ]
+    shell:
+        """
+        rm -f {output}
+        for file in {input}
+        do
+            library=$(basename --suffix=.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv $file)
+            echo $library
+            awk -v OFS='\t' -v library=$library '{{print library,$0}}' $file >> {output}
+        done
+        """
+
+# TODO
+# rule calculate_position_correlations:
+#     output:
+
 
 # {{{3 QC
 

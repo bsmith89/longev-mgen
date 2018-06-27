@@ -26,4 +26,4 @@ if __name__ == "__main__":
     correlation = depth.progress_apply(lambda x: pearsonr(library_depth, x)[0])
     correlation.name == 'depth_correlation'
     print("Outputting correlation data.".format(path), file=sys.stderr)
-    correlation.to_csv(sys.stdout, sep='\t')
+    correlation.dropna().to_csv(sys.stdout, sep='\t')

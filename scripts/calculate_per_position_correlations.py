@@ -3,7 +3,7 @@
 """USAGE: calculate_per_position_correlations.py library-depth.tsv [library.list] > output.tsv"""
 
 import pandas as pd
-import tqdm import tqdm
+from tqdm import tqdm
 from scipy.stats import pearsonr
 
 if __name__ == "__main__":

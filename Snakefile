@@ -1004,6 +1004,8 @@ rule pilon_refine_mag:
 
 # {{{3 Mapping 2
 
+# TODO: Add step to drop short contigs after Pilon refinement.
+
 rule map_reads_to_refined_reassembly_scaffolds:
     output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
     input:

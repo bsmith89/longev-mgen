@@ -9,6 +9,7 @@ from tqdm import tqdm
 from copy import deepcopy
 import argparse
 
+# TODO: This definitely needs a unit test.
 def depth_trim(depth, thresh, flank, window, offset=0):
     assert window % 2 == 0, "Window size must be an even number."
     if len(depth) < flank:

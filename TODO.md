@@ -1,5 +1,11 @@
 # TODO
 
+-   [ ] Improve trimming/filtering of contigs using depth covariance information.
+-   [ ] Better organization of intermediate data
+    -   [ ] Drop the res/seq dichotomy
+    -   [ ] Organize split versions of to-be-combined files into appropriately named
+        folders.
+        -   Will I know what the appropriate naming is?
 -   [ ] Are the differences between the mice at UT that we KNOW have
         vA and those with vB?
 -   [ ] Construct OTU-3.vB (based on the libraries chosen fro OTU-1.vB) as a

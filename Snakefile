@@ -964,6 +964,7 @@ rule pilon_refine_reassembly_scaffold:
     output:
         dir="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d",
         fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
+        vcf="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.vcf",
     input:
         scaffolds="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",

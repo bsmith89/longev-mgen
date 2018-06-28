@@ -63,17 +63,17 @@ if __name__ == "__main__":
     # depth2_path = sys.argv[5]
     out_path = sys.argv[4]
 
-# FROM http://mummer.sourceforge.net/manual/#coords
-# When run with the -B option, output format will consist of 21 tab-delimited
-# columns. These are as follows: [1] query sequence ID [2] date of alignment
-# [3] length of query sequence [4] alignment type [5] reference file [6]
-# reference sequence ID [7] start of alignment in the query [8] end of
-# alignment in the query [9] start of alignment in the reference [10] end of
-# alignment in the reference [11] percent identity [12] percent similarity [13]
-# length of alignment in the query [14] 0 for compatibility [15] 0 for
-# compatibility [16] NULL for compatibility [17] 0 for compatibility [18]
-# strand of the query [19] length of the reference sequence [20] 0 for
-# compatibility [21] and 0 for compatibility.
+    # FROM http://mummer.sourceforge.net/manual/#coords
+    # When run with the -B option, output format will consist of 21 tab-delimited
+    # columns. These are as follows: [1] query sequence ID [2] date of alignment
+    # [3] length of query sequence [4] alignment type [5] reference file [6]
+    # reference sequence ID [7] start of alignment in the query [8] end of
+    # alignment in the query [9] start of alignment in the reference [10] end of
+    # alignment in the reference [11] percent identity [12] percent similarity [13]
+    # length of alignment in the query [14] 0 for compatibility [15] 0 for
+    # compatibility [16] NULL for compatibility [17] 0 for compatibility [18]
+    # strand of the query [19] length of the reference sequence [20] 0 for
+    # compatibility [21] and 0 for compatibility.
     _column_names = [ 'contig_id_2'         # [ 1]
                     , '_1'
                     , 'length_2'            # [ 3]

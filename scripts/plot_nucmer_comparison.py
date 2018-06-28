@@ -55,6 +55,14 @@ def calc_unique_aligned_length(df):
     return out
 
 if __name__ == "__main__":
+    data_path = sys.argv[1]
+    length1_path = sys.argv[2]
+    length2_path = sys.argv[3]
+    # TODO: Restore these
+    # depth1_path = sys.argv[4]
+    # depth2_path = sys.argv[5]
+    out_path = sys.argv[4]
+
 # FROM http://mummer.sourceforge.net/manual/#coords
 # When run with the -B option, output format will consist of 21 tab-delimited
 # columns. These are as follows: [1] query sequence ID [2] date of alignment
@@ -90,7 +98,7 @@ if __name__ == "__main__":
                 ]
     column_names = [n for n in _column_names if not n.startswith('_')]
 
-    data = pd.read_table(sys.argv[1], names=_column_names, usecols=column_names)
+    data = pd.read_table(data_path, names=_column_names, usecols=column_names)
     # Calculate various quantities
     data['alength_1'] = (data.end_1 - data.start_1).abs()
     data['alength_2'] = (data.end_2 - data.start_2).abs()
@@ -110,9 +118,9 @@ if __name__ == "__main__":
     data[['start_1', 'start_2']] -= 1
 
    # Add entries for unaligned contigs
-    length_1 = (pd.read_table(sys.argv[2])
+    length_1 = (pd.read_table(length1_path)
                     .rename(columns={'contig_id': 'contig_id_1', 'length': 'length_1'}))
-    length_2 = (pd.read_table(sys.argv[3])
+    length_2 = (pd.read_table(length2_path)
                     .rename(columns={'contig_id': 'contig_id_2', 'length': 'length_2'}))
     data = pd.merge(data, length_1, how='outer', on='contig_id_1', suffixes=('', '_1'))
     data = pd.merge(data, length_2, how='outer', on='contig_id_2', suffixes=('', '_2'))
@@ -124,19 +132,6 @@ if __name__ == "__main__":
     data.length_2.fillna(data.length_2_2, inplace=True)
     data.drop(['length_1_1', 'length_2_2'], axis=1, inplace=True)
 
-    # Import depth data.
-    depth_1 = pd.read_table(sys.argv[4], names=['contig_id', 'position', 'depth'])
-    depth_2 = pd.read_table(sys.argv[5], names=['contig_id', 'position', 'depth'])
-    # Check that all positions have depth data
-    # TODO: (I may need to drop this check, because it may not always be true.)
-    assert ~(((depth_1.position[:-1] - depth_1.position[1:]).dropna() == 0) == depth_1.shape[0] - 2).any()
-    assert ~(((depth_2.position[:-1] - depth_2.position[1:]).dropna() == 0) == depth_2.shape[0] - 2).any()
-    coverage_1 = (depth_1.groupby('contig_id')
-                         .apply(lambda x: pd.Series({'total_depth_1': x.depth.sum()})))
-    coverage_2 = (depth_2.groupby('contig_id')
-                         .apply(lambda x: pd.Series({'total_depth_2': x.depth.sum()})))
-    data = pd.merge(data, coverage_1, how='outer', left_on='contig_id_1', right_index=True, suffixes=('', '_1'))
-    data = pd.merge(data, coverage_2, how='outer', left_on='contig_id_2', right_index=True, suffixes=('', '_2'))
 
 
     # Everything except the contig_ids can be replaced with 0 when there's no alignment.
@@ -209,12 +204,13 @@ if __name__ == "__main__":
     # Constants
     color_inv = 'red'
     color_fwd = 'blue'
+    contig_palette = ['blue', 'orange']
     data['color'] = data.strand.map({-1.: color_inv, +1.: color_fwd})
     padding = 0.02
     tick_length = 0.05
 
-    assert sys.argv[6].rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
-    with PdfPages(sys.argv[6]) as pdf:
+    assert out_path.rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
+    with PdfPages(out_path) as pdf:
         # View 1 - "Dots"
         d = data.copy()
         d.dropna(subset=['contig_id_1', 'contig_id_2',
@@ -263,16 +259,15 @@ if __name__ == "__main__":
                                 alpha=0.4, lw=0)
         ax.add_collection(pc)
 
+        # TODO: Replace this uniform lines with depth-based lines (see above)
         # Plot contigs
-        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1', 'coverage_1']].dropna().drop_duplicates()
-        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2', 'coverage_2']].dropna().drop_duplicates()
+        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1']].dropna().drop_duplicates()
+        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2']].dropna().drop_duplicates()
         line_table = (list(zip(zip(d1.idx_left_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1 - tick_length)))) +
                       list(zip(zip(d2.idx_left_2, repeat(2 + tick_length)), zip(d2.idx_right_2, repeat(2 + tick_length))))
                     )
         lc = mc.LineCollection(line_table,
-                               linewidths=list(d1.coverage_1 * 5 / d1.coverage_1.max()) +
-                                          list(d2.coverage_2 * 5 / d2.coverage_2.max()),
-                               alpha=0.9, color='k')
+                               alpha=0.9, color=contig_palette)
         ax.add_collection(lc)
 
         left_min = min(data.idx_left_1.min(), data.idx_left_2.min())

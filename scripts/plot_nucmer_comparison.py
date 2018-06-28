@@ -61,7 +61,8 @@ if __name__ == "__main__":
     # TODO: Restore these
     # depth1_path = sys.argv[4]
     # depth2_path = sys.argv[5]
-    out_path = sys.argv[4]
+    athresh = int(sys.argv[4])
+    out_path = sys.argv[5]
 
     # FROM http://mummer.sourceforge.net/manual/#coords
     # When run with the -B option, output format will consist of 21 tab-delimited
@@ -151,13 +152,12 @@ if __name__ == "__main__":
     # Approach: ("pick teams") where each round the next best contig is ordered
     # at the end of the sequence.
 
-    # Sort alignments with long contigs first.
+    # Sort alignments relative to Strain 1
     data['length_longer'] = data[['length_1', 'length_2']].max(1)
     data['total_alength_longer'] = data[['total_alength_1', 'total_alength_2']].max(1)
     data['alength_longer'] = data[['alength_1', 'alength_2']].max(1)
-    data.sort_values(['total_alength_longer', 'alength_longer', 'length_longer'],
-                     ascending=[False, False, False], inplace=True)
-
+    data.sort_values(['alength_1', 'start_2'], ascending=[False, True],
+                     inplace=True)
     # Left hand side of alignment
     idx_right_1 = data[['contig_id_1', 'length_1']].drop_duplicates().set_index('contig_id_1').length_1.cumsum()
     idx_right_1.name = 'idx_right_1'
@@ -209,77 +209,44 @@ if __name__ == "__main__":
     padding = 0.02
     tick_length = 0.05
 
-    assert out_path.rsplit('.', 1)[-1] == 'pdf', 'The output figure must be a PDF.'
-    with PdfPages(out_path) as pdf:
-        # View 1 - "Dots"
-        d = data.copy()
-        d.dropna(subset=['contig_id_1', 'contig_id_2',
-                        ], inplace=True)
 
-        fig, ax = plt.subplots(figsize=(15, 15))
-        line_table = list(zip(zip(d.idx_start_1, d.idx_start_2), zip(d.idx_end_1, d.idx_end_2)))
-        lc = mc.LineCollection(line_table, color=d.color, lw=2)
-        ax.add_collection(lc)
-        ax.tick_params(axis='x', rotation=-90)
+    # View 2 - Lines
+    fig, ax = plt.subplots(figsize=(15, 3))
+    width_coef = 1.5e4  # Conversion from summed alength's to linewidths
 
-        left_min = min(d.idx_left_1.min(), d.idx_left_2.min())
-        right_max = max(d.idx_right_1.max(), d.idx_right_2.max())
-        axis_length = right_max - left_min
+    # Plot alignments
+    da = data.dropna(subset=['contig_id_1', 'contig_id_2',
+                            ])
+    # Filter alignments for length
+    da = da[(da.alength_1 > athresh) & (da.alength_2 > athresh)]
+    pcoords = (list(zip(zip(da.idx_start_1, repeat(1)), zip(da.idx_end_1, repeat(1)),
+                        zip(da.idx_end_2, repeat(2)), zip(da.idx_start_2, repeat(2)))))
+    pc = mc.PatchCollection([mp.Polygon(c, closed=True)
+                            for c in pcoords],
+                            color=da.color,
+                            alpha=0.4, lw=0)
+    ax.add_collection(pc)
 
-        ax.set_xlim(left_min - padding * axis_length,
-                    right_max + padding * axis_length)
-        ax.set_ylim(left_min - padding * axis_length,
-                    right_max + padding * axis_length)
+    # TODO: Replace this uniform lines with depth-based lines (see above)
+    # Plot contigs
+    d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1']].dropna().drop_duplicates()
+    d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2']].dropna().drop_duplicates()
+    line_table = (list(zip(zip(d1.idx_left_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1 - tick_length)))) +
+                    list(zip(zip(d2.idx_left_2, repeat(2 + tick_length)), zip(d2.idx_right_2, repeat(2 + tick_length))))
+                )
+    lc = mc.LineCollection(line_table,
+                            alpha=0.9, color=contig_palette)
+    ax.add_collection(lc)
 
-        # Dummy artists for legend.
-        art_inv, *_ = plt.plot([], [], color=color_inv)
-        art_fwd, *_ = plt.plot([], [], color=color_fwd)
-        plt.legend([art_fwd, art_inv], ['same', 'inverted'], loc='lower right')
+    left_min = min(data.idx_left_1.min(), data.idx_left_2.min())
+    right_max = max(data.idx_right_1.max(), data.idx_right_2.max())
+    axis_length = right_max - left_min
 
-        ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
-        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
-        ax.set_aspect(aspect=1)
-        ax.set_xlabel("Strain 1")
-        ax.set_ylabel("Strain 2")
-        pdf.savefig(fig)
-        plt.close(fig)
+    ax.set_xlim(left_min - padding * axis_length,
+                right_max + padding * axis_length)
+    ax.set_ylim(0.9, 2.1)
 
-        # View 2 - Lines
-        fig, ax = plt.subplots(figsize=(15, 3))
-        width_coef = 1.5e4  # Conversion from summed alength's to linewidths
-
-        # Plot alignments
-        da = data.dropna(subset=['contig_id_1', 'contig_id_2',
-                             ])
-        pcoords = (list(zip(zip(da.idx_start_1, repeat(1)), zip(da.idx_end_1, repeat(1)),
-                            zip(da.idx_end_2, repeat(2)), zip(da.idx_start_2, repeat(2)))))
-        pc = mc.PatchCollection([mp.Polygon(c, closed=True)
-                                for c in pcoords],
-                                color=da.color,
-                                alpha=0.4, lw=0)
-        ax.add_collection(pc)
-
-        # TODO: Replace this uniform lines with depth-based lines (see above)
-        # Plot contigs
-        d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1']].dropna().drop_duplicates()
-        d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2']].dropna().drop_duplicates()
-        line_table = (list(zip(zip(d1.idx_left_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1 - tick_length)))) +
-                      list(zip(zip(d2.idx_left_2, repeat(2 + tick_length)), zip(d2.idx_right_2, repeat(2 + tick_length))))
-                    )
-        lc = mc.LineCollection(line_table,
-                               alpha=0.9, color=contig_palette)
-        ax.add_collection(lc)
-
-        left_min = min(data.idx_left_1.min(), data.idx_left_2.min())
-        right_max = max(data.idx_right_1.max(), data.idx_right_2.max())
-        axis_length = right_max - left_min
-
-        ax.set_xlim(left_min - padding * axis_length,
-                    right_max + padding * axis_length)
-        ax.set_ylim(0.9, 2.1)
-
-        ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}'))
-        ax.set_yticks([1, 2])
-        ax.set_yticklabels(['Strain 1', 'Strain 2'])
-        pdf.savefig(fig)
-        plt.close(fig)
+    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}'))
+    ax.set_yticks([1, 2])
+    ax.set_yticklabels(['Strain 1', 'Strain 2'])
+    fig.savefig(out_path)

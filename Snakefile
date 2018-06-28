@@ -844,7 +844,7 @@ rule diginorm_reads:
         ksize=32,
         tablecols=1024,
         tablerows=10
-    threads: min(2, MAX_THREADS)
+    threads: 2
     shell:
         """
         Bignorm -1 {input.r1} -2 {input.r2} -k {params.ksize} --both -m {params.tablecols} -t {params.tablerows} -z
@@ -1391,7 +1391,6 @@ rule annotate_pathways:
         'res/{stem}.ec.tsv'
     log:
         'res/{stem}.ec.minpath.log'
-    threads: MAX_THREADS
     shell:
         """
         MinPath1.4.py -any {input} -map ec2path -report {output.report} -details {output.details} >{log} 2>&1

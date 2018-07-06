@@ -244,3 +244,45 @@ concentrations of short-chain fatty acids (SCFAs) in feces, presumably as
 a result of greater bacterial fermentation of this polysaccharide substrate.
 Interestingly, ACA increase median lifespan by 20% in male mice, and 5% in
 females.
+
+# Paper Outline
+
+-   Question 1: Why do OTUs 1 and 4 (7 here) respond strongly to acarbose while
+    other Muribaculaceae do not? (TODO: Confirm that other Muri's do not
+    respond positively to ACA.)
+    -   Hypothesis 1.A: It has something to do with the carbohydrate
+        utilization potential of these two strains.
+        -   Figure 1.A.i: Venn-diagram of OTU-1 and OTU-4 COGs colored by category
+        -   Figure 1.A.ii: Carb COGs that they DO have in common to the
+            exclusion of most other here-strains (ordination makes them appear
+            pretty different in carb space.)
+    -   Hypothesis 1.B: It has something to do with the competitiveness for
+        nitrogen.
+        -   Figure 1.B.i: Ordination w/ Ormerod strains both panels for both
+            carbohydrate and nitrogen COGs
+            -   OTU-1 and OTU-4 differentiate themselves in carb-cog space.
+                While they could both be alpha-glucan guild members, OTU-4
+                looks _more_ like a host-glycan utilizer; it is
+                borderline, though.
+            -   In AA COG space, all of the guilds jumble together, although
+                there does appear to be at least one principle component of
+                differentiation.  It appears that OTU-1 and OTU-4 are similarly
+                placed in that space.
+-   Question 2: Why does OTU-1 NOT respond as strongly to ACA at UT where OTU-4
+    does?
+    -   Hypothesis 2.A: Competition w/ OTU-4 (for carbs or nitrogen)
+    -   Hypothesis 2.B: OTU-1 is different at UT
+        -   Figure 2.B.i: Evidence that OTU-1 comes in two varieties.
+            -   TODO: Figure out where the 16S went.
+            -   TODO: Mapping of vB libraries to vA contigs and reverse to
+                intended to confirm that we aren't being more strict towards
+                one than the other.  (try to detect false negatives)
+        -   Figure 2.B.ii: What genes differentiate the two strains?
+            -   Evidence of duplication events being a major component of
+                the diff?
+-   Question 3: Can we add anything to the discussion from Ormerod?
+    -   Hypothesis 3.A: dN/dS will identify genes under strong selection in the
+        Muribaculaceae.
+    -   Hypothesis 3.B: Any evidence for HGT?
+    -   Hypothesis 3.C: Can we get more detailed in our analysis of carb active
+        enzymes?

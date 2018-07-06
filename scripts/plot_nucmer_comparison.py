@@ -209,6 +209,39 @@ if __name__ == "__main__":
     padding = 0.02
     tick_length = 0.05
 
+    # TODO: Do we want to remove this plot entirely?
+    # # View 1 - "Dots"
+    # d = data.copy()
+    # d.dropna(subset=['contig_id_1', 'contig_id_2',
+    #                 ], inplace=True)
+    #
+    # fig, ax = plt.subplots(figsize=(15, 15))
+    # line_table = list(zip(zip(d.idx_start_1, d.idx_start_2), zip(d.idx_end_1, d.idx_end_2)))
+    # lc = mc.LineCollection(line_table, color=d.color, lw=2)
+    # ax.add_collection(lc)
+    # ax.tick_params(axis='x', rotation=-90)
+    #
+    # left_min = min(d.idx_left_1.min(), d.idx_left_2.min())
+    # right_max = max(d.idx_right_1.max(), d.idx_right_2.max())
+    # axis_length = right_max - left_min
+    #
+    # ax.set_xlim(left_min - padding * axis_length,
+    #             right_max + padding * axis_length)
+    # ax.set_ylim(left_min - padding * axis_length,
+    #             right_max + padding * axis_length)
+    #
+    # # Dummy artists for legend.
+    # art_inv, *_ = plt.plot([], [], color=color_inv)
+    # art_fwd, *_ = plt.plot([], [], color=color_fwd)
+    # plt.legend([art_fwd, art_inv], ['same', 'inverted'], loc='lower right')
+    #
+    # ax.xaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
+    # ax.yaxis.set_major_formatter(StrMethodFormatter('{x:0.1e}', ))
+    # ax.set_aspect(aspect=1)
+    # ax.set_xlabel("Strain 1")
+    # ax.set_ylabel("Strain 2")
+    # pdf.savefig(fig)
+    # plt.close(fig)
 
     # View 2 - Lines
     fig, ax = plt.subplots(figsize=(15, 3))

@@ -4,6 +4,8 @@
 from Bio.SeqIO import index, parse
 from itertools import product
 import sys
+import numpy as np
+import argparse
 
 NUCLEOTIDES = {'A', 'C', 'G', 'T'}
 TRANSLATION = {
@@ -25,6 +27,7 @@ TRANSLATION = {
     'TGC':'C', 'TGT':'C', 'TGA':'$', 'TGG':'W',
     }
 
+
 def codons(seq):
     assert len(seq) % 3 == 0
     for i in range(0, len(seq), 3):
@@ -37,7 +40,6 @@ def is_indel(codon):
         return True
     else:
         return False
-
 
 def count_codons(seqA, seqB):
     assert len(seqA) == len(seqB), "{} != {}".format(len(seqA), len(seqB))
@@ -78,7 +80,6 @@ def count_changes(codonA, codonB):
             count_nsyn += 1
     return count_nsyn, count_syn
 
-
 def is_same_aa(codonA, codonB):
     aaA = TRANSLATION[codonA]
     aaB = TRANSLATION[codonB]
@@ -86,7 +87,7 @@ def is_same_aa(codonA, codonB):
     return aaA == aaB
 
 
-def count_positions(codon):
+def _count_positions(codon):
     """Count possible (non-)synonymous changes in a codon resulting from one mutation.
     """
     count_nsyn, count_syn = 0, 0
@@ -101,18 +102,53 @@ def count_positions(codon):
                 count_nsyn += 1
     return count_nsyn, count_syn
 
+
+# Cache positions
+POSITIONS = {}
+for codon in TRANSLATION:
+    POSITIONS[codon] = _count_positions(codon)
+
+
+def count_positions(codon):
+    return POSITIONS[codon]
+
+
 if __name__ == "__main__":
-    rec_index = index(sys.argv[1], 'fasta')
-    ids = list(rec_index.keys())
-    for i, idA in enumerate(ids):
-        for j, idB in enumerate(ids[i+1:]):
-            recA = rec_index[idA]
-            recB = rec_index[idB]
-            seqA = recA.seq
-            seqB = recB.seq
-            cN, cS, pN, pS, ind = count_codons(seqA, seqB)
-            if cS == 0:
-                dnds = float('nan')
-            else:
-                dnds = (cN/pN)/(cS/pS)
-            print(recA.id, recB.id, cN, cS, pN, pS, ind, dnds, sep='\t')
+    p = argparse.ArgumentParser()
+    p.add_argument('align1', metavar='FASTA1')
+    p.add_argument('align2', metavar='FASTA2', nargs='?')
+    args = p.parse_args()
+
+    if args.align2:
+        rec_index1 = index(args.align1, 'fasta')
+        rec_index2 = index(args.align2, 'fasta')
+        comparisons = []
+        for idA, idB in zip(rec_index1.keys(), rec_index2.keys()):
+            comparisons.append((idA, rec_index1[idA],
+                                idB, rec_index2[idB]))
+    else:
+        rec_index = index(args.align1, 'fasta')
+        comparisons = []
+        ids = list(rec_index.keys())
+        for i, idA in enumerate(ids):
+            for j, idB in enumerate(ids[i+1:]):
+                comparisons.append((idA, rec_index[idA],
+                                    idB, rec_index[idB]))
+
+    for idA, recA, idB, recB in comparisons:
+        seqA = recA.seq
+        seqB = recB.seq
+        cN, cS, pN, pS, ind = count_codons(seqA, seqB)
+        if pN == 0:
+            dN = float('nan')
+        else:
+            dN = cN/pN
+        if pS == 0:
+            dS = float('nan')
+        else:
+            dS = cS/pS
+        if (dS == 0) or np.isnan(dN):
+            dnds = float('nan')
+        else:
+            dnds = (cN/pN)/(cS/pS)
+        print(recA.id, recB.id, cN, cS, pN, pS, dN, dS, ind, dnds, sep='\t')

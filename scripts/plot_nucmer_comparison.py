@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-USAGE: plot_nucmer_comparison.py <v1_v2.nucmer.coords.tsv> <v1.nlength.tsv> <v2.nlength.tsv> <v1.depth.tsv> <v2.depth.tsv> output.[png|pdf]
+USAGE: plot_nucmer_comparison.py <v1_v2.nucmer.coords.tsv> <v1.nlength.tsv> <v2.nlength.tsv> <alignment_length_thresh> output.[png|pdf]
 
 <v1_v2.nucmer.coords.tsv> : A processed version of Mummer4's show-coords -B format (see column_names)
 <[v1|v2].length.tsv> : TSVs of contig lengths
@@ -118,6 +118,9 @@ if __name__ == "__main__":
     # TODO: Is this right?  Do I need to move the end_i index too?
     data[['start_1', 'start_2']] -= 1
 
+    # Filter alignments for length
+    data = data[lambda x: (x.alength_1 > athresh) & (x.alength_2 > athresh)]
+
    # Add entries for unaligned contigs
     length_1 = (pd.read_table(length1_path)
                     .rename(columns={'contig_id': 'contig_id_1', 'length': 'length_1'}))
@@ -135,10 +138,8 @@ if __name__ == "__main__":
 
 
 
-    # Everything except the contig_ids can be replaced with 0 when there's no alignment.
-    _fillna_cols = ['start_1', 'end_1', 'start_2', 'end_2',
-                    'aligned_identity', 'length_1', 'length_2'
-                ]
+    # Unaligned contigs get zero-length.
+    _fillna_cols = ['length_1', 'length_2', 'alength_1', 'alength_2']
     data[_fillna_cols] = data[_fillna_cols].fillna(0)
 
     # Calculate total aligned length for every match
@@ -156,8 +157,13 @@ if __name__ == "__main__":
     data['length_longer'] = data[['length_1', 'length_2']].max(1)
     data['total_alength_longer'] = data[['total_alength_1', 'total_alength_2']].max(1)
     data['alength_longer'] = data[['alength_1', 'alength_2']].max(1)
-    data.sort_values(['alength_1', 'start_2'], ascending=[False, True],
+    data.sort_values(['alength_1', 'start_1'], ascending=[False, True],
                      inplace=True)
+
+    # Replace values with 0 after sorting, for layouts.
+    _fillna_cols = ['start_1', 'end_1', 'start_2', 'end_2']
+    data[_fillna_cols] = data[_fillna_cols].fillna(0)
+
     # Left hand side of alignment
     idx_right_1 = data[['contig_id_1', 'length_1']].drop_duplicates().set_index('contig_id_1').length_1.cumsum()
     idx_right_1.name = 'idx_right_1'
@@ -250,8 +256,6 @@ if __name__ == "__main__":
     # Plot alignments
     da = data.dropna(subset=['contig_id_1', 'contig_id_2',
                             ])
-    # Filter alignments for length
-    da = da[(da.alength_1 > athresh) & (da.alength_2 > athresh)]
     pcoords = (list(zip(zip(da.idx_start_1, repeat(1)), zip(da.idx_end_1, repeat(1)),
                         zip(da.idx_end_2, repeat(2)), zip(da.idx_start_2, repeat(2)))))
     pc = mc.PatchCollection([mp.Polygon(c, closed=True)

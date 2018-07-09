@@ -1403,7 +1403,7 @@ rule plot_strain_comparison:
         # depth1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.depth.tsv",
         # depth2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.depth.tsv",
     params:
-        alignment_length_thresh=500
+        alignment_length_thresh=150
     shell:
         """
         {input.script} {input.coords} {input.length1} {input.length2} {params.alignment_length_thresh} {output}

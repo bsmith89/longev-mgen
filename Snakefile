@@ -1223,8 +1223,14 @@ rule depth_trim_refined_mag:
 
 # {{{3 Correlation Trimming
 
+# TODO: Use this combined naming scheme for all other "combine_*" recipes.
+# i.e. don't combine from a bunch of library specific files into a group
+# file with the same name; instead use the naming scheme for the sequences
+# they're mapped to.
+# TODO: I may want to move all such files to the new namespace so I don't need
+# to rebuild them.
 rule combine_refined_reassembly_depths:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.library-depth.tsv'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv'
     input:
         lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
                            for library

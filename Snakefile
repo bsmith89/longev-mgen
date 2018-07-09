@@ -995,46 +995,43 @@ rule alias_seqs_for_pilon:
     shell: alias_recipe
 
 rule pilon_refine_reassembly_scaffold:
-    output:
-        dir="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.d",
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        vcf="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.vcf",
+    output: "seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
     input:
-        scaffolds="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
+        contigs="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
         bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
         bai="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
     resources:
         mem_mb=100000
-    threads: min(16, MAX_THREADS)
-    shell:
-        r"""
-        pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
-                --fix snps,indels,gaps,local,breaks,amb \
-                --genome {input.scaffolds} --frags {input.bam} \
-                --changes --tracks --vcf --vcfqe --outdir {output.dir}
-        mv {output.dir}/pilon.fasta {output.fn}
-        """
-
-rule pilon_refine_mag:
-    output:
-        dir="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.d",
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
-        vcf="res/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.vcf",
-    input:
-        contigs="seq/{group}.a.mags.d/{mag}.contigs.fasta",
-        bam="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
-        bai="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam.bai",
-    resources:
-        mem_mb=100000
+    params:
+        prefix="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon"
     threads: min(16, MAX_THREADS)
     shell:
         r"""
         pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
                 --fix snps,indels,gaps,local,breaks,amb \
                 --genome {input.contigs} --frags {input.bam} \
-                --changes --tracks --vcf --vcfqe --outdir {output.dir}
-        mv {output.dir}/pilon.fasta {output.fn}
-        mv {output.dir}/pilon.vcf {output.vcf}
+                --output {params.prefix}
+        mv {params.prefix}.fasta {output}
+        """
+
+rule pilon_refine_mag:
+    output: "seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+    input:
+        contigs="seq/{group}.a.mags.d/{mag}.contigs.fasta",
+        bam="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
+        bai="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam.bai",
+    resources:
+        mem_mb=100000
+    params:
+        prefix="res/{group}.a.mags.d/{mag}.v{strain}.pilon"
+    threads: min(16, MAX_THREADS)
+    shell:
+        r"""
+        pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \
+                --fix snps,indels,gaps,local,breaks,amb \
+                --genome {input.contigs} --frags {input.bam} \
+                --output {params.prefix}
+        mv {params.prefix}.fasta {output}
         """
 
 # {{{3 Mapping 2

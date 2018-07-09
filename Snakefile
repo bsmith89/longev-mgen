@@ -1230,7 +1230,7 @@ rule depth_trim_refined_mag:
 # TODO: I may want to move all such files to the new namespace so I don't need
 # to rebuild them.
 rule combine_refined_reassembly_depths:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv'
+    output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz'
     input:
         lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
                            for library
@@ -1243,7 +1243,7 @@ rule combine_refined_reassembly_depths:
         do
             library=$(basename --suffix=.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv $file)
             echo $library
-            awk -v OFS='\t' -v library=$library '{{print library,$0}}' $file >> {output}
+            awk -v OFS='\t' -v library=$library '{{print library,$0}}' $file | gzip >> {output}
         done
         """
 

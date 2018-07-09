@@ -220,6 +220,24 @@ rule alias_cog_to_ko_mapping:
 localrules: download_cog_to_ko_mapping, download_cog_function_mapping,
             alias_cog_to_ko_mapping, process_cog_function_mapping
 
+# {{{3 Enzyme Commission
+
+rule download_ec_mapping:
+    output: 'raw/ref/expasy_enzyme.dat'
+    params: url='ftp://ftp.expasy.org/databases/enzyme/enzyme.dat'
+    shell: curl_recipe
+
+rule transform_ec_mapping:
+    output: 'ref/expasy.tsv'
+    input: 'raw/ref/expasy_enzyme.dat'
+    shell: """
+    grep --no-group-separator -A1 '^ID\>' {input} \
+        | paste - - \
+        | sed -e 's:\<\(DE\|ID\)\>   ::g' \
+        > {output}
+    """
+
+
 # {{{3 MetaCyc
 
 rule download_metacyc_pathways_page:
@@ -242,6 +260,22 @@ rule scrape_metacyc_pathways_table:
             | sort | uniq \
             > {output}
         """
+
+rule download_picrust_metacyc_pathways:
+    output: 'raw/ref/ec2path.picrust_prokaryotic.tsv'
+    params: url='https://raw.githubusercontent.com/picrust/picrust2/master/MinPath/ec2metacyc_picrust_prokaryotic.txt'
+    shell: curl_recipe
+
+rule reformat_picrust_metacyc_pathways:
+    output: 'ref/ec2path.picrust.tsv'
+    input: 'raw/ref/ec2path.picrust_prokaryotic.tsv'
+    shell:
+        """
+        printf '#Metacyc pathway and ec mapping file\n' > {output}
+        printf '#Pathway\tEC\n' >> {output}
+        sed 's/EC://' < {input} >> {output}
+        """
+
 
 localrules: scrape_metacyc_pathways_table,
             download_dBCAN_hmms, download_dbCAN_meta,
@@ -1383,19 +1417,35 @@ rule convert_cogs_to_ko:
         join -t '\t' <(sort -k2 {input.cogs}) -1 2 <(sort -k1 {input.mapping}) -2 1 | cut -f2,3 > {output}
         """
 
+rule filter_metacyc_pathways:
+    output:
+        keep='ref/ec2path.picrust.filt.tsv',
+        drop='ref/metacyc_pathway_descriptions.drop.tsv',
+    input:
+        ecmap='ref/ec2path.picrust.tsv',
+        meta='ref/metacyc_pathway_descriptions.tsv',
+    params:
+        dropregex="superpathway"
+    shell:
+        """
+        grep "{params.dropregex}" {input.meta} > {output.drop}
+        grep -v -f <(cut -f 1 {output.drop}) {input.ecmap} > {output.keep}
+        """
+
 # TODO: Figure out how to stop MinPath from overwriting its own processing files
 # (which makes parallel jobs impossible).
-rule annotate_pathways:
+rule infer_pathways:
     output:
         report='res/{stem}.ec.minpath.report.tsv',
         details='res/{stem}.ec.minpath.details.txt'
     input:
-        'res/{stem}.ec.tsv'
+        ec_list='res/{stem}.ec.tsv',
+        ec_map='ref/ec2path.picrust.filt.tsv',
     log:
         'res/{stem}.ec.minpath.log'
     shell:
         """
-        MinPath1.4.py -any {input} -map ec2path -report {output.report} -details {output.details} >{log} 2>&1
+        MinPath1.4.py -any {input.ec_list} -map {input.ec_map} -report {output.report} -details {output.details} >{log} 2>&1
         """
 
 rule extract_metacyc_list:
@@ -1406,8 +1456,7 @@ rule extract_metacyc_list:
         awk '$8==1{{print $14}}' {input} > {output}
         """
 
-
-localrules: extract_cogs, extract_ec_numbers, annotate_pathways, extract_metacyc_list
+localrules: extract_cogs, extract_ec_numbers, infer_pathways, extract_metacyc_list
 
 # {{{3 Targetted
 

@@ -717,7 +717,7 @@ rule checkm_bins_or_mags:
         checkm lineage_wf -x fn \
                 --threads {threads} --pplacer_threads {threads} \
                 --file {output.summary} --tab_table \
-                {input} {output.dir} > {log} 2>&1
+                {input} {output.dir}
         """
 
 rule reformat_checkm_output:

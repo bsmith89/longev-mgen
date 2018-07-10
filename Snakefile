@@ -1288,7 +1288,7 @@ rule correlation_trim_refined_reassembly_scaffolds:
         scaffolds="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
         corr="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv",
     params:
-        thresh=0.5,
+        thresh=0.6,
         window=100,
         flank=100,
         min_len=1000,
@@ -1300,6 +1300,26 @@ rule correlation_trim_refined_reassembly_scaffolds:
                 --min-length={params.min_len} \
                 {input.scaffolds} {input.corr} \
                 > {output.fn}
+        """
+
+rule correlation_trim_refined_reassembly_scaffolds_manual_thresh:
+    output:
+        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim-manual.fn",
+    input:
+        script="scripts/correlation_trim_contigs.py",
+        scaffolds="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
+        corr="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv",
+        plot="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.hist.pdf",
+    params:
+        window=100,
+        flank=100,
+        min_len=1000,
+    shell:
+        """
+        echo Copy and paste the following command, replacing THRESHOLD with a
+        echo a value based on {input.plot}:
+        echo '{input.script} --corr-thresh=THRESHOLD --window-size={params.window} --flank-size={params.flank} --min-length={params.min_len} {input.scaffolds} {input.corr} > {output.fn}'
+        false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
 # {{{3 QC

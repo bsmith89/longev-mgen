@@ -1247,10 +1247,10 @@ rule combine_refined_reassembly_depths:
         done
         """
 
-rule calculate_position_correlations:
-    output: "res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pcorr.tsv"
+rule calculate_position_coverage_stats:
+    output: "res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv"
     input:
-        script="scripts/calculate_per_position_correlations.py",
+        script="scripts/calculate_per_position_stats.py",
         depth="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz",
         libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
     shell:
@@ -1258,23 +1258,23 @@ rule calculate_position_correlations:
         {input.script} {input.depth} {input.libs} > {output}
         """
 
-rule calculate_position_correlations_all_libs:
-    output: "res/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.pcorr.tsv"
+rule calculate_position_coverage_stats_all_libs:
+    output: "res/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.pstat.tsv"
     input:
-        script="scripts/calculate_per_position_correlations.py",
+        script="scripts/calculate_per_position_stats.py",
         depth="res/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.library-depth.tsv.gz",
     shell:
         """
         {input.script} {input.depth} > {output}
         """
 
-ruleorder: calculate_position_correlations_all_libs > calculate_position_correlations
+ruleorder: calculate_position_coverage_stats_all_libs > calculate_position_coverage_stats
 
-rule plot_position_correlation_histogram:
-    output: "res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pcorr.hist.pdf"
+rule plot_position_distribution_plots:
+    output: "res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.hist.pdf"
     input:
         script="scripts/plot_position_correlations_histogram.py",
-        corrs="res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pcorr.tsv"
+        corrs="res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.tsv"
     shell:
         """
         {input.script} {input.corrs} {output}
@@ -1286,9 +1286,9 @@ rule correlation_trim_refined_reassembly_scaffolds:
     input:
         script="scripts/correlation_trim_contigs.py",
         scaffolds="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        corr="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pcorr.tsv",
+        corr="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv",
     params:
-        thresh=0.65,
+        thresh=0.5,
         window=100,
         flank=100,
         min_len=1000,

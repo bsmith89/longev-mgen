@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 USAGE:
-calculate_per_position_correlations.py library-depth.tsv [library.list] > output.tsv"
+calculate_per_position_stats.py library-depth.tsv [library.list] > output.tsv"
 """
 
 import pandas as pd
 from tqdm import tqdm
 from scipy.stats import pearsonr
+import numpy as np
 import sys
 
 # import numpy as np
@@ -50,9 +51,14 @@ if __name__ == "__main__":
 
     debug("Calculating total depth in each library.")
     library_depth = depth.sum()
-    debug("Calculating correlation for each position.")
-    correlation = depth.progress_apply(lambda x: pearsonr(library_depth, x)[0], axis=1)
-    correlation = correlation.to_frame('depth_correlation')
+    debug("Calculating cosine similarity to total library depth for each position.")
+    library_depth_norm = np.linalg.norm(library_depth)
+    output = depth.progress_apply(lambda x: np.dot(library_depth, x) /
+                                            (library_depth_norm * np.linalg.norm(x)),
+                                  axis=1)
+    output = output.to_frame('cosine_similarity')
+    debug("Calculating total depth for each position.")
+    output['total_depth'] = depth.sum(axis=1)
 
-    debug("Outputting correlation data.")
-    correlation.dropna().to_csv(sys.stdout, sep='\t', header=False)
+    debug("Outputting position statistics.")
+    output[['total_depth', 'cosine_similarity']].dropna().to_csv(sys.stdout, sep='\t', header=False)

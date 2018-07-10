@@ -9,6 +9,11 @@ from tqdm import tqdm
 from copy import deepcopy
 import argparse
 
+from tqdm import TqdmSynchronisationWarning
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", TqdmSynchronisationWarning)
+
 # TODO: This definitely needs a unit test.
 def depth_trim(depth, thresh, flank, window, offset=0):
     assert window % 2 == 0, "Window size must be an even number."

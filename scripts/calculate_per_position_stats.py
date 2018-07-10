@@ -11,6 +11,12 @@ from scipy.stats import pearsonr
 import numpy as np
 import sys
 
+from tqdm import TqdmSynchronisationWarning
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", TqdmSynchronisationWarning)
+
+
 # import numpy as np
 # from multiprocessing import cpu_count, Parallel
 #

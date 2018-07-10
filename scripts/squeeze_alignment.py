@@ -5,6 +5,11 @@ from tqdm import tqdm
 import sys
 import numpy as np
 
+from tqdm import TqdmSynchronisationWarning
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", TqdmSynchronisationWarning)
+
 def contains_only(col, values):
     return set(col) - set(values) == set()
 

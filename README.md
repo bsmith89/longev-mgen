@@ -245,13 +245,21 @@ a result of greater bacterial fermentation of this polysaccharide substrate.
 Interestingly, ACA increase median lifespan by 20% in male mice, and 5% in
 females.
 
-# Paper Outline
+# Paper Topics
 
 -   Question 1: Why do OTUs 1 and 4 (7 here) respond strongly to acarbose while
     other Muribaculaceae do not? (TODO: Confirm that other Muri's do not
     respond positively to ACA.)
     -   Hypothesis 1.A: It has something to do with the carbohydrate
         utilization potential of these two strains.
+        -   TODO: Follow-up on the following genes that differentate OTU-1 and
+            OTU-4 from the Ormerod strains:
+            -   ec3.2.1.39 Glucan endo-1,3-beta-D-glucosidase.
+                (only these three taxa have it in my strains and only 10% of
+                Ormerod strains)
+            -   ec3.1.1.3 Triacylglycerol lipase.
+                (only these strains and one more of those here have it, and 10
+                of Ormerod strains)
         -   Figure 1.A.i: Venn-diagram of OTU-1 and OTU-4 COGs colored by category
         -   Figure 1.A.ii: Carb COGs that they DO have in common to the
             exclusion of most other here-strains (ordination makes them appear
@@ -274,15 +282,72 @@ females.
     -   Hypothesis 2.B: OTU-1 is different at UT
         -   Figure 2.B.i: Evidence that OTU-1 comes in two varieties.
             -   TODO: Figure out where the 16S went.
+            -   TODO: Figure out if there's nucleotide variation in the V4 for each strain
             -   TODO: Mapping of vB libraries to vA contigs and reverse to
                 intended to confirm that we aren't being more strict towards
                 one than the other.  (try to detect false negatives)
         -   Figure 2.B.ii: What genes differentiate the two strains?
             -   Evidence of duplication events being a major component of
                 the diff?
+            -   TODO: Follow-up on the genes that differ between
+                OTU-1.vA and OTU-1.vB, especially ec3.2.1.31 Beta-glucuronidase,
+                which is found in OTU-1.vA _and_ OTU-4, but not OTU-1.vB.
+                Also see ec3.2.1.18 / COG4409 (sialidase) which is
+                present in OTU-1.vA but not vB.
+            -   TODO: Follow-up on the mucin associated story suggested
+                by beta-glucouronidase and sialidase.
+                -   Can we find evidence for differentail metabolism of
+                    proline, threonine, and serine, (and glycine, which
+                    can be easily interconverted with threonine/serine?)
+                    TODO: Follow-up on Glycine hydroxymethyltransferase
+                    (COG0112 / ec2.1.2.1) which is present in OTU-1.vA and
+                    OTU-4, but not OTU-1.vB (could it be that this gene is used
+                    in the conversion of serine/threonine to glycine, and isn't
+                    useful if OTU-1.vB doesn't have access to mucin
+                    amino-acids?)
+        -   TODO: What differentiates mice with one strain versus the other?
+            -   I think there's some evidence that sex and treatment
+                differentiate mice with the two strains.
+            -   This would be a particularly interesting result, since OTU-4
+                seems to favor females and OTU-1 males.
 -   Question 3: Can we add anything to the discussion from Ormerod?
     -   Hypothesis 3.A: dN/dS will identify genes under strong selection in the
         Muribaculaceae.
     -   Hypothesis 3.B: Any evidence for HGT?
     -   Hypothesis 3.C: Can we get more detailed in our analysis of carb active
         enzymes?
+
+# Paper Outline
+
+## Introduction
+### OTU-1 and OTU-4 (summary of longev paper)
+-   No convincing evidence that other Muribaculacae increase in abundance
+    with ACA, and decreased relative abundance may be merely compositional.
+### Muribaculaceae literature (summary of Ormerod paper)
+### Questions / hypotheses (competition vs. niches, see Topics)
+
+## Recovery of Genomes
+
+TODO: It seems like we're having special trouble recovering OTU-1.
+This could possibly because of strain heterogeneity, both that differentating
+variant A from variant B, but also heterogeneity represented in the V4 region
+variation (which seems to be somewhat independent of the rest of the genome).
+
+-   S. alaskensis recovery was very good.
+-   CheckM results suggest success.
+-   TABLE of genome results
+    -   Length
+    -   Num contigs (N50)
+    -   GC content
+    -   checkM results
+        -   Completeness contamination
+    -   Gene count and annotation rate
+    -   MetaCyc pathways as a more robust measure of contamination??
+-   SUPPLEMENTAL FIGURE of genome recovery workflow
+-   FIGURE phylogenetics (TODO) with Ormerod
+    -   rpoB, gyrA,
+    -   What outgroup
+-   TODO: Add back 16S genes and identify variation
+-   TODO: Do I discuss recovery of strain variants here? (probably)
+-   TODO: Unique genes that differentiate OTU-1 from the Ormerod strains?
+    (why is it special that I recovered them?)

@@ -1519,8 +1519,6 @@ rule filter_metacyc_pathways:
         grep -v -f <(cut -f 1 {output.drop}) {input.ecmap} > {output.keep}
         """
 
-# TODO: Figure out how to stop MinPath from overwriting its own processing files
-# (which makes parallel jobs impossible).
 rule infer_pathways:
     output:
         report='res/{stem}.ec.minpath.report.tsv',
@@ -1530,6 +1528,7 @@ rule infer_pathways:
         ec_map='ref/ec2path.picrust.filt.tsv',
     log:
         'res/{stem}.ec.minpath.log'
+    threads: MAX_THREADS  # TODO: Figure out how to stop MinPath from overwriting its own processing files (which makes parallel jobs impossible).
     shell:
         """
         MinPath1.4.py -any {input.ec_list} -map {input.ec_map} -report {output.report} -details {output.details} >{log} 2>&1

@@ -1282,19 +1282,18 @@ rule plot_position_distribution_plots:
 
 rule correlation_trim_refined_reassembly_scaffolds:
     output:
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn",
+        fn="seq/{stem}.ctrim-{thresh}.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
-        scaffolds="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        corr="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv",
+        scaffolds="seq/{stem}.fn",
+        corr="res/{stem}.pstat.tsv",
     params:
-        thresh=0.6,
         window=100,
         flank=100,
         min_len=1000,
     shell:
         """
-        {input.script} --corr-thresh={params.thresh} \
+        {input.script} --corr-thresh=0.{wildcards.thresh} \
                 --window-size={params.window} \
                 --flank-size={params.flank} \
                 --min-length={params.min_len} \
@@ -1302,23 +1301,42 @@ rule correlation_trim_refined_reassembly_scaffolds:
                 > {output.fn}
         """
 
-rule correlation_trim_refined_reassembly_scaffolds_manual_thresh:
+rule select_correlation_trim_threshold:
     output:
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim-manual.fn",
+        fn="seq/{stem}.ctrim.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
-        scaffolds="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        corr="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv",
-        plot="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.hist.pdf",
+        plot="res/{stem}.pstat.hist.pdf",
+        seqs=[f"seq/{{stem}}.ctrim-{cutoff}.fn"
+              for cutoff in [50, 60, 70, 90]],
     params:
         window=100,
         flank=100,
         min_len=1000,
     shell:
         """
-        echo Copy and paste the following command, replacing THRESHOLD with a
-        echo a value based on {input.plot}:
-        echo '{input.script} --corr-thresh=THRESHOLD --window-size={params.window} --flank-size={params.flank} --min-length={params.min_len} {input.scaffolds} {input.corr} > {output.fn}'
+        cat <<END
+        Pick a threshold for the canonical ctrimmed file.
+
+        Already available:
+        {input.seqs}
+
+        If you want a different cutoff
+        (replacing THRESHOLD with the chosen threshold):
+
+        snakemake seq/{wildcards.stem}.ctrim-THRESHOLD.fn
+
+        You may want to use the following to guide your decision:
+        -   Completeness/contamination (checkM results)
+        -   Number of contigs/scaffolds
+        -   Total sequence length
+        -   Nucleotide correlation histogram ({input.plot})
+
+        Once you have selected the final result:
+
+        ln -rs seq/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
+
+END
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 

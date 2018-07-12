@@ -1697,7 +1697,7 @@ rule eztree_pipeline:
         # concat="seq/{group}.a.mags.{genomes}.eztree.afa",
         # blocks="seq/{group}.a.mags.{genomes}.eztree.gblocks.afa",
         # nwk="res/{group}.a.mags.{genomes}.eztree.gblocks.nwk",
-        dir="res/{group}.a.mags.{genomes}.eztree.work",
+        dir="res/{group}.a.mags.{genomes}.eztree.d",
     input:
         # See snake/genome_comparison.snake for picking genomes.
         mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{g}.a.scaffolds.pilon.ctrim.fn'
@@ -1707,6 +1707,7 @@ rule eztree_pipeline:
     threads: 6
     params:
         out_prefix=lambda wildcards: f'res/{wildcards.group}.a.mags.{wildcards.genomes}.eztree',
+    log: "res/{group}.a.mags.{genomes}.eztree.log"
     shell:
         """
         tmp=$(mktemp)
@@ -1714,7 +1715,8 @@ rule eztree_pipeline:
         do
             echo $word
         done >> $tmp
-        ezTree -list $tmp -thread {threads} -out {params.out_prefix}
+        ezTree -list $tmp -thread {threads} -out {params.out_prefix} > {log} 2>&1
+        mv {params.out_prefix}.work {output.dir}
         """
 
 

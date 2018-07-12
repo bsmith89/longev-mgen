@@ -1388,10 +1388,10 @@ localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 # {{{3 Strain Comparison
 rule compare_strains:
     output:
-        delta="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+        delta="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     input:
-        strain1="seq/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.fn",
-        strain2="seq/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.fn",
+        strain1="seq/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.fn",
+        strain2="seq/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.fn",
     wildcard_constraints:
         strain1=no_periods_regex_constraint,
         strain2=no_periods_regex_constraint,
@@ -1414,9 +1414,9 @@ rule compare_strains:
 # compatibility [21] and 0 for compatibility.
 rule process_strain_comparison_table:
     output:
-        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
+        coords="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
     input:
-        delta="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+        delta="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     wildcard_constraints:
         strain1=no_periods_regex_constraint,
         strain2=no_periods_regex_constraint,
@@ -1427,17 +1427,17 @@ rule process_strain_comparison_table:
 
 rule alias_dtrimmed_refined_reassembly_depth_data:
     output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.depth.tsv'
-    input: 'res/core.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv'
+    input: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv'
     shell: alias_recipe
 
 rule plot_strain_comparison:
     output:
-        pdf="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
+        pdf="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
     input:
         script="scripts/plot_nucmer_comparison.py",
-        coords="res/{group}.a.mags.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
-        length1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
-        length2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
+        coords="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
+        length1="res/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
+        length2="res/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
         # depth1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.depth.tsv",
         # depth2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.depth.tsv",
     params:
@@ -1457,27 +1457,27 @@ rule plot_strain_comparison:
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="seq/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.cds.fa",
-        fn="seq/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.cds.fn",
-        gbk="seq/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.gbk",
-        tbl="res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.tbl",
-        tsv="res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.tsv",
-        gff="res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.gff",
-        dir=temp("res/{stem}.mags.annot.d/{mag}.v{strain}.{proc_stem}.prokka.d"),
-    input: "seq/{stem}.mags.d/{mag}.v{strain}.{proc_stem}.fn"
+        fa="seq/{stem}.mags.annot.d/{mag_stem}.cds.fa",
+        fn="seq/{stem}.mags.annot.d/{mag_stem}.cds.fn",
+        gbk="seq/{stem}.mags.annot.d/{mag_stem}.prokka.gbk",
+        tbl="res/{stem}.mags.annot.d/{mag_stem}.prokka.tbl",
+        tsv="res/{stem}.mags.annot.d/{mag_stem}.prokka.tsv",
+        gff="res/{stem}.mags.annot.d/{mag_stem}.prokka.gff",
+        dir=temp("res/{stem}.mags.annot.d/{mag_stem}.prokka.d"),
+    input: "seq/{stem}.mags.d/{mag_stem}.fn"
     threads: MAX_THREADS
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
-                --outdir {output.dir} --prefix {wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem} \
-                --locustag {wildcards.mag}.v{wildcards.strain} \
+                --outdir {output.dir} --prefix {wildcards.mag_stem} \
+                --locustag {wildcards.mag_stem} \
                 --metagenome --cdsrnaolap
-        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.faa {output.fa}
-        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.ffn {output.fn}
-        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.gbk {output.gbk}
-        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.tbl {output.tbl}
-        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.tsv {output.tsv}
-        cp {output.dir}/{wildcards.mag}.v{wildcards.strain}.{wildcards.proc_stem}.gff {output.gff}
+        cp {output.dir}/{wildcards.mag_stem}.faa {output.fa}
+        cp {output.dir}/{wildcards.mag_stem}.ffn {output.fn}
+        cp {output.dir}/{wildcards.mag_stem}.gbk {output.gbk}
+        cp {output.dir}/{wildcards.mag_stem}.tbl {output.tbl}
+        cp {output.dir}/{wildcards.mag_stem}.tsv {output.tsv}
+        cp {output.dir}/{wildcards.mag_stem}.gff {output.gff}
         """
 
 rule extract_ec_numbers:

@@ -9,6 +9,19 @@
 -   Bignorm (see https://git.informatik.uni-kiel.de/axw/Bignorm)
 -   TODO
 
+Metadata:
+
+-   `raw/longev_rrs_results.db` can be acquired from the longev
+    project as `res/lite.results.db`.
+    Code for producing this file is in `Makefile`.
+    Current md5sum is `5e74824958c80488a523fdbd8a108e84`.
+-   TODO: Archive the results of data extraction from raw/longev_rrs_results.db,
+    since this data will ultimately be publicly available, while the DB itself
+    will not.
+
+    27e7cc16f81420bace9f5ef1c44a3079  res/core.r.count.tsv
+    9085eff5efb579a23ba86aec6d5140d1  res/core.r.taxonomy.tsv
+
 # Bin refinement
 
 TODO: Encapsulate this work in a script/recipes.

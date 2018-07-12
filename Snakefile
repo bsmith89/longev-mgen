@@ -1689,6 +1689,34 @@ rule tree_sort_afa:
     shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
 
 
+# {{{3 Full-genome phylogenetics
+
+rule eztree_pipeline:
+    output:
+        # TODO: mv commands for these files.
+        # concat="seq/{group}.a.mags.{genomes}.eztree.afa",
+        # blocks="seq/{group}.a.mags.{genomes}.eztree.gblocks.afa",
+        # nwk="res/{group}.a.mags.{genomes}.eztree.gblocks.nwk",
+        dir="res/{group}.a.mags.{genomes}.eztree.work",
+    input:
+        # See snake/genome_comparison.snake for picking genomes.
+        mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{g}.a.scaffolds.pilon.ctrim.fn'
+                                for g in config['eztree'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'seq/ref.mags.d/{g}.fn'
+                                for g in config['eztree'][wildcards.genomes]['refs']]
+    threads: 6
+    params:
+        out_prefix=lambda wildcards: f'res/{wildcards.group}.a.mags.{wildcards.genomes}.eztree',
+    shell:
+        """
+        tmp=$(mktemp)
+        for word in {input.mags} {input.refs}
+        do
+            echo $word
+        done >> $tmp
+        ezTree -list $tmp -thread {threads} -out {params.out_prefix}
+        """
+
 
 
 

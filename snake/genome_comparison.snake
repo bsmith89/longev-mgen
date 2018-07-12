@@ -123,6 +123,52 @@ config['gene_to_hmm'] = \
      'mmdA': 'TIGR01117',
      }
 
+# TODO: Rename eztree key to something else, since this list is generally useful.
+config['eztree'] = \
+        {'muri':
+            {'mags': [ 'OTU-1.vA'
+                     , 'OTU-1.vB'
+                     , 'OTU-4.vA'
+                     , 'OTU-5.vA'
+                     , 'OTU-7.vA'
+                     , 'OTU-9.vA'
+                     , 'OTU-17.vA'
+                     , 'OTU-49.vA'
+                     ],
+             'refs': [ 'GP1'
+                     , 'GP2'
+                     , 'GP3'
+                     , 'GP4'
+                     , 'H1'
+                     , 'H10'
+                     , 'H2'
+                     , 'H3'
+                     , 'H4'
+                     , 'H5'
+                     , 'H6'
+                     , 'H7'
+                     , 'H8'
+                     , 'H9'
+                     , 'K1'
+                     , 'K10'
+                     , 'M1'
+                     , 'M10'
+                     , 'M11'
+                     , 'M12'
+                     , 'M13'
+                     , 'M14'
+                     , 'M2'
+                     , 'M3'
+                     , 'M5'
+                     , 'M6'
+                     , 'M7'
+                     , 'M8'
+                     , 'M9'
+                     , 'Homeothermus_arabinoxylanisolvens'
+                     ]
+            }
+        }
+
 # {{{1 Link data
 
 rule alias_ormerod_mags:

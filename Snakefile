@@ -1623,6 +1623,8 @@ rule gather_hit_cds_permissive:
 
 # {{{2 Sequences Analysis
 
+# {{{3 Alignment
+
 rule hmmalign:
     output: "seq/{stem}.{hmm}-hits.afa"
     input: fa="seq/{stem}.{hmm}-hits.fa", hmm="ref/hmm/{hmm}.hmm"
@@ -1638,6 +1640,8 @@ rule codonalign:
         nucl="seq/{stem}.fn"
     shell:
         "codonalign {input.prot} {input.nucl} > {output}"
+
+# {{{3 Filter Alignment
 
 rule squeeze_codon_alignment:
     output: "seq/{stem}.codonalign.sqz.afn"
@@ -1655,6 +1659,7 @@ rule squeeze_hmmalign_alignment:
         seq="seq/{stem}.{hmm}-hits.afa"
     shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
 
+# {{{3 Phylogenetics
 rule estimate_phylogeny_afn:
     output: "res/{stem}.sqz.nucl.nwk"
     input: "seq/{stem}.sqz.afn"
@@ -1665,6 +1670,7 @@ rule estimate_phylogeny_afa:
     input: "seq/{stem}.sqz.afa"
     shell: "FastTree < {input} > {output}"
 
+# {{{3 Sort alignment
 # TODO: Am I sure I want to use the nucleotide tree for sorting?
 rule tree_sort_afn:
     output: "seq/{stem}.tree-sort.afn"

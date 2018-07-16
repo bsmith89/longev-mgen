@@ -318,6 +318,9 @@ females.
                     in the conversion of serine/threonine to glycine, and isn't
                     useful if OTU-1.vB doesn't have access to mucin
                     amino-acids?)
+            -   TODO: CAZy annotation of full genomes and then match them and
+                see which genes don't overlap. (This is basically to catch
+                what HAMAP and COGS didn't.)
         -   TODO: What differentiates mice with one strain versus the other?
             -   I think there's some evidence that sex and treatment
                 differentiate mice with the two strains.
@@ -334,14 +337,79 @@ females.
 
 ## Introduction
 ### OTU-1 and OTU-4 (summary of longev paper)
--   No convincing evidence that other Muribaculacae increase in abundance
-    with ACA, and decreased relative abundance may be merely compositional.
-### Muribaculaceae literature (summary of Ormerod paper)
-### Questions / hypotheses (competition vs. niches, see Topics)
+The mammalian gut microbiome is a complex ecological system that influences
+energy balance [@TODO], pathogen resistance [@TODO], and inflammation [@TODO],
+among other processes with importance to host health.
+Understanding how the bacterial inhabitants of the gut respond to environmental
+perturbations is a major step in developing a predictive framework for
+microbiome-based therapies.
+Acarbose (ACA) is an alpha-glucosidase inhibitor that
+has been shown to increase the amount of starch entering the lower
+digestive system in (TODO: mice/rats?) after a meal [@TODO].
+
+In a recent multi-site experimental study on the effect of ACA on the gut
+microbiota and fermentation products, the relative abundance of a number of
+bacterial taxa were found to respond to treatment with the drug, as well as the
+concentrations of propionate and butyrate.
+At two of the three study sites, UM and TJL, one OTU responded dramatically
+<!--
+TODO: Introduce UT, TJL, UM, OTU abbrevs.
+-->
+while a different OTU responded at UT.
+Both OTUs were classified as members of the recently cultured family
+Muribaculaceae&mdash;formerly the S24-7 and in some literature referred to as
+Homeothermaceae&mdash;which has been shown to be a common and abundant
+inhabitant of the mammalian gut, especially in mice.
+Interestingly, these two OTUs are not closely related, sharing only about
+90% of their 16S rRNA gene V4 hypervariable region.
+While several other Muribaculaceae were also among the most abundant OTUs,
+there is not compelling evidence that these taxa also increased in abundance
+with treatment.
+Identifying shared functional potential between these two responding taxa may
+therefore present an opportunity to better understand the traits that poise
+some bacterial populations to expand due to ACA treatment, while others
+are unaffected or reduced.
+
+Previous studies have suggested that the Muribaculaceae specialize on
+the fermentation of complex polysaccharides, much like members of the genus
+Bacteroides also in order Bacteroidales.
+Based on genomes reconstructed from metagenomes, Ormerod et al. [@Ormerod2016]
+identified three distinct carbohydrate utilization guilds, which they describe
+as specialists on alpha-glucans, plant glycans, and host glycans, respectively.
+While it is reasonable to expect that alpha-glucan specialists would be
+most benefitted by the large influx of starch to the gut caused by ACA
+treatment, this prediction has not been tested.
+Alternatively, the excess of carbohydrate may lead to selection for other
+traits that provide access to key resources (e.g. nitrogen).
+
+Interestingly, the OTU that responds at UM and TJL is also common
+at UT.
+Why it does not show a significant increase in population size at UT,
+where the second OTU responds instead, is not clear.
+Two alternative may account for the differential pattern of abundance
+across sites.
+Competition with OTU-4 at UT may inhibit the dramatic expansion
+of OTU-1 at that site.
+OTU-4 is not found at UM or TJL where OTU-1 responds to ACA.
+Alternatively, despite being the same OTU across sites, hidden strain variation
+not paralleled by variation in the V4 region may differentiate
+OTU-1 at UT from the other two sites.
+
+In this study we apply strain-resolved genome reconstruction from metagenomes
+to compare and contrast the functional potential among Muribaculaceae at UM and
+UT.
+We demonstrate the utility of culture-free genomics to understand
+the ecological role of key members of the mouse gut microbial community,
+and explore several hypotheses that may explain differences in the distribution
+and response of bacteria to perturbations.
+<!--
+TODO: Figure out better ways to refer to the two OTUs.
+-->
 
 ## Recovery of Genomes
 
-TODO: It seems like we're having special trouble recovering OTU-1.
+TODO: It seems like we're having special trouble recovering OTU-1 compared
+to other genomes.
 This could possibly because of strain heterogeneity, both that differentating
 variant A from variant B, but also heterogeneity represented in the V4 region
 variation (which seems to be somewhat independent of the rest of the genome).
@@ -350,17 +418,15 @@ variation (which seems to be somewhat independent of the rest of the genome).
 -   CheckM results suggest success.
 -   TABLE of genome results
     -   Length
-    -   Num contigs (N50)
+    -   Num contigs (N50?)
     -   GC content
     -   checkM results
         -   Completeness contamination
     -   Gene count and annotation rate
     -   MetaCyc pathways as a more robust measure of contamination??
 -   SUPPLEMENTAL FIGURE of genome recovery workflow
--   FIGURE phylogenetics (TODO) with Ormerod
-    -   rpoB, gyrA,
-    -   What outgroup
+-   FIGURE phylogenetics with Ormerod
 -   TODO: Add back 16S genes and identify variation
 -   TODO: Do I discuss recovery of strain variants here? (probably)
 -   TODO: Unique genes that differentiate OTU-1 from the Ormerod strains?
-    (why is it special that I recovered them?)
+    (answer the question: why is it special that I recovered them?)

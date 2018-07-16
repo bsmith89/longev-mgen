@@ -123,8 +123,7 @@ config['gene_to_hmm'] = \
      'mmdA': 'TIGR01117',
      }
 
-# TODO: Rename eztree key to something else, since this list is generally useful.
-config['eztree'] = \
+config['genome_group'] = \
         {'muri':
             {'mags': [ 'OTU-1.vA'
                      , 'OTU-1.vB'
@@ -133,7 +132,6 @@ config['eztree'] = \
                      , 'OTU-7.vA'
                      , 'OTU-9.vA'
                      , 'OTU-17.vA'
-                     , 'OTU-41.v0'  # Outgroup
                      , 'OTU-49.vA'
                      ],
              'refs': [ 'GP1'
@@ -166,13 +164,16 @@ config['eztree'] = \
                      , 'M8'
                      , 'M9'
                      , 'Homeothermus_arabinoxylanisolvens'
+                     , 'Muribaculum_intestinale_yl27'
+                     , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
                      ]
             }
         }
 
-# {{{1 Link data
+# {{{1 Download and link data
 
-rule alias_ormerod_mags:
+# This is intended for Ormerod MAGs.
+rule alias_sra_genomes:
     output: 'seq/ref.mags.d/{mag_id}.fn'
     input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['sra'][wildcards.mag_id])
     wildcard_constraints:
@@ -190,13 +191,24 @@ rule alias_m_intestinale_genome:
     input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
     shell: "ln -rs {input} {output}"
 
-ruleorder: alias_m_intestinale_genome > alias_ormerod_mags
+ruleorder: alias_m_intestinale_genome > alias_sra_genomes
 
-rule alias_all_reference_mags_and_genomes:
-    input: expand('seq/ref.mags.d/{mag_id}.fn', mag_id=config['ref_genomes'])
+rule download_btheta_genome:
+    output: 'raw/ref/Bacteroides_thetaiotaomicron_VPI5482.fn'
+    params:
+        url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=AE015928.1&rettype=fasta&retmode=text'
+    shell: curl_recipe
 
-localrules: alias_ormerod_mags, download_m_intestinale_genome,
-            alias_m_intestinale_genome, alias_all_reference_mags_and_genomes
+rule alias_btheta_genome:
+    output: 'seq/ref.mags.d/Bacteroides_thetaiotaomicron_VPI5482.fn'
+    input: 'raw/ref/Bacteroides_thetaiotaomicron_VPI5482.fn'
+    shell: "ln -rs {input} {output}"
+
+ruleorder: alias_btheta_genome > alias_sra_genomes
+
+localrules: download_btheta_genome, download_m_intestinale_genome,
+            alias_sra_genomes, alias_btheta_genome,
+            alias_m_intestinale_genome
 
 # {{{1 Compile data
 
@@ -245,12 +257,15 @@ rule full_genomes_group_quast_result:
         report="res/{group}.a.mags.{genomes}.quast.report.tsv",
     input:
         mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
-                                for mag_stem in config['eztree'][wildcards.genomes]['mags']],
+                                for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
         refs=lambda wildcards: [f'seq/ref.mags.d/{ref_stem}.fn'
-                                for ref_stem in config['eztree'][wildcards.genomes]['refs']],
+                                for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
+    params:
+        labels=lambda wildcards: ', '.join(list(config['genome_group'][wildcards.genomes]['mags']) +
+                                           list(config['genome_group'][wildcards.genomes]['refs']))
     shell:
         """
-        quast.py --threads={threads} --min-contig 0 --output-dir {output.dir} {input.mags} {input.refs}
+        quast.py --threads={threads} --min-contig 0 --output-dir {output.dir} --labels "{params.labels}" {input.mags} {input.refs}
         cp {output.dir}/transposed_report.tsv {output.report}
         """
 
@@ -268,9 +283,9 @@ rule combine_annotation_summaries:
         "res/{group}.a.mags.{genomes}.prokka.summary.tsv"
     input:
         mags=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{mag_stem}.a.scaffolds.pilon.ctrim.prokka.summary.tsv'
-                                     for mag_stem in config['eztree'][wildcards.genomes]['mags']],
+                                     for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
         refs=lambda wildcards: [f'res/ref.mags.annot.d/{ref_stem}.prokka.summary.tsv'
-                                     for ref_stem in config['eztree'][wildcards.genomes]['refs']],
+                                     for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         r"""
         (
@@ -299,9 +314,9 @@ data.to_csv(sys.stdout, sep="\t")
 #     input:
 #         # See snake/genome_comparison.snake for picking genomes.
 #         mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{g}.a.scaffolds.pilon.ctrim.fn'
-#                                 for g in config['eztree'][wildcards.genomes]['mags']],
+#                                 for g in config['genome_group'][wildcards.genomes]['mags']],
 #         refs=lambda wildcards: [f'seq/ref.mags.d/{g}.fn'
-#                                 for g in config['eztree'][wildcards.genomes]['refs']]
+#                                 for g in config['genome_group'][wildcards.genomes]['refs']]
 #     threads: 6
 #     params:
 #         out_prefix=lambda wildcards: f'res/{wildcards.group}.a.mags.{wildcards.genomes}.eztree',
@@ -326,20 +341,20 @@ rule pick_phylogenetic_marker_genes:
     input:
         script="scripts/pick_marker_genes.py",
         mags_hits=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
-                                     for g in config['eztree'][wildcards.genomes]['mags']],
+                                     for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_hits=lambda wildcards: [f'res/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
-                                     for g in config['eztree'][wildcards.genomes]['refs']],
+                                     for g in config['genome_group'][wildcards.genomes]['refs']],
         mags_seqs=lambda wildcards: [f'seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa'
-                                     for g in config['eztree'][wildcards.genomes]['mags']],
+                                     for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_seqs=lambda wildcards: [f'seq/ref.mags.annot.d/{g}.cds.fa'
-                                     for g in config['eztree'][wildcards.genomes]['refs']],
+                                     for g in config['genome_group'][wildcards.genomes]['refs']],
     params:
         mags=lambda wildcards: [(f'{g}:res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
                                  f':seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa')
-                                for g in config['eztree'][wildcards.genomes]['mags']],
+                                for g in config['genome_group'][wildcards.genomes]['mags']],
         refs=lambda wildcards: [(f'{g}:res/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
                                  f':seq/ref.mags.annot.d/{g}.cds.fa')
-                                for g in config['eztree'][wildcards.genomes]['refs']],
+                                for g in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
         rm -rf {output.dir}

@@ -146,12 +146,23 @@ rule extract_tigrfam_hmm:
         tar -xzf {input} TIGR{wildcards.num}.HMM -O > {output}
         """
 
+rule download_pfam:
+    output: "raw/ref/Pfam-31.0.hmm"
+    params:
+        url="ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam31.0/Pfam-A.hmm.gz"
+    shell: curl_unzip_recipe
+
+rule link_pfam:
+    output: "ref/hmm/Pfam.hmm"
+    input: "raw/ref/Pfam-31.0.hmm"
+    shell: alias_recipe
+
 rule alias_hmm:
     output: "ref/hmm/{alias}.hmm"
     input: lambda wildcards: "ref/hmm/{}.hmm".format(config['gene_to_hmm'][wildcards.alias])
     shell: alias_recipe
 
-localrules: download_tigrfam, extract_tigrfam_hmm, alias_tigrfam_hmm
+localrules: download_tigrfam, extract_tigrfam_hmm, download_pfam, link_pfam, alias_hmm
 
 # {{{3 Metadata for sequence processing
 
@@ -178,7 +189,7 @@ rule download_dbCAN_meta:
     shell: curl_recipe
 
 rule filter_dbCAN_hmms:
-    output: "ref/dbCAN.hmm"
+    output: "ref/hmm/dbCAN.hmm"
     input: "raw/ref/dbCAN.hmm"
     shell:
         r"""
@@ -1315,7 +1326,7 @@ rule select_correlation_trim_threshold:
         min_len=1000,
     shell:
         """
-        cat <<END
+        cat <<EOF
         Pick a threshold for the canonical ctrimmed file.
 
         Already available:
@@ -1334,9 +1345,9 @@ rule select_correlation_trim_threshold:
 
         Once you have selected the final result:
 
-        ln -rs seq/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
+        cp seq/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
 
-END
+EOF
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
@@ -1480,6 +1491,45 @@ rule annotate_mag:
         cp {output.dir}/{wildcards.mag_stem}.gff {output.gff}
         """
 
+rule summarize_annotation:
+    output: 'res/{stem}.prokka.summary.tsv'
+    input: 'res/{stem}.prokka.tsv'
+    shell:
+        """
+        echo '
+CREATE TABLE annotation
+( locus_tag PRIMARY KEY
+, ftype
+, length_bp
+, gene
+, ec_number
+, cog
+, product
+);
+.separator \\t
+.import {input} annotation
+-- Drop the header
+--DELETE FROM annotation WHERE annotation.locus_tag = "locus_tag"
+
+-- Number of loci
+SELECT "n_loci", COUNT(*) FROM annotation;
+-- Count different feature types
+SELECT "n_features_CDS", COUNT(*) FROM annotation WHERE ftype = "CDS";
+SELECT "n_features_tRNA", COUNT(*) FROM annotation WHERE ftype = "tRNA";
+SELECT "n_features_rRNA", COUNT(*) FROM annotation WHERE ftype = "rRNA";
+SELECT "n_features_tmRNA", COUNT(*) FROM annotation WHERE ftype = "tmRNA";
+-- Count different annotations of interest
+SELECT "n_annotated_hypothetical", COUNT(*) FROM annotation WHERE product = "hypothetical protein";
+SELECT "n_annotated_16S", COUNT(*) FROM annotation WHERE product = "16S ribosomal RNA" OR product = "16S ribosomal RNA (partial)";
+SELECT "n_with_gene_name", COUNT(*) FROM annotation WHERE gene != "";
+SELECT "n_with_ec_number", COUNT(*) FROM annotation WHERE ec_number != "";
+SELECT "n_with_cog", COUNT(*) FROM annotation WHERE cog != "";
+SELECT "n_product_not_hypothetical", COUNT(*) FROM annotation WHERE product != "hypothetical protein";
+        ' | sqlite3 > {output}
+
+
+"""
+
 rule extract_ec_numbers:
     output: 'res/{stem}.ec.tsv'
     input: 'res/{stem}.prokka.tsv'
@@ -1595,7 +1645,7 @@ rule search_hmm:
         h3i = "ref/hmm/{hmm}.hmm.h3i",
         h3m = "ref/hmm/{hmm}.hmm.h3m",
         h3p = "ref/hmm/{hmm}.hmm.h3p"
-    threads: min(10, MAX_THREADS)
+    threads: min(2, MAX_THREADS)
     shell:
         """
         echo "orf_id\tmodel_id\tscore" > {output}
@@ -1605,14 +1655,12 @@ rule search_hmm:
                   {input.hmm} {input.faa} > /dev/null
         """
 
-# "Permissive" means that we include low scoring and partial hits.
-# TODO: Are there cases where I want to pull this gene not permissively?
-rule gather_hit_cds_permissive:
+rule gather_hit_cds_strict:
     output:
         nucl="seq/{stem}.cds.{hmm}-hits.fn",
         prot="seq/{stem}.cds.{hmm}-hits.fa"
     input:
-        hit_table="res/{stem}.cds.{hmm}-hits.hmmer-nc.tsv",
+        hit_table="res/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
         nucl="seq/{stem}.cds.fn",
         prot="seq/{stem}.cds.fa"
     shell:
@@ -1659,15 +1707,35 @@ rule squeeze_hmmalign_alignment:
         seq="seq/{stem}.{hmm}-hits.afa"
     shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
 
+rule gblocks_afa:
+    output: 'seq/{stem}.gb.afa'
+    input: 'seq/{stem}.afa'
+    shell:
+        """
+        Gblocks {input} -t=p -p=y -v=150 || [ $? == 1 ]
+        mv {input}-gb {output}
+        rm {input}-gb.htm
+        """
+
+rule gblocks_afn:
+    output: 'seq/{stem}.gb.afa'
+    input: 'seq/{stem}.afn'
+    shell:
+        """
+        Gblocks {input} -t=c -p=y -v=150 || [ $? == 1 ]
+        mv {input}-gb {output}
+        rm {input}-gb.htm
+        """
+
 # {{{3 Phylogenetics
 rule estimate_phylogeny_afn:
-    output: "res/{stem}.sqz.nucl.nwk"
-    input: "seq/{stem}.sqz.afn"
+    output: "res/{stem}.nucl.nwk"
+    input: "seq/{stem}.afn"
     shell: "FastTree -nt < {input} > {output}"
 
 rule estimate_phylogeny_afa:
-    output: "res/{stem}.sqz.prot.nwk"
-    input: "seq/{stem}.sqz.afa"
+    output: "res/{stem}.prot.nwk"
+    input: "seq/{stem}.afa"
     shell: "FastTree < {input} > {output}"
 
 # {{{3 Sort alignment
@@ -1688,36 +1756,6 @@ rule tree_sort_afa:
         seqs="seq/{stem}.afa"
     shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
 
-
-# {{{3 Full-genome phylogenetics
-
-rule eztree_pipeline:
-    output:
-        # TODO: mv commands for these files.
-        # concat="seq/{group}.a.mags.{genomes}.eztree.afa",
-        # blocks="seq/{group}.a.mags.{genomes}.eztree.gblocks.afa",
-        # nwk="res/{group}.a.mags.{genomes}.eztree.gblocks.nwk",
-        dir="res/{group}.a.mags.{genomes}.eztree.d",
-    input:
-        # See snake/genome_comparison.snake for picking genomes.
-        mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{g}.a.scaffolds.pilon.ctrim.fn'
-                                for g in config['eztree'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'seq/ref.mags.d/{g}.fn'
-                                for g in config['eztree'][wildcards.genomes]['refs']]
-    threads: 6
-    params:
-        out_prefix=lambda wildcards: f'res/{wildcards.group}.a.mags.{wildcards.genomes}.eztree',
-    log: "res/{group}.a.mags.{genomes}.eztree.log"
-    shell:
-        """
-        tmp=$(mktemp)
-        for word in {input.mags} {input.refs}
-        do
-            echo $word
-        done >> $tmp
-        ezTree -list $tmp -thread {threads} -out {params.out_prefix} > {log} 2>&1
-        mv {params.out_prefix}.work {output.dir}
-        """
 
 
 

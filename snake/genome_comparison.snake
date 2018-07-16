@@ -133,6 +133,7 @@ config['eztree'] = \
                      , 'OTU-7.vA'
                      , 'OTU-9.vA'
                      , 'OTU-17.vA'
+                     , 'OTU-41.v0'  # Outgroup
                      , 'OTU-49.vA'
                      ],
              'refs': [ 'GP1'
@@ -199,95 +200,195 @@ localrules: alias_ormerod_mags, download_m_intestinale_genome,
 
 # {{{1 Compile data
 
-rule combine_genes_from_mags:
+# rule combine_genes_from_mags:
+#     output:
+#         fa='seq/{group}.a.mags.cds.{gene_id}-hits.fa',
+#         fn='seq/{group}.a.mags.cds.{gene_id}-hits.fn'
+#     wildcard_constraints:
+#         gene_id='[^.]+'
+#     input:
+#         mags_fa=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fa'
+#                                   .format(group=wildcards.group,
+#                                           mag_id=mag_id,
+#                                           gene_id=wildcards.gene_id)
+#                               for mag_id
+#                               in config['mags'].keys()],
+#         ormd_fa=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fa'
+#                                   .format(group=wildcards.group,
+#                                           mag_id=mag_id,
+#                                           gene_id=wildcards.gene_id)
+#                               for mag_id
+#                               in config['ref_genomes']],
+#         mags_fn=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fn'
+#                                   .format(group=wildcards.group,
+#                                           mag_id=mag_id,
+#                                           gene_id=wildcards.gene_id)
+#                               for mag_id
+#                               in config['mags'].keys()],
+#         ormd_fn=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fn'
+#                                   .format(group=wildcards.group,
+#                                           mag_id=mag_id,
+#                                           gene_id=wildcards.gene_id)
+#                               for mag_id
+#                               in config['ref_genomes']],
+#     shell:
+#         """
+#         cat {input.mags_fn} {input.ormd_fn} > {output.fn}
+#         cat {input.mags_fa} {input.ormd_fa} > {output.fa}
+#         """
+#
+# localrules: combine_genes_from_mags
+
+rule full_genomes_group_quast_result:
     output:
-        fa='seq/{group}.a.mags.cds.{gene_id}-hits.fa',
-        fn='seq/{group}.a.mags.cds.{gene_id}-hits.fn'
-    wildcard_constraints:
-        gene_id='[^.]+'
+        dir="res/{group}.a.mags.{genomes}.quast.d",
+        report="res/{group}.a.mags.{genomes}.quast.report.tsv",
     input:
-        mags_fa=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fa'
-                                  .format(group=wildcards.group,
-                                          mag_id=mag_id,
-                                          gene_id=wildcards.gene_id)
-                              for mag_id
-                              in config['mags'].keys()],
-        ormd_fa=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fa'
-                                  .format(group=wildcards.group,
-                                          mag_id=mag_id,
-                                          gene_id=wildcards.gene_id)
-                              for mag_id
-                              in config['ref_genomes']],
-        mags_fn=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fn'
-                                  .format(group=wildcards.group,
-                                          mag_id=mag_id,
-                                          gene_id=wildcards.gene_id)
-                              for mag_id
-                              in config['mags'].keys()],
-        ormd_fn=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fn'
-                                  .format(group=wildcards.group,
-                                          mag_id=mag_id,
-                                          gene_id=wildcards.gene_id)
-                              for mag_id
-                              in config['ref_genomes']],
-    shell:
-        """
-        cat {input.mags_fn} {input.ormd_fn} > {output.fn}
-        cat {input.mags_fa} {input.ormd_fa} > {output.fa}
-        """
-
-localrules: combine_genes_from_mags
-
-rule full_muri_mag_quast_result:
-    output: "res/{group}.a.mags.{genomes}.quast.d"
-    input:
-        seqs=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
+        mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
                                 for mag_stem in config['eztree'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'seq/ref.mags.d/{ref_stem}.fn'
+                                for ref_stem in config['eztree'][wildcards.genomes]['refs']],
     shell:
         """
-        quast.py --threads={threads} --min-contig 0 --output-dir {output} {input.seqs}
+        quast.py --threads={threads} --min-contig 0 --output-dir {output.dir} {input.mags} {input.refs}
+        cp {output.dir}/transposed_report.tsv {output.report}
         """
 
-rule compile_muri_mag_stats_table:
-    output: "res/{group}.a.mags.muri.stats.tsv"
+rule compile_genomes_group_stats_table:
+    output:
+        "res/{group}.a.mags.{genomes}.stats.tsv"
     input:
-        checkm="res/{group}.a.mags.checkm.tsv",
-        quast="res/{group}.a.mags.muri.quast.d",
-        anot=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{mag_stem}.a.scaffolds.pilon.ctrim.prokka.tbl'
-                                for mag_stem in config['eztree']['muri']['mags']],
+        checkm_mags="res/{group}.a.mags.checkm.tsv",
+        checkm_refs="res/ref.mags.checkm.tsv",
+        quast="res/{group}.a.mags.{genomes}.quast.report.tsv",
+        stats="res/{group}.a.mags.{genomes}.prokka.summary.tsv"
 
+rule combine_annotation_summaries:
+    output:
+        "res/{group}.a.mags.{genomes}.prokka.summary.tsv"
+    input:
+        mags=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{mag_stem}.a.scaffolds.pilon.ctrim.prokka.summary.tsv'
+                                     for mag_stem in config['eztree'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'res/ref.mags.annot.d/{ref_stem}.prokka.summary.tsv'
+                                     for ref_stem in config['eztree'][wildcards.genomes]['refs']],
+    shell:
+        r"""
+        (
+            printf "mag_id\tstatistic\tvalue\n"
+            for file in {input.mags} {input.refs}; do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
+            done
+        ) | python3 -c '
+import pandas as pd
+import sys
 
-# rule process_ormerod_bins:
+data = pd.read_table(sys.stdin, index_col=["mag_id", "statistic"])["value"].unstack("statistic")
+data.to_csv(sys.stdout, sep="\t")
+                        ' > {output}
+        """
+
+# {{{1 Full-genome phylogenetics
+
+# rule eztree_pipeline:
+#     output:
+#         # TODO: mv commands for these files.
+#         # concat="seq/{group}.a.mags.{genomes}.eztree.afa",
+#         # blocks="seq/{group}.a.mags.{genomes}.eztree.gblocks.afa",
+#         # nwk="res/{group}.a.mags.{genomes}.eztree.gblocks.nwk",
+#         dir="res/{group}.a.mags.{genomes}.eztree.d",
 #     input:
-#         expand('res/ormerod.bins.prokka.d/{bin_id}.d', bin_id=config['ormerod'].keys()),
-#         'res/core.a.dedup.deadapt.qtrim.contigs.bins.prokka.d/bin_0090.d'
-#
-# rule pull_out_phylogenetic_marker_genes_nucl_ormerod:
-#     output: 'seq/{stem}.prokka.{gene_id}.fn',
-#     input:
-#         expand('res/{{stem}}.prokka.d/{bin_id}.d/prokka.ffn', bin_id=config['ormerod'].keys()),
-#         'res/core.a.dedup.deadapt.qtrim.contigs.bins.prokka.d/bin_0090.d/prokka.ffn'
+#         # See snake/genome_comparison.snake for picking genomes.
+#         mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{g}.a.scaffolds.pilon.ctrim.fn'
+#                                 for g in config['eztree'][wildcards.genomes]['mags']],
+#         refs=lambda wildcards: [f'seq/ref.mags.d/{g}.fn'
+#                                 for g in config['eztree'][wildcards.genomes]['refs']]
+#     threads: 6
 #     params:
-#         search_string=lambda wildcards: config['marker_gene']['search_string'][wildcards.gene_id],
+#         out_prefix=lambda wildcards: f'res/{wildcards.group}.a.mags.{wildcards.genomes}.eztree',
+#     log: "log/{group}.a.mags.{genomes}.eztree.log"
 #     shell:
-#         r"""
-#         rm -f {output}
-#         for file in {input}; do
-#             seqtk subseq $file <(grep '{params.search_string}' $file | sed 's:^>\([^ ]*\).*:\1:') >> {output}
-#         done
 #         """
-#
-# rule pull_out_phylogenetic_marker_genes_amino_ormerod:
-#     output: 'seq/{stem}.prokka.{gene_id}.fa',
-#     input:
-#         expand('res/{{stem}}.prokka.d/{bin_id}.d/prokka.faa', bin_id=config['ormerod'].keys()),
-#         'res/core.a.dedup.deadapt.qtrim.contigs.bins.prokka.d/bin_0090.d/prokka.faa'
-#     params:
-#         search_string=lambda wildcards: config['marker_gene']['search_string'][wildcards.gene_id],
-#     shell:
-#         r"""
-#         rm -f {output}
-#         for file in {input}; do
-#             seqtk subseq $file <(grep '{params.search_string}' $file | sed 's:^>\([^ ]*\).*:\1:') >> {output}
-#         done
+#         tmp=$(mktemp)
+#         for word in {input.mags} {input.refs}
+#         do
+#             echo $word
+#         done >> $tmp
+#         ezTree -list $tmp -thread {threads} -out {params.out_prefix} > {log} 2>&1
+#         mv {params.out_prefix}.work {output.dir}
 #         """
+
+rule pick_phylogenetic_marker_genes:
+    output:
+        dir="res/{group}.a.mags.{genomes}.marker_genes.d",
+        # .../markers.list  # List of shared single-copy markers
+        # .../GENE_NAME.fa  # Amino-acid sequences to be aligned for each gene
+        # .../genome_to_cds.tsv  # Mapping from sequences to genomes
+    input:
+        script="scripts/pick_marker_genes.py",
+        mags_hits=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
+                                     for g in config['eztree'][wildcards.genomes]['mags']],
+        refs_hits=lambda wildcards: [f'res/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
+                                     for g in config['eztree'][wildcards.genomes]['refs']],
+        mags_seqs=lambda wildcards: [f'seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa'
+                                     for g in config['eztree'][wildcards.genomes]['mags']],
+        refs_seqs=lambda wildcards: [f'seq/ref.mags.annot.d/{g}.cds.fa'
+                                     for g in config['eztree'][wildcards.genomes]['refs']],
+    params:
+        mags=lambda wildcards: [(f'{g}:res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
+                                 f':seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa')
+                                for g in config['eztree'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [(f'{g}:res/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
+                                 f':seq/ref.mags.annot.d/{g}.cds.fa')
+                                for g in config['eztree'][wildcards.genomes]['refs']],
+    shell:
+        """
+        rm -rf {output.dir}
+        mkdir -p {output.dir}
+        {input.script} --fasta-output-template '{output}/{{}}.fa' \
+                --tsv-output '{output.dir}/gene_genome_map.tsv' \
+                --list-output '{output.dir}/genes.list' \
+                {params.mags} {params.refs}
+        """
+
+rule align_phylogenetic_marker_genes:
+    output:
+        dir="seq/{group}.a.mags.{genomes}.marker_genes.align.d",
+    input:
+        squeeze_script="scripts/squeeze_alignment.py",
+        dir="res/{group}.a.mags.{genomes}.marker_genes.d",
+        hmm="ref/hmm/Pfam.hmm",
+    shell:
+        """
+        rm -rf {output.dir}
+        mkdir -p {output.dir}
+        while read hmm
+        do
+            echo $hmm
+            # Grab the correct HMMs from {input.hmm}
+            hmmfetch {input.hmm} $hmm > {output.dir}/$hmm.hmm
+            # hmmalign each fasta file
+            hmmalign --amino --trim --informat fasta {output.dir}/$hmm.hmm {input.dir}/$hmm.fa \
+                    | convert -f stockholm -t fasta > {output.dir}/$hmm.afa
+            # Trim off the unaligned nucleotides (see scripts/squeeze_alignment.py) for each
+            {input.squeeze_script} '-.*abcdefghijklmnopqrstuvwxyz' < {output.dir}/$hmm.afa > {output.dir}/$hmm.sqz.afa
+        done < {input.dir}/genes.list
+        """
+
+rule concatenate_marker_gene_alignments:
+    output: "seq/{group}.a.mags.{genomes}.marker_genes.afa",
+    input:
+        concat_script="scripts/concat_alignments.py",
+        search_dir="res/{group}.a.mags.{genomes}.marker_genes.d",
+        align_dir="seq/{group}.a.mags.{genomes}.marker_genes.align.d",
+
+    shell:
+        """
+        # Concatenate the alignments {input.concat_script}
+        {input.concat_script} {input.search_dir}/gene_genome_map.tsv \
+                $(for hmm in `cat {input.search_dir}/genes.list`
+                  do
+                      echo $hmm:{input.align_dir}/$hmm.sqz.afa
+                  done
+                 ) \
+                > {output}
+        """

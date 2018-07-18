@@ -407,3 +407,6 @@ rule concatenate_marker_gene_alignments:
                  ) \
                 > {output}
         """
+
+# {{{1 CAZy Annotations
+# TODO

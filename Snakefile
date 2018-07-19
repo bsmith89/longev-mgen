@@ -317,6 +317,11 @@ rule query_taxonomy_info:
     input: script='scripts/query_longev_rrs_taxonomy.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
 
+rule alias_rrs_reps:
+    output: 'ref/core.r.reps.fn'
+    input: 'raw/longev_rrs_reps.fn'
+    shell: alias_recipe
+
 localrules: query_count_info, query_taxonomy_info
 
 # {{{1 Primary Metagenomic Assembly
@@ -1653,6 +1658,32 @@ rule search_hmm:
                   --cpu {threads} \\
                   --tblout >(grep -v '^#' | sed 's:\s\+:\\t:g' | cut -f1,3,6 >> {output}) \\
                   {input.hmm} {input.faa} > /dev/null
+        """
+
+rule build_blast_db:
+    output:
+        nhr='{stem}.fn.nhr',
+        nin='{stem}.fn.nin',
+        nsq='{stem}.fn.nsq',
+    input:
+        '{stem}.fn'
+    shell:
+        """
+        makeblastdb -dbtype nucl -parse_seqids -in {input} -out {input}
+        """
+
+rule blast_rrs_reps:
+    output:
+        'res/{stem}.rrs-blastn.tsv'
+    input:
+        mag='seq/{stem}.fn',
+        ref='ref/core.r.reps.fn',
+        nhr='ref/core.r.reps.fn.nhr',
+        nin='ref/core.r.reps.fn.nin',
+        nsq='ref/core.r.reps.fn.nsq',
+    shell:
+        """
+        blastn -subject {input.ref} -query {input.mag} -max_target_seqs 1 -outfmt 6 > {output}
         """
 
 rule gather_hit_cds_strict:

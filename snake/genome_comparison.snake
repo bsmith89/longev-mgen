@@ -220,14 +220,47 @@ rule full_genomes_group_quast_result:
         cp {output.dir}/transposed_report.tsv {output.report}
         """
 
+rule make_genome_group_dir:
+    output: 'seq/{group}.a.mags.{genomes}.d'
+    input:
+        mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
+                                for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'seq/ref.mags.d/{ref_stem}.fn'
+                                for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        """
+        rm -rf {output}
+        mkdir -p {output}
+        for genome in {input.mags};
+        do
+            ln -rs $genome {output}/$(basename --suffix .a.scaffolds.pilon.ctrim.fn $genome).fn
+        done
+        for genome in {input.refs};
+        do
+            ln -rs $genome {output}/$(basename $genome)
+        done
+        """
+
 rule compile_genomes_group_stats_table:
     output:
         "res/{group}.a.mags.{genomes}.stats.tsv"
     input:
-        checkm_mags="res/{group}.a.mags.checkm.tsv",
-        checkm_refs="res/ref.mags.checkm.tsv",
-        quast="res/{group}.a.mags.{genomes}.quast.report.tsv",
-        stats="res/{group}.a.mags.{genomes}.prokka.summary.tsv"
+        checkm="res/{group}.a.mags.{genomes}.checkm.tsv",
+        quast="res/{group}.a.mags.{genomes}.quast.tsv",
+        annot="res/{group}.a.mags.{genomes}.prokka.summary.tsv"
+    shell:
+        """
+        tmp_checkm=$(mktemp)
+        tmp_quast=$(mktemp)
+        tmp_annot=$(mktemp)
+        tmp_unord=$(mktemp)
+        sed '1,1s:Bin Id:mag_id:' {input.checkm} | sort -k1,1 > $tmp_checkm
+        sed '1,1s:Assembly:mag_id:' {input.quast} | sort -k1,1 > $tmp_quast
+        sort -k1,1 {input.annot} > $tmp_annot
+        join -t '\t' $tmp_checkm <(join -t '\t' $tmp_quast $tmp_annot) > $tmp_unord
+        grep 'mag_id' $tmp_unord > {output}
+        grep -v 'mag_id' $tmp_unord >> {output}
+        """
 
 rule combine_annotation_summaries:
     output:
@@ -241,7 +274,10 @@ rule combine_annotation_summaries:
         r"""
         (
             printf "mag_id\tstatistic\tvalue\n"
-            for file in {input.mags} {input.refs}; do
+            for file in {input.mags}; do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .a.scaffolds.pilon.ctrim.prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
+            done
+            for file in {input.refs}; do
                 awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
             done
         ) | python3 -c '

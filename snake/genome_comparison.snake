@@ -367,4 +367,30 @@ rule concatenate_marker_gene_alignments:
         """
 
 # {{{1 CAZy Annotations
-# TODO
+rule compile_cazy_hits:
+    output: fasta="seq/{group}.a.mags.{genomes}.dbCAN-hits.fa",
+        tsv="res/{group}.a.mags.{genomes}.dbCAN-hits.gene_genome_map.tsv"
+    input:
+        mags_hits=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.hmmer-tc.tsv'
+                                     for g in config['genome_group'][wildcards.genomes]['mags']],
+        refs_hits=lambda wildcards: [f'res/ref.mags.annot.d/{g}.cds.dbCAN-hits.hmmer-tc.tsv'
+                                     for g in config['genome_group'][wildcards.genomes]['refs']],
+        mags_seqs=lambda wildcards: [f'seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.fa'
+                                     for g in config['genome_group'][wildcards.genomes]['mags']],
+        refs_seqs=lambda wildcards: [f'seq/ref.mags.annot.d/{g}.cds.dbCAN-hits.fa'
+                                     for g in config['genome_group'][wildcards.genomes]['refs']],
+    params:
+    shell:
+        r"""
+        cat {input.mags_seqs} {input.refs_seqs} > {output.fasta}
+        for hits in {input.mags_hits}
+        do
+            genome_name=$(basename --suffix .a.scaffolds.pilon.ctrim.cds.dbCAN-hits.hmmer-tc.tsv $hits)
+            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$2,$1}}' $hits
+        done > {output.tsv}
+        for hits in {input.refs_hits}
+        do
+            genome_name=$(basename --suffix .cds.dbCAN-hits.hmmer-tc.tsv $hits)
+            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$2,$1}}' $hits
+        done >> {output.tsv}
+        """

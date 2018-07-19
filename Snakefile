@@ -1498,7 +1498,7 @@ rule summarize_annotation:
     output: 'res/{stem}.prokka.summary.tsv'
     input: 'res/{stem}.prokka.tsv'
     shell:
-        """
+        r"""
         echo '
 CREATE TABLE annotation
 ( locus_tag PRIMARY KEY
@@ -1509,7 +1509,7 @@ CREATE TABLE annotation
 , cog
 , product
 );
-.separator \\t
+.separator \t
 .import {input} annotation
 -- Drop the header
 --DELETE FROM annotation WHERE annotation.locus_tag = "locus_tag"
@@ -1527,6 +1527,7 @@ SELECT "n_annotated_16S", COUNT(*) FROM annotation WHERE product = "16S ribosoma
 SELECT "n_with_gene_name", COUNT(*) FROM annotation WHERE gene != "";
 SELECT "n_with_ec_number", COUNT(*) FROM annotation WHERE ec_number != "";
 SELECT "n_with_cog", COUNT(*) FROM annotation WHERE cog != "";
+SELECT "n_with_function", COUNT(*) FROM annotation WHERE gene != "" OR ec_number != "" OR cog != "";
 SELECT "n_product_not_hypothetical", COUNT(*) FROM annotation WHERE product != "hypothetical protein";
         ' | sqlite3 > {output}
 

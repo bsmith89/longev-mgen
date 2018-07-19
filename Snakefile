@@ -1728,15 +1728,6 @@ rule compile_domain_info:
     shell:
         "{input.script} {input.domtbl} > {output}"
 
-rule find_domain_structure_groups:
-    output:
-        "res/{stem}.domain_clust.tsv"
-    input:
-        script="scripts/group_by_domain_structure.py",
-        domains="res/{stem}.domains.tsv"
-    shell:
-        "{input.script} {input.domains} > {output}"
-
 # {{{3 Alignment
 
 rule hmmalign:
@@ -1824,6 +1815,7 @@ rule tree_sort_afa:
 
 # {{{2 Protein Clustering
 
+# {{{3 De novo
 rule make_diamond_db:
     output: "{stem}.fa.dmnd"
     input: "{stem}.fa"
@@ -1847,7 +1839,7 @@ rule calculate_blastp_distance_matrix:
         "{input.script} {input.blastp} > {output}"
 
 rule cluster_proteins:
-    output: "res/{stem}.clust.tsv"
+    output: "res/{stem}.denovo-clust.tsv"
     input:
         script='scripts/cluster_proteins.py',
         data='res/{stem}.blastp_dist.tsv',
@@ -1857,10 +1849,12 @@ rule cluster_proteins:
         '{input.script} {input.data} {params.n_clusters} > {output}'
 
 rule construct_genome_by_cluster_table:
-    output: "res/{stem}.clust.count.tsv"
+    output: "res/{stem}.{clust_type}-clust.count.tsv"
     input:
-        clust='res/{stem}.clust.tsv',
+        clust='res/{stem}.{clust_type}-clust.tsv',
         meta='res/{stem}.gene_genome_map.tsv'
+    wildcard_constraints:
+        clust_type=no_periods_regex_constraint
     shell:
         """
         join -t'\t' -1 3 -2 1 <(sort -k3,3 {input.meta}) <(sort -k1,1 {input.clust}) \
@@ -1869,6 +1863,15 @@ rule construct_genome_by_cluster_table:
                 | uniq -c | awk -v OFS='\t' '{{print $2,$3,$1}}' \
                 > {output}
         """
+
+rule find_domain_structure_groups:
+    output:
+        "res/{stem}.domain-clust.tsv"
+    input:
+        script="scripts/group_by_domain_structure.py",
+        domains="res/{stem}.domains.tsv"
+    shell:
+        "{input.script} {input.domains} > {output}"
 
 
 

@@ -1794,11 +1794,57 @@ rule tree_sort_afa:
         seqs="seq/{stem}.afa"
     shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
 
+# {{{2 Protein Clustering
+
+rule make_diamond_db:
+    output: "{stem}.fa.dmnd"
+    input: "{stem}.fa"
+    shell: "diamond makedb --in {input} --db {input}"
+
+rule all_by_all_blastp:
+    output: "res/{stem}.self_blastp.tsv"
+    input:
+        fa='seq/{stem}.fa',
+        db='seq/{stem}.fa.dmnd',
+    threads: MAX_THREADS
+    shell:
+        "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
+
+rule calculate_blastp_distance_matrix:
+    output: "res/{stem}.blastp_dist.tsv"
+    input:
+        script="scripts/calculate_blastp_distance_matrix.py",
+        blastp="res/{stem}.self_blastp.tsv",
+    shell:
+        "{input.script} {input.blastp} > {output}"
+
+rule cluster_proteins:
+    output: "res/{stem}.clust.tsv"
+    input:
+        script='scripts/cluster_proteins.py',
+        data='res/{stem}.blastp_dist.tsv',
+    params:
+        n_clusters=4000
+    shell:
+        '{input.script} {input.data} {params.n_clusters} > {output}'
+
+rule construct_genome_by_cluster_table:
+    output: "res/{stem}.clust.count.tsv"
+    input:
+        clust='res/{stem}.clust.tsv',
+        meta='res/{stem}.gene_genome_map.tsv'
+    shell:
+        """
+        join -t'\t' -1 3 -2 1 <(sort -k3,3 {input.meta}) <(sort -k1,1 {input.clust}) \
+                | sort -k1,1 -k4,4 -u \
+                | cut -f2,4 | sort \
+                | uniq -c | awk -v OFS='\t' '{{print $2,$3,$1}}' \
+                > {output}
+        """
 
 
 
-
-# {{{1 Compile all data
+# {{{1 Databases
 
 # Base database, containing static metadata.
 rule generate_database_0:

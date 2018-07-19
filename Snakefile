@@ -319,7 +319,7 @@ rule query_taxonomy_info:
 
 localrules: query_count_info, query_taxonomy_info
 
-# {{{1 Metagenomic Assembly
+# {{{1 Primary Metagenomic Assembly
 
 # {{{2 Data pre-processing
 
@@ -621,6 +621,7 @@ rule unstack_cvrg:
         {input.script} {input.cvrg} '{params.float_format}' > {output}
         """
 
+# {{{1 MAGs
 # {{{2 MAG Finding
 
 # {{{3 Prepare input data

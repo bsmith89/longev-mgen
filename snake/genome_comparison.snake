@@ -205,7 +205,7 @@ localrules: download_btheta_genome, download_m_intestinale_genome,
 rule full_genomes_group_quast_result:
     output:
         dir="res/{group}.a.mags.{genomes}.quast.d",
-        report="res/{group}.a.mags.{genomes}.quast.report.tsv",
+        report="res/{group}.a.mags.{genomes}.quast.tsv",
     input:
         mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
                                 for mag_stem in config['genome_group'][wildcards.genomes]['mags']],

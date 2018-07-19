@@ -718,15 +718,13 @@ rule split_out_bins:
 
 # {{{3 QC bins
 
-rule checkm_bins_or_mags:
+rule checkm_seqs:
     output:
-        dir=temp('res/{stem}.{bins_or_mags}.checkm.d'),
-        summary='res/{stem}.{bins_or_mags}.checkm.tsv'
-    input: 'seq/{stem}.{bins_or_mags}.d'
-    wildcard_constraints:
-        bins_or_mags = 'bins|mags'
+        dir=temp('res/{stem}.checkm.d'),
+        summary='res/{stem}.checkm.tsv'
+    input: 'seq/{stem}.d'
     threads: MAX_THREADS
-    log: 'log/{stem}.{bins_or_mags}.checkm.log'
+    log: 'log/{stem}.checkm.log'
     shell:
         r"""
         rm -rf {output}

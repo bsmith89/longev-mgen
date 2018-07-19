@@ -74,35 +74,25 @@ config['sra'] = \
 
 config['mags'] = \
         {
-        'OTU-3'     : {'taxon' : 'Sphingopyxis alaskensis'},
-        'OTU-2'     : {'taxon' : 'Lactobacillus johnsonii'},
-        'OTU-1-UM'  : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-1-UT'  : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-7'     : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-9'     : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-5'     : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-4'     : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-49'    : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-17'    : {'taxon' : 'Muribaculaceae sp.'},
-        'OTU-15'    : {'taxon' : 'Lachnospiraceae sp.'},
-        'OTU-25'    : {'taxon' : 'Lachnospiraceae sp.'},
-        'OTU-32'    : {'taxon' : 'Lachnospiraceae sp.'},
-        'OTU-12'    : {'taxon' : 'Ruminiclostridium sp.'},
-        'OTU-6'     : {'taxon' : 'Turicibacter sp.'},
-        'OTU-20-UM' : {'taxon' : 'Ruminococcaceae sp.'},
-        'OTU-20-UT' : {'taxon' : 'Ruminococcaceae sp.'},
-        'OTU-35'    : {'taxon' : 'Ruminococcaceae sp.'},
-        'OTU-58'    : {'taxon' : 'Mollicutes sp.'},
-        'OTU-41'    : {'taxon' : 'Bacteroides sp.'},
+        'Otu0003'     : {'taxon' : 'Sphingopyxis alaskensis'},
+        'Otu0002'     : {'taxon' : 'Lactobacillus johnsonii'},
+        'Otu0001'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0007'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0009'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0005'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0004'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0049'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0017'     : {'taxon' : 'Muribaculaceae sp.'},
+        'Otu0015'     : {'taxon' : 'Lachnospiraceae sp.'},
+        'Otu0025'     : {'taxon' : 'Lachnospiraceae sp.'},
+        'Otu0032'     : {'taxon' : 'Lachnospiraceae sp.'},
+        'Otu0012'     : {'taxon' : 'Ruminiclostridium sp.'},
+        'Otu0006'     : {'taxon' : 'Turicibacter sp.'},
+        'Otu0020'     : {'taxon' : 'Ruminococcaceae sp.'},
+        'Otu0035'     : {'taxon' : 'Ruminococcaceae sp.'},
+        'Otu0058'     : {'taxon' : 'Mollicutes sp.'},
+        'Otu0041'     : {'taxon' : 'Bacteroides sp.'},
         }
-
-config['marker_genes'] = \
-    ['rpoB',
-     'gyrB',
-     'rpoA',
-     'rpoC',
-     'lepA',
-    ]
 
 config['gene_to_search_string'] = \
     {'rpoB': 'DNA-directed RNA polymerase subunit beta$',
@@ -124,50 +114,50 @@ config['gene_to_hmm'] = \
      }
 
 config['genome_group'] = \
-        {'muri':
-            {'mags': [ 'OTU-1.vA'
-                     , 'OTU-1.vB'
-                     , 'OTU-4.vA'
-                     , 'OTU-5.vA'
-                     , 'OTU-7.vA'
-                     , 'OTU-9.vA'
-                     , 'OTU-17.vA'
-                     , 'OTU-49.vA'
-                     ],
-             'refs': [ 'GP1'
-                     , 'GP2'
-                     , 'GP3'
-                     , 'GP4'
-                     , 'H1'
-                     , 'H10'
-                     , 'H2'
-                     , 'H3'
-                     , 'H4'
-                     , 'H5'
-                     , 'H6'
-                     , 'H7'
-                     , 'H8'
-                     , 'H9'
-                     , 'K1'
-                     , 'K10'
-                     , 'M1'
-                     , 'M10'
-                     , 'M11'
-                     , 'M12'
-                     , 'M13'
-                     , 'M14'
-                     , 'M2'
-                     , 'M3'
-                     , 'M5'
-                     , 'M6'
-                     , 'M7'
-                     , 'M8'
-                     , 'M9'
-                     , 'Homeothermus_arabinoxylanisolvens'
-                     , 'Muribaculum_intestinale_yl27'
-                     , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
-                     ]
-            }
+        { 'muri':
+             { 'mags': [ 'Otu0001.vA'
+                       , 'Otu0001.vB'
+                       , 'Otu0004.vA'
+                       , 'Otu0005.vA'
+                       , 'Otu0007.vA'
+                       , 'Otu0009.vA'
+                       , 'Otu0017.vA'
+                       , 'Otu0049.vA'
+                       ]
+             , 'refs': [ 'GP1'
+                       , 'GP2'
+                       , 'GP3'
+                       , 'GP4'
+                       , 'H1'
+                       , 'H10'
+                       , 'H2'
+                       , 'H3'
+                       , 'H4'
+                       , 'H5'
+                       , 'H6'
+                       , 'H7'
+                       , 'H8'
+                       , 'H9'
+                       , 'K1'
+                       , 'K10'
+                       , 'M1'
+                       , 'M10'
+                       , 'M11'
+                       , 'M12'
+                       , 'M13'
+                       , 'M14'
+                       , 'M2'
+                       , 'M3'
+                       , 'M5'
+                       , 'M6'
+                       , 'M7'
+                       , 'M8'
+                       , 'M9'
+                       , 'Homeothermus_arabinoxylanisolvens'
+                       , 'Muribaculum_intestinale_yl27'
+                       , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
+                       ]
+             }
         }
 
 # {{{1 Download and link data

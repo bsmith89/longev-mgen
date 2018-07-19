@@ -354,7 +354,6 @@ rule concatenate_marker_gene_alignments:
         concat_script="scripts/concat_alignments.py",
         search_dir="res/{group}.a.mags.{genomes}.marker_genes.d",
         align_dir="seq/{group}.a.mags.{genomes}.marker_genes.align.d",
-
     shell:
         """
         # Concatenate the alignments {input.concat_script}

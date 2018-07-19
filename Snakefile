@@ -1709,6 +1709,34 @@ rule identify_rrna_seqs:
 
 # {{{2 Sequences Analysis
 
+# {{{3 Domain Analysis
+
+rule hmmscan_domains:
+    output: "res/{stem}.{hmm}-hits.domtblout"
+    input: "seq/{stem}.{hmm}-hits.fa"
+    log: "res/{stem}.{hmm}-hits.domtblout.log"
+    input:
+        """
+        hmmscan --domtblout {output} ref/hmm/{wildcards.hmm}.hmm {input} > {log}
+        """
+
+rule compile_domain_info:
+    output: "res/{stem}.domains.tsv"
+    input:
+        script="scripts/hmmscan-parser.sh",
+        domtbl="res/{stem}.domtblout"
+    shell:
+        "{input.script} {input.domtbl} > {output}"
+
+rule find_domain_structure_groups:
+    output:
+        "res/{stem}.domain_clust.tsv"
+    input:
+        script="scripts/group_by_domain_structure.py",
+        domains="res/{stem}.domains.tsv"
+    shell:
+        "{input.script} {input.domains} > {output}"
+
 # {{{3 Alignment
 
 rule hmmalign:

@@ -1695,8 +1695,8 @@ rule gather_hit_cds_strict:
         prot="seq/{stem}.cds.fa"
     shell:
         """
-        seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.nucl}
-        seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1) > {output.prot}
+        seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.nucl}
+        seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.prot}
         """
 
 # {{{2 Sequences Analysis

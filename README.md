@@ -241,6 +241,15 @@ Levels:
 
 
 
+# CAZy analysis
+
+Plan:
+
+-   Identify all CDS with CAZy hits
+-   Cluster these bins
+    -   Blast all-by-all
+    -   Use bitscore to cluster proteins (k-means?)
+
 # Proposal
 
 The mammalian gut microbiome is a complex ecological system that influences
@@ -321,11 +330,26 @@ females.
             -   TODO: CAZy annotation of full genomes and then match them and
                 see which genes don't overlap. (This is basically to catch
                 what HAMAP and COGS didn't.)
+                -   This seems to work well:
+                -   I identify potential carb.  active enzymes by pulling
+                    anything that hits dbCAN
+                -   I then do an all-by-all blastp (diamond) to calculate
+                    bitscores on alignments.
+                -   Then I cluster everything using AverageNeighbor (sklearn)
+                -   I can show that even clusters that include hits to the same
+                    CAZy domains are quite distinct (but internally consistent)
+                -   See Opu0085, Opu0095, Opu0219, Opu0239 (which all contain
+                    GH31) but where alignment shows that they are clearly
+                    different proteins.
+
         -   TODO: What differentiates mice with one strain versus the other?
             -   I think there's some evidence that sex and treatment
                 differentiate mice with the two strains.
             -   This would be a particularly interesting result, since OTU-4
                 seems to favor females and OTU-1 males.
+        -   TODO: Any evidence for HGT between OTU-4 and OTU-1?
+            -   See `OTU-7_202_pilon_0_3743`, `OTU-1_273_pilon_0_4562`, which
+                have much overlapping length.
 -   Question 3: Can we add anything to the discussion from Ormerod?
     -   Hypothesis 3.A: dN/dS will identify genes under strong selection in the
         Muribaculaceae.

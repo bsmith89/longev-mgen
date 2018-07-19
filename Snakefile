@@ -1838,7 +1838,7 @@ rule calculate_blastp_distance_matrix:
     shell:
         "{input.script} {input.blastp} > {output}"
 
-rule cluster_proteins:
+rule denovo_cluster_proteins:
     output: "res/{stem}.denovo-clust.tsv"
     input:
         script='scripts/cluster_proteins.py',
@@ -1864,7 +1864,7 @@ rule construct_genome_by_cluster_table:
                 > {output}
         """
 
-rule find_domain_structure_groups:
+rule domain_structure_cluster_proteins:
     output:
         "res/{stem}.domain-clust.tsv"
     input:

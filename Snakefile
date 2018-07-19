@@ -1699,6 +1699,14 @@ rule gather_hit_cds_strict:
         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.prot}
         """
 
+rule identify_rrna_seqs:
+    output: "res/{stem}.16S-blastn.gff"
+    input: "seq/{stem}.fn"
+    shell:
+        """
+        barrnap {input} > {output}
+        """
+
 # {{{2 Sequences Analysis
 
 # {{{3 Alignment

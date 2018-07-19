@@ -202,45 +202,6 @@ localrules: download_btheta_genome, download_m_intestinale_genome,
 
 # {{{1 Compile data
 
-# rule combine_genes_from_mags:
-#     output:
-#         fa='seq/{group}.a.mags.cds.{gene_id}-hits.fa',
-#         fn='seq/{group}.a.mags.cds.{gene_id}-hits.fn'
-#     wildcard_constraints:
-#         gene_id='[^.]+'
-#     input:
-#         mags_fa=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fa'
-#                                   .format(group=wildcards.group,
-#                                           mag_id=mag_id,
-#                                           gene_id=wildcards.gene_id)
-#                               for mag_id
-#                               in config['mags'].keys()],
-#         ormd_fa=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fa'
-#                                   .format(group=wildcards.group,
-#                                           mag_id=mag_id,
-#                                           gene_id=wildcards.gene_id)
-#                               for mag_id
-#                               in config['ref_genomes']],
-#         mags_fn=lambda wildcards: ['seq/{group}.a.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fn'
-#                                   .format(group=wildcards.group,
-#                                           mag_id=mag_id,
-#                                           gene_id=wildcards.gene_id)
-#                               for mag_id
-#                               in config['mags'].keys()],
-#         ormd_fn=lambda wildcards: ['seq/ref.mags.annot.d/{mag_id}.cds.{gene_id}-hits.fn'
-#                                   .format(group=wildcards.group,
-#                                           mag_id=mag_id,
-#                                           gene_id=wildcards.gene_id)
-#                               for mag_id
-#                               in config['ref_genomes']],
-#     shell:
-#         """
-#         cat {input.mags_fn} {input.ormd_fn} > {output.fn}
-#         cat {input.mags_fa} {input.ormd_fa} > {output.fa}
-#         """
-#
-# localrules: combine_genes_from_mags
-
 rule full_genomes_group_quast_result:
     output:
         dir="res/{group}.a.mags.{genomes}.quast.d",
@@ -293,34 +254,6 @@ data.to_csv(sys.stdout, sep="\t")
         """
 
 # {{{1 Full-genome phylogenetics
-
-# rule eztree_pipeline:
-#     output:
-#         # TODO: mv commands for these files.
-#         # concat="seq/{group}.a.mags.{genomes}.eztree.afa",
-#         # blocks="seq/{group}.a.mags.{genomes}.eztree.gblocks.afa",
-#         # nwk="res/{group}.a.mags.{genomes}.eztree.gblocks.nwk",
-#         dir="res/{group}.a.mags.{genomes}.eztree.d",
-#     input:
-#         # See snake/genome_comparison.snake for picking genomes.
-#         mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{g}.a.scaffolds.pilon.ctrim.fn'
-#                                 for g in config['genome_group'][wildcards.genomes]['mags']],
-#         refs=lambda wildcards: [f'seq/ref.mags.d/{g}.fn'
-#                                 for g in config['genome_group'][wildcards.genomes]['refs']]
-#     threads: 6
-#     params:
-#         out_prefix=lambda wildcards: f'res/{wildcards.group}.a.mags.{wildcards.genomes}.eztree',
-#     log: "log/{group}.a.mags.{genomes}.eztree.log"
-#     shell:
-#         """
-#         tmp=$(mktemp)
-#         for word in {input.mags} {input.refs}
-#         do
-#             echo $word
-#         done >> $tmp
-#         ezTree -list $tmp -thread {threads} -out {params.out_prefix} > {log} 2>&1
-#         mv {params.out_prefix}.work {output.dir}
-#         """
 
 rule pick_phylogenetic_marker_genes:
     output:

@@ -1765,8 +1765,8 @@ rule squeeze_hmmalign_alignment:
     shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
 
 rule gblocks_afa:
-    output: 'seq/{stem}.gb.afa'
-    input: 'seq/{stem}.afa'
+    output: '{stem}.gb.afa'
+    input: '{stem}.afa'
     shell:
         """
         Gblocks {input} -t=p -p=y -v=150 || [ $? == 1 ]
@@ -1775,8 +1775,8 @@ rule gblocks_afa:
         """
 
 rule gblocks_afn:
-    output: 'seq/{stem}.gb.afa'
-    input: 'seq/{stem}.afn'
+    output: '{stem}.gb.afn'
+    input: '{stem}.afn'
     shell:
         """
         Gblocks {input} -t=c -p=y -v=150 || [ $? == 1 ]

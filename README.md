@@ -448,9 +448,35 @@ variation (which seems to be somewhat independent of the rest of the genome).
         -   Completeness contamination
     -   Gene count and annotation rate
     -   MetaCyc pathways as a more robust measure of contamination??
+-   TODO: Standardize the choice of contigs for each genome.
+    -   Consider not reassembling
 -   SUPPLEMENTAL FIGURE of genome recovery workflow
 -   FIGURE phylogenetics with Ormerod
 -   TODO: Add back 16S genes and identify variation
 -   TODO: Do I discuss recovery of strain variants here? (probably)
 -   TODO: Unique genes that differentiate OTU-1 from the Ormerod strains?
     (answer the question: why is it special that I recovered them?)
+-   TODO: Figure mapping OTU-1 strains against each other
+    -   This will also include depth lines for alignments from
+        libraries positive for each.
+-   TODO: Mapping from OTU-7 to M6
+
+## Shared niche of OTU-1 and OTU-7
+
+A number of genes are shared by both OTUs to the exclusion of most
+other Muribaculaceae in my study.
+Both OTU-1 strains fall cleanly into the alpha-glucan guild.
+OTU-7 is found much closer to the host-glycan folks.
+OTU-5 is the only other OTU to fall out with the alpha-glucans.
+Looking for genes (especially those that contain a GH13) that
+are specific to OTU-1 _and_ OTU-7 provides one way to identify functions
+that provide an advantage in acarbose treated mice.
+It makes sense that that advantage would also be experienced in
+the absence of ACA, since starch is probably still very common
+in the gut.
+I believe that both OTU-1 and OTU-7 are particularly unlikely to have
+amino-acid synthesis machinery (see the minpath results, these
+should be MUCH more robust when predicting the absence of pathways
+compared to the presence...maybe?  TODO: check this intuition)
+
+## Strain differences between OTU-1 at UM and UT

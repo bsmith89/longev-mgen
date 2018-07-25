@@ -6,20 +6,32 @@ import numpy as np
 import sys
 from sklearn.cluster import AgglomerativeClustering
 
-if __name__ == "__main__":
-    data = pd.read_table(sys.argv[1],
-                     names=['qseqid', 'sseqid', 'dissimilarity'], index_col=['qseqid', 'sseqid'])
+
+def matrix_from_sparse(data, diag=0, offdiag=1):
+    """Construct a (dis)similarity matrix from a sparse representation.
+
+    Default arguments are for a dissimilarity index that is bound between 0
+    and 1.
+
+    """
     # Un-sparsify
-    dmatrix = data.dissimilarity.unstack()
+    dmatrix = data.unstack()
     # Fill out the axes
     orfs = sorted(list(set(dmatrix.index) | set(dmatrix.columns)))
     dmatrix = dmatrix.reindex(index=orfs, columns=orfs)
-    # Mirror the data
+    # Mirror the data over the diagonal
     dmatrix = dmatrix.fillna(dmatrix.T)
     # Set the diagonal
     np.fill_diagonal(dmatrix.values, 0)
-    # Everything else is most-dissimilar
+    # Fill any other gaps
     dmatrix = dmatrix.fillna(1)
+    return dmatrix
+
+
+if __name__ == "__main__":
+    data = pd.read_table(sys.argv[1],
+                     names=['qseqid', 'sseqid', 'dissimilarity'], index_col=['qseqid', 'sseqid'])
+    dmatrix = matrix_from_sparse(data.dissimilarity)
 
     ac = AgglomerativeClustering(n_clusters=int(sys.argv[2]),
                                  affinity='precomputed',

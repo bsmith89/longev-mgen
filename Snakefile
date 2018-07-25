@@ -1316,7 +1316,7 @@ rule calculate_position_coverage_stats_all_libs:
 ruleorder: calculate_position_coverage_stats_all_libs > calculate_position_coverage_stats
 
 rule plot_position_distribution_plots:
-    output: "res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.hist.pdf"
+    output: "fig/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.hist.pdf"
     input:
         script="scripts/plot_position_correlations_histogram.py",
         corrs="res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.tsv"
@@ -1351,7 +1351,7 @@ rule select_correlation_trim_threshold:
         fn="seq/{stem}.ctrim.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
-        plot="res/{stem}.pstat.hist.pdf",
+        plot="fig/{stem}.pstat.hist.pdf",
         seqs=[f"seq/{{stem}}.ctrim-{cutoff}.fn"
               for cutoff in [50, 60, 70, 90]],
     params:
@@ -1477,7 +1477,7 @@ rule alias_dtrimmed_refined_reassembly_depth_data:
 
 rule plot_strain_comparison:
     output:
-        pdf="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
+        pdf="fig/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
     input:
         script="scripts/plot_nucmer_comparison.py",
         coords="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",

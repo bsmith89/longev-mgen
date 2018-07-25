@@ -782,19 +782,51 @@ localrules: query_merge_stats
 
 # TODO: Automate this??
 # TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
-rule construct_mag:
+rule select_mag:
     output: 'res/{group}.a.mags.d/{mag}.contigs.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
+        cat <<EOF
+        Select the contigs that belong to {wildcards.mag}.
+
+        This can be accomplished by merely touching
+        `{output}` if it already exists and you are confident
+        that it reflects the current state of `res/{group}.a.bins.*` .
+
+        However, since `{input}` is newer, this may not be the case.
+        Instead you should manually identify all of contigs that belong to
+        this MAG (including any strain specific contigs) and save their names
+        to this list.
+
+EOF
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
-rule construct_strain_specific_libraries:
+rule select_strain_specific_libraries:
     output: 'res/{group}.a.mags.d/{mag}.{strain}.library.list'
     input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
+        cat <<EOF
+        Select the libraries that contain only strain {wildcards.strain} for
+        {wildcards.mag}, and preferrably a reasonably high abundance.
+
+        This can be accomplished by merely touching
+        `{output}` if it already exists and you are confident
+        that it reflects the current state of `res/{group}.a.bins.*` .
+
+        However, since `{input}` is newer, this may not be the case.
+        Instead you should manually identify all of libraries that contain
+        this MAG/strain and save them to this list.
+
+        If you are confident that there is no strain variation, and you
+        don't want to be more precise, consider using the strain designation
+        `v0` instead.
+
+        This will require editing the pipeline config.
+
+EOF
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
         """
 
@@ -805,9 +837,8 @@ rule get_mag_contigs:
         seqs='seq/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-localrules: construct_mag, link_dummy_strain_specific_libraries,
-            construct_dummy_strain_specific_libraries,
-            construct_mag_strain_specific_libraries, get_mag_contigs
+localrules: select_mag, link_dummy_strain_specific_libraries,
+            select_mag_strain_specific_libraries, get_mag_contigs
 
 # {{{2 MAG Refinement
 # {{{3 Mapping 0
@@ -1848,7 +1879,7 @@ rule denovo_cluster_proteins:
     shell:
         '{input.script} {input.data} {params.n_clusters} > {output}'
 
-rule construct_genome_by_cluster_table:
+rule join_genome_by_cluster_table:
     output: "res/{stem}.{clust_type}-clust.count.tsv"
     input:
         clust='res/{stem}.{clust_type}-clust.tsv',

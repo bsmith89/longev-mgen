@@ -164,7 +164,7 @@ config['genome_group'] = \
 
 # This is intended for Ormerod MAGs.
 rule alias_sra_genomes:
-    output: 'seq/ref.mags.d/{mag_id}.fn'
+    output: 'data/ref.mags.d/{mag_id}.fn'
     input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['sra'][wildcards.mag_id])
     wildcard_constraints:
         mag_id='[^.]+'
@@ -177,7 +177,7 @@ rule download_m_intestinale_genome:
     shell: curl_unzip_recipe
 
 rule alias_m_intestinale_genome:
-    output: 'seq/ref.mags.d/Muribaculum_intestinale_yl27.fn'
+    output: 'data/ref.mags.d/Muribaculum_intestinale_yl27.fn'
     input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
     shell: "ln -rs {input} {output}"
 
@@ -190,7 +190,7 @@ rule download_btheta_genome:
     shell: curl_recipe
 
 rule alias_btheta_genome:
-    output: 'seq/ref.mags.d/Bacteroides_thetaiotaomicron_VPI5482.fn'
+    output: 'data/ref.mags.d/Bacteroides_thetaiotaomicron_VPI5482.fn'
     input: 'raw/ref/Bacteroides_thetaiotaomicron_VPI5482.fn'
     shell: "ln -rs {input} {output}"
 
@@ -204,12 +204,12 @@ localrules: download_btheta_genome, download_m_intestinale_genome,
 
 rule full_genomes_group_quast_result:
     output:
-        dir="res/{group}.a.mags.{genomes}.quast.d",
-        report="res/{group}.a.mags.{genomes}.quast.tsv",
+        dir="data/{group}.a.mags.{genomes}.quast.d",
+        report="data/{group}.a.mags.{genomes}.quast.tsv",
     input:
-        mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
                                 for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'seq/ref.mags.d/{ref_stem}.fn'
+        refs=lambda wildcards: [f'data/ref.mags.d/{ref_stem}.fn'
                                 for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
     params:
         labels=lambda wildcards: ', '.join(list(config['genome_group'][wildcards.genomes]['mags']) +
@@ -221,11 +221,11 @@ rule full_genomes_group_quast_result:
         """
 
 rule make_genome_group_dir:
-    output: 'seq/{group}.a.mags.{genomes}.d'
+    output: 'data/{group}.a.mags.{genomes}.d'
     input:
-        mags=lambda wildcards: [f'seq/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
                                 for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'seq/ref.mags.d/{ref_stem}.fn'
+        refs=lambda wildcards: [f'data/ref.mags.d/{ref_stem}.fn'
                                 for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
@@ -243,11 +243,11 @@ rule make_genome_group_dir:
 
 rule compile_genomes_group_stats_table:
     output:
-        "res/{group}.a.mags.{genomes}.stats.tsv"
+        "data/{group}.a.mags.{genomes}.stats.tsv"
     input:
-        checkm="res/{group}.a.mags.{genomes}.checkm.tsv",
-        quast="res/{group}.a.mags.{genomes}.quast.tsv",
-        annot="res/{group}.a.mags.{genomes}.prokka.summary.tsv"
+        checkm="data/{group}.a.mags.{genomes}.checkm.tsv",
+        quast="data/{group}.a.mags.{genomes}.quast.tsv",
+        annot="data/{group}.a.mags.{genomes}.prokka.summary.tsv"
     shell:
         """
         tmp_checkm=$(mktemp)
@@ -264,11 +264,11 @@ rule compile_genomes_group_stats_table:
 
 rule combine_annotation_summaries:
     output:
-        "res/{group}.a.mags.{genomes}.prokka.summary.tsv"
+        "data/{group}.a.mags.{genomes}.prokka.summary.tsv"
     input:
-        mags=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{mag_stem}.a.scaffolds.pilon.ctrim.prokka.summary.tsv'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot.d/{mag_stem}.a.scaffolds.pilon.ctrim.prokka.summary.tsv'
                                      for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'res/ref.mags.annot.d/{ref_stem}.prokka.summary.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot.d/{ref_stem}.prokka.summary.tsv'
                                      for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         r"""
@@ -293,26 +293,26 @@ data.to_csv(sys.stdout, sep="\t")
 
 rule pick_phylogenetic_marker_genes:
     output:
-        dir="res/{group}.a.mags.{genomes}.marker_genes.d",
+        dir="data/{group}.a.mags.{genomes}.marker_genes.d",
         # .../markers.list  # List of shared single-copy markers
         # .../GENE_NAME.fa  # Amino-acid sequences to be aligned for each gene
         # .../genome_to_cds.tsv  # Mapping from sequences to genomes
     input:
         script="scripts/pick_marker_genes.py",
-        mags_hits=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
+        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_hits=lambda wildcards: [f'res/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
+        refs_hits=lambda wildcards: [f'data/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
-        mags_seqs=lambda wildcards: [f'seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa'
+        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_seqs=lambda wildcards: [f'seq/ref.mags.annot.d/{g}.cds.fa'
+        refs_seqs=lambda wildcards: [f'data/ref.mags.annot.d/{g}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
     params:
-        mags=lambda wildcards: [(f'{g}:res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
-                                 f':seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa')
+        mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
+                                 f':data/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [(f'{g}:res/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
-                                 f':seq/ref.mags.annot.d/{g}.cds.fa')
+        refs=lambda wildcards: [(f'{g}:data/ref.mags.annot.d/{g}.cds.Pfam-hits.hmmer-tc.tsv'
+                                 f':data/ref.mags.annot.d/{g}.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
@@ -326,10 +326,10 @@ rule pick_phylogenetic_marker_genes:
 
 rule align_phylogenetic_marker_genes:
     output:
-        dir="seq/{group}.a.mags.{genomes}.marker_genes.align.d",
+        dir="data/{group}.a.mags.{genomes}.marker_genes.align.d",
     input:
         squeeze_script="scripts/squeeze_alignment.py",
-        dir="res/{group}.a.mags.{genomes}.marker_genes.d",
+        dir="data/{group}.a.mags.{genomes}.marker_genes.d",
         hmm="ref/hmm/Pfam.hmm",
     shell:
         """
@@ -349,11 +349,11 @@ rule align_phylogenetic_marker_genes:
         """
 
 rule concatenate_marker_gene_alignments:
-    output: "seq/{group}.a.mags.{genomes}.marker_genes.afa",
+    output: "data/{group}.a.mags.{genomes}.marker_genes.afa",
     input:
         concat_script="scripts/concat_alignments.py",
-        search_dir="res/{group}.a.mags.{genomes}.marker_genes.d",
-        align_dir="seq/{group}.a.mags.{genomes}.marker_genes.align.d",
+        search_dir="data/{group}.a.mags.{genomes}.marker_genes.d",
+        align_dir="data/{group}.a.mags.{genomes}.marker_genes.align.d",
     shell:
         """
         # Concatenate the alignments {input.concat_script}
@@ -368,16 +368,16 @@ rule concatenate_marker_gene_alignments:
 
 # {{{1 CAZy Annotations
 rule compile_cazy_hits:
-    output: fasta="seq/{group}.a.mags.{genomes}.dbCAN-hits.fa",
-        tsv="res/{group}.a.mags.{genomes}.dbCAN-hits.gene_genome_map.tsv"
+    output: fasta="data/{group}.a.mags.{genomes}.dbCAN-hits.fa",
+        tsv="data/{group}.a.mags.{genomes}.dbCAN-hits.gene_genome_map.tsv"
     input:
-        mags_hits=lambda wildcards: [f'res/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.hmmer-tc.tsv'
+        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_hits=lambda wildcards: [f'res/ref.mags.annot.d/{g}.cds.dbCAN-hits.hmmer-tc.tsv'
+        refs_hits=lambda wildcards: [f'data/ref.mags.annot.d/{g}.cds.dbCAN-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
-        mags_seqs=lambda wildcards: [f'seq/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.fa'
+        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot.d/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_seqs=lambda wildcards: [f'seq/ref.mags.annot.d/{g}.cds.dbCAN-hits.fa'
+        refs_seqs=lambda wildcards: [f'data/ref.mags.annot.d/{g}.cds.dbCAN-hits.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
     params:
     shell:

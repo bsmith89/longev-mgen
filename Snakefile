@@ -70,7 +70,7 @@ rule drop_header:
     shell: 'sed 1,1d {input} > {output}'
 
 rule drop_header_meta:
-    output: 'res/{stem}.noheader.{ext,(tsv|csv)}'
+    output: 'data/{stem}.noheader.{ext,(tsv|csv)}'
     input: 'meta/{stem}.{ext}'
     shell: 'sed 1,1d {input} > {output}'
 
@@ -99,15 +99,15 @@ rule display_rulegraph:
     output: "fig/snake.rulegraph.pdf"
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
-        "snakemake -n --rulegraph res/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | dot -Tpdf > {output}"
+        "snakemake -n --rulegraph data/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | dot -Tpdf > {output}"
 
 rule display_dag:
     output:
         pdf="fig/snake.dag.pdf",
-        dot="res/snake.dag.dot",
+        dot="data/snake.dag.dot",
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
-        "snakemake -n --forceall --dag res/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
+        "snakemake -n --forceall --dag data/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
 
 
 # {{{1 Downloading and linking data
@@ -309,12 +309,12 @@ localrules: scrape_metacyc_pathways_table,
 # {{{2 Raw data
 
 rule alias_raw_read_r1:
-    output: 'seq/{library}.m.r1.fq.gz',
+    output: 'data/{library}.m.r1.fq.gz',
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r1'])
     shell: alias_recipe
 
 rule alias_raw_read_r2:
-    output: 'seq/{library}.m.r2.fq.gz',
+    output: 'data/{library}.m.r2.fq.gz',
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r2'])
     shell: alias_recipe
 
@@ -323,12 +323,12 @@ localrules: alias_raw_read_r1, alias_raw_read_r2, link_rabund_info
 # {{{3 Import results from 16S libraries
 
 rule query_count_info:
-    output: 'res/core.r.count.tsv'
+    output: 'data/core.r.count.tsv'
     input: script='scripts/query_longev_rrs_count.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
 
 rule query_taxonomy_info:
-    output: 'res/core.r.taxonomy.tsv'
+    output: 'data/core.r.taxonomy.tsv'
     input: script='scripts/query_longev_rrs_taxonomy.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
 
@@ -345,21 +345,21 @@ localrules: query_count_info, query_taxonomy_info
 
 rule deduplicate_reads:
     output:
-        r1='seq/{stem}.m.r1.dedup.fq.gz',
-        r2='seq/{stem}.m.r2.dedup.fq.gz'
+        r1='data/{stem}.m.r1.dedup.fq.gz',
+        r2='data/{stem}.m.r2.dedup.fq.gz'
     input:
         script='scripts/fastuniq_wrapper.sh',
-        r1='seq/{stem}.m.r1.fq.gz',
-        r2='seq/{stem}.m.r2.fq.gz'
+        r1='data/{stem}.m.r1.fq.gz',
+        r2='data/{stem}.m.r2.fq.gz'
     resources:
         mem_mb=24000
     shell: "{input.script} {input.r1} {input.r2} {output.r1} {output.r2}"
 
 rule trim_adapters:
-    output: 'seq/{stem}.deadapt.fq.gz'
+    output: 'data/{stem}.deadapt.fq.gz'
     input:
         adapters='raw/ref/illumina_adapters.fn',
-        seqs='seq/{stem}.fq.gz'
+        seqs='data/{stem}.fq.gz'
     log: 'log/{stem}.scythe.log'
     shell:
         """
@@ -369,12 +369,12 @@ rule trim_adapters:
 
 rule quality_trim_reads:
     output:
-        r1='seq/{stem}.r1.{proc}.qtrim.fq.gz',
-        r2='seq/{stem}.r2.{proc}.qtrim.fq.gz',
-        r3='seq/{stem}.r3.{proc}.qtrim.fq.gz'
+        r1='data/{stem}.r1.{proc}.qtrim.fq.gz',
+        r2='data/{stem}.r2.{proc}.qtrim.fq.gz',
+        r3='data/{stem}.r3.{proc}.qtrim.fq.gz'
     input:
-        r1='seq/{stem}.r1.{proc}.fq.gz',
-        r2='seq/{stem}.r2.{proc}.fq.gz'
+        r1='data/{stem}.r1.{proc}.fq.gz',
+        r2='data/{stem}.r2.{proc}.fq.gz'
     params:
         qual_type='sanger',
         qual_thresh=20
@@ -390,13 +390,13 @@ rule quality_trim_reads:
 
 # This processing intended for mapping.
 rule alias_read_processing_r1:
-    output: 'seq/{library_id}.m.r1.proc.fq.gz'
-    input: 'seq/{library_id}.m.r1.dedup.deadapt.qtrim.fq.gz'
+    output: 'data/{library_id}.m.r1.proc.fq.gz'
+    input: 'data/{library_id}.m.r1.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
 
 rule alias_read_processing_r2:
-    output: 'seq/{library_id}.m.r2.proc.fq.gz'
-    input: 'seq/{library_id}.m.r2.dedup.deadapt.qtrim.fq.gz'
+    output: 'data/{library_id}.m.r2.proc.fq.gz'
+    input: 'data/{library_id}.m.r2.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
 
 localrules: alias_read_processing_r1, alias_read_processing_r2
@@ -408,21 +408,21 @@ localrules: alias_read_processing_r1, alias_read_processing_r2
 # TODO: Consider dropping the contig renaming since it's redundant with the filename.
 rule assemble_mgen:
     output:
-        fasta='seq/{group}.a.contigs.fn',
-        dir='seq/{group}.a.megahit.d',
-        fastg='seq/{group}.a.contigs.fg',
+        fasta='data/{group}.a.contigs.fn',
+        dir='data/{group}.a.megahit.d',
+        fastg='data/{group}.a.contigs.fg',
     input:
-        lambda wildcards: [f'seq/{library}.m.{read}.proc.fq.gz'
+        lambda wildcards: [f'data/{library}.m.{read}.proc.fq.gz'
                            for library, read
                            in product(config['asmbl_group'][wildcards.group],
                                       ['r1', 'r2'])
                           ]
-    log: 'seq/{group}.a.megahit.d/log'
+    log: 'data/{group}.a.megahit.d/log'
     threads: MAX_THREADS
     params:
-        r1=lambda wildcards: ','.join([f'seq/{library}.m.r1.proc.fq.gz'
+        r1=lambda wildcards: ','.join([f'data/{library}.m.r1.proc.fq.gz'
                                       for library in config['asmbl_group'][wildcards.group]]),
-        r2=lambda wildcards: ','.join([f'seq/{library}.m.r2.proc.fq.gz'
+        r2=lambda wildcards: ','.join([f'data/{library}.m.r2.proc.fq.gz'
                                       for library in config['asmbl_group'][wildcards.group]]),
     shell:
         r"""
@@ -441,8 +441,8 @@ rule assemble_mgen:
 # {{{3 QC
 
 rule quality_asses_assembly_with_spike:
-    output: 'res/{group}.a.quast.d'
-    input: contigs='seq/{group}.a.contigs.fn', ref='ref/salask.fn'
+    output: 'data/{group}.a.quast.d'
+    input: contigs='data/{group}.a.contigs.fn', ref='ref/salask.fn'
     threads: MAX_THREADS
     params: min_contig_length=1000,
     shell:
@@ -456,40 +456,40 @@ rule quality_asses_assembly_with_spike:
 
 rule bowtie_index_build:
     output:
-        'seq/{stem}.1.bt2',
-        'seq/{stem}.2.bt2',
-        'seq/{stem}.3.bt2',
-        'seq/{stem}.4.bt2',
-        'seq/{stem}.rev.1.bt2',
-        'seq/{stem}.rev.2.bt2'
-    input: 'seq/{stem}.fn'
+        'data/{stem}.1.bt2',
+        'data/{stem}.2.bt2',
+        'data/{stem}.3.bt2',
+        'data/{stem}.4.bt2',
+        'data/{stem}.rev.1.bt2',
+        'data/{stem}.rev.2.bt2'
+    input: 'data/{stem}.fn'
     log: 'log/{stem}.bowtie2-build.log'
     threads: min(15, MAX_THREADS)
     shell:
         """
-        bowtie2-build --threads {threads} {input} seq/{wildcards.stem} >{log} 2>&1
+        bowtie2-build --threads {threads} {input} data/{wildcards.stem} >{log} 2>&1
         """
 
 # {{{3 Backmap
 
 rule map_reads_to_metagenome_assembly:
-    output: 'res/{library}.m.{group}-map.sort.bam'
+    output: 'data/{library}.m.{group}-map.sort.bam'
     input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.contigs.1.bt2',
-        inx_2='seq/{group}.a.contigs.2.bt2',
-        inx_3='seq/{group}.a.contigs.3.bt2',
-        inx_4='seq/{group}.a.contigs.4.bt2',
-        inx_rev1='seq/{group}.a.contigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.contigs.rev.2.bt2'
+        r1='data/{library}.m.r1.proc.fq.gz',
+        r2='data/{library}.m.r2.proc.fq.gz',
+        inx_1='data/{group}.a.contigs.1.bt2',
+        inx_2='data/{group}.a.contigs.2.bt2',
+        inx_3='data/{group}.a.contigs.3.bt2',
+        inx_4='data/{group}.a.contigs.4.bt2',
+        inx_rev1='data/{group}.a.contigs.rev.1.bt2',
+        inx_rev2='data/{group}.a.contigs.rev.2.bt2'
     threads: MAX_THREADS
     shell:
         r"""
         tmp=$(mktemp)
         echo "Writing temporary bamfile to $tmp for {output}"
         bowtie2 --threads {threads} \
-                -x seq/{wildcards.group}.a.contigs \
+                -x data/{wildcards.group}.a.contigs \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -@ {threads} -b - \
@@ -499,9 +499,9 @@ rule map_reads_to_metagenome_assembly:
         """
 
 rule combine_read_mappings:
-    output: 'res/{group}.a.map-{group}.sort.bam'
+    output: 'data/{group}.a.map-{group}.sort.bam'
     input:
-        lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.sort.bam'
+        lambda wildcards: [f'data/{library}.m.{wildcards.group}-map.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -511,8 +511,8 @@ rule combine_read_mappings:
         samtools merge -@ {threads} {output} {input}
         """
 rule index_read_mappings:
-    output: 'res/{stem}.sort.bam.bai'
-    input: 'res/{stem}.sort.bam'
+    output: 'data/{stem}.sort.bam.bai'
+    input: 'data/{stem}.sort.bam'
     threads: min(6, MAX_THREADS)
     shell: 'samtools index -@ {threads} {input} {output}'
 
@@ -520,8 +520,8 @@ rule index_read_mappings:
 # {{{2 Scaffolding
 
 rule tally_links:
-    output: 'res/{library}.m.{group}-map.linkage_tally.tsv'
-    input: 'res/{library}.m.{group}-map.sort.bam'
+    output: 'data/{library}.m.{group}-map.linkage_tally.tsv'
+    input: 'data/{library}.m.{group}-map.sort.bam'
     params: min_hits=1, min_quality=40
     shell:
         r"""
@@ -551,9 +551,9 @@ rule tally_links:
         """
 
 rule combine_linkage_tallies:
-    output: 'res/{group}.a.contigs.linkage_tally.tsv'
+    output: 'data/{group}.a.contigs.linkage_tally.tsv'
     input:
-        lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.linkage_tally.tsv'
+        lambda wildcards: [f'data/{library}.m.{wildcards.group}-map.linkage_tally.tsv'
                            for library in config['asmbl_group'][wildcards.group]
                           ]
     shell:
@@ -569,8 +569,8 @@ rule combine_linkage_tallies:
 # {{{3 Sequence lengths
 
 rule count_seq_lengths_nucl:
-    output: 'res/{stem}.nlength.tsv'
-    input: script='scripts/count_seq_lengths.py', seqs='seq/{stem}.fn'
+    output: 'data/{stem}.nlength.tsv'
+    input: script='scripts/count_seq_lengths.py', seqs='data/{stem}.fn'
     shell:
         r"""
         printf "contig_id\tlength\n" > {output}
@@ -578,8 +578,8 @@ rule count_seq_lengths_nucl:
         """
 
 rule count_seq_lengths_aa:
-    output: 'res/{stem}.alength.tsv'
-    input: script='scripts/count_seq_lengths.py', seqs='seq/{stem}.fa'
+    output: 'data/{stem}.alength.tsv'
+    input: script='scripts/count_seq_lengths.py', seqs='data/{stem}.fa'
     shell:
         """
         printf "seq_id\tlength\n" > {output}
@@ -593,19 +593,19 @@ localrules: count_seq_lengths_nucl, count_seq_lengths_aa
 # NOTE: The depth file format is lacking a header.
 # TODO params: -Q flag (mapping_quality_thresh), -d 0 flag (no maximum mapping depth)
 rule calculate_mapping_depth:
-    output: 'res/{stem}.depth.tsv'
-    input: 'res/{stem}.sort.bam'
+    output: 'data/{stem}.depth.tsv'
+    input: 'data/{stem}.sort.bam'
     shell:
         """
         samtools depth -d 0 {input} > {output}
         """
 
 rule estimate_contig_cvrg:
-    output: 'res/{library}.m.{group}-map.cvrg.tsv'
+    output: 'data/{library}.m.{group}-map.cvrg.tsv'
     input:
         script='scripts/estimate_contig_coverage.py',
-        depth='res/{library}.m.{group}-map.depth.tsv',
-        length='res/{group}.a.contigs.nlength.tsv'
+        depth='data/{library}.m.{group}-map.depth.tsv',
+        length='data/{group}.a.contigs.nlength.tsv'
     params:
         float_fmt='%.6g'
     shell:
@@ -614,10 +614,10 @@ rule estimate_contig_cvrg:
         """
 
 rule combine_cvrg:
-    output: 'res/{group}.a.contigs.cvrg.tsv'
+    output: 'data/{group}.a.contigs.cvrg.tsv'
     input:
         script='scripts/concat_tables.py',
-        tables=lambda wildcards: [f'res/{library}.m.{wildcards.group}-map.cvrg.tsv'
+        tables=lambda wildcards: [f'data/{library}.m.{wildcards.group}-map.cvrg.tsv'
                                   for library
                                   in config['asmbl_group'][wildcards.group]
                                  ]
@@ -630,10 +630,10 @@ rule combine_cvrg:
         """
 
 rule unstack_cvrg:
-    output: 'res/{group}.a.contigs.cvrg.unstack.tsv'
+    output: 'data/{group}.a.contigs.cvrg.unstack.tsv'
     input:
         script='scripts/unstack_cvrg.py',
-        cvrg='res/{group}.a.contigs.cvrg.tsv',
+        cvrg='data/{group}.a.contigs.cvrg.tsv',
     params:
         float_format='%.6g'
     shell:
@@ -648,12 +648,12 @@ rule unstack_cvrg:
 
 rule transform_contig_space:
     output:
-        pca='res/{group}.a.contigs.concoct.pca.tsv',
-        raw='res/{group}.a.contigs.concoct.tsv',
-        dir=temp('res/{group}.a.contigs.concoct.d')
+        pca='data/{group}.a.contigs.concoct.pca.tsv',
+        raw='data/{group}.a.contigs.concoct.tsv',
+        dir=temp('data/{group}.a.contigs.concoct.d')
     input:
-        cvrg='res/{group}.a.contigs.cvrg.unstack.tsv',
-        seqs='seq/{group}.a.contigs.fn'
+        cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
+        seqs='data/{group}.a.contigs.fn'
     threads: MAX_THREADS
     params:
         length_threshold=1000
@@ -674,12 +674,12 @@ rule transform_contig_space:
 # TODO: Refine this script.
 rule cluster_contigs:
     output:
-        out='res/{group}.a.contigs.cluster.tsv',
-        summary='res/{group}.a.contigs.cluster.summary.tsv',
+        out='data/{group}.a.contigs.cluster.tsv',
+        summary='data/{group}.a.contigs.cluster.summary.tsv',
     input:
         script='scripts/cluster_contigs.py',
-        pca='res/{group}.a.contigs.concoct.pca.tsv',
-        length='res/{group}.a.contigs.nlength.tsv',
+        pca='data/{group}.a.contigs.concoct.pca.tsv',
+        length='data/{group}.a.contigs.nlength.tsv',
     log: 'log/{group}.a.contigs.cluster.log'
     params:
         min_contig_length=1000,
@@ -700,8 +700,8 @@ rule cluster_contigs:
         """
 
 rule rename_clusters_to_bins:
-    output: 'res/{group}.a.contigs.bins.tsv'
-    input: 'res/{group}.a.contigs.cluster.tsv'
+    output: 'data/{group}.a.contigs.bins.tsv'
+    input: 'data/{group}.a.contigs.cluster.tsv'
     params:
         padding=5
     shell:
@@ -715,11 +715,11 @@ rule rename_clusters_to_bins:
         """
 
 rule split_out_bins:
-    output: 'seq/{group}.a.bins.d'
+    output: 'data/{group}.a.bins.d'
     input:
         script='scripts/fetch_bin.sh',
-        bins='res/{group}.a.contigs.bins.tsv',
-        contigs='seq/{group}.a.contigs.fn',
+        bins='data/{group}.a.contigs.bins.tsv',
+        contigs='data/{group}.a.contigs.fn',
     threads: MAX_THREADS
     shell:
         r"""
@@ -735,9 +735,9 @@ rule split_out_bins:
 
 rule checkm_seqs:
     output:
-        dir=temp('res/{stem}.checkm.d'),
-        summary='res/{stem}.checkm.tsv'
-    input: 'seq/{stem}.d'
+        dir=temp('data/{stem}.checkm.d'),
+        summary='data/{stem}.checkm.tsv'
+    input: 'data/{stem}.d'
     threads: MAX_THREADS
     log: 'log/{stem}.checkm.log'
     shell:
@@ -750,8 +750,8 @@ rule checkm_seqs:
         """
 
 rule reformat_checkm_output:
-    output: 'res/{group}.checkm_details.tsv'
-    input: 'res/{group}.checkm.tsv'
+    output: 'data/{group}.checkm_details.tsv'
+    input: 'data/{group}.checkm.tsv'
     shell:
         """
         cut -f1,4,12-15 {input} > {output}
@@ -759,7 +759,7 @@ rule reformat_checkm_output:
 
 rule generate_checkm_markerset:
     output:
-        'res/{level}_{taxon}.ms'
+        'data/{level}_{taxon}.ms'
     shell:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
@@ -770,11 +770,11 @@ rule generate_checkm_markerset:
 # increased contamination.)
 rule checkm_content_merge:
     output:
-        checkm_work=temp('res/{group}.a.bins.checkm_merge.d'),
-        merge_stats='res/{group}.a.bins.checkm_merge_stats.tsv',
+        checkm_work=temp('data/{group}.a.bins.checkm_merge.d'),
+        merge_stats='data/{group}.a.bins.checkm_merge_stats.tsv',
     input:
-        bins='seq/{group}.a.bins.d',
-        markerset='res/domain_Bacteria.ms',
+        bins='data/{group}.a.bins.d',
+        markerset='data/domain_Bacteria.ms',
     threads: MAX_THREADS
     shadow: 'full'
     shell:
@@ -786,8 +786,8 @@ rule checkm_content_merge:
         """
 
 rule query_merge_stats:
-    output: 'res/{group}.a.bin_merge_stats.tsv'
-    input: sql='scripts/query_bin_merger.sql', db='res/{group}.1.denorm.db'
+    output: 'data/{group}.a.bin_merge_stats.tsv'
+    input: sql='scripts/query_bin_merger.sql', db='data/{group}.1.denorm.db'
     shell:
         """
         sqlite3 -header -separator '\t' {input.db} < {input.sql} > {output}
@@ -798,8 +798,8 @@ localrules: query_merge_stats
 # TODO: Automate this??
 # TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
 rule select_mag:
-    output: 'res/{group}.a.mags.d/{mag}.contigs.list'
-    input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
+    output: 'data/{group}.a.mags.d/{mag}.contigs.list'
+    input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         cat <<EOF
@@ -807,7 +807,7 @@ rule select_mag:
 
         This can be accomplished by merely touching
         `{output}` if it already exists and you are confident
-        that it reflects the current state of `res/{group}.a.bins.*` .
+        that it reflects the current state of `data/{group}.a.bins.*` .
 
         However, since `{input}` is newer, this may not be the case.
         Instead you should manually identify all of contigs that belong to
@@ -819,8 +819,8 @@ EOF
         """
 
 rule select_strain_specific_libraries:
-    output: 'res/{group}.a.mags.d/{mag}.{strain}.library.list'
-    input: 'res/{group}.a.bins.checkm_merge_stats.tsv'
+    output: 'data/{group}.a.mags.d/{mag}.{strain}.library.list'
+    input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         cat <<EOF
@@ -829,7 +829,7 @@ rule select_strain_specific_libraries:
 
         This can be accomplished by merely touching
         `{output}` if it already exists and you are confident
-        that it reflects the current state of `res/{group}.a.bins.*` .
+        that it reflects the current state of `data/{group}.a.bins.*` .
 
         However, since `{input}` is newer, this may not be the case.
         Instead you should manually identify all of libraries that contain
@@ -846,10 +846,10 @@ EOF
         """
 
 rule get_mag_contigs:
-    output: 'seq/{group}.a.mags.d/{bin}.contigs.fn'
+    output: 'data/{group}.a.mags.d/{bin}.contigs.fn'
     input:
-        ids='res/{group}.a.mags.d/{bin}.contigs.list',
-        seqs='seq/{group}.a.contigs.fn'
+        ids='data/{group}.a.mags.d/{bin}.contigs.list',
+        seqs='data/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
 localrules: select_mag, link_dummy_strain_specific_libraries,
@@ -859,23 +859,23 @@ localrules: select_mag, link_dummy_strain_specific_libraries,
 # {{{3 Mapping 0
 
 rule map_reads_to_mag:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
+    output: 'data/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
     input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.contigs.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.contigs.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.contigs.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.contigs.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.contigs.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.contigs.rev.2.bt2',
+        r1='data/{library}.m.r1.proc.fq.gz',
+        r2='data/{library}.m.r2.proc.fq.gz',
+        inx_1='data/{group}.a.mags.d/{mag}.contigs.1.bt2',
+        inx_2='data/{group}.a.mags.d/{mag}.contigs.2.bt2',
+        inx_3='data/{group}.a.mags.d/{mag}.contigs.3.bt2',
+        inx_4='data/{group}.a.mags.d/{mag}.contigs.4.bt2',
+        inx_rev1='data/{group}.a.mags.d/{mag}.contigs.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags.d/{mag}.contigs.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.contigs \
+        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.contigs \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -893,9 +893,9 @@ rule map_reads_to_mag:
         """
 
 rule combine_mag_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.map-{group}.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.map-{group}.sort.bam'
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-map.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-map.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -910,10 +910,10 @@ rule combine_mag_read_mappings:
 
 rule convert_mag_mapped_reads_to_fastq:
     output:
-        r1='seq/{group}.a.mags.d/{mag}.map-{group}.r1.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag}.map-{group}.r2.fq.gz',
+        r1='data/{group}.a.mags.d/{mag}.map-{group}.r1.fq.gz',
+        r2='data/{group}.a.mags.d/{mag}.map-{group}.r2.fq.gz',
     input:
-        bam='res/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+        bam='data/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
         script='scripts/match_paired_reads.py',
     threads: min(10, MAX_THREADS)
     shell:
@@ -929,11 +929,11 @@ rule convert_mag_mapped_reads_to_fastq:
 
 rule diginorm_reads:
     output:
-        r1='seq/{stem}.r1.dnorm.fq.gz',
-        r2='seq/{stem}.r2.dnorm.fq.gz'
+        r1='data/{stem}.r1.dnorm.fq.gz',
+        r2='data/{stem}.r2.dnorm.fq.gz'
     input:
-        r1='seq/{stem}.r1.fq.gz',
-        r2='seq/{stem}.r2.fq.gz'
+        r1='data/{stem}.r1.fq.gz',
+        r2='data/{stem}.r2.fq.gz'
     params:
         ksize=32,
         tablecols=1024,
@@ -953,12 +953,12 @@ rule diginorm_reads:
 # TODO: Rename contigs with mag stem.
 rule reassemble_mag:
     output:
-        scaffolds='seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-        contigs='seq/{group}.a.mags.d/{mag}.a.contigs.fn',
-        dir='seq/{group}.a.mags.d/{mag}.spades.d',
+        scaffolds='data/{group}.a.mags.d/{mag}.a.scaffolds.fn',
+        contigs='data/{group}.a.mags.d/{mag}.a.contigs.fn',
+        dir='data/{group}.a.mags.d/{mag}.spades.d',
     input:
-        r1='seq/{group}.a.mags.d/{mag}.map-{group}.r1.dnorm.fq.gz',
-        r2='seq/{group}.a.mags.d/{mag}.map-{group}.r2.dnorm.fq.gz'
+        r1='data/{group}.a.mags.d/{mag}.map-{group}.r1.dnorm.fq.gz',
+        r2='data/{group}.a.mags.d/{mag}.map-{group}.r2.dnorm.fq.gz'
     threads: min(15, MAX_THREADS)
     shell:
         r"""
@@ -970,23 +970,23 @@ rule reassemble_mag:
 # {{{3 Mapping 1
 
 rule map_reads_to_reassembly:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
+    output: 'data/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
     input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.a.scaffolds.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.a.scaffolds.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.a.scaffolds.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.a.scaffolds.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.a.scaffolds.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.a.scaffolds.rev.2.bt2',
+        r1='data/{library}.m.r1.proc.fq.gz',
+        r2='data/{library}.m.r2.proc.fq.gz',
+        inx_1='data/{group}.a.mags.d/{mag}.a.scaffolds.1.bt2',
+        inx_2='data/{group}.a.mags.d/{mag}.a.scaffolds.2.bt2',
+        inx_3='data/{group}.a.mags.d/{mag}.a.scaffolds.3.bt2',
+        inx_4='data/{group}.a.mags.d/{mag}.a.scaffolds.4.bt2',
+        inx_rev1='data/{group}.a.mags.d/{mag}.a.scaffolds.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags.d/{mag}.a.scaffolds.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.a.scaffolds \
+        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.a.scaffolds \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -1004,9 +1004,9 @@ rule map_reads_to_reassembly:
         """
 
 rule combine_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.amap-{group}.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.amap-{group}.sort.bam'
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1017,31 +1017,31 @@ rule combine_reassembly_read_mappings:
         """
 
 rule extract_strain_specific_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
+        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_reassembly_read_mappings_all_libs:
-    output: 'res/{group}.a.mags.d/{mag}.v0.amap.sort.bam'
-    input: 'res/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
+    output: 'data/{group}.a.mags.d/{mag}.v0.amap.sort.bam'
+    input: 'data/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_strain_specific_reassembly_read_mappings_all_libs > extract_strain_specific_reassembly_read_mappings
 
 rule extract_strain_specific_mag_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_mag_read_mappings_all_libs:
-    output: 'res/{group}.a.mags.d/{mag}.v0.map.sort.bam'
-    input: 'res/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+    output: 'data/{group}.a.mags.d/{mag}.v0.map.sort.bam'
+    input: 'data/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_strain_specific_mag_read_mappings_all_libs > extract_strain_specific_mag_read_mappings
@@ -1050,20 +1050,20 @@ ruleorder: extract_strain_specific_mag_read_mappings_all_libs > extract_strain_s
 # {{{3 Pilon Refinement
 
 rule alias_seqs_for_pilon:
-    output: 'seq/{stem}.fasta'
-    input: 'seq/{stem}.fn'
+    output: 'data/{stem}.fasta'
+    input: 'data/{stem}.fn'
     shell: alias_recipe
 
 rule pilon_refine_reassembly_scaffold:
-    output: "seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
+    output: "data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
     input:
-        contigs="seq/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
-        bam="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
-        bai="res/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
+        contigs="data/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
+        bam="data/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
+        bai="data/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
     resources:
         mem_mb=100000
     params:
-        prefix="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon"
+        prefix="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon"
     threads: min(16, MAX_THREADS)
     shell:
         r"""
@@ -1075,15 +1075,15 @@ rule pilon_refine_reassembly_scaffold:
         """
 
 rule pilon_refine_mag:
-    output: "seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+    output: "data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
     input:
-        contigs="seq/{group}.a.mags.d/{mag}.contigs.fasta",
-        bam="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
-        bai="res/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam.bai",
+        contigs="data/{group}.a.mags.d/{mag}.contigs.fasta",
+        bam="data/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
+        bai="data/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam.bai",
     resources:
         mem_mb=100000
     params:
-        prefix="res/{group}.a.mags.d/{mag}.v{strain}.pilon"
+        prefix="data/{group}.a.mags.d/{mag}.v{strain}.pilon"
     threads: min(16, MAX_THREADS)
     shell:
         r"""
@@ -1099,23 +1099,23 @@ rule pilon_refine_mag:
 # TODO: Add step to drop short contigs after Pilon refinement.
 
 rule map_reads_to_refined_reassembly_scaffolds:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
+    output: 'data/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
     input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.rev.2.bt2',
+        r1='data/{library}.m.r1.proc.fq.gz',
+        r2='data/{library}.m.r2.proc.fq.gz',
+        inx_1='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.1.bt2',
+        inx_2='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.2.bt2',
+        inx_3='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.3.bt2',
+        inx_4='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.4.bt2',
+        inx_rev1='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.a.scaffolds.pilon \
+        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.a.scaffolds.pilon \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -1133,23 +1133,23 @@ rule map_reads_to_refined_reassembly_scaffolds:
         """
 
 rule map_reads_to_refined_mag:
-    output: 'res/{group}.a.mags.d/{library}.m.{mag}-v{strain}-rmap.sort.bam'
+    output: 'data/{group}.a.mags.d/{library}.m.{mag}-v{strain}-rmap.sort.bam'
     input:
-        r1='seq/{library}.m.r1.proc.fq.gz',
-        r2='seq/{library}.m.r2.proc.fq.gz',
-        inx_1='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.1.bt2',
-        inx_2='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.2.bt2',
-        inx_3='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.3.bt2',
-        inx_4='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.4.bt2',
-        inx_rev1='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.1.bt2',
-        inx_rev2='seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.2.bt2',
+        r1='data/{library}.m.r1.proc.fq.gz',
+        r2='data/{library}.m.r2.proc.fq.gz',
+        inx_1='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.1.bt2',
+        inx_2='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.2.bt2',
+        inx_3='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.3.bt2',
+        inx_4='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.4.bt2',
+        inx_rev1='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x seq/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.contigs.pilon \
+        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.contigs.pilon \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -1167,9 +1167,9 @@ rule map_reads_to_refined_mag:
         """
 
 rule combine_refined_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam'
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1180,9 +1180,9 @@ rule combine_refined_reassembly_read_mappings:
         """
 
 rule combine_refined_mag_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-rmap.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-rmap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1194,34 +1194,34 @@ rule combine_refined_mag_read_mappings:
 
 # TODO: Fix this circular reference
 rule extract_refined_reassembly_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam',
+        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 # TODO: Fix this circular reference
 rule extract_refined_reassembly_read_mappings_all_libs:
-    output: 'res/{group}.a.mags.d/{mag}.v0.ramap.sort.bam'
-    input: 'res/{group}.a.mags.d/{mag}.v0.ramap-{group}.sort.bam',
+    output: 'data/{group}.a.mags.d/{mag}.v0.ramap.sort.bam'
+    input: 'data/{group}.a.mags.d/{mag}.v0.ramap-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_refined_reassembly_read_mappings_all_libs > extract_refined_reassembly_read_mappings
 
 # TODO: Fix this circular reference
 rule extract_refined_mag_read_mappings:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
     input:
-        bam='res/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam',
-        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam',
+        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 # TODO: Fix this circular reference
 rule extract_refined_mag_read_mappings_all_libs:
-    output: 'res/{group}.a.mags.d/{mag}.v0.rmap.sort.bam'
-    input: 'res/{group}.a.mags.d/{mag}.v0.rmap-{group}.sort.bam',
+    output: 'data/{group}.a.mags.d/{mag}.v0.rmap.sort.bam'
+    input: 'data/{group}.a.mags.d/{mag}.v0.rmap-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read_mappings
@@ -1235,12 +1235,12 @@ ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read
 # windows
 rule depth_trim_refined_reassembly_scaffolds:
     output:
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv"
+        fn="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.fn",
+        depth="data/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv"
     input:
         script="scripts/depth_trim_contigs.py",
-        scaffolds="seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
+        scaffolds="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
+        depth="data/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
     params:
         thresh=0.05,
         window=500,
@@ -1259,12 +1259,12 @@ rule depth_trim_refined_reassembly_scaffolds:
 
 rule depth_trim_refined_mag:
     output:
-        fn="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.dtrim.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.rmap.dtrim.depth.tsv"
+        fn="data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.dtrim.fn",
+        depth="data/{group}.a.mags.d/{mag}.v{strain}.rmap.dtrim.depth.tsv"
     input:
         script="scripts/depth_trim_contigs.py",
-        contigs="seq/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.rmap.depth.tsv",
+        contigs="data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+        depth="data/{group}.a.mags.d/{mag}.v{strain}.rmap.depth.tsv",
     params:
         thresh=0.05,
         window=500,
@@ -1290,9 +1290,9 @@ rule depth_trim_refined_mag:
 # TODO: I may want to move all such files to the new namespace so I don't need
 # to rebuild them.
 rule combine_refined_reassembly_depths:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz'
     input:
-        lambda wildcards: [f'res/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1308,21 +1308,21 @@ rule combine_refined_reassembly_depths:
         """
 
 rule calculate_position_coverage_stats:
-    output: "res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv"
+    output: "data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
-        depth="res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz",
-        libs='res/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        depth="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz",
+        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
     shell:
         """
         {input.script} {input.depth} {input.libs} > {output}
         """
 
 rule calculate_position_coverage_stats_all_libs:
-    output: "res/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.pstat.tsv"
+    output: "data/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.pstat.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
-        depth="res/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.library-depth.tsv.gz",
+        depth="data/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.library-depth.tsv.gz",
     shell:
         """
         {input.script} {input.depth} > {output}
@@ -1334,7 +1334,7 @@ rule plot_position_distribution_plots:
     output: "fig/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.hist.pdf"
     input:
         script="scripts/plot_position_correlations_histogram.py",
-        corrs="res/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.tsv"
+        corrs="data/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.tsv"
     shell:
         """
         {input.script} {input.corrs} {output}
@@ -1342,11 +1342,11 @@ rule plot_position_distribution_plots:
 
 rule correlation_trim_refined_reassembly_scaffolds:
     output:
-        fn="seq/{stem}.ctrim-{thresh}.fn",
+        fn="data/{stem}.ctrim-{thresh}.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
-        scaffolds="seq/{stem}.fn",
-        corr="res/{stem}.pstat.tsv",
+        scaffolds="data/{stem}.fn",
+        corr="data/{stem}.pstat.tsv",
     params:
         window=100,
         flank=100,
@@ -1363,11 +1363,11 @@ rule correlation_trim_refined_reassembly_scaffolds:
 
 rule select_correlation_trim_threshold:
     output:
-        fn="seq/{stem}.ctrim.fn",
+        fn="data/{stem}.ctrim.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
         plot="fig/{stem}.pstat.hist.pdf",
-        seqs=[f"seq/{{stem}}.ctrim-{cutoff}.fn"
+        seqs=[f"data/{{stem}}.ctrim-{cutoff}.fn"
               for cutoff in [50, 60, 70, 90]],
     params:
         window=100,
@@ -1384,7 +1384,7 @@ rule select_correlation_trim_threshold:
         If you want a different cutoff
         (replacing THRESHOLD with the chosen threshold):
 
-        snakemake seq/{wildcards.stem}.ctrim-THRESHOLD.fn
+        snakemake data/{wildcards.stem}.ctrim-THRESHOLD.fn
 
         You may want to use the following to guide your decision:
         -   Completeness/contamination (checkM results)
@@ -1394,7 +1394,7 @@ rule select_correlation_trim_threshold:
 
         Once you have selected the final result:
 
-        cp seq/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
+        cp data/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
 
 EOF
         false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
@@ -1405,13 +1405,13 @@ EOF
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_mag:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.quast.d'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.quast.d'
     input:
         asmbl=[
-               'seq/{group}.a.mags.d/{mag}.contigs.fn',
-               'seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-               'seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn',
-               'seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
+               'data/{group}.a.mags.d/{mag}.contigs.fn',
+               'data/{group}.a.mags.d/{mag}.a.scaffolds.fn',
+               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn',
+               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
                ]
     threads: min(7, MAX_THREADS)
     shell:
@@ -1425,14 +1425,14 @@ rule quality_asses_mag:
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_spike_mag:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.quast-spike.d'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.quast-spike.d'
     input:
         ref='ref/salask.fn',
         asmbl=[
-               'seq/{group}.a.mags.d/{mag}.contigs.fn',
-               'seq/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-               'seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn',
-               'seq/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
+               'data/{group}.a.mags.d/{mag}.contigs.fn',
+               'data/{group}.a.mags.d/{mag}.a.scaffolds.fn',
+               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn',
+               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
                ]
     threads: min(6, MAX_THREADS)
     shell:
@@ -1448,10 +1448,10 @@ localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 # {{{3 Strain Comparison
 rule compare_strains:
     output:
-        delta="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+        delta="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     input:
-        strain1="seq/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.fn",
-        strain2="seq/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.fn",
+        strain1="data/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.fn",
+        strain2="data/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.fn",
     wildcard_constraints:
         strain1=no_periods_regex_constraint,
         strain2=no_periods_regex_constraint,
@@ -1474,9 +1474,9 @@ rule compare_strains:
 # compatibility [21] and 0 for compatibility.
 rule process_strain_comparison_table:
     output:
-        coords="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
+        coords="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
     input:
-        delta="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+        delta="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     wildcard_constraints:
         strain1=no_periods_regex_constraint,
         strain2=no_periods_regex_constraint,
@@ -1486,8 +1486,8 @@ rule process_strain_comparison_table:
         """
 
 rule alias_dtrimmed_refined_reassembly_depth_data:
-    output: 'res/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.depth.tsv'
-    input: 'res/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv'
+    output: 'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.depth.tsv'
+    input: 'data/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv'
     shell: alias_recipe
 
 rule plot_strain_comparison:
@@ -1495,11 +1495,11 @@ rule plot_strain_comparison:
         pdf="fig/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
     input:
         script="scripts/plot_nucmer_comparison.py",
-        coords="res/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
-        length1="res/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
-        length2="res/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
-        # depth1="res/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.depth.tsv",
-        # depth2="res/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.depth.tsv",
+        coords="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
+        length1="data/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
+        length2="data/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
+        # depth1="data/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.depth.tsv",
+        # depth2="data/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.depth.tsv",
     params:
         alignment_length_thresh=150
     shell:
@@ -1517,14 +1517,14 @@ rule plot_strain_comparison:
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="seq/{stem}.mags.annot.d/{mag_stem}.cds.fa",
-        fn="seq/{stem}.mags.annot.d/{mag_stem}.cds.fn",
-        gbk="seq/{stem}.mags.annot.d/{mag_stem}.prokka.gbk",
-        tbl="res/{stem}.mags.annot.d/{mag_stem}.prokka.tbl",
-        tsv="res/{stem}.mags.annot.d/{mag_stem}.prokka.tsv",
-        gff="res/{stem}.mags.annot.d/{mag_stem}.prokka.gff",
-        dir=temp("res/{stem}.mags.annot.d/{mag_stem}.prokka.d"),
-    input: "seq/{stem}.mags.d/{mag_stem}.fn"
+        fa="data/{stem}.mags.annot.d/{mag_stem}.cds.fa",
+        fn="data/{stem}.mags.annot.d/{mag_stem}.cds.fn",
+        gbk="data/{stem}.mags.annot.d/{mag_stem}.prokka.gbk",
+        tbl="data/{stem}.mags.annot.d/{mag_stem}.prokka.tbl",
+        tsv="data/{stem}.mags.annot.d/{mag_stem}.prokka.tsv",
+        gff="data/{stem}.mags.annot.d/{mag_stem}.prokka.gff",
+        dir=temp("data/{stem}.mags.annot.d/{mag_stem}.prokka.d"),
+    input: "data/{stem}.mags.d/{mag_stem}.fn"
     threads: MAX_THREADS
     shell:
         r"""
@@ -1541,8 +1541,8 @@ rule annotate_mag:
         """
 
 rule summarize_annotation:
-    output: 'res/{stem}.prokka.summary.tsv'
-    input: 'res/{stem}.prokka.tsv'
+    output: 'data/{stem}.prokka.summary.tsv'
+    input: 'data/{stem}.prokka.tsv'
     shell:
         r"""
         echo '
@@ -1581,24 +1581,24 @@ SELECT "n_product_not_hypothetical", COUNT(*) FROM annotation WHERE product != "
 """
 
 rule extract_ec_numbers:
-    output: 'res/{stem}.ec.tsv'
-    input: 'res/{stem}.prokka.tsv'
+    output: 'data/{stem}.ec.tsv'
+    input: 'data/{stem}.prokka.tsv'
     shell:
         """
         cut -f1,5 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
         """
 
 rule extract_cogs:
-    output: 'res/{stem}.cog.tsv'
-    input: 'res/{stem}.prokka.tsv'
+    output: 'data/{stem}.cog.tsv'
+    input: 'data/{stem}.prokka.tsv'
     shell:
         """
         cut -f1,6 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
         """
 
 rule convert_cogs_to_ko:
-    output: 'res/{stem}.ko.tsv'
-    input: mapping='ref/cog_to_ko.tsv', cogs='res/{stem}.cog.tsv'
+    output: 'data/{stem}.ko.tsv'
+    input: mapping='ref/cog_to_ko.tsv', cogs='data/{stem}.cog.tsv'
     shell:
         """
         join -t '\t' <(sort -k2 {input.cogs}) -1 2 <(sort -k1 {input.mapping}) -2 1 | cut -f2,3 > {output}
@@ -1621,13 +1621,13 @@ rule filter_metacyc_pathways:
 
 rule infer_pathways:
     output:
-        report='res/{stem}.ec.minpath.report.tsv',
-        details='res/{stem}.ec.minpath.details.txt'
+        report='data/{stem}.ec.minpath.report.tsv',
+        details='data/{stem}.ec.minpath.details.txt'
     input:
-        ec_list='res/{stem}.ec.tsv',
+        ec_list='data/{stem}.ec.tsv',
         ec_map='ref/ec2path.picrust.filt.tsv',
     log:
-        'res/{stem}.ec.minpath.log'
+        'data/{stem}.ec.minpath.log'
     threads: MAX_THREADS  # TODO: Figure out how to stop MinPath from overwriting its own processing files (which makes parallel jobs impossible).
     shell:
         """
@@ -1635,8 +1635,8 @@ rule infer_pathways:
         """
 
 rule extract_metacyc_list:
-    output: 'res/{stem}.ec.minpath.list'
-    input: 'res/{stem}.ec.minpath.report.tsv'
+    output: 'data/{stem}.ec.minpath.list'
+    input: 'data/{stem}.ec.minpath.report.tsv'
     shell:
         """
         awk '$8==1{{print $14}}' {input} > {output}
@@ -1647,12 +1647,12 @@ localrules: extract_cogs, extract_ec_numbers, infer_pathways, extract_metacyc_li
 # {{{3 Targetted
 
 # rule pull_annotated_genes:
-#     output: fn='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fn',
-#             fa='seq/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
+#     output: fn='data/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fn',
+#             fa='data/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
 #     input:
-#         fn='seq/{stem}.mags.annot.d/{mag_id}.prokka.fn',
-#         fa='seq/{stem}.mags.annot.d/{mag_id}.prokka.fa',
-#         tsv='res/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
+#         fn='data/{stem}.mags.annot.d/{mag_id}.prokka.fn',
+#         fa='data/{stem}.mags.annot.d/{mag_id}.prokka.fa',
+#         tsv='data/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
 #     params:
 #         search_string=lambda wildcards: config['gene_to_search_string'][wildcards.gene_id]
 #     shell:
@@ -1685,11 +1685,11 @@ rule press_hmm:
         "hmmpress {input}"
 
 rule search_hmm:
-    output: "res/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv"
+    output: "data/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv"
     wildcard_constraints:
         cutoff='ga|nc|tc'
     input:
-        faa = "seq/{stem}.fa",
+        faa = "data/{stem}.fa",
         hmm = "ref/hmm/{hmm}.hmm",
         h3f = "ref/hmm/{hmm}.hmm.h3f",
         h3i = "ref/hmm/{hmm}.hmm.h3i",
@@ -1719,9 +1719,9 @@ rule build_blast_db:
 
 rule blast_rrs_reps:
     output:
-        'res/{stem}.rrs-blastn.tsv'
+        'data/{stem}.rrs-blastn.tsv'
     input:
-        mag='seq/{stem}.fn',
+        mag='data/{stem}.fn',
         ref='ref/core.r.reps.fn',
         nhr='ref/core.r.reps.fn.nhr',
         nin='ref/core.r.reps.fn.nin',
@@ -1733,12 +1733,12 @@ rule blast_rrs_reps:
 
 rule gather_hit_cds_strict:
     output:
-        nucl="seq/{stem}.cds.{hmm}-hits.fn",
-        prot="seq/{stem}.cds.{hmm}-hits.fa"
+        nucl="data/{stem}.cds.{hmm}-hits.fn",
+        prot="data/{stem}.cds.{hmm}-hits.fa"
     input:
-        hit_table="res/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
-        nucl="seq/{stem}.cds.fn",
-        prot="seq/{stem}.cds.fa"
+        hit_table="data/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
+        nucl="data/{stem}.cds.fn",
+        prot="data/{stem}.cds.fa"
     shell:
         """
         seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.nucl}
@@ -1746,8 +1746,8 @@ rule gather_hit_cds_strict:
         """
 
 rule identify_rrna_seqs:
-    output: "res/{stem}.16S-blastn.gff"
-    input: "seq/{stem}.fn"
+    output: "data/{stem}.16S-blastn.gff"
+    input: "data/{stem}.fn"
     shell:
         """
         barrnap {input} > {output}
@@ -1758,56 +1758,56 @@ rule identify_rrna_seqs:
 # {{{3 Domain Analysis
 
 rule hmmscan_domains:
-    output: "res/{stem}.{hmm}-hits.domtblout"
-    input: "seq/{stem}.{hmm}-hits.fa"
-    log: "res/{stem}.{hmm}-hits.domtblout.log"
+    output: "data/{stem}.{hmm}-hits.domtblout"
+    input: "data/{stem}.{hmm}-hits.fa"
+    log: "data/{stem}.{hmm}-hits.domtblout.log"
     input:
         """
         hmmscan --domtblout {output} ref/hmm/{wildcards.hmm}.hmm {input} > {log}
         """
 
 rule compile_domain_info:
-    output: "res/{stem}.domains.tsv"
+    output: "data/{stem}.domains.tsv"
     input:
         script="scripts/hmmscan-parser.sh",
-        domtbl="res/{stem}.domtblout"
+        domtbl="data/{stem}.domtblout"
     shell:
         "{input.script} {input.domtbl} > {output}"
 
 # {{{3 Alignment
 
 rule hmmalign:
-    output: "seq/{stem}.{hmm}-hits.afa"
-    input: fa="seq/{stem}.{hmm}-hits.fa", hmm="ref/hmm/{hmm}.hmm"
+    output: "data/{stem}.{hmm}-hits.afa"
+    input: fa="data/{stem}.{hmm}-hits.fa", hmm="ref/hmm/{hmm}.hmm"
     shell:
         """
         hmmalign --informat fasta {input.hmm} {input.fa} | convert -f stockholm -t fasta > {output}
         """
 
 rule codonalign:
-    output: "seq/{stem}.codonalign.afn"
+    output: "data/{stem}.codonalign.afn"
     input:
-        prot="seq/{stem}.afa",
-        nucl="seq/{stem}.fn"
+        prot="data/{stem}.afa",
+        nucl="data/{stem}.fn"
     shell:
         "codonalign {input.prot} {input.nucl} > {output}"
 
 # {{{3 Filter Alignment
 
 rule squeeze_codon_alignment:
-    output: "seq/{stem}.codonalign.sqz.afn"
+    output: "data/{stem}.codonalign.sqz.afn"
     input:
         script="scripts/squeeze_alignment.py",
-        seq="seq/{stem}.codonalign.afn"
+        seq="data/{stem}.codonalign.afn"
     shell: "{input.script} '-.acgtu' < {input.seq} > {output}"
 
 rule squeeze_hmmalign_alignment:
-    output: "seq/{stem}.{hmm}-hits.sqz.afa"
+    output: "data/{stem}.{hmm}-hits.sqz.afa"
     wildcard_constraints:
         hmm="[^.]*"
     input:
         script="scripts/squeeze_alignment.py",
-        seq="seq/{stem}.{hmm}-hits.afa"
+        seq="data/{stem}.{hmm}-hits.afa"
     shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
 
 rule gblocks_afa:
@@ -1832,31 +1832,31 @@ rule gblocks_afn:
 
 # {{{3 Phylogenetics
 rule estimate_phylogeny_afn:
-    output: "res/{stem}.nucl.nwk"
-    input: "seq/{stem}.afn"
+    output: "data/{stem}.nucl.nwk"
+    input: "data/{stem}.afn"
     shell: "FastTree -nt < {input} > {output}"
 
 rule estimate_phylogeny_afa:
-    output: "res/{stem}.prot.nwk"
-    input: "seq/{stem}.afa"
+    output: "data/{stem}.prot.nwk"
+    input: "data/{stem}.afa"
     shell: "FastTree < {input} > {output}"
 
 # {{{3 Sort alignment
 # TODO: Am I sure I want to use the nucleotide tree for sorting?
 rule tree_sort_afn:
-    output: "seq/{stem}.tree-sort.afn"
+    output: "data/{stem}.tree-sort.afn"
     input:
         script="scripts/get_ordered_leaves.py",
-        tree="res/{stem}.nucl.nwk",
-        seqs="seq/{stem}.afn"
+        tree="data/{stem}.nucl.nwk",
+        seqs="data/{stem}.afn"
     shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
 
 rule tree_sort_afa:
-    output: "seq/{stem}.tree-sort.afa"
+    output: "data/{stem}.tree-sort.afa"
     input:
         script="scripts/get_ordered_leaves.py",
-        tree="res/{stem}.prot.nwk",
-        seqs="seq/{stem}.afa"
+        tree="data/{stem}.prot.nwk",
+        seqs="data/{stem}.afa"
     shell: "fetch_seqs --match-order <({input.script} {input.tree}) {input.seqs} > {output}"
 
 # {{{2 Protein Clustering
@@ -1868,37 +1868,37 @@ rule make_diamond_db:
     shell: "diamond makedb --in {input} --db {input}"
 
 rule all_by_all_blastp:
-    output: "res/{stem}.self_blastp.tsv"
+    output: "data/{stem}.self_blastp.tsv"
     input:
-        fa='seq/{stem}.fa',
-        db='seq/{stem}.fa.dmnd',
+        fa='data/{stem}.fa',
+        db='data/{stem}.fa.dmnd',
     threads: MAX_THREADS
     shell:
         "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
 
 rule calculate_blastp_distance_matrix:
-    output: "res/{stem}.blastp_dist.tsv"
+    output: "data/{stem}.blastp_dist.tsv"
     input:
         script="scripts/calculate_blastp_distance_matrix.py",
-        blastp="res/{stem}.self_blastp.tsv",
+        blastp="data/{stem}.self_blastp.tsv",
     shell:
         "{input.script} {input.blastp} > {output}"
 
 rule denovo_cluster_proteins:
-    output: "res/{stem}.denovo-clust.tsv"
+    output: "data/{stem}.denovo-clust.tsv"
     input:
         script='scripts/cluster_proteins.py',
-        data='res/{stem}.blastp_dist.tsv',
+        data='data/{stem}.blastp_dist.tsv',
     params:
         n_clusters=1500
     shell:
         '{input.script} {input.data} {params.n_clusters} > {output}'
 
 rule join_genome_by_cluster_table:
-    output: "res/{stem}.{clust_type}-clust.count.tsv"
+    output: "data/{stem}.{clust_type}-clust.count.tsv"
     input:
-        clust='res/{stem}.{clust_type}-clust.tsv',
-        meta='res/{stem}.gene_genome_map.tsv'
+        clust='data/{stem}.{clust_type}-clust.tsv',
+        meta='data/{stem}.gene_genome_map.tsv'
     wildcard_constraints:
         clust_type=no_periods_regex_constraint
     shell:
@@ -1912,10 +1912,10 @@ rule join_genome_by_cluster_table:
 
 rule domain_structure_cluster_proteins:
     output:
-        "res/{stem}.domain-clust.tsv"
+        "data/{stem}.domain-clust.tsv"
     input:
         script="scripts/group_by_domain_structure.py",
-        domains="res/{stem}.domains.tsv"
+        domains="data/{stem}.domains.tsv"
     shell:
         "{input.script} {input.domains} > {output}"
 
@@ -1925,16 +1925,16 @@ rule domain_structure_cluster_proteins:
 
 # Base database, containing static metadata.
 rule generate_database_0:
-    output: 'res/{group}.0.db'
+    output: 'data/{group}.0.db'
     input:
         schema='schema.sql',
-        mouse='res/mouse.noheader.tsv',
-        sample='res/sample.noheader.tsv',
-        extraction='res/extraction.noheader.tsv',
-        library='res/library.noheader.tsv',
-        asmbl_group='res/asmbl_group.noheader.tsv',
-        rrs_taxon_count='res/{group}.r.count.noheader.tsv',
-        rrs_taxonomy='res/{group}.r.taxonomy.noheader.tsv',
+        mouse='data/mouse.noheader.tsv',
+        sample='data/sample.noheader.tsv',
+        extraction='data/extraction.noheader.tsv',
+        library='data/library.noheader.tsv',
+        asmbl_group='data/asmbl_group.noheader.tsv',
+        rrs_taxon_count='data/{group}.r.count.noheader.tsv',
+        rrs_taxonomy='data/{group}.r.taxonomy.noheader.tsv',
     shell:
         r"""
         rm -f {output}
@@ -1960,15 +1960,15 @@ localrules: generate_database_0
 
 # First iteration of results db; this might be used to e.g. find scaffolds.
 rule generate_database_1:
-    output: 'res/{group}.1.db'
+    output: 'data/{group}.1.db'
     input:
-        db='res/{group}.0.db',
-        contig='res/{group}.a.contigs.nlength.noheader.tsv',
-        contig_bin='res/{group}.a.contigs.bins.noheader.tsv',
-        contig_coverage='res/{group}.a.contigs.cvrg.noheader.tsv',
-        bin_checkm='res/{group}.a.bins.checkm_details.noheader.tsv',
-        contig_linkage='res/{group}.a.contigs.linkage_tally.noheader.tsv',
-        checkm_merge='res/{group}.a.bins.checkm_merge_stats.noheader.tsv',
+        db='data/{group}.0.db',
+        contig='data/{group}.a.contigs.nlength.noheader.tsv',
+        contig_bin='data/{group}.a.contigs.bins.noheader.tsv',
+        contig_coverage='data/{group}.a.contigs.cvrg.noheader.tsv',
+        bin_checkm='data/{group}.a.bins.checkm_details.noheader.tsv',
+        contig_linkage='data/{group}.a.contigs.linkage_tally.noheader.tsv',
+        checkm_merge='data/{group}.a.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
         tmp=$(mktemp)
@@ -1991,9 +1991,9 @@ ANALYZE;
         """
 
 rule denormalize_database:
-    output: 'res/{stem}.denorm.db'
+    output: 'data/{stem}.denorm.db'
     input:
-        db='res/{stem}.db',
+        db='data/{stem}.db',
         script='scripts/denormalize_db.sql',
     shell:
         """

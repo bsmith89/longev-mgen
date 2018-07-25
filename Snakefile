@@ -95,6 +95,21 @@ rule configure_git:
         git config --local merge.daff-csv.driver "daff.py merge --output %A %O %A %B"
         """
 
+rule display_rulegraph:
+    output: "fig/snake.rulegraph.pdf"
+    input: "Snakefile", "snake/genome_comparison.snake"
+    shell:
+        "snakemake -n --forceall --rulegraph res/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | dot -Tpdf > {output}"
+
+rule display_dag:
+    output:
+        pdf="fig/snake.dag.pdf",
+        dot="res/snake.dag.dot",
+    input: "Snakefile", "snake/genome_comparison.snake"
+    shell:
+        "snakemake -n --forceall --dag res/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
+
+
 # {{{1 Downloading and linking data
 
 # {{{2 Reference data

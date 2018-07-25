@@ -1766,12 +1766,12 @@ rule squeeze_hmmalign_alignment:
 
 rule gblocks_afa:
     output: '{stem}.gb.afa'
-    input: '{stem}.afa'
+    input:
+        script='scripts/Gblocks.py',
+        seq='{stem}.afa'
     shell:
         """
-        Gblocks {input} -t=p -p=y -v=150 || [ $? == 1 ]
-        mv {input}-gb {output}
-        rm {input}-gb.htm
+        scripts/Gblocks.py < {input.seq} > {output}
         """
 
 rule gblocks_afn:

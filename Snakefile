@@ -737,7 +737,7 @@ rule checkm_seqs:
     output:
         dir=temp('data/{stem}.checkm.d'),
         summary='data/{stem}.checkm.tsv'
-    input: 'data/{stem}.d'
+    input: 'data/{stem}'
     threads: MAX_THREADS
     log: 'log/{stem}.checkm.log'
     shell:
@@ -798,7 +798,7 @@ localrules: query_merge_stats
 # TODO: Automate this??
 # TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
 rule select_mag:
-    output: 'data/{group}.a.mags.d/{mag}.contigs.list'
+    output: 'data/{group}.a.mags/{mag}.contigs.list'
     input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
@@ -819,7 +819,7 @@ EOF
         """
 
 rule select_strain_specific_libraries:
-    output: 'data/{group}.a.mags.d/{mag}.{strain}.library.list'
+    output: 'data/{group}.a.mags/{mag}.{strain}.library.list'
     input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
@@ -846,9 +846,9 @@ EOF
         """
 
 rule get_mag_contigs:
-    output: 'data/{group}.a.mags.d/{bin}.contigs.fn'
+    output: 'data/{group}.a.mags/{bin}.contigs.fn'
     input:
-        ids='data/{group}.a.mags.d/{bin}.contigs.list',
+        ids='data/{group}.a.mags/{bin}.contigs.list',
         seqs='data/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
@@ -859,23 +859,23 @@ localrules: select_mag, link_dummy_strain_specific_libraries,
 # {{{3 Mapping 0
 
 rule map_reads_to_mag:
-    output: 'data/{group}.a.mags.d/{library}.m.{mag}-map.sort.bam'
+    output: 'data/{group}.a.mags/{library}.m.{mag}-map.sort.bam'
     input:
         r1='data/{library}.m.r1.proc.fq.gz',
         r2='data/{library}.m.r2.proc.fq.gz',
-        inx_1='data/{group}.a.mags.d/{mag}.contigs.1.bt2',
-        inx_2='data/{group}.a.mags.d/{mag}.contigs.2.bt2',
-        inx_3='data/{group}.a.mags.d/{mag}.contigs.3.bt2',
-        inx_4='data/{group}.a.mags.d/{mag}.contigs.4.bt2',
-        inx_rev1='data/{group}.a.mags.d/{mag}.contigs.rev.1.bt2',
-        inx_rev2='data/{group}.a.mags.d/{mag}.contigs.rev.2.bt2',
+        inx_1='data/{group}.a.mags/{mag}.contigs.1.bt2',
+        inx_2='data/{group}.a.mags/{mag}.contigs.2.bt2',
+        inx_3='data/{group}.a.mags/{mag}.contigs.3.bt2',
+        inx_4='data/{group}.a.mags/{mag}.contigs.4.bt2',
+        inx_rev1='data/{group}.a.mags/{mag}.contigs.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags/{mag}.contigs.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.contigs \
+        bowtie2 -x data/{wildcards.group}.a.mags/{wildcards.mag}.contigs \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -893,9 +893,9 @@ rule map_reads_to_mag:
         """
 
 rule combine_mag_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.map-{group}.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.map-{group}.sort.bam'
     input:
-        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-map.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags/{library}.m.{wildcards.mag}-map.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -910,10 +910,10 @@ rule combine_mag_read_mappings:
 
 rule convert_mag_mapped_reads_to_fastq:
     output:
-        r1='data/{group}.a.mags.d/{mag}.map-{group}.r1.fq.gz',
-        r2='data/{group}.a.mags.d/{mag}.map-{group}.r2.fq.gz',
+        r1='data/{group}.a.mags/{mag}.map-{group}.r1.fq.gz',
+        r2='data/{group}.a.mags/{mag}.map-{group}.r2.fq.gz',
     input:
-        bam='data/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+        bam='data/{group}.a.mags/{mag}.map-{group}.sort.bam',
         script='scripts/match_paired_reads.py',
     threads: min(10, MAX_THREADS)
     shell:
@@ -953,12 +953,12 @@ rule diginorm_reads:
 # TODO: Rename contigs with mag stem.
 rule reassemble_mag:
     output:
-        scaffolds='data/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-        contigs='data/{group}.a.mags.d/{mag}.a.contigs.fn',
-        dir='data/{group}.a.mags.d/{mag}.spades.d',
+        scaffolds='data/{group}.a.mags/{mag}.a.scaffolds.fn',
+        contigs='data/{group}.a.mags/{mag}.a.contigs.fn',
+        dir='data/{group}.a.mags/{mag}.spades.d',
     input:
-        r1='data/{group}.a.mags.d/{mag}.map-{group}.r1.dnorm.fq.gz',
-        r2='data/{group}.a.mags.d/{mag}.map-{group}.r2.dnorm.fq.gz'
+        r1='data/{group}.a.mags/{mag}.map-{group}.r1.dnorm.fq.gz',
+        r2='data/{group}.a.mags/{mag}.map-{group}.r2.dnorm.fq.gz'
     threads: min(15, MAX_THREADS)
     shell:
         r"""
@@ -970,23 +970,23 @@ rule reassemble_mag:
 # {{{3 Mapping 1
 
 rule map_reads_to_reassembly:
-    output: 'data/{group}.a.mags.d/{library}.m.{mag}-amap.sort.bam'
+    output: 'data/{group}.a.mags/{library}.m.{mag}-amap.sort.bam'
     input:
         r1='data/{library}.m.r1.proc.fq.gz',
         r2='data/{library}.m.r2.proc.fq.gz',
-        inx_1='data/{group}.a.mags.d/{mag}.a.scaffolds.1.bt2',
-        inx_2='data/{group}.a.mags.d/{mag}.a.scaffolds.2.bt2',
-        inx_3='data/{group}.a.mags.d/{mag}.a.scaffolds.3.bt2',
-        inx_4='data/{group}.a.mags.d/{mag}.a.scaffolds.4.bt2',
-        inx_rev1='data/{group}.a.mags.d/{mag}.a.scaffolds.rev.1.bt2',
-        inx_rev2='data/{group}.a.mags.d/{mag}.a.scaffolds.rev.2.bt2',
+        inx_1='data/{group}.a.mags/{mag}.a.scaffolds.1.bt2',
+        inx_2='data/{group}.a.mags/{mag}.a.scaffolds.2.bt2',
+        inx_3='data/{group}.a.mags/{mag}.a.scaffolds.3.bt2',
+        inx_4='data/{group}.a.mags/{mag}.a.scaffolds.4.bt2',
+        inx_rev1='data/{group}.a.mags/{mag}.a.scaffolds.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags/{mag}.a.scaffolds.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.a.scaffolds \
+        bowtie2 -x data/{wildcards.group}.a.mags/{wildcards.mag}.a.scaffolds \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -1004,9 +1004,9 @@ rule map_reads_to_reassembly:
         """
 
 rule combine_reassembly_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.amap-{group}.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.amap-{group}.sort.bam'
     input:
-        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-amap.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags/{library}.m.{wildcards.mag}-amap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1017,31 +1017,31 @@ rule combine_reassembly_read_mappings:
         """
 
 rule extract_strain_specific_reassembly_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.amap.sort.bam'
     input:
-        bam='data/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
-        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags/{mag}.amap-{group}.sort.bam',
+        libs='data/{group}.a.mags/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_reassembly_read_mappings_all_libs:
-    output: 'data/{group}.a.mags.d/{mag}.v0.amap.sort.bam'
-    input: 'data/{group}.a.mags.d/{mag}.amap-{group}.sort.bam',
+    output: 'data/{group}.a.mags/{mag}.v0.amap.sort.bam'
+    input: 'data/{group}.a.mags/{mag}.amap-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_strain_specific_reassembly_read_mappings_all_libs > extract_strain_specific_reassembly_read_mappings
 
 rule extract_strain_specific_mag_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.map.sort.bam'
     input:
-        bam='data/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
-        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags/{mag}.map-{group}.sort.bam',
+        libs='data/{group}.a.mags/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 rule extract_strain_specific_mag_read_mappings_all_libs:
-    output: 'data/{group}.a.mags.d/{mag}.v0.map.sort.bam'
-    input: 'data/{group}.a.mags.d/{mag}.map-{group}.sort.bam',
+    output: 'data/{group}.a.mags/{mag}.v0.map.sort.bam'
+    input: 'data/{group}.a.mags/{mag}.map-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_strain_specific_mag_read_mappings_all_libs > extract_strain_specific_mag_read_mappings
@@ -1055,15 +1055,15 @@ rule alias_seqs_for_pilon:
     shell: alias_recipe
 
 rule pilon_refine_reassembly_scaffold:
-    output: "data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
+    output: "data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.fn",
     input:
-        contigs="data/{group}.a.mags.d/{mag}.a.scaffolds.fasta",
-        bam="data/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam",
-        bai="data/{group}.a.mags.d/{mag}.v{strain}.amap.sort.bam.bai",
+        contigs="data/{group}.a.mags/{mag}.a.scaffolds.fasta",
+        bam="data/{group}.a.mags/{mag}.v{strain}.amap.sort.bam",
+        bai="data/{group}.a.mags/{mag}.v{strain}.amap.sort.bam.bai",
     resources:
         mem_mb=100000
     params:
-        prefix="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon"
+        prefix="data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon"
     threads: min(16, MAX_THREADS)
     shell:
         r"""
@@ -1075,15 +1075,15 @@ rule pilon_refine_reassembly_scaffold:
         """
 
 rule pilon_refine_mag:
-    output: "data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
+    output: "data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.fn",
     input:
-        contigs="data/{group}.a.mags.d/{mag}.contigs.fasta",
-        bam="data/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam",
-        bai="data/{group}.a.mags.d/{mag}.v{strain}.map.sort.bam.bai",
+        contigs="data/{group}.a.mags/{mag}.contigs.fasta",
+        bam="data/{group}.a.mags/{mag}.v{strain}.map.sort.bam",
+        bai="data/{group}.a.mags/{mag}.v{strain}.map.sort.bam.bai",
     resources:
         mem_mb=100000
     params:
-        prefix="data/{group}.a.mags.d/{mag}.v{strain}.pilon"
+        prefix="data/{group}.a.mags/{mag}.v{strain}.pilon"
     threads: min(16, MAX_THREADS)
     shell:
         r"""
@@ -1099,23 +1099,23 @@ rule pilon_refine_mag:
 # TODO: Add step to drop short contigs after Pilon refinement.
 
 rule map_reads_to_refined_reassembly_scaffolds:
-    output: 'data/{group}.a.mags.d/{library}.m.{mag}-v{strain}-ramap.sort.bam'
+    output: 'data/{group}.a.mags/{library}.m.{mag}-v{strain}-ramap.sort.bam'
     input:
         r1='data/{library}.m.r1.proc.fq.gz',
         r2='data/{library}.m.r2.proc.fq.gz',
-        inx_1='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.1.bt2',
-        inx_2='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.2.bt2',
-        inx_3='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.3.bt2',
-        inx_4='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.4.bt2',
-        inx_rev1='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.rev.1.bt2',
-        inx_rev2='data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.rev.2.bt2',
+        inx_1='data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.1.bt2',
+        inx_2='data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.2.bt2',
+        inx_3='data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.3.bt2',
+        inx_4='data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.4.bt2',
+        inx_rev1='data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.a.scaffolds.pilon \
+        bowtie2 -x data/{wildcards.group}.a.mags/{wildcards.mag}.v{wildcards.strain}.a.scaffolds.pilon \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -1133,23 +1133,23 @@ rule map_reads_to_refined_reassembly_scaffolds:
         """
 
 rule map_reads_to_refined_mag:
-    output: 'data/{group}.a.mags.d/{library}.m.{mag}-v{strain}-rmap.sort.bam'
+    output: 'data/{group}.a.mags/{library}.m.{mag}-v{strain}-rmap.sort.bam'
     input:
         r1='data/{library}.m.r1.proc.fq.gz',
         r2='data/{library}.m.r2.proc.fq.gz',
-        inx_1='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.1.bt2',
-        inx_2='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.2.bt2',
-        inx_3='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.3.bt2',
-        inx_4='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.4.bt2',
-        inx_rev1='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.1.bt2',
-        inx_rev2='data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.rev.2.bt2',
+        inx_1='data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.1.bt2',
+        inx_2='data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.2.bt2',
+        inx_3='data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.3.bt2',
+        inx_4='data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.4.bt2',
+        inx_rev1='data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.rev.1.bt2',
+        inx_rev2='data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.rev.2.bt2',
     shell:
         r"""
         tmp1=$(mktemp)
         tmp2=$(mktemp)
         tmp3=$(mktemp)
         echo "$tmp1 $tmp2 $tmp3 ({output})"
-        bowtie2 -x data/{wildcards.group}.a.mags.d/{wildcards.mag}.v{wildcards.strain}.contigs.pilon \
+        bowtie2 -x data/{wildcards.group}.a.mags/{wildcards.mag}.v{wildcards.strain}.contigs.pilon \
                 --rg-id {wildcards.library} \
                 -1 {input.r1} -2 {input.r2} \
             | samtools view -G 12 -b - > $tmp1
@@ -1167,9 +1167,9 @@ rule map_reads_to_refined_mag:
         """
 
 rule combine_refined_reassembly_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.ramap-{group}.sort.bam'
     input:
-        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1180,9 +1180,9 @@ rule combine_refined_reassembly_read_mappings:
         """
 
 rule combine_refined_mag_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.rmap-{group}.sort.bam'
     input:
-        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-rmap.sort.bam'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags/{library}.m.{wildcards.mag}-v{wildcards.strain}-rmap.sort.bam'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1194,34 +1194,34 @@ rule combine_refined_mag_read_mappings:
 
 # TODO: Fix this circular reference
 rule extract_refined_reassembly_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.ramap.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.ramap.sort.bam'
     input:
-        bam='data/{group}.a.mags.d/{mag}.v{strain}.ramap-{group}.sort.bam',
-        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags/{mag}.v{strain}.ramap-{group}.sort.bam',
+        libs='data/{group}.a.mags/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 # TODO: Fix this circular reference
 rule extract_refined_reassembly_read_mappings_all_libs:
-    output: 'data/{group}.a.mags.d/{mag}.v0.ramap.sort.bam'
-    input: 'data/{group}.a.mags.d/{mag}.v0.ramap-{group}.sort.bam',
+    output: 'data/{group}.a.mags/{mag}.v0.ramap.sort.bam'
+    input: 'data/{group}.a.mags/{mag}.v0.ramap-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_refined_reassembly_read_mappings_all_libs > extract_refined_reassembly_read_mappings
 
 # TODO: Fix this circular reference
 rule extract_refined_mag_read_mappings:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.rmap.sort.bam'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.rmap.sort.bam'
     input:
-        bam='data/{group}.a.mags.d/{mag}.v{strain}.rmap-{group}.sort.bam',
-        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        bam='data/{group}.a.mags/{mag}.v{strain}.rmap-{group}.sort.bam',
+        libs='data/{group}.a.mags/{mag}.v{strain}.library.list',
     threads: min(10, MAX_THREADS)
     shell: "samtools view -@ {threads} -b -R {input.libs} {input.bam} > {output}"
 
 # TODO: Fix this circular reference
 rule extract_refined_mag_read_mappings_all_libs:
-    output: 'data/{group}.a.mags.d/{mag}.v0.rmap.sort.bam'
-    input: 'data/{group}.a.mags.d/{mag}.v0.rmap-{group}.sort.bam',
+    output: 'data/{group}.a.mags/{mag}.v0.rmap.sort.bam'
+    input: 'data/{group}.a.mags/{mag}.v0.rmap-{group}.sort.bam',
     shell: alias_recipe
 
 ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read_mappings
@@ -1235,12 +1235,12 @@ ruleorder: extract_refined_mag_read_mappings_all_libs > extract_refined_mag_read
 # windows
 rule depth_trim_refined_reassembly_scaffolds:
     output:
-        fn="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.fn",
-        depth="data/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv"
+        fn="data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.dtrim.fn",
+        depth="data/{group}.a.mags/{mag}.v{strain}.ramap.dtrim.depth.tsv"
     input:
         script="scripts/depth_trim_contigs.py",
-        scaffolds="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn",
-        depth="data/{group}.a.mags.d/{mag}.v{strain}.ramap.depth.tsv",
+        scaffolds="data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.fn",
+        depth="data/{group}.a.mags/{mag}.v{strain}.ramap.depth.tsv",
     params:
         thresh=0.05,
         window=500,
@@ -1259,12 +1259,12 @@ rule depth_trim_refined_reassembly_scaffolds:
 
 rule depth_trim_refined_mag:
     output:
-        fn="data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.dtrim.fn",
-        depth="data/{group}.a.mags.d/{mag}.v{strain}.rmap.dtrim.depth.tsv"
+        fn="data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.dtrim.fn",
+        depth="data/{group}.a.mags/{mag}.v{strain}.rmap.dtrim.depth.tsv"
     input:
         script="scripts/depth_trim_contigs.py",
-        contigs="data/{group}.a.mags.d/{mag}.v{strain}.contigs.pilon.fn",
-        depth="data/{group}.a.mags.d/{mag}.v{strain}.rmap.depth.tsv",
+        contigs="data/{group}.a.mags/{mag}.v{strain}.contigs.pilon.fn",
+        depth="data/{group}.a.mags/{mag}.v{strain}.rmap.depth.tsv",
     params:
         thresh=0.05,
         window=500,
@@ -1290,9 +1290,9 @@ rule depth_trim_refined_mag:
 # TODO: I may want to move all such files to the new namespace so I don't need
 # to rebuild them.
 rule combine_refined_reassembly_depths:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz'
     input:
-        lambda wildcards: [f'data/{wildcards.group}.a.mags.d/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
+        lambda wildcards: [f'data/{wildcards.group}.a.mags/{library}.m.{wildcards.mag}-v{wildcards.strain}-ramap.depth.tsv'
                            for library
                            in config['asmbl_group'][wildcards.group]
                           ]
@@ -1308,21 +1308,21 @@ rule combine_refined_reassembly_depths:
         """
 
 rule calculate_position_coverage_stats:
-    output: "data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv"
+    output: "data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.pstat.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
-        depth="data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz",
-        libs='data/{group}.a.mags.d/{mag}.v{strain}.library.list',
+        depth="data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.library-depth.tsv.gz",
+        libs='data/{group}.a.mags/{mag}.v{strain}.library.list',
     shell:
         """
         {input.script} {input.depth} {input.libs} > {output}
         """
 
 rule calculate_position_coverage_stats_all_libs:
-    output: "data/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.pstat.tsv"
+    output: "data/{group}.a.mags/{mag}.v0.a.scaffolds.pilon.pstat.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
-        depth="data/{group}.a.mags.d/{mag}.v0.a.scaffolds.pilon.library-depth.tsv.gz",
+        depth="data/{group}.a.mags/{mag}.v0.a.scaffolds.pilon.library-depth.tsv.gz",
     shell:
         """
         {input.script} {input.depth} > {output}
@@ -1331,10 +1331,10 @@ rule calculate_position_coverage_stats_all_libs:
 ruleorder: calculate_position_coverage_stats_all_libs > calculate_position_coverage_stats
 
 rule plot_position_distribution_plots:
-    output: "fig/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.hist.pdf"
+    output: "fig/{group}.a.mags/{mag}.v{strain}.{proc_stem}.pstat.hist.pdf"
     input:
         script="scripts/plot_position_correlations_histogram.py",
-        corrs="data/{group}.a.mags.d/{mag}.v{strain}.{proc_stem}.pstat.tsv"
+        corrs="data/{group}.a.mags/{mag}.v{strain}.{proc_stem}.pstat.tsv"
     shell:
         """
         {input.script} {input.corrs} {output}
@@ -1405,13 +1405,13 @@ EOF
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_mag:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.quast.d'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.quast.d'
     input:
         asmbl=[
-               'data/{group}.a.mags.d/{mag}.contigs.fn',
-               'data/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn',
-               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
+               'data/{group}.a.mags/{mag}.contigs.fn',
+               'data/{group}.a.mags/{mag}.a.scaffolds.fn',
+               'data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.fn',
+               'data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
                ]
     threads: min(7, MAX_THREADS)
     shell:
@@ -1425,14 +1425,14 @@ rule quality_asses_mag:
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_spike_mag:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.quast-spike.d'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.quast-spike'
     input:
         ref='ref/salask.fn',
         asmbl=[
-               'data/{group}.a.mags.d/{mag}.contigs.fn',
-               'data/{group}.a.mags.d/{mag}.a.scaffolds.fn',
-               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.fn',
-               'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
+               'data/{group}.a.mags/{mag}.contigs.fn',
+               'data/{group}.a.mags/{mag}.a.scaffolds.fn',
+               'data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.fn',
+               'data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.ctrim.fn',
                ]
     threads: min(6, MAX_THREADS)
     shell:
@@ -1448,10 +1448,10 @@ localrules: quality_asses_reassembly, quality_asses_spike_reassembly
 # {{{3 Strain Comparison
 rule compare_strains:
     output:
-        delta="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+        delta="data/{group_stem}/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     input:
-        strain1="data/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.fn",
-        strain2="data/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.fn",
+        strain1="data/{group_stem}/{mag}.v{strain1}.{proc_stem}.fn",
+        strain2="data/{group_stem}/{mag}.v{strain2}.{proc_stem}.fn",
     wildcard_constraints:
         strain1=no_periods_regex_constraint,
         strain2=no_periods_regex_constraint,
@@ -1474,9 +1474,9 @@ rule compare_strains:
 # compatibility [21] and 0 for compatibility.
 rule process_strain_comparison_table:
     output:
-        coords="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
+        coords="data/{group_stem}/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
     input:
-        delta="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
+        delta="data/{group_stem}/{mag}.{proc_stem}.v{strain1}_v{strain2}.delta",
     wildcard_constraints:
         strain1=no_periods_regex_constraint,
         strain2=no_periods_regex_constraint,
@@ -1486,20 +1486,20 @@ rule process_strain_comparison_table:
         """
 
 rule alias_dtrimmed_refined_reassembly_depth_data:
-    output: 'data/{group}.a.mags.d/{mag}.v{strain}.a.scaffolds.pilon.dtrim.depth.tsv'
-    input: 'data/{group}.a.mags.d/{mag}.v{strain}.ramap.dtrim.depth.tsv'
+    output: 'data/{group}.a.mags/{mag}.v{strain}.a.scaffolds.pilon.dtrim.depth.tsv'
+    input: 'data/{group}.a.mags/{mag}.v{strain}.ramap.dtrim.depth.tsv'
     shell: alias_recipe
 
 rule plot_strain_comparison:
     output:
-        pdf="fig/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
+        pdf="fig/{group_stem}/{mag}.{proc_stem}.v{strain1}_v{strain2}.pdf",
     input:
         script="scripts/plot_nucmer_comparison.py",
-        coords="data/{group_stem}.d/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
-        length1="data/{group_stem}.d/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
-        length2="data/{group_stem}.d/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
-        # depth1="data/{group}.a.mags.d/{mag}.v{strain1}.{proc_stem}.depth.tsv",
-        # depth2="data/{group}.a.mags.d/{mag}.v{strain2}.{proc_stem}.depth.tsv",
+        coords="data/{group_stem}/{mag}.{proc_stem}.v{strain1}_v{strain2}.coords",
+        length1="data/{group_stem}/{mag}.v{strain1}.{proc_stem}.nlength.tsv",
+        length2="data/{group_stem}/{mag}.v{strain2}.{proc_stem}.nlength.tsv",
+        # depth1="data/{group}.a.mags/{mag}.v{strain1}.{proc_stem}.depth.tsv",
+        # depth2="data/{group}.a.mags/{mag}.v{strain2}.{proc_stem}.depth.tsv",
     params:
         alignment_length_thresh=150
     shell:
@@ -1517,14 +1517,14 @@ rule plot_strain_comparison:
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="data/{stem}.mags.annot.d/{mag_stem}.cds.fa",
-        fn="data/{stem}.mags.annot.d/{mag_stem}.cds.fn",
-        gbk="data/{stem}.mags.annot.d/{mag_stem}.prokka.gbk",
-        tbl="data/{stem}.mags.annot.d/{mag_stem}.prokka.tbl",
-        tsv="data/{stem}.mags.annot.d/{mag_stem}.prokka.tsv",
-        gff="data/{stem}.mags.annot.d/{mag_stem}.prokka.gff",
-        dir=temp("data/{stem}.mags.annot.d/{mag_stem}.prokka.d"),
-    input: "data/{stem}.mags.d/{mag_stem}.fn"
+        fa="data/{stem}.mags.annot/{mag_stem}.cds.fa",
+        fn="data/{stem}.mags.annot/{mag_stem}.cds.fn",
+        gbk="data/{stem}.mags.annot/{mag_stem}.prokka.gbk",
+        tbl="data/{stem}.mags.annot/{mag_stem}.prokka.tbl",
+        tsv="data/{stem}.mags.annot/{mag_stem}.prokka.tsv",
+        gff="data/{stem}.mags.annot/{mag_stem}.prokka.gff",
+        dir=temp("data/{stem}.mags.annot/{mag_stem}.prokka.d"),
+    input: "data/{stem}.mags/{mag_stem}.fn"
     threads: MAX_THREADS
     shell:
         r"""
@@ -1647,12 +1647,12 @@ localrules: extract_cogs, extract_ec_numbers, infer_pathways, extract_metacyc_li
 # {{{3 Targetted
 
 # rule pull_annotated_genes:
-#     output: fn='data/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fn',
-#             fa='data/{stem}.mags.annot.d/{mag_id}.{gene_id}-hits.fa'
+#     output: fn='data/{stem}.mags.annot/{mag_id}.{gene_id}-hits.fn',
+#             fa='data/{stem}.mags.annot/{mag_id}.{gene_id}-hits.fa'
 #     input:
-#         fn='data/{stem}.mags.annot.d/{mag_id}.prokka.fn',
-#         fa='data/{stem}.mags.annot.d/{mag_id}.prokka.fa',
-#         tsv='data/{stem}.mags.annot.d/{mag_id}.prokka.tsv'
+#         fn='data/{stem}.mags.annot/{mag_id}.prokka.fn',
+#         fa='data/{stem}.mags.annot/{mag_id}.prokka.fa',
+#         tsv='data/{stem}.mags.annot/{mag_id}.prokka.tsv'
 #     params:
 #         search_string=lambda wildcards: config['gene_to_search_string'][wildcards.gene_id]
 #     shell:

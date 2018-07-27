@@ -1112,7 +1112,7 @@ rule select_correlation_trim_threshold:
         cp data/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
 
 EOF
-        false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
+        false
         """
 
 # {{{3 QC

@@ -798,51 +798,30 @@ localrules: query_merge_stats
 
 # TODO: Automate this??
 # TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
-rule select_mag_contigs:
-    output: 'data/{group}.a.mags/{mag}.g.contigs.list'
+rule select_curated_mags:
+    output:
+        contigs='data/{group}.a.mags/{mag}.g.contigs.list',
+        libraries='data/{group}.a.mags/{mag}.g.contigs.list',
     input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
         cat <<EOF
-        Select the contigs that belong to {wildcards.mag}.
+        Select the contigs that belong to {wildcards.mag} and the libraries
+        from which to collect reads for refinement.
 
         This can be accomplished by merely touching
-        `{output}` if it already exists and you are confident
-        that it reflects the current state of `data/{group}.a.bins.*` .
+        `{output.contigs}`
+        and `{output.libraries}`
+        if they already exist and you are confident that they reflects the
+        current state of `data/{group}.a.bins.*` .
 
-        However, since `{input}` is newer, this may not be the case.
-        Instead you should manually identify all of contigs that belong to
-        this MAG  and save their names
-        to this list.
-
-EOF
-        false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
-        """
-
-rule select_mag_libraries:
-    output: 'data/{group}.a.mags/{mag}.g.library.list'
-    input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
-    shell:
-        """
-        cat <<EOF
-        Select the libraries that contain only MAG {wildcards.mag} for
-        {wildcards.mag}, and preferrably a reasonably high abundance.
-
-        This can be accomplished by merely touching
-        `{output}` if it already exists and you are confident
-        that it reflects the current state of `data/{group}.a.bins.*` .
-
-        However, since `{input}` is newer, this may not be the case.
-        Instead you should manually identify all of libraries that contain
-        this MAG and save them to this list.
-
-        If you don't want to figure this out, consider using the `_v0` suffix
-        for all libraries.
-
-        This will require editing the pipeline config.
+        However, since `{input}`
+        is newer, this may not be the case, or you may
+        want to refine your curation.  Instead you should manually identify all
+        of contigs that belong to this MAG  and save their names to this list.
 
 EOF
-        false  # {input} is new.  Create {output} or touch it to declare that it's up-to-date.
+        false
         """
 
 rule get_mag_contigs:

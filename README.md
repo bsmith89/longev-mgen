@@ -480,3 +480,27 @@ should be MUCH more robust when predicting the absence of pathways
 compared to the presence...maybe?  TODO: check this intuition)
 
 ## Strain differences between OTU-1 at UM and UT
+
+There are two strains of OTU-1:
+one that's found at both sites (vA) and one found only at UT (vB).
+These two strains share approximately 80% of their length.
+(CheckM says that each is 90% complete, so it's possible that they are
+actually identical, but we just failed to sequence/assemble/confirm/bin a different 10%
+of the each genome, but this seems unlikely for a number of reasons:
+-   the two assemblies were not independent
+-   the coverage is precipitously lower in libraries lacking that strain for
+    the strain specific parts of each genome.
+    It's enough lower that it's not just random noise, and it includes large
+    contigs which we would expect to get _some_ coverage on, regardless of
+    stochasticity.
+-   the unshared parts have some overlap in gene content with different context
+    (TODO: confirm this)
+The fact that they differ could explain the lack of response of OTU-1 at UT.
+It is unkown which strain is found at TJL (TODO: Is it worth considering
+getting some sequence?)
+It is interesting to ask what genes differentiate the two strains.
+It is interesting that no other Muri's have multiple strains. (perhaps
+they just aren't the same OTU, but some strains are specific to sites?)
+There is also good evidence of nucleotide (synonymous and non-synonymous)
+variation between strains.  TODO: How do I demonstrate this?
+TODO: What is the average amino-acid identity in shared genes?

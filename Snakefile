@@ -1045,21 +1045,23 @@ rule calculate_position_coverage_stats:
     output: "data/{group}.a.mags/{mag}.g.{proc}.pstat.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
+        trusted="data/{group}.a.mags/{mag}.g.trusted_depth.tsv",
         depth="data/{group}.a.mags/{mag}.g.{proc}.library-depth.tsv.gz",
         libs='data/{group}.a.mags/{mag}.g.library.list',
     shell:
         """
-        {input.script} {input.depth} {input.libs} > {output}
+        {input.script} {input.depth} {input.trusted} {input.libs} > {output}
         """
 
 rule calculate_position_coverage_stats_all_libs:
     output: "data/{group}.a.mags/{mag}_v0.g.{proc}.pstat.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
+        trusted="data/{group}.a.mags/{mag}.g.trusted_depth.tsv",
         depth="data/{group}.a.mags/{mag}_v0.g.{proc}.library-depth.tsv.gz",
     shell:
         """
-        {input.script} {input.depth} > {output}
+        {input.script} {input.depth} {input.trusted} > {output}
         """
 
 ruleorder: calculate_position_coverage_stats_all_libs > calculate_position_coverage_stats

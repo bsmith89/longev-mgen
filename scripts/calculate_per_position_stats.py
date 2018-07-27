@@ -36,10 +36,11 @@ def debug(s):
 if __name__ == "__main__":
     tqdm.pandas()  # Register tqdm as a pandas progress indicator.
     depth_path = sys.argv[1]
+    trusted_path = sys.argv[2]
     # Load library list.
     libraries = []
-    if len(sys.argv) == 3:
-        with open(sys.argv[2]) as library_handle:
+    if len(sys.argv) == 4:
+        with open(sys.argv[3]) as library_handle:
             libraries = [line.strip() for line in library_handle]
     else:
         debug("Library list empty.  All libraries will be considered.")
@@ -55,8 +56,7 @@ if __name__ == "__main__":
     debug("Unstacking depth data.")
     depth = depth.depth.unstack('library_id', fill_value=0)
 
-    debug("Calculating total depth in each library.")
-    library_depth = depth.sum()
+    library_depth = pd.read_table(trusted_path, names=['library_id', 'total_depth']).total_depth
     debug("Calculating cosine similarity to total library depth for each position.")
     library_depth_norm = np.linalg.norm(library_depth)
     output = depth.progress_apply(lambda x: np.dot(library_depth, x) /

@@ -115,14 +115,14 @@ config['gene_to_hmm'] = \
 
 config['genome_group'] = \
         { 'muri':
-             { 'mags': [ 'Otu0001.vA'
-                       , 'Otu0001.vB'
-                       , 'Otu0004.vA'
-                       , 'Otu0005.vA'
-                       , 'Otu0007.vA'
-                       , 'Otu0009.vA'
-                       , 'Otu0017.vA'
-                       , 'Otu0049.vA'
+             { 'mags': [ 'Otu0001_vA'
+                       , 'Otu0001_vB'
+                       , 'Otu0004_vA'
+                       , 'Otu0005_vA'
+                       , 'Otu0007_vA'
+                       , 'Otu0009_vA'
+                       , 'Otu0017_vA'
+                       , 'Otu0049_vA'
                        ]
              , 'refs': [ 'GP1'
                        , 'GP2'

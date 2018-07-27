@@ -338,7 +338,7 @@ rule alias_rrs_reps:
 
 localrules: query_count_info, query_taxonomy_info
 
-# {{{1 Primary Metagenomic Assembly
+# {{{1 Metagenomic Assembly
 
 # {{{2 Data pre-processing
 
@@ -416,7 +416,7 @@ rule assemble_mgen:
                            in product(config['asmbl_group'][wildcards.group],
                                       ['r1', 'r2'])
                           ]
-    log: 'data/{group}.a.megahit.d/log'
+    log: 'data/{group}.a.megahit.log'
     threads: MAX_THREADS
     params:
         r1=lambda wildcards: ','.join([f'data/{library}.m.r1.proc.fq.gz'
@@ -431,7 +431,8 @@ rule assemble_mgen:
             --k-min 21 --k-max 161 --k-step 20 \
             --out-dir {output.dir} \
             --num-cpu-threads {threads} \
-            --verbose
+            --verbose \
+            2>&1 > {log}
         sed 's:^>k161_\([0-9]\+\):>{wildcards.group}_\1:' {output.dir}/final.contigs.fa > {output.fasta}
         # TODO: Fix this hard-coding of k-parameters.
         megahit_toolkit contig2fastg 141 {output.dir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
@@ -471,6 +472,7 @@ rule bowtie_index_build:
 
 # {{{3 Backmap
 
+# TODO: Consider matching the MAG back-mapping recipe by including a {proc} wildcard after '-map.'
 rule map_reads_to_metagenome_assembly:
     output: 'data/{library}.m.{group}-map.sort.bam'
     input:
@@ -559,8 +561,8 @@ rule combine_linkage_tallies:
         r"""
         printf 'contig_id_1\tcontig_id_2\tlibrary_id\tread_count\n' > {output}
         for file in {input}; do
-            sed 1,1d $file >> {output}
-        done
+            sed 1,1d $file
+        done >> {output}
         """
 
 # {{{2 Calculate statistics

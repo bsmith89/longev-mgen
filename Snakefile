@@ -801,7 +801,7 @@ localrules: query_merge_stats
 rule select_curated_mags:
     output:
         contigs='data/{group}.a.mags/{mag}.g.contigs.list',
-        libraries='data/{group}.a.mags/{mag}.g.contigs.list',
+        libraries='data/{group}.a.mags/{mag}.g.libraries.list',
     input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """
@@ -831,7 +831,7 @@ rule get_mag_contigs:
         seqs='data/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
 
-localrules: select_mag_contigs, select_mag_libraries, get_mag_contigs
+localrules: select_curated_mags, get_mag_contigs
 
 # {{{2 MAG Refinement
 # {{{3 Mapping

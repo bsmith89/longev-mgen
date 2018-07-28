@@ -1254,8 +1254,8 @@ rule annotate_mag:
         """
 
 rule summarize_annotation:
-    output: 'data/{stem}.prokka.summary.tsv'
-    input: 'data/{stem}.prokka.tsv'
+    output: 'data/{group_stem}.annot/{mag_stem}.prokka.summary.tsv'
+    input: 'data/{group_stem}.annot/{mag_stem}.prokka.tsv'
     shell:
         r"""
         echo '

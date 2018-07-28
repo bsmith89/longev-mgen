@@ -56,7 +56,7 @@ if __name__ == "__main__":
     debug("Unstacking depth data.")
     depth = depth.depth.unstack('library_id', fill_value=0)
 
-    library_depth = pd.read_table(trusted_path, names=['library_id', 'total_depth']).total_depth
+    library_depth = pd.read_table(trusted_path, names=['library_id', 'total_depth'], index_col='library_id').loc[depth.columns].total_depth
     debug("Calculating cosine similarity to total library depth for each position.")
     library_depth_norm = np.linalg.norm(library_depth)
     output = depth.progress_apply(lambda x: np.dot(library_depth, x) /

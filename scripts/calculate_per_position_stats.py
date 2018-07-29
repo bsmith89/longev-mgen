@@ -13,8 +13,7 @@ import sys
 
 from tqdm import TqdmSynchronisationWarning
 import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", TqdmSynchronisationWarning)
+warnings.simplefilter("ignore", TqdmSynchronisationWarning)
 
 
 # import numpy as np

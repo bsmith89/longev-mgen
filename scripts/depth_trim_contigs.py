@@ -11,8 +11,7 @@ import argparse
 
 from tqdm import TqdmSynchronisationWarning
 import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", TqdmSynchronisationWarning)
+warnings.simplefilter("ignore", TqdmSynchronisationWarning)
 
 # TODO: This definitely needs a unit test.
 def depth_trim(depth, thresh, flank, window, offset=0):

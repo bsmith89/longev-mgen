@@ -14,6 +14,7 @@ wildcard_constraints:
     library = no_periods_regex_constraint,
     mag = no_periods_regex_constraint,
     bin = no_periods_regex_constraint,
+    genomes = no_periods_regex_constraint
 
 # {{{2 Project configuration
 
@@ -734,11 +735,11 @@ rule split_out_bins:
 
 # {{{3 QC bins
 
-rule checkm_seqs:
+rule checkm_seqs_adhoc:
     output:
         dir=temp('data/{stem}.checkm.d'),
         summary='data/{stem}.checkm.tsv'
-    input: 'data/{stem}'
+    input: 'data/{stem}/'
     threads: MAX_THREADS
     log: 'log/{stem}.checkm.log'
     shell:
@@ -749,6 +750,25 @@ rule checkm_seqs:
                 --file {output.summary} --tab_table \
                 {input} {output.dir}
         """
+
+rule checkm_seqs:
+    output:
+        dir=temp('data/{stem}.checkm.d'),
+        summary='data/{stem}.checkm.tsv'
+    input: 'data/{stem}.d'
+    threads: MAX_THREADS
+    log: 'log/{stem}.checkm.log'
+    shell:
+        r"""
+        rm -rf {output}
+        checkm lineage_wf -x fn \
+                --threads {threads} --pplacer_threads {threads} \
+                --file {output.summary} --tab_table \
+                {input} {output.dir}
+        """
+
+ruleorder: checkm_seqs > checkm_seqs_adhoc
+
 
 rule reformat_checkm_output:
     output: 'data/{group}.checkm_details.tsv'

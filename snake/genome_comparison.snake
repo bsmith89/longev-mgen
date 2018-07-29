@@ -204,10 +204,10 @@ localrules: download_btheta_genome, download_m_intestinale_genome,
 
 rule full_genomes_group_quast_result:
     output:
-        dir="data/{group}.a.mags.{genomes}.quast.d",
-        report="data/{group}.a.mags.{genomes}.quast.tsv",
+        dir="data/{group}.a.mags.{genomes}.g.{proc}.quast.d",
+        report="data/{group}.a.mags.{genomes}.g.{proc}.quast.tsv",
     input:
-        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag_stem}.g.{wildcards.proc}.fn'
                                 for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
         refs=lambda wildcards: [f'data/ref.mags/{ref_stem}.fn'
                                 for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
@@ -220,20 +220,21 @@ rule full_genomes_group_quast_result:
         cp {output.dir}/transposed_report.tsv {output.report}
         """
 
+# This is then used by the CheckM recipe to get a summary of completeness/contamination
 rule make_genome_group_dir:
-    output: 'data/{group}.a.mags.{genomes}.d'
+    output: 'data/{group}.a.mags.{genomes}.g.{proc}.d'
     input:
-        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag_stem}.a.scaffolds.pilon.ctrim.fn'
-                                for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags/{ref_stem}.fn'
-                                for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
+                                for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.fn'
+                                for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
         rm -rf {output}
         mkdir -p {output}
         for genome in {input.mags};
         do
-            ln -rs $genome {output}/$(basename --suffix .a.scaffolds.pilon.ctrim.fn $genome).fn
+            ln -rs $genome {output}/$(basename --suffix .g.{wildcards.proc}.fn $genome).fn
         done
         for genome in {input.refs};
         do
@@ -241,13 +242,40 @@ rule make_genome_group_dir:
         done
         """
 
+rule combine_annotation_summaries:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.prokka.summary.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka.summary.tsv'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka.summary.tsv'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        r"""
+        (
+            printf "mag_id\tstatistic\tvalue\n"
+            for file in {input.mags}; do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
+            done
+            for file in {input.refs}; do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
+            done
+        ) | python3 -c '
+import pandas as pd
+import sys
+
+data = pd.read_table(sys.stdin, index_col=["mag_id", "statistic"])["value"].unstack("statistic")
+data.to_csv(sys.stdout, sep="\t")
+                        ' > {output}
+        """
+
 rule compile_genomes_group_stats_table:
     output:
-        "data/{group}.a.mags.{genomes}.stats.tsv"
+        "data/{group}.a.mags.{genomes}.g.{proc}.stats.tsv"
     input:
-        checkm="data/{group}.a.mags.{genomes}.checkm.tsv",
-        quast="data/{group}.a.mags.{genomes}.quast.tsv",
-        annot="data/{group}.a.mags.{genomes}.prokka.summary.tsv"
+        checkm="data/{group}.a.mags.{genomes}.g.{proc}.checkm.tsv",
+        quast="data/{group}.a.mags.{genomes}.g.{proc}.quast.tsv",
+        annot="data/{group}.a.mags.{genomes}.g.{proc}.prokka.summary.tsv"
     shell:
         """
         tmp_checkm=$(mktemp)
@@ -262,54 +290,27 @@ rule compile_genomes_group_stats_table:
         grep -v 'mag_id' $tmp_unord >> {output}
         """
 
-rule combine_annotation_summaries:
-    output:
-        "data/{group}.a.mags.{genomes}.prokka.summary.tsv"
-    input:
-        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag_stem}.a.scaffolds.pilon.ctrim.prokka.summary.tsv'
-                                     for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref_stem}.prokka.summary.tsv'
-                                     for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
-    shell:
-        r"""
-        (
-            printf "mag_id\tstatistic\tvalue\n"
-            for file in {input.mags}; do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .a.scaffolds.pilon.ctrim.prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
-            done
-            for file in {input.refs}; do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
-            done
-        ) | python3 -c '
-import pandas as pd
-import sys
-
-data = pd.read_table(sys.stdin, index_col=["mag_id", "statistic"])["value"].unstack("statistic")
-data.to_csv(sys.stdout, sep="\t")
-                        ' > {output}
-        """
-
 # {{{1 Full-genome phylogenetics
 
 rule pick_phylogenetic_marker_genes:
     output:
-        dir="data/{group}.a.mags.{genomes}.marker_genes.d",
+        dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d",
         # .../markers.list  # List of shared single-copy markers
         # .../GENE_NAME.fa  # Amino-acid sequences to be aligned for each gene
         # .../genome_to_cds.tsv  # Mapping from sequences to genomes
     input:
         script="scripts/pick_marker_genes.py",
-        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
+        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{proc}.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
-        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.a.scaffolds.pilon.ctrim.cds.fa'
+        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{proc}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
     params:
-        mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot/{g}.a.scaffolds.pilon.ctrim.cds.Pfam-hits.hmmer-tc.tsv'
-                                 f':data/{wildcards.group}.a.mags.annot/{g}.a.scaffolds.pilon.ctrim.cds.fa')
+        mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.Pfam-hits.hmmer-tc.tsv'
+                                 f':data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['mags']],
         refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.cds.Pfam-hits.hmmer-tc.tsv'
                                  f':data/ref.mags.annot/{g}.cds.fa')
@@ -326,10 +327,10 @@ rule pick_phylogenetic_marker_genes:
 
 rule align_phylogenetic_marker_genes:
     output:
-        dir="data/{group}.a.mags.{genomes}.marker_genes.align.d",
+        dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.align.d",
     input:
         squeeze_script="scripts/squeeze_alignment.py",
-        dir="data/{group}.a.mags.{genomes}.marker_genes.d",
+        dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d",
         hmm="ref/hmm/Pfam.hmm",
     shell:
         """
@@ -349,11 +350,11 @@ rule align_phylogenetic_marker_genes:
         """
 
 rule concatenate_marker_gene_alignments:
-    output: "data/{group}.a.mags.{genomes}.marker_genes.afa",
+    output: "data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.afa",
     input:
         concat_script="scripts/concat_alignments.py",
-        search_dir="data/{group}.a.mags.{genomes}.marker_genes.d",
-        align_dir="data/{group}.a.mags.{genomes}.marker_genes.align.d",
+        search_dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d",
+        align_dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.align.d",
     shell:
         """
         # Concatenate the alignments {input.concat_script}
@@ -368,14 +369,14 @@ rule concatenate_marker_gene_alignments:
 
 # {{{1 CAZy Annotations
 rule compile_cazy_hits:
-    output: fasta="data/{group}.a.mags.{genomes}.dbCAN-hits.fa",
-        tsv="data/{group}.a.mags.{genomes}.dbCAN-hits.gene_genome_map.tsv"
+    output: fasta="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.fa",
+        tsv="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.gene_genome_map.tsv"
     input:
-        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.hmmer-tc.tsv'
+        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.dbCAN-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
-        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.a.scaffolds.pilon.ctrim.cds.dbCAN-hits.fa'
+        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.dbCAN-hits.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
@@ -385,7 +386,7 @@ rule compile_cazy_hits:
         cat {input.mags_seqs} {input.refs_seqs} > {output.fasta}
         for hits in {input.mags_hits}
         do
-            genome_name=$(basename --suffix .a.scaffolds.pilon.ctrim.cds.dbCAN-hits.hmmer-tc.tsv $hits)
+            genome_name=$(basename --suffix .g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv $hits)
             awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$2,$1}}' $hits
         done > {output.tsv}
         for hits in {input.refs_hits}

@@ -1609,10 +1609,10 @@ rule all_by_all_blastp:
     shell:
         "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
 
-rule calculate_blastp_distance_matrix:
-    output: "data/{stem}.blastp_dist.tsv"
+rule calculate_blastp_dissimilarity_matrix:
+    output: "data/{stem}.blastp_dis.tsv"
     input:
-        script="scripts/calculate_blastp_distance_matrix.py",
+        script="scripts/calculate_blastp_dissimilarity_matrix.py",
         blastp="data/{stem}.self_blastp.tsv",
     shell:
         "{input.script} {input.blastp} > {output}"
@@ -1621,7 +1621,7 @@ rule denovo_cluster_proteins:
     output: "data/{stem}.denovo-clust.tsv"
     input:
         script='scripts/cluster_proteins.py',
-        data='data/{stem}.blastp_dist.tsv',
+        data='data/{stem}.blastp_dis.tsv',
     params:
         n_clusters=1500
     shell:

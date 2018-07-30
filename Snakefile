@@ -465,7 +465,7 @@ rule bowtie_index_build:
         'data/{stem}.rev.2.bt2'
     input: 'data/{stem}.fn'
     log: 'log/{stem}.bowtie2-build.log'
-    threads: min(15, MAX_THREADS)
+    threads: min(5, MAX_THREADS)
     shell:
         """
         bowtie2-build --threads {threads} {input} data/{wildcards.stem} >{log} 2>&1
@@ -999,7 +999,7 @@ rule pilon_refine:
         mem_mb=100000
     params:
         prefix="data/{group}.a.mags/{mag}.g.{proc}.pilon"
-    threads: min(16, MAX_THREADS)
+    threads: min(12, MAX_THREADS)
     shell:
         r"""
         pilon -Xms1024m -Xmx{resources.mem_mb}m --threads {threads} \

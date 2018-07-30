@@ -1040,8 +1040,8 @@ rule combine_depths:
         done | gzip > {output}
         """
 
-rule calculate_position_coverage_stats:
-    output: "data/{group}.a.mags/{mag}.g.{proc}.pstat.tsv"
+rule calculate_position_correlation_stats:
+    output: "data/{group}.a.mags/{mag}.g.{proc}.pcorr.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
         trusted="data/{group}.a.mags/{mag}.g.trusted_depth.tsv",
@@ -1052,8 +1052,8 @@ rule calculate_position_coverage_stats:
         {input.script} {input.depth} {input.trusted} {input.libs} > {output}
         """
 
-rule calculate_position_coverage_stats_all_libs:
-    output: "data/{group}.a.mags/{mag}_v0.g.{proc}.pstat.tsv"
+rule calculate_position_correlation_stats_all_libs:
+    output: "data/{group}.a.mags/{mag}_v0.g.{proc}.pcorr.tsv"
     input:
         script="scripts/calculate_per_position_stats.py",
         trusted="data/{group}.a.mags/{mag}.g.trusted_depth.tsv",
@@ -1063,13 +1063,13 @@ rule calculate_position_coverage_stats_all_libs:
         {input.script} {input.depth} {input.trusted} > {output}
         """
 
-ruleorder: calculate_position_coverage_stats_all_libs > calculate_position_coverage_stats
+ruleorder: calculate_position_correlation_stats_all_libs > calculate_position_correlation_stats
 
 rule plot_position_distribution_plots:
-    output: "fig/{group}.a.mags/{mag}.g.{proc}.pstat.hist.pdf"
+    output: "fig/{group}.a.mags/{mag}.g.{proc}.pcorr.hist.pdf"
     input:
         script="scripts/plot_position_correlations_histogram.py",
-        corrs="data/{group}.a.mags/{mag}.g.{proc}.pstat.tsv"
+        corrs="data/{group}.a.mags/{mag}.g.{proc}.pcorr.tsv"
     shell:
         """
         {input.script} {input.corrs} {output}
@@ -1081,7 +1081,7 @@ rule correlation_trim_contigs:
     input:
         script="scripts/correlation_trim_contigs.py",
         scaffolds="data/{stem}.fn",
-        corr="data/{stem}.pstat.tsv",
+        corr="data/{stem}.pcorr.tsv",
     params:
         window=100,
         flank=100,
@@ -1101,7 +1101,7 @@ rule select_correlation_trim_threshold:
         fn="data/{stem}.ctrim.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
-        plot="fig/{stem}.pstat.hist.pdf",
+        plot="fig/{stem}.pcorr.hist.pdf",
         seqs=[f"data/{{stem}}.ctrim-{cutoff}.fn"
               for cutoff in [50, 60, 70, 90]],
     params:

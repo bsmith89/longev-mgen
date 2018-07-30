@@ -99,7 +99,13 @@ rule display_rulegraph:
     output: "fig/snake.rulegraph.pdf"
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
-        "snakemake -n --rulegraph data/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | dot -Tpdf > {output}"
+        """
+        snakemake -n --rulegraph \
+                data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.dbCAN-hits.denovo-clust.tsv \
+                data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.genome_stats.tsv \
+                data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.marker_genes.gb.prot.nwk \
+            | dot -Tpdf > {output}
+        """
 
 rule display_dag:
     output:

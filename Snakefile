@@ -972,14 +972,15 @@ rule diginorm_reads:
 # TODO: Try larger minimum kmers to reduce missassembly using -k 21,33,55,77
 # TODO: Filter contigs by length (some minimum) and by estimated coverage (remove outliers)
 # TODO: Rename contigs with mag stem.
+# TODO: Consider assembling from reads in all (not just trusted) libraries.
 rule reassemble_mag:
     output:
         scaffolds='data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn',
         contigs='data/{group}.a.mags/{mag}.g.rsmbl.contigs.fn',
         dir='data/{group}.a.mags/{mag}.g.spades.d',
     input:
-        r1='data/{group}.a.mags/{mag}.g.contigs.map-{group}.r1.dnorm.fq.gz',
-        r2='data/{group}.a.mags/{mag}.g.contigs.map-{group}.r2.dnorm.fq.gz'
+        r1='data/{group}.a.mags/{mag}.g.contigs.map.r1.dnorm.fq.gz',
+        r2='data/{group}.a.mags/{mag}.g.contigs.map.r2.dnorm.fq.gz'
     threads: min(15, MAX_THREADS)
     shell:
         r"""

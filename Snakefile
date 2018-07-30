@@ -8,13 +8,13 @@ from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
 
 # {{{2 Nomenclature
 
-no_periods_regex_constraint = '[^.]+'
+one_word_wc_constraint = '[^./]+'
 wildcard_constraints:
-    group = no_periods_regex_constraint,
-    library = no_periods_regex_constraint,
-    mag = no_periods_regex_constraint,
-    bin = no_periods_regex_constraint,
-    genomes = no_periods_regex_constraint
+    group = one_word_wc_constraint,
+    library = one_word_wc_constraint,
+    mag = one_word_wc_constraint,
+    bin = one_word_wc_constraint,
+    genomes = one_word_wc_constraint
 
 # {{{2 Project configuration
 
@@ -1194,8 +1194,8 @@ rule compare_strains:
         magA="data/{group_stem}/{magA}.g.{proc}.fn",
         magB="data/{group_stem}/{magB}.g.{proc}.fn",
     wildcard_constraints:
-        magA=no_periods_regex_constraint,
-        magB=no_periods_regex_constraint,
+        magA=one_word_wc_constraint,
+        magB=one_word_wc_constraint,
     shell:
         """
         nucmer --mum --delta {output.delta} {input.magA} {input.magB}
@@ -1219,8 +1219,8 @@ rule process_strain_comparison_table:
     input:
         delta="data/{group_stem}/{magA}.g.{proc}.{magB}-align.delta",
     wildcard_constraints:
-        magA=no_periods_regex_constraint,
-        magB=no_periods_regex_constraint,
+        magA=one_word_wc_constraint,
+        magB=one_word_wc_constraint,
     shell:
         """
         show-coords -B {input.delta} > {output.coords}
@@ -1237,8 +1237,8 @@ rule plot_strain_comparison:
         # depth1="data/{group}.a.mags/{mag}.v{strain1}.{proc_stem}.depth.tsv",
         # depth2="data/{group}.a.mags/{mag}.v{strain2}.{proc_stem}.depth.tsv",
     wildcard_constraints:
-        magA=no_periods_regex_constraint,
-        magB=no_periods_regex_constraint,
+        magA=one_word_wc_constraint,
+        magB=one_word_wc_constraint,
     params:
         alignment_length_thresh=150
     shell:
@@ -1639,7 +1639,7 @@ rule join_genome_by_cluster_table:
         clust='data/{stem}.{clust_type}-clust.tsv',
         meta='data/{stem}.gene_genome_map.tsv'
     wildcard_constraints:
-        clust_type=no_periods_regex_constraint
+        clust_type=one_word_wc_constraint
     shell:
         """
         join -t'\t' -1 3 -2 1 <(sort -k3,3 {input.meta}) <(sort -k1,1 {input.clust}) \

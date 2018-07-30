@@ -1128,7 +1128,7 @@ rule select_correlation_trim_threshold:
         snakemake data/{wildcards.stem}.ctrim-THRESHOLD.fn
 
         You may want to use the following to guide your decision:
-        -   Completeness/contamination (checkM results)
+        -   Completeness/contamination (checkM results: see snakemake rule 'checkm_seqs_adhoc')
         -   Number of contigs/scaffolds
         -   Total sequence length
         -   Nucleotide correlation histogram ({input.plot})

@@ -1362,13 +1362,13 @@ rule filter_metacyc_pathways:
 
 rule infer_pathways:
     output:
-        report='data/{stem}.ec.minpath.report.tsv',
-        details='data/{stem}.ec.minpath.details.txt'
+        report='data/{stem}.ec-minpath.report.tsv',
+        details='data/{stem}.ec-minpath.details.txt'
     input:
         ec_list='data/{stem}.ec.tsv',
         ec_map='ref/ec2path.picrust.filt.tsv',
     log:
-        'data/{stem}.ec.minpath.log'
+        'data/{stem}.ec-minpath.log'
     threads: MAX_THREADS  # TODO: Figure out how to stop MinPath from overwriting its own processing files (which makes parallel jobs impossible).
     shell:
         """
@@ -1376,8 +1376,8 @@ rule infer_pathways:
         """
 
 rule extract_metacyc_list:
-    output: 'data/{stem}.ec.minpath.list'
-    input: 'data/{stem}.ec.minpath.report.tsv'
+    output: 'data/{stem}.ec-minpath.list'
+    input: 'data/{stem}.ec-minpath.report.tsv'
     shell:
         """
         awk '$8==1{{print $14}}' {input} > {output}

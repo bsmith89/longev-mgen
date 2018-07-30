@@ -290,6 +290,30 @@ rule compile_genomes_group_stats_table:
         grep -v 'mag_id' $tmp_unord >> {output}
         """
 
+rule combine_minpath_results:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.ec-minpath.count.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.ec-minpath.list'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.ec-minpath.list'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    wildcard_constraints:
+        annot=one_word_wc_constraint
+    shell:
+        r"""
+        (
+            for file in {input.mags}
+            do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.ec-minpath.list $file) 'NR > 1 {{print mag_id, $1, 1}}' $file
+            done
+            for file in {input.refs}
+            do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .ec-minpath.list $file) 'NR > 1 {{print mag_id, $1, 1}}' $file
+            done
+        ) > {output}
+        """
+
 # {{{1 Full-genome phylogenetics
 
 rule pick_phylogenetic_marker_genes:

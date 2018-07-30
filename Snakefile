@@ -1088,6 +1088,8 @@ rule correlation_trim_contigs:
         script="scripts/correlation_trim_contigs.py",
         scaffolds="data/{stem}.fn",
         corr="data/{stem}.pcorr.tsv",
+    wildcard_constraints:
+        thresh='[0-9][0-9]'
     params:
         window=100,
         flank=100,

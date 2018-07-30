@@ -430,7 +430,8 @@ rule concatenate_marker_gene_alignments:
 
 # {{{1 CAZy Annotations
 rule compile_cazy_hits:
-    output: fasta="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.fa",
+    output:
+        fasta="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.fa",
         tsv="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.gene_genome_map.tsv"
     input:
         mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv'

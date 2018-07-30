@@ -1502,7 +1502,7 @@ rule hmmscan_domains:
     output: "data/{stem}.{hmm}-hits.domtblout"
     input: "data/{stem}.{hmm}-hits.fa"
     log: "data/{stem}.{hmm}-hits.domtblout.log"
-    input:
+    shell:
         """
         hmmscan --domtblout {output} ref/hmm/{wildcards.hmm}.hmm {input} > {log}
         """

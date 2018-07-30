@@ -290,6 +290,43 @@ rule compile_genomes_group_stats_table:
         grep -v 'mag_id' $tmp_unord >> {output}
         """
 
+rule compile_gene_by_genome_tables:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.gene_genome_map.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka.tsv'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka.tsv'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        r"""
+        (
+            for file in {input.mags}
+            do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.prokka.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
+            done
+            for file in {input.refs}
+            do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
+            done
+        ) > {output}
+        """
+
+rule combine_annotations:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.{annot}-annot.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.{wildcards.annot}.tsv'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.{wildcards.annot}.tsv'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    wildcard_constraints:
+        annot=one_word_wc_constraint
+    shell:
+        """
+        cat {input} > {output}
+        """
+
 rule combine_minpath_results:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.ec-minpath.count.tsv"
@@ -411,11 +448,14 @@ rule compile_cazy_hits:
         for hits in {input.mags_hits}
         do
             genome_name=$(basename --suffix .g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv $hits)
-            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$2,$1}}' $hits
+            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$1}}' $hits
         done > {output.tsv}
         for hits in {input.refs_hits}
         do
             genome_name=$(basename --suffix .cds.dbCAN-hits.hmmer-tc.tsv $hits)
-            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$2,$1}}' $hits
+            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$1}}' $hits
         done >> {output.tsv}
         """
+
+
+ruleorder: compile_cazy_hits > compile_gene_by_genome_tables

@@ -1644,9 +1644,25 @@ rule join_genome_by_cluster_table:
         clust_type=one_word_wc_constraint
     shell:
         """
-        join -t'\t' -1 3 -2 1 <(sort -k3,3 {input.meta}) <(sort -k1,1 {input.clust}) \
-                | sort -k1,1 -k4,4 -u \
-                | cut -f2,4 | sort \
+        join -t'\t' -1 2 -2 1 <(sort -k2,2 {input.meta}) <(sort -k1,1 {input.clust}) \
+                | sort -k1,1 -k3,3 -u \
+                | cut -f2,3 | sort \
+                | uniq -c | awk -v OFS='\t' '{{print $2,$3,$1}}' \
+                > {output}
+        """
+
+rule join_genome_by_annotation_table:
+    output: "data/{stem}.{annot}-annot.count.tsv"
+    input:
+        clust='data/{stem}.{annot}-annot.tsv',
+        meta='data/{stem}.gene_genome_map.tsv'
+    wildcard_constraints:
+        annot=one_word_wc_constraint
+    shell:
+        """
+        join -t'\t' -1 2 -2 1 <(sort -k2,2 {input.meta}) <(sort -k1,1 {input.clust}) \
+                | sort -k1,1 -k3,3 -u \
+                | cut -f2,3 | sort \
                 | uniq -c | awk -v OFS='\t' '{{print $2,$3,$1}}' \
                 > {output}
         """

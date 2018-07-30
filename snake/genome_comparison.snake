@@ -429,6 +429,7 @@ rule concatenate_marker_gene_alignments:
         """
 
 # {{{1 CAZy Annotations
+# TODO: Split this into two recipes.
 rule compile_cazy_hits:
     output:
         fasta="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.fa",

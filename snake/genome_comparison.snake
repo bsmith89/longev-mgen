@@ -300,11 +300,11 @@ rule pick_phylogenetic_marker_genes:
         # .../genome_to_cds.tsv  # Mapping from sequences to genomes
     input:
         script="scripts/pick_marker_genes.py",
-        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{proc}.cds.Pfam-hits.hmmer-tc.tsv'
+        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
-        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{proc}.cds.fa'
+        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],

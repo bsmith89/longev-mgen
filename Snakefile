@@ -1630,7 +1630,7 @@ rule denovo_cluster_proteins:
         script='scripts/cluster_proteins.py',
         data='data/{stem}.self_blastp.tsv',
     params:
-        n_clusters=1500
+        n_clusters=2000
     shell:
         '{input.script} {input.data} {params.n_clusters} > {output}'
 

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     smatrix = similarity.unstack()  # Make into a matrix
     smatrix = (smatrix + smatrix.T) / 2  # Make symmetrical
     assert (smatrix.columns == smatrix.index).all()
-    smatrix = smatrix / binary_operator_matrix(np.diag(smatrix), func=np.max)  # Normalize to max
+    smatrix = smatrix / binary_operator_matrix(np.diag(smatrix), func=np.mean)
     dmatrix = 1 - smatrix  # Convert to dissimilarity
     del smatrix
     dmatrix = dmatrix.fillna(dmatrix.T)

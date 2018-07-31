@@ -1562,6 +1562,12 @@ rule gblocks_afa:
         scripts/Gblocks.py < {input.seq} > {output}
         """
 
+rule refine_alignment:
+    output: '{stem}.refine.afa'
+    input: '{stem}.afa'
+    shell: 'muscle -refine < {input} > {output}'
+
+
 rule gblocks_afn:
     output: '{stem}.gb.afn'
     input: '{stem}.afn'

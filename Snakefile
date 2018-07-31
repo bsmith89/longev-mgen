@@ -1226,7 +1226,7 @@ rule process_strain_comparison_table:
         magB=one_word_wc_constraint,
     shell:
         """
-        show-coords -B {input.delta} > {output.coords}
+        show-coords -g -B {input.delta} > {output.coords}
         """
 
 rule plot_strain_comparison:

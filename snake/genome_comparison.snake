@@ -294,20 +294,20 @@ rule compile_gene_by_genome_tables:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.gene_genome_map.tsv"
     input:
-        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka.tsv'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka-annot.tsv'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka-annot.tsv'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         r"""
         (
             for file in {input.mags}
             do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.prokka.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.prokka-annot.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
             done
             for file in {input.refs}
             do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka-annot.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
             done
         ) > {output}
         """
@@ -326,6 +326,24 @@ rule combine_annotations:
         """
         cat {input} > {output}
         """
+
+rule combine_prokka_annotations:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.prokka-annot.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka.tsv'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka.tsv'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        """
+        for file in {input}
+        do
+            sed -e '1,1d' -e '/repeat_region/d' $file
+        done > {output}
+        """
+
+ruleorder: combine_prokka_annotations > combine_annotations
 
 rule combine_minpath_results:
     output:

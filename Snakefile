@@ -1261,11 +1261,11 @@ rule annotate_mag:
     output:
         fa="data/{stem}.mags.annot/{mag_stem}.cds.fa",
         fn="data/{stem}.mags.annot/{mag_stem}.cds.fn",
-        gbk="data/{stem}.mags.annot/{mag_stem}.prokka.gbk",
-        tbl="data/{stem}.mags.annot/{mag_stem}.prokka.tbl",
-        tsv="data/{stem}.mags.annot/{mag_stem}.prokka.tsv",
-        gff="data/{stem}.mags.annot/{mag_stem}.prokka.gff",
-        dir=temp("data/{stem}.mags.annot/{mag_stem}.prokka.d"),
+        gbk="data/{stem}.mags.annot/{mag_stem}.prokka-annot.gbk",
+        tbl="data/{stem}.mags.annot/{mag_stem}.prokka-annot.tbl",
+        tsv="data/{stem}.mags.annot/{mag_stem}.prokka-annot.tsv",
+        gff="data/{stem}.mags.annot/{mag_stem}.prokka-annot.gff",
+        dir=temp("data/{stem}.mags.annot/{mag_stem}.prokka-annot.d"),
     input: "data/{stem}.mags/{mag_stem}.fn"
     threads: MAX_THREADS
     shell:
@@ -1284,7 +1284,7 @@ rule annotate_mag:
 
 rule summarize_annotation:
     output: 'data/{group_stem}.annot/{mag_stem}.prokka.summary.tsv'
-    input: 'data/{group_stem}.annot/{mag_stem}.prokka.tsv'
+    input: 'data/{group_stem}.annot/{mag_stem}.prokka-annot.tsv'
     shell:
         r"""
         echo '
@@ -1324,7 +1324,7 @@ SELECT "n_product_not_hypothetical", COUNT(*) FROM annotation WHERE product != "
 
 rule extract_ec_numbers:
     output: 'data/{stem}.ec.tsv'
-    input: 'data/{stem}.prokka.tsv'
+    input: 'data/{stem}.prokka-annot.tsv'
     shell:
         """
         cut -f1,5 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
@@ -1332,7 +1332,7 @@ rule extract_ec_numbers:
 
 rule extract_cogs:
     output: 'data/{stem}.cog.tsv'
-    input: 'data/{stem}.prokka.tsv'
+    input: 'data/{stem}.prokka-annot.tsv'
     shell:
         """
         cut -f1,6 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
@@ -1678,6 +1678,58 @@ rule domain_structure_cluster_proteins:
         "{input.script} {input.domains} > {output}"
 
 
+rule compile_all_dbCAN_hit_annotations:
+    output: "data/{stem}.dbCAN-hits.annot_table.tsv"
+    input:
+        denovo="data/{stem}.dbCAN-hits.denovo-clust.tsv",
+        domain="data/{stem}.dbCAN-hits.domain-clust.tsv",
+        prokka="data/{stem}.prokka-annot.tsv",
+    shell:
+        r"""
+        # join -t '\t' <(sort -k1,1 {input.denovo}) <(join -t '\t' <(sort -k1,1 {input.domain}) <(sort -k1,1 {input.prokka})) > {output}
+        tmp=$(mktemp)
+        echo '
+.separator "\t"
+
+CREATE TABLE prokka
+( locus_tag PRIMARY KEY
+, ftype
+, length_bp
+, gene
+, ec_number
+, cog
+, product
+);
+.import {input.prokka} prokka
+
+CREATE TABLE domain
+( locus_tag
+, domain_structure
+);
+.import {input.domain} domain
+
+CREATE TABLE denovo
+( locus_tag
+, denovo_clust
+);
+.import {input.denovo} denovo
+
+SELECT
+    locus_tag
+  , denovo_clust
+  , domain_structure
+  , length_bp
+  , gene
+  , ec_number
+  , cog
+  , product
+FROM prokka
+JOIN domain USING (locus_tag)
+JOIN denovo USING (locus_tag)
+;
+
+        ' | sqlite3 $tmp -header > {output}
+"""
 
 # {{{1 Databases
 

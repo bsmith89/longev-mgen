@@ -1722,8 +1722,8 @@ SELECT
   , cog
   , product
 FROM prokka
-JOIN domain USING (locus_tag)
 JOIN denovo USING (locus_tag)
+LEFT JOIN domain USING (locus_tag)
 ;
 
         ' | sqlite3 $tmp -header > {output}

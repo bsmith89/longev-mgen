@@ -108,9 +108,9 @@ if __name__ == "__main__":
 
     # Make strand data something we can work with.
     data.strand = data.strand.map({'Plus': +1, 'Minus': -1})
-    # TODO: If the inversion covers more than half of the alignments,
+    # If the inversion covers more than half of the alignments,
     # than it's not really an inversion, is it?
-    # TODO: Flip these alignments as though I took the reverse
+    # Flip these alignments as though I took the reverse
     # complement of the entire contig.
     data = data.groupby(['contig_id_2']).apply(flip_inverted_contigs)
 

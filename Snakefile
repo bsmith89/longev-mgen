@@ -1237,8 +1237,10 @@ rule plot_strain_comparison:
         coords="data/{group_stem}/{magA}.g.{proc}.{magB}-align.coords",
         length1="data/{group_stem}/{magA}.g.{proc}.nlength.tsv",
         length2="data/{group_stem}/{magB}.g.{proc}.nlength.tsv",
-        # depth1="data/{group}.a.mags/{mag}.v{strain1}.{proc_stem}.depth.tsv",
-        # depth2="data/{group}.a.mags/{mag}.v{strain2}.{proc_stem}.depth.tsv",
+        depth1="data/{group_stem}/{magA}.g.{proc}.depth.tsv",
+        depth2="data/{group_stem}/{magB}.g.{proc}.depth.tsv",
+        lib1="data/{group_stem}/{magA}.g.library.list",
+        lib2="data/{group_stem}/{magB}.g.library.list",
     wildcard_constraints:
         magA=one_word_wc_constraint,
         magB=one_word_wc_constraint,
@@ -1246,7 +1248,12 @@ rule plot_strain_comparison:
         alignment_length_thresh=150
     shell:
         """
-        {input.script} {input.coords} {input.length1} {input.length2} {params.alignment_length_thresh} {output}
+        {input.script} {input.coords} \
+                {input.length1} {input.length2} \
+                {input.depth1} {input.depth2} \
+                {input.lib1} {input.lib2} \
+                {params.alignment_length_thresh} \
+                {output}
         """
 
 

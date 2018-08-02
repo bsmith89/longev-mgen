@@ -58,11 +58,12 @@ if __name__ == "__main__":
     data_path = sys.argv[1]
     length1_path = sys.argv[2]
     length2_path = sys.argv[3]
-    # TODO: Restore these
-    # depth1_path = sys.argv[4]
-    # depth2_path = sys.argv[5]
-    athresh = int(sys.argv[4])
-    out_path = sys.argv[5]
+    cvrg1_path = sys.argv[4]
+    cvrg2_path = sys.argv[5]
+    lib1_path = sys.argv[6]
+    lib2_path = sys.argv[7]
+    athresh = int(sys.argv[8])
+    out_path = sys.argv[9]
 
     # FROM http://mummer.sourceforge.net/manual/#coords
     # When run with the -B option, output format will consist of 21 tab-delimited
@@ -264,16 +265,78 @@ if __name__ == "__main__":
                             alpha=0.4, lw=0)
     ax.add_collection(pc)
 
-    # TODO: Replace this uniform lines with depth-based lines (see above)
+    # Load depth data
+    with open(lib1_path) as lib1_handle, open(lib2_path) as lib2_handle:
+        lib1 = [line.strip() for line in lib1_handle]
+        lib2 = [line.strip() for line in lib2_handle]
+
+    cvrg1 = pd.read_table(cvrg1_path, index_col='contig_id')
+    cvrg_1_1 = cvrg1[list(set(lib1) & set(cvrg1.columns))].sum(1)
+    cvrg_1_1 = cvrg_1_1 / cvrg_1_1.median()
+    cvrg_1_1.name = 'cvrg_1_1'
+
+    cvrg_1_2 = cvrg1[list(set(lib2) & set(cvrg1.columns))].sum(1)
+    cvrg_1_2 = cvrg_1_2 / cvrg_1_2.median()
+    cvrg_1_2.name = 'cvrg_1_2'
+
+    cvrg2 = pd.read_table(cvrg2_path, index_col='contig_id')
+    cvrg_2_1 = cvrg2[list(set(lib1) & set(cvrg2.columns))].sum(1)
+    cvrg_2_1 = cvrg_2_1 / cvrg_2_1.median()
+    cvrg_2_1.name = 'cvrg_2_1'
+
+    cvrg_2_2 = cvrg2[list(set(lib2) & set(cvrg2.columns))].sum(1)
+    cvrg_2_2 = cvrg_2_2 / cvrg_2_2.median()
+    cvrg_2_2.name = 'cvrg_2_2'
+
+    data = (data.join(cvrg_1_1, on='contig_id_1')
+                .join(cvrg_1_2, on='contig_id_1')
+                .join(cvrg_2_1, on='contig_id_2')
+                .join(cvrg_2_2, on='contig_id_2'))
+
+
     # Plot contigs
-    d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1', 'length_1']].dropna().drop_duplicates()
-    d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2', 'length_2']].dropna().drop_duplicates()
-    line_table = (list(zip(zip(d1.idx_left_1, repeat(1 - tick_length)), zip(d1.idx_right_1, repeat(1 - tick_length)))) +
-                    list(zip(zip(d2.idx_left_2, repeat(2 + tick_length)), zip(d2.idx_right_2, repeat(2 + tick_length))))
-                )
-    lc = mc.LineCollection(line_table,
-                            alpha=0.9, color=contig_palette)
-    ax.add_collection(lc)
+    d1 = data[['contig_id_1', 'idx_left_1', 'idx_right_1',
+            'length_1', 'cvrg_1_1', 'cvrg_1_2']].dropna().drop_duplicates()
+    d2 = data[['contig_id_2', 'idx_left_2', 'idx_right_2',
+            'length_2', 'cvrg_2_1', 'cvrg_2_2']].dropna().drop_duplicates()
+
+    poly_table_1_1 = list(zip(zip(d1.idx_left_1, 1 - np.sqrt(d1.cvrg_1_1) / 20),
+                        zip(d1.idx_left_1, repeat(1)),
+                        zip(d1.idx_right_1, repeat(1)),
+                        zip(d1.idx_right_1, 1 - np.sqrt(d1.cvrg_1_1) / 20)
+                        )
+                    )
+    pc_1_1 = mc.PolyCollection(poly_table_1_1, lw=0,
+                            alpha=0.5, color='grey')
+    ax.add_collection(pc_1_1)
+    poly_table_1_2 = list(zip(zip(d1.idx_left_1, 1 - np.sqrt(d1.cvrg_1_2) / 20),
+                        zip(d1.idx_left_1, repeat(1)),
+                        zip(d1.idx_right_1, repeat(1)),
+                        zip(d1.idx_right_1, 1 - np.sqrt(d1.cvrg_1_2) / 20)
+                        )
+                    )
+    pc_1_2 = mc.PolyCollection(poly_table_1_2, lw=0,
+                            alpha=1, color=contig_palette)
+    ax.add_collection(pc_1_2)
+
+    poly_table_2_2 = list(zip(zip(d2.idx_left_2, 2 + np.sqrt(d2.cvrg_2_2) / 20),
+                        zip(d2.idx_left_2, repeat(2)),
+                        zip(d2.idx_right_2, repeat(2)),
+                        zip(d2.idx_right_2, 2 + np.sqrt(d2.cvrg_2_2) / 20)
+                        )
+                    )
+    pc_2_2 = mc.PolyCollection(poly_table_2_2, lw=0,
+                            alpha=0.5, color='grey')
+    ax.add_collection(pc_2_2)
+    poly_table_2_1 = list(zip(zip(d2.idx_left_2, 2 + np.sqrt(d2.cvrg_2_1) / 20),
+                        zip(d2.idx_left_2, repeat(2)),
+                        zip(d2.idx_right_2, repeat(2)),
+                        zip(d2.idx_right_2, 2 + np.sqrt(d2.cvrg_2_1) / 20)
+                        )
+                    )
+    pc_2_1 = mc.PolyCollection(poly_table_2_1, lw=0,
+                            alpha=1, color=contig_palette)
+    ax.add_collection(pc_2_1)
 
     left_min = min(data.idx_left_1.min(), data.idx_left_2.min())
     right_max = max(data.idx_right_1.max(), data.idx_right_2.max())

@@ -1624,15 +1624,18 @@ rule all_by_all_blastp:
     shell:
         "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
 
+# TODO: Check out https://micans.org/mcl/man/mcl.html
 rule denovo_cluster_proteins:
-    output: "data/{stem}.denovo-clust.tsv"
+    output:
+        clust="data/{stem}.denovo-clust.tsv",
+        diss="data/{stem}.blastp_diss.tsv",
     input:
         script='scripts/cluster_proteins.py',
         data='data/{stem}.self_blastp.tsv',
     params:
         n_clusters=2000
     shell:
-        '{input.script} {input.data} {params.n_clusters} > {output}'
+        '{input.script} {input.data} {params.n_clusters} {output.diss} > {output}'
 
 rule join_genome_by_cluster_table:
     output: "data/{stem}.{clust_type}-clust.count.tsv"

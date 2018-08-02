@@ -23,6 +23,9 @@ if __name__ == "__main__":
 
     input_path = sys.argv[1]
     n_clusters = int(sys.argv[2])
+    diss_out_path = None
+    if len(sys.argv) > 3:
+        diss_out_path = sys.argv[3]
 
     data = pd.read_table(input_path,
                          names=['qseqid', 'sseqid', 'pident', 'length',
@@ -67,3 +70,15 @@ if __name__ == "__main__":
     template = 'Opu{:0' + str(n_digits) + '}'
     out.cluster = out.cluster.apply(lambda n: template.format(n))
     out.to_csv(sys.stdout, sep='\t', header=False)
+    print("Clustering finished.", file=sys.stderr)
+
+    # Output dmatrix if requested
+    if diss_out_path is not None:
+        print("Saving distance matrix in sparse format.", file=sys.stderr)
+        sparse_dmatrix = (dmatrix.stack()
+                                 .reset_index()
+                                 .rename(columns={0: 'dissimilarity'}))
+        sparse_dmatrix = sparse_dmatrix[lambda x: x.qseqid != x.sseqid]
+        sparse_dmatrix = sparse_dmatrix[lambda x: x.dissimilarity != 1]
+        sparse_dmatrix.to_csv(diss_out_path, sep='\t',
+                              header=False, index=False)

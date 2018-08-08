@@ -158,7 +158,7 @@ if __name__ == "__main__":
     data['length_longer'] = data[['length_1', 'length_2']].max(1)
     data['total_alength_longer'] = data[['total_alength_1', 'total_alength_2']].max(1)
     data['alength_longer'] = data[['alength_1', 'alength_2']].max(1)
-    data.sort_values(['alength_1', 'start_1'], ascending=[False, True],
+    data.sort_values(['alength_1', 'alength_2', 'start_1'], ascending=[False, False, True],
                      inplace=True)
 
     # Replace values with 0 after sorting, for layouts.

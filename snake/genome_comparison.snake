@@ -331,9 +331,9 @@ rule combine_prokka_annotations:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.prokka-annot.tsv"
     input:
-        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka.tsv'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka-annot.tsv'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka-annot.tsv'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """

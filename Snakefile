@@ -50,11 +50,19 @@ if 'MAX_THREADS' in config:
 
 # {{{1 Utility rules/recipes/templates
 
+# TODO: Figure out what I really want.
+mag_proc_infix = 'rsmbl.scaffolds.pilon.ctrim'
 rule all:
-    shell:
-        """
-        echo "Figure out what you really want!"
-        """
+    input:
+        [ f"data/core.a.mags.muri.g.{mag_proc_infix}.genome_stats.tsv"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.marker_genes.refine.gb.prot.nwk"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.ec-annot.count.tsv"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.ec-minpath.count.tsv"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.cog-annot.count.tsv"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.dbCAN-hits.annot_table.tsv"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.dbCAN-hits.denovo-clust.count.tsv"
+        , f"data/core.a.mags.muri.g.{mag_proc_infix}.dbCAN-hits.domain-clust.count.tsv"
+        ]
 
 localrules: all
 
@@ -96,7 +104,7 @@ rule configure_git:
         """
 
 rule display_rulegraph:
-    output: "fig/snake.rulegraph.pdf"
+    output: "data/snake.rulegraph.pdf"
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
         """
@@ -109,7 +117,7 @@ rule display_rulegraph:
 
 rule display_dag:
     output:
-        pdf="fig/snake.dag.pdf",
+        pdf="data/snake.dag.pdf",
         dot="data/snake.dag.dot",
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
@@ -396,13 +404,13 @@ rule quality_trim_reads:
 
 # This processing intended for mapping.
 rule alias_read_processing_r1:
-    output: 'data/{library_id}.m.r1.proc.fq.gz'
-    input: 'data/{library_id}.m.r1.dedup.deadapt.qtrim.fq.gz'
+    output: 'data/{library}.m.r1.proc.fq.gz'
+    input: 'data/{library}.m.r1.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
 
 rule alias_read_processing_r2:
-    output: 'data/{library_id}.m.r2.proc.fq.gz'
-    input: 'data/{library_id}.m.r2.dedup.deadapt.qtrim.fq.gz'
+    output: 'data/{library}.m.r2.proc.fq.gz'
+    input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
 
 localrules: alias_read_processing_r1, alias_read_processing_r2
@@ -741,44 +749,50 @@ rule split_out_bins:
 
 # {{{3 QC bins
 
-rule checkm_seqs_adhoc:
-    output:
-        dir=temp('data/{stem}.checkm.d'),
-        summary='data/{stem}.checkm.tsv'
-    input: 'data/{stem}/'
-    threads: MAX_THREADS
-    log: 'log/{stem}.checkm.log'
-    shell:
-        r"""
-        rm -rf {output}
-        checkm lineage_wf -x fn \
-                --threads {threads} --pplacer_threads {threads} \
-                --file {output.summary} --tab_table \
-                {input} {output.dir}
-        """
-
 rule checkm_seqs:
     output:
         dir=temp('data/{stem}.checkm.d'),
         summary='data/{stem}.checkm.tsv'
     input: 'data/{stem}.d'
     threads: MAX_THREADS
-    log: 'log/{stem}.checkm.log'
     shell:
         r"""
-        rm -rf {output}
+        rm -rf {output.dir}
         checkm lineage_wf -x fn \
                 --threads {threads} --pplacer_threads {threads} \
                 --file {output.summary} --tab_table \
                 {input} {output.dir}
         """
 
-ruleorder: checkm_seqs > checkm_seqs_adhoc
+rule checkm_ctrim_set:
+    output:
+        dir=temp('data/{group}.a.mags/{mag}.g.{proc}.ctrim_check.checkm.d'),
+        summary='data/{group}.a.mags/{mag}.g.{proc}.ctrim_check.checkm.tsv'
+    input:
+        [ 'data/{group}.a.mags/{mag}.g.{proc}.fn'
+        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-50.fn'
+        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-60.fn'
+        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-70.fn'
+        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-80.fn'
+        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-90.fn'
+        ]
+    threads: 2
+    shell:
+        r"""
+        tmpdir=$(mktemp -d)
+        ln -rst $tmpdir {input}
+        rm -rf {output.dir}
+        checkm lineage_wf -x fn \
+                --threads {threads} --pplacer_threads {threads} \
+                --file {output.summary} --tab_table \
+                $tmpdir {output.dir}
+        """
 
+ruleorder: checkm_ctrim_set > checkm_seqs
 
 rule reformat_checkm_output:
-    output: 'data/{group}.checkm_details.tsv'
-    input: 'data/{group}.checkm.tsv'
+    output: 'data/{stem}.checkm_details.tsv'
+    input: 'data/{stem}.checkm.tsv'
     shell:
         """
         cut -f1,4,12-15 {input} > {output}
@@ -1047,6 +1061,17 @@ rule combine_depths:
         done | gzip > {output}
         """
 
+rule estimate_mag_contig_cvrg:
+    output: 'data/{stem}.cvrg.unstack.tsv'
+    input:
+        script='scripts/calculate_contig_cvrg_all_libs.py',
+        depth='data/{stem}.library-depth.tsv.gz',
+        length='data/{stem}.nlength.tsv'
+    shell:
+        """
+        {input.script} {input.depth} {input.length} > {output}
+        """
+
 rule calculate_position_correlation_stats:
     output: "data/{group}.a.mags/{mag}.g.{proc}.pcorr.tsv"
     input:
@@ -1073,7 +1098,7 @@ rule calculate_position_correlation_stats_all_libs:
 ruleorder: calculate_position_correlation_stats_all_libs > calculate_position_correlation_stats
 
 rule plot_position_distribution_plots:
-    output: "fig/{group}.a.mags/{mag}.g.{proc}.pcorr.hist.pdf"
+    output: "data/{group}.a.mags/{mag}.g.{proc}.pcorr.hist.pdf"
     input:
         script="scripts/plot_position_correlations_histogram.py",
         corrs="data/{group}.a.mags/{mag}.g.{proc}.pcorr.tsv"
@@ -1094,7 +1119,7 @@ rule correlation_trim_contigs:
     params:
         window=100,
         flank=100,
-        min_len=1000,
+        min_len=300,
     shell:
         """
         {input.script} --corr-thresh=0.{wildcards.thresh} \
@@ -1110,9 +1135,10 @@ rule select_correlation_trim_threshold:
         fn="data/{stem}.ctrim.fn",
     input:
         script="scripts/correlation_trim_contigs.py",
-        plot="fig/{stem}.pcorr.hist.pdf",
+        plot="data/{stem}.pcorr.hist.pdf",
         seqs=[f"data/{{stem}}.ctrim-{cutoff}.fn"
               for cutoff in [50, 60, 70, 90]],
+        checkm="data/{stem}.ctrim_check.checkm_details.tsv",
     params:
         window=100,
         flank=100,
@@ -1131,7 +1157,7 @@ rule select_correlation_trim_threshold:
         snakemake data/{wildcards.stem}.ctrim-THRESHOLD.fn
 
         You may want to use the following to guide your decision:
-        -   Completeness/contamination (checkM results: see snakemake rule 'checkm_seqs_adhoc')
+        -   Completeness/contamination ({input.checkm})
         -   Number of contigs/scaffolds
         -   Total sequence length
         -   Nucleotide correlation histogram ({input.plot})
@@ -1153,16 +1179,24 @@ rule quality_asses_mag:
     input:
         asmbl=[
                'data/{group}.a.mags/{mag}.g.contigs.fn',
-               'data/{group}.a.mags/{mag}.g.scaffolds.fn',
-               'data/{group}.a.mags/{mag}.g.scaffolds.pilon.fn',
-               'data/{group}.a.mags/{mag}.g.scaffolds.pilon.ctrim.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn',
+               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn',
+               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn',
+               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn',
+               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn',
+               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn',
+               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn',
                ]
     threads: min(7, MAX_THREADS)
     shell:
         r"""
         quast.py --threads={threads} --min-contig 0 --output-dir {output} \
-                -R {input.asmbl[0]} --fragmented \
-                --labels "MAG, Reassembled, Reassembled+Refined, Reassembled+Refined+CTrimmed" \
+                -R {input.asmbl[4]} --fragmented \
                 {input.asmbl}
         """
 
@@ -1226,19 +1260,19 @@ rule process_strain_comparison_table:
         magB=one_word_wc_constraint,
     shell:
         """
-        show-coords -g -B {input.delta} > {output.coords}
+        show-coords -B {input.delta} > {output.coords}
         """
 
 rule plot_strain_comparison:
     output:
-        pdf="fig/{group_stem}/{magA}.g.{proc}.{magB}-align.pdf",
+        pdf="data/{group_stem}/{magA}.g.{proc}.{magB}-align.pdf",
     input:
         script="scripts/plot_nucmer_comparison.py",
         coords="data/{group_stem}/{magA}.g.{proc}.{magB}-align.coords",
         length1="data/{group_stem}/{magA}.g.{proc}.nlength.tsv",
         length2="data/{group_stem}/{magB}.g.{proc}.nlength.tsv",
-        depth1="data/{group_stem}/{magA}.g.{proc}.depth.tsv",
-        depth2="data/{group_stem}/{magB}.g.{proc}.depth.tsv",
+        depth1="data/{group_stem}/{magA}.g.{proc}.cvrg.unstack.tsv",
+        depth2="data/{group_stem}/{magB}.g.{proc}.cvrg.unstack.tsv",
         lib1="data/{group_stem}/{magA}.g.library.list",
         lib2="data/{group_stem}/{magB}.g.library.list",
     wildcard_constraints:
@@ -1274,7 +1308,7 @@ rule annotate_mag:
         gff="data/{stem}.mags.annot/{mag_stem}.prokka-annot.gff",
         dir=temp("data/{stem}.mags.annot/{mag_stem}.prokka-annot.d"),
     input: "data/{stem}.mags/{mag_stem}.fn"
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell:
         r"""
         prokka --force --cpus {threads} {input} \

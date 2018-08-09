@@ -1152,7 +1152,7 @@ rule select_mag_refinement:
              , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
              , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
              , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
-             ]
+             ],
         checkm="data/{stem}.rfn_check.checkm_details.tsv",
     shell:
         """

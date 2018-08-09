@@ -1134,6 +1134,8 @@ rule correlation_trim_contigs:
                 > {output.fn}
         """
 
+# {{{3 Refinement Selection
+
 rule select_mag_refinement:
     output:
         fn="data/{group}.a.mags/{mag}.g.rfn.fn",
@@ -1173,7 +1175,7 @@ EOF
         false
         """
 
-# {{{3 QC
+# {{{2 QC
 
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12

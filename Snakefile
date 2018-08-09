@@ -497,7 +497,7 @@ rule map_reads_to_metagenome_assembly:
         inx_4='data/{group}.a.contigs.4.bt2',
         inx_rev1='data/{group}.a.contigs.rev.1.bt2',
         inx_rev2='data/{group}.a.contigs.rev.2.bt2'
-    threads: MAX_THREADS
+    threads: 3
     shell:
         r"""
         tmp=$(mktemp)

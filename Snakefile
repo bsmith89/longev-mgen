@@ -1434,35 +1434,6 @@ localrules: extract_cogs, extract_ec_numbers, infer_pathways, extract_metacyc_li
 
 # {{{3 Targetted
 
-# rule pull_annotated_genes:
-#     output: fn='data/{stem}.mags.annot/{mag_id}.{gene_id}-hits.fn',
-#             fa='data/{stem}.mags.annot/{mag_id}.{gene_id}-hits.fa'
-#     input:
-#         fn='data/{stem}.mags.annot/{mag_id}.prokka.fn',
-#         fa='data/{stem}.mags.annot/{mag_id}.prokka.fa',
-#         tsv='data/{stem}.mags.annot/{mag_id}.prokka.tsv'
-#     params:
-#         search_string=lambda wildcards: config['gene_to_search_string'][wildcards.gene_id]
-#     shell:
-#         """
-#         # Nucleotide
-#         seqtk subseq {input.fn} \
-#             <(awk -v FS='\t' \
-#                   -v search_string='{params.search_string}' \
-#                   '$7~search_string{{print $1}}' {input.tsv} \
-#              ) \
-#             > {output.fn}
-#         # Amino-acid
-#         seqtk subseq {input.fa} \
-#             <(awk -v FS='\t' \
-#                   -v search_string='{params.search_string}' \
-#                   '$7~search_string{{print $1}}' {input.tsv} \
-#              ) \
-#             > {output.fa}
-#         """
-#
-# localrules: pull_annotated_genes
-
 rule press_hmm:
     output: "ref/hmm/{stem}.hmm.h3f",
             "ref/hmm/{stem}.hmm.h3i",

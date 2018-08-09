@@ -7,6 +7,7 @@
     -   TODO: Consider naming these HMM dbs as 0.HAMAP 1.dbCAN etc.
 -   MinPath (v1.4, patched shebang line to 'python2' not 'python'
 -   Bignorm (see https://git.informatik.uni-kiel.de/axw/Bignorm)
+-   MCL (https://micans.org/mcl/)
 -   TODO
 
 Metadata:
@@ -447,7 +448,8 @@ variation (which seems to be somewhat independent of the rest of the genome).
     -   checkM results
         -   Completeness contamination
     -   Gene count and annotation rate
-    -   MetaCyc pathways as a more robust measure of contamination??
+    -   What is the sequencing depth? Variance?
+    -   MetaCyc pathways as a more robust measure of contamination?? (no, probably not)
 -   TODO: Standardize the choice of contigs for each genome.
     -   Consider not reassembling
 -   SUPPLEMENTAL FIGURE of genome recovery workflow
@@ -459,15 +461,18 @@ variation (which seems to be somewhat independent of the rest of the genome).
 -   TODO: Figure mapping OTU-1 strains against each other
     -   This will also include depth lines for alignments from
         libraries positive for each.
--   TODO: Mapping from OTU-7 to M6
+-   TODO: Mapping from OTU-7 to M6 (not exactly pretty, but I could quote the percent of genomes that align)
 
 ## Shared niche of OTU-1 and OTU-7
 
 A number of genes are shared by both OTUs to the exclusion of most
 other Muribaculaceae in my study.
 Both OTU-1 strains fall cleanly into the alpha-glucan guild.
+TODO: Is this still as clean, with the most recent annotations?
+TODO: Which annotation do we use to assert this?
 OTU-7 is found much closer to the host-glycan folks.
 OTU-5 is the only other OTU to fall out with the alpha-glucans.
+
 Looking for genes (especially those that contain a GH13) that
 are specific to OTU-1 _and_ OTU-7 provides one way to identify functions
 that provide an advantage in acarbose treated mice.
@@ -478,6 +483,18 @@ I believe that both OTU-1 and OTU-7 are particularly unlikely to have
 amino-acid synthesis machinery (see the minpath results, these
 should be MUCH more robust when predicting the absence of pathways
 compared to the presence...maybe?  TODO: check this intuition)
+
+TODO: Why does OTU-5 _not_ behave like OTU-1 and OTU-7?
+
+This section is written without consideration for Otu0001\_vB, since
+we're not talking about why that strain fails to bloom at UT.
+
+TODO: A grand survey of genes that are shared by OTU-1 and OTU-7, but that
+are rare in other strains (especially if they're common in either
+the starch or the host-glycan ormerod guilds)
+
+TODO: Some in-depth amino-acid auxotrophy analysis.
+See <https://doi.org/10.1371/journal.pgen.1007147>.
 
 ## Strain differences between OTU-1 at UM and UT
 
@@ -504,3 +521,18 @@ they just aren't the same OTU, but some strains are specific to sites?)
 There is also good evidence of nucleotide (synonymous and non-synonymous)
 variation between strains.  TODO: How do I demonstrate this?
 TODO: What is the average amino-acid identity in shared genes?
+
+The 16S gene recovered with each genome, does it share a V4 region?
+I believe the answer is yes, but that there are variants at other positions.
+Interestingly, this would suggest that the V4 region has shared
+variation at several sites, despite differing outside of the V4
+(TODO: can we see this in the samtools pileup results?)
+Does it make sense for the V4 regions to not differ in the recovered sequence
+while they clearly differ in the 16S amplicon results at each site?
+
+Can we assert that any of the strain differences in gene content are real
+and not just the result of incomplete recovery?
+Does the sequencing depth lend credence?
+
+TODO: Should we talk about the apparent presence of a phage in the OTU-1 genome
+at UT?

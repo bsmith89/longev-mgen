@@ -1642,10 +1642,10 @@ rule all_by_all_blastp:
         "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
 
 rule transform_blastp_to_similarity:
-    output: 'data/{stem}.blastp_sim.tsv'
+    output: '{stem}.blastp_sim.tsv'
     input:
-        script='scripts/transform_self_blastp.py',
-        blastp='data/{stem}.self_blastp.tsv'
+        script='scripts/transform_blastp_to_similarity.sh',
+        blastp='{stem}.self_blastp.tsv'
     shell:
         """
         {input.script} {input.blastp} > {output}

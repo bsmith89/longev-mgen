@@ -50,18 +50,16 @@ if 'MAX_THREADS' in config:
 
 # {{{1 Utility rules/recipes/templates
 
-# TODO: Figure out what I really want.
-mag_proc_infix = 'rsmbl.scaffolds.pilon.ctrim'
 rule all:
     input:
-        [ f"data/core.a.mags.muri.g.{mag_proc_infix}.genome_stats.tsv"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.marker_genes.refine.gb.prot.nwk"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.ec-annot.count.tsv"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.ec-minpath.count.tsv"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.cog-annot.count.tsv"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.dbCAN-hits.annot_table.tsv"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.dbCAN-hits.denovo-clust.count.tsv"
-        , f"data/core.a.mags.muri.g.{mag_proc_infix}.dbCAN-hits.domain-clust.count.tsv"
+        [ f"data/core.a.mags.muri.g.rfn.genome_stats.tsv"
+        , f"data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
+        , f"data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
+        , f"data/core.a.mags.muri.g.rfn.ec-minpath.count.tsv"
+        , f"data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
+        , f"data/core.a.mags.muri.g.rfn.dbCAN-hits.annot_table.tsv"
+        , f"data/core.a.mags.muri.g.rfn.dbCAN-hits.denovo-clust.count.tsv"
+        , f"data/core.a.mags.muri.g.rfn.dbCAN-hits.domain-clust.count.tsv"
         ]
 
 localrules: all
@@ -764,19 +762,25 @@ rule checkm_seqs:
                 {input} {output.dir}
         """
 
-rule checkm_ctrim_set:
+rule checkm_refinements:
     output:
-        dir=temp('data/{group}.a.mags/{mag}.g.{proc}.ctrim_check.checkm.d'),
-        summary='data/{group}.a.mags/{mag}.g.{proc}.ctrim_check.checkm.tsv'
+        dir=temp('data/{group}.a.mags/{mag}.g.rfn_check.checkm.d'),
+        summary='data/{group}.a.mags/{mag}.g.rfn_check.checkm.tsv'
     input:
-        [ 'data/{group}.a.mags/{mag}.g.{proc}.fn'
-        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-50.fn'
-        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-60.fn'
-        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-70.fn'
-        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-80.fn'
-        , 'data/{group}.a.mags/{mag}.g.{proc}.ctrim-90.fn'
+        [ 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
         ]
-    threads: 2
+    threads: 6
     shell:
         r"""
         tmpdir=$(mktemp -d)
@@ -788,7 +792,7 @@ rule checkm_ctrim_set:
                 $tmpdir {output.dir}
         """
 
-ruleorder: checkm_ctrim_set > checkm_seqs
+ruleorder: checkm_refinements > checkm_seqs
 
 rule reformat_checkm_output:
     output: 'data/{stem}.checkm_details.tsv'
@@ -1130,41 +1134,40 @@ rule correlation_trim_contigs:
                 > {output.fn}
         """
 
-rule select_correlation_trim_threshold:
+rule select_mag_refinement:
     output:
-        fn="data/{stem}.ctrim.fn",
+        fn="data/{group}.a.mags/{mag}.g.rfn.fn",
     input:
-        script="scripts/correlation_trim_contigs.py",
-        plot="data/{stem}.pcorr.hist.pdf",
-        seqs=[f"data/{{stem}}.ctrim-{cutoff}.fn"
-              for cutoff in [50, 60, 70, 90]],
-        checkm="data/{stem}.ctrim_check.checkm_details.tsv",
-    params:
-        window=100,
-        flank=100,
-        min_len=1000,
+        seqs=[ 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+             ]
+        checkm="data/{stem}.rfn_check.checkm_details.tsv",
     shell:
         """
         cat <<EOF
-        Pick a threshold for the canonical ctrimmed file.
+        Pick a canonical MAG genome.
 
         Already available:
         {input.seqs}
-
-        If you want a different cutoff
-        (replacing THRESHOLD with the chosen threshold):
-
-        snakemake data/{wildcards.stem}.ctrim-THRESHOLD.fn
 
         You may want to use the following to guide your decision:
         -   Completeness/contamination ({input.checkm})
         -   Number of contigs/scaffolds
         -   Total sequence length
-        -   Nucleotide correlation histogram ({input.plot})
 
-        Once you have selected the final result:
+        Once you have selected the final MAG:
 
-        cp data/{wildcards.stem}.ctrim-THRESHOLD.fn {output}
+        cp data/{wildcards.group}.a.mags/{mag}.g.REFINEMENT.fn {output}
 
 EOF
         false

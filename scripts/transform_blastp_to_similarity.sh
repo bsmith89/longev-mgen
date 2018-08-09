@@ -7,7 +7,7 @@ cut -f1,2,12 $1 \
         '
         NR==1{pair[1]=$1; pair[2]=$2; tally=$3}
         NR>1{if (pair[1]!=$1 || pair[2]!=$2)
-                {print pair[1],pair[2],tally; tally=$3; pair[1]=$1; pair[2]=$2}
+                {print pair[1],pair[2],tally / 2; tally=$3; pair[1]=$1; pair[2]=$2}
             else
                 {tally+=$3}}
         '

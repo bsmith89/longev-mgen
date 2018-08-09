@@ -1665,18 +1665,36 @@ rule all_by_all_blastp:
     shell:
         "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
 
+rule transform_blastp_to_similarity:
+    output: 'data/{stem}.blastp_sim.tsv'
+    input:
+        script='scripts/transform_self_blastp.py',
+        blastp='data/{stem}.self_blastp.tsv'
+    shell:
+        """
+        {input.script} {input.blastp} > {output}
+        """
+
 # TODO: Check out https://micans.org/mcl/man/mcl.html
 rule denovo_cluster_proteins:
-    output:
-        clust="data/{stem}.denovo-clust.tsv",
-        diss="data/{stem}.blastp_diss.tsv",
-    input:
-        script='scripts/cluster_proteins.py',
-        data='data/{stem}.self_blastp.tsv',
+    output: "data/{stem}.clusts.mcl",
+    input: 'data/{stem}.blastp_sim.tsv',
     params:
-        n_clusters=2000
+        inflation=5
     shell:
-        '{input.script} {input.data} {params.n_clusters} {output.diss} > {output}'
+        """
+        mcl {input} --abc -I {params.inflation} -o {output}
+        """
+
+rule mcl_to_opu_mapping:
+    output: 'data/{stem}.denovo-clust.tsv',
+    input:
+        script='scripts/mcl_output_to_map.py',
+        mcl='data/{stem}.clusts.mcl',
+    shell:
+        """
+        {input.script} {input.mcl} > {output}
+        """
 
 rule join_genome_by_cluster_table:
     output: "data/{stem}.{clust_type}-clust.count.tsv"

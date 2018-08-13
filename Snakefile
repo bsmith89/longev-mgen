@@ -1309,6 +1309,9 @@ rule plot_strain_comparison:
 # TODO: Be more explicit than {stem} in the below:
 
 # {{{3 Untargetted
+
+# {{{4 Prokka
+
 # TODO: Output the individual files rather than the directory
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:

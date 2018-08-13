@@ -1384,12 +1384,24 @@ rule extract_cogs:
         cut -f1,6 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
         """
 
-rule convert_cogs_to_ko:
-    output: 'data/{stem}.ko.tsv'
-    input: mapping='ref/cog_to_ko.tsv', cogs='data/{stem}.cog.tsv'
+rule kegg_blastp:
+    output: 'data/{stem}.kegg-blastp.tsv'
+    input:
+        db='ref/kegg.fa.dmnd',
+        seq='data/{stem}.cds.fa'
     shell:
         """
-        join -t '\t' <(sort -k2 {input.cogs}) -1 2 <(sort -k1 {input.mapping}) -2 1 | cut -f2,3 > {output}
+        diamond blastp --db {input.db} {input.seq} > {output}
+        """
+
+rule parse_kegg_blastp_ko:
+    output: 'data/{stem}.ko.tsv'
+    input:
+        script='scripts/parse_kegg_blastp.py',
+        table='data/{stem}.kegg-blastp.tsv'
+    shell:
+        """
+        cut -f 1,2 {input.table} | {input.script} > {output}
         """
 
 rule filter_metacyc_pathways:

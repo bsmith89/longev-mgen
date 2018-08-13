@@ -52,15 +52,17 @@ if 'MAX_THREADS' in config:
 
 rule all:
     input:
-        [ f"data/core.a.mags.muri.g.rfn.genome_stats.tsv"
-        , f"data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
-        , f"data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
-        , f"data/core.a.mags.muri.g.rfn.ec-minpath.count.tsv"
-        , f"data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
-        , f"data/core.a.mags.muri.g.rfn.dbCAN-hits.annot_table.tsv"
-        , f"data/core.a.mags.muri.g.rfn.dbCAN-hits.denovo-clust.count.tsv"
-        , f"data/core.a.mags.muri.g.rfn.dbCAN-hits.domain-clust.count.tsv"
+        [ "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
+        , "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
+        , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.ec-minpath.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.dbCAN-hits.annot_table.tsv"
+        , "data/core.a.mags.muri.g.rfn.dbCAN-hits.denovo-clust.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.dbCAN-hits.domain-clust.count.tsv"
         ]
+    shell:
+        "echo Building {input}"
 
 localrules: all
 

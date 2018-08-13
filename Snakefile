@@ -1171,7 +1171,7 @@ rule select_mag_refinement:
 
         Once you have selected the final MAG:
 
-        cp data/{wildcards.group}.a.mags/{mag}.g.REFINEMENT.fn {output}
+        ln -rsf data/{wildcards.group}.a.mags/{wildcards.mag}.g.REFINEMENT.fn {output}
 
 EOF
         false

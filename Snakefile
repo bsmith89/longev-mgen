@@ -1658,9 +1658,20 @@ rule all_by_all_blastp:
         fa='data/{stem}.fa',
         db='data/{stem}.fa.dmnd',
     threads: MAX_THREADS
+    params:
+        # Should probably be substantially greater than the effective number of
+        # genomes being compared.
+        # This is the maximum degree of any node in the blast-network.
+        max_target_seqs=1000
     shell:
-        "diamond blastp --threads {threads} --db {input.db} --max-target-seqs 1000 --outfmt 6 --query {input.fa} --out {output}"
+        """
+        diamond blastp --threads {threads} \
+                --db {input.db} --query {input.fa} \
+                --max-target-seqs {params.max_target_seqs} \
+                --outfmt 6 --out {output}
+        """
 
+# Mean mean of A -> B bitscore and B -> A bitscore for all protein pairs with alignments
 rule transform_blastp_to_similarity:
     output: '{stem}.protsim.tsv'
     input:

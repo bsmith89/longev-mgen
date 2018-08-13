@@ -245,6 +245,7 @@ rule process_cog_function_mapping:
     input: 'raw/ref/cognames2003-2014.tab'
     shell: "iconv -f LATIN1 -t UTF-8 {input} | sed '1,1s:^# COG\tfunc\tname:cog_id\tfunction_categories\tfunction_name:' > {output}"
 
+# TODO: Remove these rules; they're unecessary now that I have KEGG data.
 rule download_cog_to_ko_mapping:
     output: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
     params:
@@ -258,6 +259,11 @@ rule alias_cog_to_ko_mapping:
 
 localrules: download_cog_to_ko_mapping, download_cog_function_mapping,
             alias_cog_to_ko_mapping, process_cog_function_mapping
+
+rule alias_kegg_fasta:
+    output: 'ref/kegg.fa'
+    input: 'raw/ref/kegg.fa'
+    shell: alias_recipe
 
 # {{{3 Enzyme Commission
 

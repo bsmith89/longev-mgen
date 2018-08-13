@@ -1386,14 +1386,20 @@ rule extract_cogs:
         cut -f1,6 {input} | awk -v OFS='\t' 'NR > 1 && $2 != "" {{print $1,$2}}' > {output}
         """
 
+# {{{4 Not Prokka
+
 rule kegg_blastp:
     output: 'data/{stem}.kegg-blastp.tsv'
     input:
         db='ref/kegg.fa.dmnd',
         seq='data/{stem}.cds.fa'
+    threads: min(6, MAX_THREADS)
     shell:
         """
-        diamond blastp --db {input.db} {input.seq} > {output}
+        diamond blastp --threads {threads} \
+                --db {input.db} --query {input.seq} \
+                --max-target-seqs 1 \
+                --outfmt 6 --out {output}
         """
 
 rule parse_kegg_blastp_ko:

@@ -1341,11 +1341,13 @@ rule annotate_mag:
 
 rule summarize_annotation:
     output: 'data/{group_stem}.annot/{mag_stem}.prokka.summary.tsv'
-    input: 'data/{group_stem}.annot/{mag_stem}.prokka-annot.tsv'
+    input:
+        prokka='data/{group_stem}.annot/{mag_stem}.prokka-annot.tsv',
+        ko="data/{group_stem}.annot/{mag_stem}.ec.tsv",
     shell:
         r"""
         echo '
-CREATE TABLE annotation
+CREATE TABLE prokka
 ( locus_tag PRIMARY KEY
 , ftype
 , length_bp
@@ -1355,9 +1357,19 @@ CREATE TABLE annotation
 , product
 );
 .separator \t
-.import {input} annotation
+.import {input.prokka} prokka
 -- Drop the header
 --DELETE FROM annotation WHERE annotation.locus_tag = "locus_tag"
+
+CREATE TABLE ko
+( locus_tag PRIMARY KEY
+, ko_id TEXT
+);
+.import {input.ko} ko
+
+CREATE VIEW annotation AS
+SELECT * FROM prokka JOIN ko USING (locus_tag)
+;
 
 -- Number of loci
 SELECT "n_loci", COUNT(*) FROM annotation;
@@ -1372,7 +1384,8 @@ SELECT "n_annotated_16S", COUNT(*) FROM annotation WHERE product = "16S ribosoma
 SELECT "n_with_gene_name", COUNT(*) FROM annotation WHERE gene != "";
 SELECT "n_with_ec_number", COUNT(*) FROM annotation WHERE ec_number != "";
 SELECT "n_with_cog", COUNT(*) FROM annotation WHERE cog != "";
-SELECT "n_with_function", COUNT(*) FROM annotation WHERE gene != "" OR ec_number != "" OR cog != "";
+SELECT "n_with_ko", COUNT(*) FROM annotation WHERE ko_id != "";
+SELECT "n_with_function", COUNT(*) FROM annotation WHERE gene != "" OR ec_number != "" OR cog != "" OR ko_id != "";
 SELECT "n_product_not_hypothetical", COUNT(*) FROM annotation WHERE product != "hypothetical protein";
         ' | sqlite3 > {output}
 

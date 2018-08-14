@@ -1689,7 +1689,7 @@ rule all_by_all_blastp:
         max_target_seqs=1000
     shell:
         """
-        diamond blastp --threads {threads} \
+        diamond blastp --threads {threads} --tmpdir $TMPDIR \
                 --db {input.db} --query {input.fa} \
                 --max-target-seqs {params.max_target_seqs} \
                 --outfmt 6 --out {output}

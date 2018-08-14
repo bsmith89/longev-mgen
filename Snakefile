@@ -55,6 +55,7 @@ rule all:
         [ "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
         , "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
         , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
         , "data/core.a.mags.muri.g.rfn.ec-minpath.count.tsv"
         , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
         , "data/core.a.mags.muri.g.rfn.dbCAN-hits.annot_table.tsv"

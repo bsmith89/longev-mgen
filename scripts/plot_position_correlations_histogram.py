@@ -20,7 +20,7 @@ if __name__ == "__main__":
     data['log10_total_depth'] = np.log10(data['total_depth'])
     plt.hist2d('log10_total_depth', 'cosine_similarity', data=data,
                bins=[np.linspace(0, data.log10_total_depth.max(), 1000),
-                     np.linspace(0.5, 1, 1000)],
+                     np.linspace(0, 1, 1000)],
                cmap='Reds', norm=SymLogNorm(linthresh=1))
     cb = plt.colorbar()
     plt.xlabel("Log10(depth)")

@@ -1418,7 +1418,7 @@ rule kegg_blastp:
     threads: min(6, MAX_THREADS)
     shell:
         """
-        diamond blastp --threads {threads} \
+        diamond blastp --threads {threads} --tmpdir $TMPDIR \
                 --db {input.db} --query {input.seq} \
                 --max-target-seqs 1 \
                 --outfmt 6 --out {output}
@@ -1429,9 +1429,11 @@ rule parse_kegg_blastp_ko:
     input:
         script='scripts/parse_kegg_blastp.py',
         table='data/{stem}.kegg-blastp.tsv'
+    params:
+        max_evalue=1e-10
     shell:
         """
-        cut -f 1,2 {input.table} | {input.script} > {output}
+        awk -v OFS='\t' '$11 < {params.max_evalue} {{print $1,$2}}' {input.table} | {input.script} > {output}
         """
 
 rule filter_metacyc_pathways:
@@ -1672,7 +1674,7 @@ rule tree_sort_afa:
 rule make_diamond_db:
     output: "{stem}.fa.dmnd"
     input: "{stem}.fa"
-    shell: "diamond makedb --in {input} --db {input}"
+    shell: "diamond makedb --tmpdir $TMPDIR --in {input} --db {input}"
 
 rule all_by_all_blastp:
     output: "data/{stem}.self_blastp.tsv"

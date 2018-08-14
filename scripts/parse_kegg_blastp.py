@@ -5,8 +5,8 @@ import sys
 
 if __name__ == "__main__":
     for line in sys.stdin:
-        for qseqid, sseqid in line.strip().split('\t'):
-            _, ko_str = sseqid.split('|')
-            for ko in ko_str.split(','):
-                print(qseqid, ko, sep='\t')
+        qseqid, sseqid = line.strip().split('\t')
+        _, ko_str = sseqid.split('|')
+        for ko in ko_str.split(','):
+            print(qseqid, ko, sep='\t')
 

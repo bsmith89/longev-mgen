@@ -764,7 +764,7 @@ rule checkm_seqs:
         dir=temp('data/{stem}.checkm.d'),
         summary='data/{stem}.checkm.tsv'
     input: 'data/{stem}.d'
-    threads: MAX_THREADS
+    threads: min(10, MAX_THREADS)
     shell:
         r"""
         rm -rf {output.dir}

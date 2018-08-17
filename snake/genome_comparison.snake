@@ -164,7 +164,7 @@ config['genome_group'] = \
 
 # This is intended for Ormerod MAGs.
 rule alias_sra_genomes:
-    output: 'data/ref.mags/{mag_id}.fn'
+    output: 'data/ref.mags/{mag_id}.g.fn'
     input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['sra'][wildcards.mag_id])
     wildcard_constraints:
         mag_id='[^.]+'
@@ -177,7 +177,7 @@ rule download_m_intestinale_genome:
     shell: curl_unzip_recipe
 
 rule alias_m_intestinale_genome:
-    output: 'data/ref.mags/Muribaculum_intestinale_yl27.fn'
+    output: 'data/ref.mags/Muribaculum_intestinale_yl27.g.fn'
     input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
     shell: "ln -rs {input} {output}"
 
@@ -190,7 +190,7 @@ rule download_btheta_genome:
     shell: curl_recipe
 
 rule alias_btheta_genome:
-    output: 'data/ref.mags/Bacteroides_thetaiotaomicron_VPI5482.fn'
+    output: 'data/ref.mags/Bacteroides_thetaiotaomicron_VPI5482.g.fn'
     input: 'raw/ref/Bacteroides_thetaiotaomicron_VPI5482.fn'
     shell: "ln -rs {input} {output}"
 
@@ -209,7 +209,7 @@ rule full_genomes_group_quast_result:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag_stem}.g.{wildcards.proc}.fn'
                                 for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags/{ref_stem}.fn'
+        refs=lambda wildcards: [f'data/ref.mags/{ref_stem}.g.fn'
                                 for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
     params:
         labels=lambda wildcards: ', '.join(list(config['genome_group'][wildcards.genomes]['mags']) +
@@ -226,7 +226,7 @@ rule make_genome_group_dir:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
                                 for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags/{ref}.fn'
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.g.fn'
                                 for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
@@ -248,17 +248,17 @@ rule combine_annotation_summaries:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka.summary.tsv'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka.summary.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.prokka.summary.tsv'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         r"""
         (
             printf "mag_id\tstatistic\tvalue\n"
             for file in {input.mags}; do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.prokka.summary.tsv $file) '{{print mag_id, $0}}' $file
             done
             for file in {input.refs}; do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka.summary.tsv $file) 'FNR > 1 {{print mag_id, $0}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.prokka.summary.tsv $file) '{{print mag_id, $0}}' $file
             done
         ) | python3 -c '
 import pandas as pd
@@ -273,7 +273,7 @@ rule compile_genomes_group_stats_table:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.genome_stats.tsv"
     input:
-        checkm="data/{group}.a.mags.{genomes}.g.{proc}.genome_group.checkm.tsv",
+        checkm="data/{group}.a.mags.{genomes}.g.{proc}.genome_group.checkm_details.tsv",
         quast="data/{group}.a.mags.{genomes}.g.{proc}.quast.tsv",
         annot="data/{group}.a.mags.{genomes}.g.{proc}.prokka.summary.tsv"
     shell:
@@ -296,7 +296,7 @@ rule compile_gene_by_genome_tables:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka-annot.tsv'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka-annot.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.prokka-annot.tsv'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         r"""
@@ -307,10 +307,63 @@ rule compile_gene_by_genome_tables:
             done
             for file in {input.refs}
             do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .prokka-annot.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.prokka-annot.tsv $file) 'NR > 1 {{print mag_id, $1}}' $file
             done
         ) > {output}
         """
+
+rule compile_sequence_by_genome_tables:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.sequence_to_genome.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.sequence.list'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.g.sequence.list'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        r"""
+        (
+            for file in {input.mags}
+            do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.sequence.list $file) '{{print $1, mag_id}}' $file
+            done
+            for file in {input.refs}
+            do
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.sequence.list $file) '{{print $1, mag_id}}' $file
+            done
+        ) > {output}
+        """
+
+rule compile_feature_details:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.feature_details.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.feature_details.tsv'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.feature_details.tsv'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        """
+        cat {input} > {output}
+        """
+
+ruleorder: compile_feature_details > extract_feature_details
+
+rule combine_feature_tables:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.features.tsv"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.features.tsv'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.features.tsv'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    shell:
+        r"""
+        cat {input} > {output}
+        """
+
+ruleorder: combine_feature_tables > parse_feature_table
+
 
 rule combine_annotations:
     output:
@@ -318,7 +371,7 @@ rule combine_annotations:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.{wildcards.annot}.tsv'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.{wildcards.annot}.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.{wildcards.annot}.tsv'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     wildcard_constraints:
         annot=one_word_wc_constraint
@@ -327,13 +380,13 @@ rule combine_annotations:
         cat {input} > {output}
         """
 
-rule combine_cds:
+rule compile_cds:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.cds.fa"
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.cds.fa'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.cds.fa'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.cds.fa'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     wildcard_constraints:
         annot=one_word_wc_constraint
@@ -341,6 +394,8 @@ rule combine_cds:
         """
         cat {input} > {output}
         """
+
+ruleorder: compile_cds > annotate_mag
 
 rule combine_prokka_annotations:
     output:
@@ -348,13 +403,13 @@ rule combine_prokka_annotations:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.prokka-annot.tsv'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.prokka-annot.tsv'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.prokka-annot.tsv'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
         for file in {input}
         do
-            sed -e '1,1d' -e '/repeat_region/d' $file
+            sed '1,1d' $file
         done > {output}
         """
 
@@ -366,7 +421,7 @@ rule combine_minpath_results:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.ec-minpath.list'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.ec-minpath.list'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.ec-minpath.list'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     wildcard_constraints:
         annot=one_word_wc_constraint
@@ -375,11 +430,11 @@ rule combine_minpath_results:
         (
             for file in {input.mags}
             do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.ec-minpath.list $file) 'NR > 1 {{print mag_id, $1, 1}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .g.{wildcards.proc}.ec-minpath.list $file) '{{print mag_id, $1, 1}}' $file
             done
             for file in {input.refs}
             do
-                awk -v OFS='\t' -v mag_id=$(basename --suffix .ec-minpath.list $file) 'NR > 1 {{print mag_id, $1, 1}}' $file
+                awk -v OFS='\t' -v mag_id=$(basename --suffix .ec-minpath.list $file) '{{print mag_id, $1, 1}}' $file
             done
         ) > {output}
         """
@@ -396,18 +451,18 @@ rule pick_phylogenetic_marker_genes:
         script="scripts/pick_marker_genes.py",
         mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.Pfam-hits.hmmer-tc.tsv'
+        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.Pfam-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
         mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.fa'
+        refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
     params:
         mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.Pfam-hits.hmmer-tc.tsv'
                                  f':data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.cds.Pfam-hits.hmmer-tc.tsv'
-                                 f':data/ref.mags.annot/{g}.cds.fa')
+        refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.g.cds.Pfam-hits.hmmer-tc.tsv'
+                                 f':data/ref.mags.annot/{g}.g.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
@@ -470,11 +525,11 @@ rule compile_cazy_hits:
     input:
         mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.dbCAN-hits.hmmer-tc.tsv'
+        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.dbCAN-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
         mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.cds.dbCAN-hits.fa'
+        refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.dbCAN-hits.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
     params:
     shell:

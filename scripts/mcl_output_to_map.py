@@ -14,4 +14,4 @@ if __name__ == "__main__":
             for orf_id in line.strip().split('\t'):
                 index_str = str(i)
                 padding_str = '0' * (padding - len(index_str))
-                print(orf_id.strip(), 'Opu' + padding_str + index_str, sep='\t')
+                print(orf_id.strip(), 'Opf' + padding_str + index_str, sep='\t')

@@ -55,15 +55,18 @@ rule all:
         [ "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
         , "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
         , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
         , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.ec-minpath.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
         , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.denovo-clust.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.denovo-clust.tsv"
         , "data/core.a.mags.muri.g.rfn.dbCAN-hits.annot_table.tsv"
         , "data/core.a.mags.muri.g.rfn.dbCAN-hits.denovo-clust.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.dbCAN-hits.domain-clust.count.tsv"
         ]
     shell:
-        "echo Building {input}"
+        "# {input}"
 
 localrules: all
 
@@ -1317,28 +1320,81 @@ rule plot_strain_comparison:
 # TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
-        fa="data/{stem}.mags.annot/{mag_stem}.cds.fa",
-        fn="data/{stem}.mags.annot/{mag_stem}.cds.fn",
-        gbk="data/{stem}.mags.annot/{mag_stem}.prokka-annot.gbk",
-        tbl="data/{stem}.mags.annot/{mag_stem}.prokka-annot.tbl",
-        tsv="data/{stem}.mags.annot/{mag_stem}.prokka-annot.tsv",
-        gff="data/{stem}.mags.annot/{mag_stem}.prokka-annot.gff",
-        dir=temp("data/{stem}.mags.annot/{mag_stem}.prokka-annot.d"),
-    input: "data/{stem}.mags/{mag_stem}.fn"
+        fa="data/{stem}.mags.annot/{mag}.g.{proc}.cds.fa",
+        fn="data/{stem}.mags.annot/{mag}.g.{proc}.cds.fn",
+        gbk="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.gbk",
+        tbl="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.tbl",
+        tsv="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.tsv",
+        gff="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.gff",
+        dir=temp("data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.d"),
+    input: "data/{stem}.mags/{mag}.g.{proc}.fn"
     threads: min(10, MAX_THREADS)
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
-                --outdir {output.dir} --prefix {wildcards.mag_stem} \
-                --locustag {wildcards.mag_stem} \
+                --outdir {output.dir} --prefix {wildcards.mag} \
+                --locustag {wildcards.mag} \
                 --metagenome --cdsrnaolap
-        cp {output.dir}/{wildcards.mag_stem}.faa {output.fa}
-        cp {output.dir}/{wildcards.mag_stem}.ffn {output.fn}
-        cp {output.dir}/{wildcards.mag_stem}.gbk {output.gbk}
-        cp {output.dir}/{wildcards.mag_stem}.tbl {output.tbl}
-        cp {output.dir}/{wildcards.mag_stem}.tsv {output.tsv}
-        cp {output.dir}/{wildcards.mag_stem}.gff {output.gff}
+        cp {output.dir}/{wildcards.mag}.faa {output.fa}
+        cp {output.dir}/{wildcards.mag}.ffn {output.fn}
+        cp {output.dir}/{wildcards.mag}.gbk {output.gbk}
+        cp {output.dir}/{wildcards.mag}.tbl {output.tbl}
+        sed '/repeat_region/d' {output.dir}/{wildcards.mag}.tsv > {output.tsv}
+        cp {output.dir}/{wildcards.mag}.gff {output.gff}
         """
+
+# TODO: Can I drop this?
+rule annotate_reference_mag:
+    output:
+        fa="data/ref.mags.annot/{mag}.g.cds.fa",
+        fn="data/ref.mags.annot/{mag}.g.cds.fn",
+        gbk="data/ref.mags.annot/{mag}.g.prokka-annot.gbk",
+        tbl="data/ref.mags.annot/{mag}.g.prokka-annot.tbl",
+        tsv="data/ref.mags.annot/{mag}.g.prokka-annot.tsv",
+        gff="data/ref.mags.annot/{mag}.g.prokka-annot.gff",
+        dir=temp("data/ref.mags.annot/{mag}.g.prokka-annot.d"),
+    input: "data/ref.mags/{mag}.g.fn"
+    threads: min(10, MAX_THREADS)
+    shell:
+        r"""
+        prokka --force --cpus {threads} {input} \
+                --outdir {output.dir} --prefix {wildcards.mag} \
+                --locustag {wildcards.mag} \
+                --metagenome --cdsrnaolap
+        cp {output.dir}/{wildcards.mag}.faa {output.fa}
+        cp {output.dir}/{wildcards.mag}.ffn {output.fn}
+        cp {output.dir}/{wildcards.mag}.gbk {output.gbk}
+        cp {output.dir}/{wildcards.mag}.tbl {output.tbl}
+        sed '/repeat_region/d' {output.dir}/{wildcards.mag}.tsv > {output.tsv}
+        cp {output.dir}/{wildcards.mag}.gff {output.gff}
+        """
+
+rule extract_feature_details:
+    output: 'data/{stem}.feature_details.tsv'
+    input: 'data/{stem}.prokka-annot.tsv'
+    shell:
+        """
+        cut -f1,2,3,7 {input} | sed 1,1d > {output}
+        """
+
+rule parse_feature_table:
+    output: 'data/{stem}.features.tsv'
+    input:
+        script='scripts/parse_prokka_features.py',
+        feature_table='data/{stem}.prokka-annot.tbl'
+    shell:
+        """
+        {input.script} {input.feature_table} > {output}
+        """
+
+rule list_sequence_ids:
+    output: 'data/{stem}.sequence.list'
+    input: 'data/{stem}.fn'
+    shell:
+        """
+        ls_ids < {input} > {output}
+        """
+
 
 rule summarize_annotation:
     output: 'data/{group_stem}.annot/{mag_stem}.prokka.summary.tsv'
@@ -1369,7 +1425,7 @@ CREATE TABLE ko
 .import {input.ko} ko
 
 CREATE VIEW annotation AS
-SELECT * FROM prokka JOIN ko USING (locus_tag)
+SELECT * FROM prokka LEFT JOIN ko USING (locus_tag)
 ;
 
 -- Number of loci
@@ -1678,7 +1734,7 @@ rule make_diamond_db:
     shell: "diamond makedb --tmpdir $TMPDIR --in {input} --db {input}"
 
 rule all_by_all_blastp:
-    output: "data/{stem}.self_blastp.tsv"
+    output: "data/{stem}.self-blastp.tsv"
     input:
         fa='data/{stem}.fa',
         db='data/{stem}.fa.dmnd',
@@ -1701,7 +1757,7 @@ rule transform_blastp_to_similarity:
     output: '{stem}.protsim.tsv'
     input:
         script='scripts/transform_blastp_to_similarity.sh',
-        blastp='{stem}.self_blastp.tsv'
+        blastp='{stem}.self-blastp.tsv'
     shell:
         """
         {input.script} {input.blastp} > {output}
@@ -1718,7 +1774,7 @@ rule denovo_cluster_proteins:
         mcl {input} --abc -I {params.inflation} -o {output}
         """
 
-rule mcl_to_opu_mapping:
+rule mcl_to_opf_mapping:
     output: 'data/{stem}.denovo-clust.tsv',
     input:
         script='scripts/mcl_output_to_map.py',
@@ -1829,7 +1885,7 @@ LEFT JOIN domain USING (locus_tag)
 rule generate_database_0:
     output: 'data/{group}.0.db'
     input:
-        schema='schema.sql',
+        schema='schema.0.sql',
         mouse='data/mouse.noheader.tsv',
         sample='data/sample.noheader.tsv',
         extraction='data/extraction.noheader.tsv',
@@ -1865,6 +1921,7 @@ rule generate_database_1:
     output: 'data/{group}.1.db'
     input:
         db='data/{group}.0.db',
+        schema='schema.1.sql',
         contig='data/{group}.a.contigs.nlength.noheader.tsv',
         contig_bin='data/{group}.a.contigs.bins.noheader.tsv',
         contig_coverage='data/{group}.a.contigs.cvrg.noheader.tsv',
@@ -1879,29 +1936,92 @@ rule generate_database_1:
 .bail ON
 PRAGMA cache_size = 1000000;
 PRAGMA foreign_keys = TRUE;
+.read {input.schema}
 .separator \t
-.import {input.checkm_merge} _bin_complementarity
 .import {input.contig} contig
-.import {input.contig_linkage} _contig_linkage
-.import {input.contig_bin} contig_bin
 .import {input.contig_coverage} contig_coverage
+.import {input.contig_bin} contig_bin
 .import {input.bin_checkm} bin_checkm
+.import {input.checkm_merge} _bin_complementarity
+.import {input.contig_linkage} _contig_linkage
 ANALYZE;
              ' \
         | sqlite3 $tmp
         mv $tmp {output}
         """
 
-rule denormalize_database:
-    output: 'data/{stem}.denorm.db'
+# TODO: Do I need to denormalize more tables?  Fewer?
+# TODO: Do I need to add any indices?
+rule denormalize_database_1:
+    output: 'data/{stem}.1.denorm.db'
     input:
-        db='data/{stem}.db',
-        script='scripts/denormalize_db.sql',
+        db='data/{stem}.1.db',
     shell:
         """
         tmp=$(mktemp)
         cp {input.db} $tmp
-        cat <(echo "PRAGMA cache_size = 1000000;") {input.script} | sqlite3 $tmp
-        sqlite3 $tmp "VACUUM; ANALYZE;"
+        echo '
+PRAGMA cache_size = 1000000;
+
+CREATE TABLE __bin_coverage AS SELECT * FROM bin_coverage;
+DROP VIEW bin_coverage;
+ALTER TABLE __bin_coverage RENAME TO bin_coverage;
+
+CREATE TABLE __contig_linkage AS SELECT * FROM contig_linkage;
+DROP VIEW contig_linkage;
+DROP TABLE _contig_linkage;
+ALTER TABLE __contig_linkage RENAME TO contig_linkage;
+
+CREATE TABLE __bin_linkage AS SELECT * FROM bin_linkage;
+DROP VIEW bin_linkage;
+ALTER TABLE __bin_linkage RENAME TO bin_linkage;
+
+CREATE TABLE __library_total_nucleotides_mapping AS SELECT * FROM library_total_nucleotides_mapping;
+DROP VIEW library_total_nucleotides_mapping;
+ALTER TABLE __library_total_nucleotides_mapping RENAME TO library_total_nucleotides_mapping;
+
+VACUUM; ANALYZE;
+        ' | sqlite3 $tmp
+        mv $tmp {output}
+        """
+
+rule generate_database_2:
+    output: 'data/{group}.{genomes}.2.db'
+    input:
+        db='data/{group}.0.db',
+        schema='schema.2.sql',
+        checkm='data/{group}.a.mags.{genomes}.g.rfn.genome_group.checkm_details.noheader.tsv',
+        quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
+        sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
+        feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
+        feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
+        ko='ref/kegg.noheader.tsv',
+        feature_to_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
+        cog='ref/cog_function.noheader.tsv',
+        feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
+        feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo-clust.tsv',
+    shell:
+        r"""
+        tmp=$(mktemp -u)
+        cp {input.db} $tmp
+        echo '
+.bail ON
+PRAGMA cache_size = 1000000;
+PRAGMA foreign_keys = TRUE;
+.read {input.schema}
+.separator \t
+.import {input.checkm} checkm
+.import {input.quast} quast
+.import {input.sequence} sequence
+.import {input.feature} feature
+.import {input.feature_details} feature_details
+.import {input.ko} ko
+.import {input.feature_to_ko} feature_to_ko
+.import {input.cog} cog
+.import {input.feature_to_cog} feature_to_cog
+.import {input.feature_to_opf} feature_to_opf
+ANALYZE;
+             ' \
+        | sqlite3 $tmp
         mv $tmp {output}
         """

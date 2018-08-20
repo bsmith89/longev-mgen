@@ -1545,7 +1545,9 @@ rule press_hmm:
         "hmmpress {input}"
 
 rule search_hmm:
-    output: "data/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv"
+    output:
+        tbl="data/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv",
+        domtbl="data/{stem}.{hmm}-hits.hmmer-{cutoff}.domtblout"
     wildcard_constraints:
         cutoff='ga|nc|tc'
     input:
@@ -1558,10 +1560,11 @@ rule search_hmm:
     threads: min(2, MAX_THREADS)
     shell:
         """
-        echo "orf_id\tmodel_id\tscore" > {output}
+        echo "orf_id\tmodel_id\tscore" > {output.tbl}
         hmmsearch --cut_{wildcards.cutoff} \\
                   --cpu {threads} \\
-                  --tblout >(grep -v '^#' | sed 's:\s\+:\\t:g' | cut -f1,3,6 >> {output}) \\
+                  --domtblout {output.domtbl} \\
+                  --tblout >(grep -v '^#' | sed 's:\s\+:\\t:g' | cut -f1,3,6 >> {output.tbl}) \\
                   {input.hmm} {input.faa} > /dev/null
         """
 
@@ -1617,20 +1620,23 @@ rule identify_rrna_seqs:
 
 # {{{3 Domain Analysis
 
-rule hmmscan_domains:
-    output: "data/{stem}.{hmm}-hits.domtblout"
-    input: "data/{stem}.{hmm}-hits.fa"
-    log: "data/{stem}.{hmm}-hits.domtblout.log"
-    shell:
-        """
-        hmmscan --domtblout {output} ref/hmm/{wildcards.hmm}.hmm {input} > {log}
-        """
-
+# rule hmmsearch_domains:
+#     output: "data/{stem}.{hmm}.domtblout"
+#     input:
+#         fa="data/{stem}.cds.fa",
+#         hmm="ref/hmm/{hmm}.hmm"
+#     log: "data/{stem}.{hmm}.domtblout.log"
+#     threads: min(6, MAX_THREADS)
+#     shell:
+#         """
+#         hmmsearch --cpu {threads} --cut_nc --domtblout {output} {input.hmm} {input.fa} > {log}
+#         """
+#
 rule compile_domain_info:
     output: "data/{stem}.domains.tsv"
     input:
         script="scripts/hmmscan-parser.sh",
-        domtbl="data/{stem}.domtblout"
+        domtbl="data/{stem}.hmmer-nc.domtblout"
     shell:
         "{input.script} {input.domtbl} > {output}"
 
@@ -2001,6 +2007,7 @@ rule generate_database_2:
         cog='ref/cog_function.noheader.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
         feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo-clust.tsv',
+        feature_to_domain_struct='data/{group}.a.mags.{genomes}.g.rfn.Pfam-hits.domain_structure-annot.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2022,6 +2029,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.cog} cog
 .import {input.feature_to_cog} feature_to_cog
 .import {input.feature_to_opf} feature_to_opf
+.import {input.feature_to_domain_struct} feature_to_domain_struct
 ANALYZE;
              ' \
         | sqlite3 $tmp

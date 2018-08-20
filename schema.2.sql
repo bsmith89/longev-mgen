@@ -93,7 +93,7 @@ CREATE TABLE feature_to_opf
 CREATE TABLE feature_to_domain_structure
 ( feature_id REFERENCES feature(feature_id)
 , domain_structure
-)
+);
 
 -- {{{1 Views
 

@@ -1993,6 +1993,7 @@ rule generate_database_2:
         checkm='data/{group}.a.mags.{genomes}.g.rfn.genome_group.checkm_details.noheader.tsv',
         quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
         sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
+        sequence_length='data/{group}.a.mags.{genomes}.g.rfn.nlength.noheader.tsv',
         feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
         feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
         ko='ref/kegg.noheader.tsv',
@@ -2012,7 +2013,8 @@ PRAGMA foreign_keys = TRUE;
 .separator \t
 .import {input.checkm} checkm
 .import {input.quast} quast
-.import {input.sequence} sequence
+.import {input.sequence} _sequence
+.import {input.sequence_length} _sequence_length
 .import {input.feature} feature
 .import {input.feature_details} feature_details
 .import {input.ko} ko

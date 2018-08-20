@@ -381,6 +381,21 @@ rule combine_annotations:
         cat {input} > {output}
         """
 
+rule compile_genome_sequences:
+    output:
+        "data/{group}.a.mags.{genomes}.g.{proc}.fn"
+    input:
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
+                                     for mag in config['genome_group'][wildcards.genomes]['mags']],
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.g.fn'
+                                     for ref in config['genome_group'][wildcards.genomes]['refs']],
+    wildcard_constraints:
+        annot=one_word_wc_constraint
+    shell:
+        """
+        cat {input} > {output}
+        """
+
 rule compile_cds:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.cds.fa"

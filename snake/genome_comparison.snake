@@ -209,6 +209,8 @@ rule alias_bovatus_genome:
     input: 'raw/ref/Bacteroides_ovatus_ATCC_8483.fn'
     shell: "ln -rs {input} {output}"
 
+ruleorder: alias_bovatus_genome > alias_sra_genomes
+
 # {{{1 Compile data
 
 rule full_genomes_group_quast_result:

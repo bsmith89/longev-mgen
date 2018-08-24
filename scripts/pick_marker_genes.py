@@ -29,7 +29,7 @@ if __name__ == "__main__":
     hmmer_tables = {}
     for genome_id in input_paths:
         hmmer_path, _ = input_paths[genome_id]
-        table = pd.read_table(hmmer_path)
+        table = pd.read_table(hmmer_path, names=['feature_id', 'model_id', 'score'])
         hmmer_tables[genome_id] = table
         single_copies = table.groupby(['model_id']).score.count()[lambda x: x==1].index
         single_copy_sets.append(set(single_copies))
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         for gene in shared_single_copy_genes:
             all_hits = {}
             for genome_id in hmmer_tables:
-                hit = hmmer_tables[genome_id][lambda x: x.model_id == gene].orf_id
+                hit = hmmer_tables[genome_id][lambda x: x.model_id == gene].feature_id
                 assert hit.shape == (1,), 'Dimensionality of results are wrong ({})'.format(hit.shape)
                 all_hits[genome_id] = hit.values[0]
             all_genes[gene] = all_hits
@@ -65,9 +65,9 @@ if __name__ == "__main__":
         for gene in all_genes:
             with open(args.fasta_output_template.format(gene), 'w') as fasta_handle:
                 for genome_id in all_genes[gene]:
-                    orf_id = all_genes[gene][genome_id]
-                    rec = fasta_indices[genome_id][orf_id]
+                    feature_id = all_genes[gene][genome_id]
+                    rec = fasta_indices[genome_id][feature_id]
                     seq_id = rec.id
                     seq_seq = str(rec.seq)
                     print(f'>{seq_id}\n{seq_seq}', file=fasta_handle)
-                    print(genome_id, gene, orf_id, sep='\t', file=tsv_handle)
+                    print(genome_id, gene, feature_id, sep='\t', file=tsv_handle)

@@ -33,6 +33,23 @@ config['asmbl_group'] = {}
 for group, d in _asmbl_group.groupby('asmbl_group'):
     config['asmbl_group'][group] = list(d['library_id'])
 
+rule all:
+    input:
+        [ "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
+        , "data/core.muri.2.db"
+        , "data/core.a.mags.muri.g.rfn.cds.fa"
+        , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.denovo-clust.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.denovo-clust.tsv"
+        ]
+    shell:
+        "# {input}"
+
 # {{{3 Local includes
 include: 'snake/local.snake'
 
@@ -50,25 +67,6 @@ if 'MAX_THREADS' in config:
 
 # {{{1 Utility rules/recipes/templates
 
-rule all:
-    input:
-        [ "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
-        , "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
-        , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.denovo-clust.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.denovo-clust.tsv"
-        , "data/core.a.mags.muri.g.rfn.dbCAN-hits.annot_table.tsv"
-        , "data/core.a.mags.muri.g.rfn.dbCAN-hits.denovo-clust.count.tsv"
-        ]
-    shell:
-        "# {input}"
-
-localrules: all
 
 rule print_config:
     shell:
@@ -170,12 +168,20 @@ rule download_tigrfam:
     shell:
         curl_recipe
 
-rule extract_tigrfam_hmm:
-    output: "ref/hmm/TIGR{num}.hmm"
+rule extract_tigrfam:
+    output: "ref/hmm/TIGRFAM.hmm"
     input: "raw/ref/TIGRFAMs_14.0_HMM.tar.gz"
     shell:
         """
-        tar -xzf {input} TIGR{wildcards.num}.HMM -O > {output}
+        tar -O -xzf {input} > {output}
+        """
+
+rule format_tigrfam_descriptions:
+    output: "ref/TIGRFAM.tsv"
+    input: "ref/hmm/TIGRFAM.hmm"
+    shell:
+        """
+        grep '^NAME\|^DESC' {input} | sed 's:\(NAME\|DESC\)  ::' | paste - - > {output}
         """
 
 rule download_pfam:
@@ -188,13 +194,6 @@ rule link_pfam:
     output: "ref/hmm/Pfam.hmm"
     input: "raw/ref/Pfam-31.0.hmm"
     shell: alias_recipe
-
-rule alias_hmm:
-    output: "ref/hmm/{alias}.hmm"
-    input: lambda wildcards: "ref/hmm/{}.hmm".format(config['gene_to_hmm'][wildcards.alias])
-    shell: alias_recipe
-
-localrules: download_tigrfam, extract_tigrfam_hmm, download_pfam, link_pfam, alias_hmm
 
 # {{{3 Metadata for sequence processing
 
@@ -1370,8 +1369,8 @@ rule annotate_reference_mag:
         """
 
 rule extract_feature_details:
-    output: 'data/{stem}.feature_details.tsv'
-    input: 'data/{stem}.prokka-annot.tsv'
+    output: 'data/{group_stem}/{strain_stem}.feature_details.tsv'
+    input: 'data/{group_stem}/{strain_stem}.prokka-annot.tsv'
     shell:
         """
         cut -f1,2,3,7 {input} | sed 1,1d > {output}
@@ -1546,7 +1545,7 @@ rule press_hmm:
 
 rule search_hmm:
     output:
-        tbl="data/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv",
+        tbl="data/{stem}.{hmm}-hits.hmmer-{cutoff}.tblout",
         domtbl="data/{stem}.{hmm}-hits.hmmer-{cutoff}.domtblout"
     wildcard_constraints:
         cutoff='ga|nc|tc'
@@ -1559,13 +1558,47 @@ rule search_hmm:
         h3p = "ref/hmm/{hmm}.hmm.h3p"
     threads: min(2, MAX_THREADS)
     shell:
-        """
-        echo "orf_id\tmodel_id\tscore" > {output.tbl}
-        hmmsearch --cut_{wildcards.cutoff} \\
-                  --cpu {threads} \\
-                  --domtblout {output.domtbl} \\
-                  --tblout >(grep -v '^#' | sed 's:\s\+:\\t:g' | cut -f1,3,6 >> {output.tbl}) \\
+        r"""
+        printf "orf_id\tmodel_id\tscore" > {output.tbl}
+        hmmsearch --cut_{wildcards.cutoff} \
+                  --cpu {threads} \
+                  --tblout {output.tbl} \
+                  --domtblout {output.domtbl} \
                   {input.hmm} {input.faa} > /dev/null
+        """
+
+rule parse_hmmsearch_tblout:
+    output: "data/{stem}.hmmer-{cutoff}.tsv"
+    input:  "data/{stem}.hmmer-{cutoff}.tblout"
+    wildcard_constraints:
+        cutoff='ga|nc|tc'
+    shell:
+        r"""
+        grep -v '^#' {input} | sed 's:\s\+:\t:g' | cut -f1,3,6 >> {output}
+        """
+
+rule find_minimal_domains:
+    output: "data/{stem}.best_domains.tsv"
+    input:
+        script="scripts/parse_domtbl_to_domains.py",
+        domtbl="data/{stem}.cds.Pfam-hits.hmmer-nc.domtblout",
+    params:
+        max_overlap_frac = 0.2
+    shell:
+        """
+        {input.script} {input.domtbl} {params.max_overlap_frac} > {output}
+        """
+
+rule parse_hmmsearch_domtblout:
+    output: "data/{stem}.domain.tsv"
+    input:
+        script="scripts/parse_domtbl_to_domains.py",
+        domtbl="data/{stem}.cds.Pfam-hits.hmmer-nc.domtblout",
+    params:
+        max_overlap_frac = 1
+    shell:
+        """
+        {input.script} {input.domtbl} {params.max_overlap_frac} > {output}
         """
 
 rule build_blast_db:
@@ -1594,19 +1627,28 @@ rule blast_rrs_reps:
         blastn -subject {input.ref} -query {input.mag} -max_target_seqs 1 -outfmt 6 > {output}
         """
 
-rule gather_hit_cds_strict:
+rule gather_hit_cds_fa_strict:
     output:
-        nucl="data/{stem}.cds.{hmm}-hits.fn",
         prot="data/{stem}.cds.{hmm}-hits.fa"
     input:
         hit_table="data/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
-        nucl="data/{stem}.cds.fn",
         prot="data/{stem}.cds.fa"
     shell:
         """
-        seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.nucl}
         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.prot}
         """
+
+rule gather_hit_cds_fn_strict:
+    output:
+        nucl="data/{stem}.cds.{hmm}-hits.fn",
+    input:
+        hit_table="data/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
+        nucl="data/{stem}.cds.fn",
+    shell:
+        """
+        seqtk subseq {input.nucl} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.nucl}
+        """
+
 
 rule identify_rrna_seqs:
     output: "data/{stem}.16S-blastn.gff"
@@ -1614,6 +1656,30 @@ rule identify_rrna_seqs:
     shell:
         """
         barrnap {input} > {output}
+        """
+
+rule identify_signal_peptides:
+    output:
+        "data/{stem}.signalp.tsv",
+    input: "data/{stem}.cds.fa"
+    params: aa_len=5
+    threads: 2
+    shell:
+        """
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        signalp -t 'gram-' \
+                -m >(grep '^>' -A 1 --no-group-separator \
+                         | sed 's:^>\(\S\+\).*:\\1:' \
+                         | paste - - \
+                         | awk -v OFS='\t' \
+                               '{{print $1, substr($2, 0, {params.aa_len})}}' \
+                         > $tmp1 \
+                    ) \
+                {input} \
+                | awk -v OFS='\t' '!/^#/ && $10=="Y" {{print $1,$3}}' \
+                > $tmp2
+        join -t '\t' $tmp2 $tmp1 > {output}
         """
 
 # {{{2 Sequences Analysis
@@ -1631,14 +1697,6 @@ rule identify_rrna_seqs:
 #         """
 #         hmmsearch --cpu {threads} --cut_nc --domtblout {output} {input.hmm} {input.fa} > {log}
 #         """
-#
-rule compile_domain_info:
-    output: "data/{stem}.domains.tsv"
-    input:
-        script="scripts/hmmscan-parser.sh",
-        domtbl="data/{stem}.hmmer-nc.domtblout"
-    shell:
-        "{input.script} {input.domtbl} > {output}"
 
 # {{{3 Alignment
 
@@ -1758,23 +1816,34 @@ rule all_by_all_blastp:
                 --outfmt 6 --out {output}
         """
 
-# Mean mean of A -> B bitscore and B -> A bitscore for all protein pairs with alignments
+# TODO: Fix this to deal with overlapping or multiple hits and normalize to self-blast.
+# Current version just takes the best hit for any pair of sequences.
 rule transform_blastp_to_similarity:
     output: '{stem}.protsim.tsv'
     input:
-        script='scripts/transform_blastp_to_similarity.sh',
-        blastp='{stem}.self-blastp.tsv'
+        script='scripts/transform_blastp_to_similarity.py',
+        blastp='{stem}.cds.self-blastp.tsv'
     shell:
         """
         {input.script} {input.blastp} > {output}
         """
 
+rule clip_protein_similarity_graph:
+    output: '{stem}.protsim.clip.tsv'
+    input: '{stem}.protsim.tsv'
+    params:
+        min_score = 0.2
+    shell:
+        """
+        awk '$3>{params.min_score}' {input} > {output}
+        """
+
 # TODO: Check out https://micans.org/mcl/man/mcl.html
 rule denovo_cluster_proteins:
     output: "data/{stem}.protclusts.mcl",
-    input: 'data/{stem}.protsim.tsv',
+    input: 'data/{stem}.protsim.clip.tsv',
     params:
-        inflation=5
+        inflation=8
     shell:
         """
         mcl {input} --abc -I {params.inflation} -o {output}
@@ -1822,70 +1891,16 @@ rule join_genome_by_annotation_table:
                 > {output}
         """
 
-rule domain_structure_cluster_proteins:
+# TODO: Rename script to format_domain_structure.py
+rule architecture_annotate_proteins:
     output:
-        "data/{stem}.domain-clust.tsv"
+        "data/{stem}.architecture.tsv"
     input:
         script="scripts/group_by_domain_structure.py",
-        domains="data/{stem}.domains.tsv"
+        domains="data/{stem}.best_domains.tsv"
     shell:
         "{input.script} {input.domains} > {output}"
 
-
-rule compile_all_dbCAN_hit_annotations:
-    output: "data/{stem}.dbCAN-hits.annot_table.tsv"
-    input:
-        denovo="data/{stem}.dbCAN-hits.denovo-clust.tsv",
-        domain="data/{stem}.dbCAN-hits.domain-clust.tsv",
-        prokka="data/{stem}.prokka-annot.tsv",
-    shell:
-        r"""
-        # join -t '\t' <(sort -k1,1 {input.denovo}) <(join -t '\t' <(sort -k1,1 {input.domain}) <(sort -k1,1 {input.prokka})) > {output}
-        tmp=$(mktemp)
-        echo '
-.separator "\t"
-
-CREATE TABLE prokka
-( locus_tag PRIMARY KEY
-, ftype
-, length_bp
-, gene
-, ec_number
-, cog
-, product
-);
-.import {input.prokka} prokka
-
-CREATE TABLE domain
-( locus_tag
-, domain_structure
-);
-.import {input.domain} domain
-
-CREATE TABLE denovo
-( locus_tag
-, denovo_clust
-);
-.import {input.denovo} denovo
-
-SELECT
-    locus_tag
-  , denovo_clust
-  , domain_structure
-  , length_bp
-  , gene
-  , ec_number
-  , cog
-  , product
-FROM prokka
-JOIN denovo USING (locus_tag)
-LEFT JOIN domain USING (locus_tag)
-;
-
-        ' | sqlite3 $tmp -header > {output}
-"""
-
-# {{{1 Databases
 
 # Base database, containing static metadata.
 rule generate_database_0:
@@ -2007,7 +2022,9 @@ rule generate_database_2:
         cog='ref/cog_function.noheader.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
         feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo-clust.tsv',
-        feature_to_domain_struct='data/{group}.a.mags.{genomes}.g.rfn.Pfam-hits.domain_structure-annot.tsv',
+        feature_domain='data/{group}.a.mags.{genomes}.g.rfn.domain-annot.tsv',
+        feature_to_architecture='data/{group}.a.mags.{genomes}.g.rfn.architecture-annot.tsv',
+        signal_peptide='data/{group}.a.mags.{genomes}.g.rfn.signalp-annot.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2029,7 +2046,9 @@ PRAGMA foreign_keys = TRUE;
 .import {input.cog} cog
 .import {input.feature_to_cog} feature_to_cog
 .import {input.feature_to_opf} feature_to_opf
-.import {input.feature_to_domain_struct} feature_to_domain_struct
+.import {input.feature_domain} feature_domain
+.import {input.feature_to_architecture} feature_to_architecture
+.import {input.signal_peptide} feature_signal_peptide
 ANALYZE;
              ' \
         | sqlite3 $tmp

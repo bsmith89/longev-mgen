@@ -157,6 +157,7 @@ config['genome_group'] = \
                        , 'Homeothermus_arabinoxylanisolvens'
                        , 'Muribaculum_intestinale_yl27'
                        , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
+                       , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
                        ]
              }
         }
@@ -200,6 +201,17 @@ ruleorder: alias_btheta_genome > alias_sra_genomes
 localrules: download_btheta_genome, download_m_intestinale_genome,
             alias_sra_genomes, alias_btheta_genome,
             alias_m_intestinale_genome
+
+rule download_bovatus_genome:
+    output: 'raw/ref/Bacteroides_ovatus_ATCC_8483.fn'
+    params:
+        url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP012938.1&rettype=fasta&retmode=text'
+    shell: curl_recipe
+
+rule alias_bovatus_genome:
+    output: 'data/ref.mags/Bacteroides_ovatus_ATCC_8483.g.fn'
+    input: 'raw/ref/Bacteroides_ovatus_ATCC_8483.fn'
+    shell: "ln -rs {input} {output}"
 
 # {{{1 Compile data
 
@@ -398,14 +410,15 @@ rule compile_genome_sequences:
 
 rule compile_cds:
     output:
-        "data/{group}.a.mags.{genomes}.g.{proc}.cds.fa"
+        "data/{group}.a.mags.{genomes}.g.{proc}.cds.{seqtype}"
     input:
-        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.cds.fa'
+        mags=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.cds.{wildcards.seqtype}'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.cds.fa'
+        refs=lambda wildcards: [f'data/ref.mags.annot/{ref}.g.cds.{wildcards.seqtype}'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     wildcard_constraints:
-        annot=one_word_wc_constraint
+        annot=one_word_wc_constraint,
+        seqtype='fa|fn'
     shell:
         """
         cat {input} > {output}
@@ -465,19 +478,20 @@ rule pick_phylogenetic_marker_genes:
         # .../genome_to_cds.tsv  # Mapping from sequences to genomes
     input:
         script="scripts/pick_marker_genes.py",
-        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.Pfam-hits.hmmer-tc.tsv'
+        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.TIGRFAM-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.Pfam-hits.hmmer-tc.tsv'
+        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.TIGRFAM-hits.hmmer-tc.tsv'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
         mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
+        tigrfam="ref/TIGRFAM.tsv",
     params:
-        mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.Pfam-hits.hmmer-tc.tsv'
+        mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.TIGRFAM-hits.hmmer-tc.tsv'
                                  f':data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.g.cds.Pfam-hits.hmmer-tc.tsv'
+        refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.g.cds.TIGRFAM-hits.hmmer-tc.tsv'
                                  f':data/ref.mags.annot/{g}.g.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['refs']],
     shell:
@@ -488,6 +502,7 @@ rule pick_phylogenetic_marker_genes:
                 --tsv-output '{output.dir}/gene_genome_map.tsv' \
                 --list-output '{output.dir}/genes.list' \
                 {params.mags} {params.refs}
+        join -t '\t' <(sort {output.dir}/genes.list) <(sort {input.tigrfam}) > {output.dir}/genes.details.tsv
         """
 
 rule align_phylogenetic_marker_genes:
@@ -496,7 +511,7 @@ rule align_phylogenetic_marker_genes:
     input:
         squeeze_script="scripts/squeeze_alignment.py",
         dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d",
-        hmm="ref/hmm/Pfam.hmm",
+        hmm="ref/hmm/TIGRFAM.hmm",
     shell:
         """
         rm -rf {output.dir}
@@ -531,37 +546,3 @@ rule concatenate_marker_gene_alignments:
                  ) \
                 > {output}
         """
-
-# {{{1 CAZy Annotations
-# TODO: Split this into two recipes.
-rule compile_cazy_hits:
-    output:
-        fasta="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.fa",
-        tsv="data/{group}.a.mags.{genomes}.g.{proc}.dbCAN-hits.gene_genome_map.tsv"
-    input:
-        mags_hits=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv'
-                                     for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_hits=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.dbCAN-hits.hmmer-tc.tsv'
-                                     for g in config['genome_group'][wildcards.genomes]['refs']],
-        mags_seqs=lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.dbCAN-hits.fa'
-                                     for g in config['genome_group'][wildcards.genomes]['mags']],
-        refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.dbCAN-hits.fa'
-                                     for g in config['genome_group'][wildcards.genomes]['refs']],
-    params:
-    shell:
-        r"""
-        cat {input.mags_seqs} {input.refs_seqs} > {output.fasta}
-        for hits in {input.mags_hits}
-        do
-            genome_name=$(basename --suffix .g.{wildcards.proc}.cds.dbCAN-hits.hmmer-tc.tsv $hits)
-            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$1}}' $hits
-        done > {output.tsv}
-        for hits in {input.refs_hits}
-        do
-            genome_name=$(basename --suffix .cds.dbCAN-hits.hmmer-tc.tsv $hits)
-            awk -v g="$genome_name" -v OFS='\t' 'NR!=1{{print g,$1}}' $hits
-        done >> {output.tsv}
-        """
-
-
-ruleorder: compile_cazy_hits > compile_gene_by_genome_tables

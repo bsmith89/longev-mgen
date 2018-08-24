@@ -94,25 +94,6 @@ config['mags'] = \
         'Otu0041'     : {'taxon' : 'Bacteroides sp.'},
         }
 
-config['gene_to_search_string'] = \
-    {'rpoB': 'DNA-directed RNA polymerase subunit beta$',
-     'gyrB': 'DNA gyrase subunit B$',
-     'rpoA': 'DNA-directed RNA polymerase subunit alpha$',
-     'rpoC': 'DNA-directed RNA polymerase subunit beta\'$',
-     'lepA': 'Elongation factor 4$',
-     'rrnS': '16S ribosomal RNA$'}
-
-config['gene_to_hmm'] = \
-    {'rpoB': 'TIGR02013',
-     'gyrB': 'TIGR01059',
-     'rpoA': 'TIGR02027',
-     'CBM58': 'CBM58',
-     'GH13': 'GH13',
-     'rpoC': 'TIGR02386',
-     'lepA': 'TIGR01393',
-     'mmdA': 'TIGR01117',
-     }
-
 config['genome_group'] = \
         { 'muri':
              { 'mags': [ 'Otu0001_vA'

@@ -198,10 +198,6 @@ rule alias_btheta_genome:
 
 ruleorder: alias_btheta_genome > alias_sra_genomes
 
-localrules: download_btheta_genome, download_m_intestinale_genome,
-            alias_sra_genomes, alias_btheta_genome,
-            alias_m_intestinale_genome
-
 rule download_bovatus_genome:
     output: 'raw/ref/Bacteroides_ovatus_ATCC_8483.fn'
     params:

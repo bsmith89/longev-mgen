@@ -72,8 +72,6 @@ rule print_config:
     shell:
         '{config}'
 
-localrules: print_config
-
 rule drop_header:
     output: '{stem}.noheader.{ext,(tsv|csv)}'
     input: '{stem}.{ext}'
@@ -83,8 +81,6 @@ rule drop_header_meta:
     output: 'data/{stem}.noheader.{ext,(tsv|csv)}'
     input: 'meta/{stem}.{ext}'
     shell: 'sed 1,1d {input} > {output}'
-
-localrules: drop_header, drop_header_meta
 
 ruleorder: drop_header_meta > drop_header
 
@@ -156,9 +152,6 @@ rule download_sra_data:
         fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
         """
 
-localrules: download_salask_reference, alias_salask_reference,
-            download_mouse_reference, download_sra_data,
-
 # {{{3 TIGRFAM
 
 rule download_tigrfam:
@@ -202,8 +195,6 @@ rule download_illumina_adapters:
     params:
         url='https://raw.githubusercontent.com/vsbuffalo/scythe/master/illumina_adapters.fa'
     shell: curl_recipe
-
-localrules: download_illumina_adapters
 
 # {{{3 dbCAN
 
@@ -259,9 +250,6 @@ rule alias_cog_to_ko_mapping:
     output: 'ref/cog_to_ko.tsv'
     input: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
     shell: alias_recipe
-
-localrules: download_cog_to_ko_mapping, download_cog_function_mapping,
-            alias_cog_to_ko_mapping, process_cog_function_mapping
 
 rule alias_kegg_fasta:
     output: 'ref/kegg.fa'
@@ -325,10 +313,6 @@ rule reformat_picrust_metacyc_pathways:
         """
 
 
-localrules: scrape_metacyc_pathways_table,
-            download_dBCAN_hmms, download_dbCAN_meta,
-            filter_dbCAN_hmms, filter_dbCAN_meta
-
 # {{{2 Raw data
 
 rule alias_raw_read_r1:
@@ -340,8 +324,6 @@ rule alias_raw_read_r2:
     output: 'data/{library}.m.r2.fq.gz',
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r2'])
     shell: alias_recipe
-
-localrules: alias_raw_read_r1, alias_raw_read_r2, link_rabund_info
 
 # {{{3 Import results from 16S libraries
 
@@ -359,8 +341,6 @@ rule alias_rrs_reps:
     output: 'ref/core.r.reps.fn'
     input: 'raw/longev_rrs_reps.fn'
     shell: alias_recipe
-
-localrules: query_count_info, query_taxonomy_info
 
 # {{{1 Metagenomic Assembly
 
@@ -421,8 +401,6 @@ rule alias_read_processing_r2:
     output: 'data/{library}.m.r2.proc.fq.gz'
     input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
-
-localrules: alias_read_processing_r1, alias_read_processing_r2
 
 # {{{2 Metagenome Assembly
 
@@ -610,8 +588,6 @@ rule count_seq_lengths_aa:
         printf "seq_id\tlength\n" > {output}
         {input.script} {input.seqs} >> {output}
         """
-
-localrules: count_seq_lengths_nucl, count_seq_lengths_aa
 
 # {{{3 Coverage
 
@@ -849,8 +825,6 @@ rule query_merge_stats:
         sqlite3 -header -separator '\t' {input.db} < {input.sql} > {output}
         """
 
-localrules: query_merge_stats
-
 # TODO: Automate this??
 # TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
 rule select_curated_mags:
@@ -885,8 +859,6 @@ rule get_mag_contigs:
         ids='data/{group}.a.mags/{bin}.g.contigs.list',
         seqs='data/{group}.a.contigs.fn'
     shell: 'seqtk subseq {input.seqs} {input.ids} > {output}'
-
-localrules: select_curated_mags, get_mag_contigs
 
 # {{{2 MAG Refinement
 # {{{3 Mapping
@@ -1237,8 +1209,6 @@ rule quality_asses_spike_mag:
                 {input.asmbl}
         """
 
-localrules: quality_asses_reassembly, quality_asses_spike_reassembly
-
 # {{{3 Strain Comparison
 rule compare_strains:
     output:
@@ -1529,8 +1499,6 @@ rule extract_metacyc_list:
         """
         awk '$8==1{{print $14}}' {input} > {output}
         """
-
-localrules: extract_cogs, extract_ec_numbers, infer_pathways, extract_metacyc_list
 
 # {{{3 Targetted
 
@@ -1934,8 +1902,6 @@ ANALYZE;
              ' \
         | sqlite3 {output}
         """
-
-localrules: generate_database_0
 
 # First iteration of results db; this might be used to e.g. find scaffolds.
 rule generate_database_1:

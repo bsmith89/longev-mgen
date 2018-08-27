@@ -230,7 +230,7 @@ rule make_genome_group_dir:
         done
         for genome in {input.refs};
         do
-            ln -rs $genome {output}/$(basename $genome)
+            ln -rs $genome {output}/$(basename --suffix .g.fn $genome).fn
         done
         """
 

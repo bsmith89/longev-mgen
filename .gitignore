@@ -14,8 +14,7 @@
 log/
 raw/
 ref/
-res/
-seq/
+data/
 build/
 
 local.snake

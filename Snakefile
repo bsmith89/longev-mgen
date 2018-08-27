@@ -1520,7 +1520,7 @@ rule search_hmm:
     wildcard_constraints:
         cutoff='ga|nc|tc'
     input:
-        faa = "data/{stem}.fa",
+        faa = "data/{stem}.cds.fa",
         hmm = "ref/hmm/{hmm}.hmm",
         h3f = "ref/hmm/{hmm}.hmm.h3f",
         h3i = "ref/hmm/{hmm}.hmm.h3i",
@@ -1547,29 +1547,35 @@ rule parse_hmmsearch_tblout:
         grep -v '^#' {input} | sed 's:\s\+:\t:g' | cut -f1,3,6 >> {output}
         """
 
-rule find_minimal_domains:
-    output: "data/{stem}.best_domains.tsv"
+rule parse_hmmsearch_domtblout:
+    output: "data/{stem}.{hmm}-domain.tsv"
     input:
         script="scripts/parse_domtbl_to_domains.py",
-        domtbl="data/{stem}.cds.Pfam-hits.hmmer-nc.domtblout",
+        domtbl="data/{stem}.{hmm}-hits.hmmer-nc.domtblout",
+    shell:
+        """
+        {input.script} {input.domtbl} > {output}
+        """
+
+rule combine_pfam_and_cazy_domains:
+    output: "data/{stem}.domain.tsv"
+    input:
+        pfam="data/{stem}.Pfam-domain.tsv",
+        dbcan="data/{stem}.dbCAN-domain.tsv",
+    shell: "cat {input} > {output}"
+
+rule find_minimal_domains:
+    output: "data/{stem}.{hmm}-domain.best.tsv"
+    input:
+        script="scripts/pick_minimal_domain_set.py",
+        domains="data/{stem}.{hmm}-domain.tsv",
     params:
         max_overlap_frac = 0.2
     shell:
         """
-        {input.script} {input.domtbl} {params.max_overlap_frac} > {output}
+        {input.script} {input.domains} {params.max_overlap_frac} > {output}
         """
 
-rule parse_hmmsearch_domtblout:
-    output: "data/{stem}.domain.tsv"
-    input:
-        script="scripts/parse_domtbl_to_domains.py",
-        domtbl="data/{stem}.cds.Pfam-hits.hmmer-nc.domtblout",
-    params:
-        max_overlap_frac = 1
-    shell:
-        """
-        {input.script} {input.domtbl} {params.max_overlap_frac} > {output}
-        """
 
 rule build_blast_db:
     output:
@@ -1601,7 +1607,7 @@ rule gather_hit_cds_fa_strict:
     output:
         prot="data/{stem}.cds.{hmm}-hits.fa"
     input:
-        hit_table="data/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
+        hit_table="data/{stem}.{hmm}-hits.hmmer-tc.tsv",
         prot="data/{stem}.cds.fa"
     shell:
         """
@@ -1612,7 +1618,7 @@ rule gather_hit_cds_fn_strict:
     output:
         nucl="data/{stem}.cds.{hmm}-hits.fn",
     input:
-        hit_table="data/{stem}.cds.{hmm}-hits.hmmer-tc.tsv",
+        hit_table="data/{stem}.{hmm}-hits.hmmer-tc.tsv",
         nucl="data/{stem}.cds.fn",
     shell:
         """
@@ -1770,8 +1776,8 @@ rule make_diamond_db:
 rule all_by_all_blastp:
     output: "data/{stem}.self-blastp.tsv"
     input:
-        fa='data/{stem}.fa',
-        db='data/{stem}.fa.dmnd',
+        fa='data/{stem}.cds.fa',
+        db='data/{stem}.cds.fa.dmnd',
     threads: MAX_THREADS
     params:
         # Should probably be substantially greater than the effective number of
@@ -1792,7 +1798,7 @@ rule transform_blastp_to_similarity:
     output: '{stem}.protsim.tsv'
     input:
         script='scripts/transform_blastp_to_similarity.py',
-        blastp='{stem}.cds.self-blastp.tsv'
+        blastp='{stem}.self-blastp.tsv'
     shell:
         """
         {input.script} {input.blastp} > {output}
@@ -1867,7 +1873,7 @@ rule architecture_annotate_proteins:
         "data/{stem}.architecture.tsv"
     input:
         script="scripts/group_by_domain_structure.py",
-        domains="data/{stem}.best_domains.tsv"
+        domains="data/{stem}.Pfam-domain.best.tsv"
     shell:
         "{input.script} {input.domains} > {output}"
 

@@ -93,6 +93,7 @@ CREATE TABLE feature_to_opf
 CREATE TABLE feature_domain
 ( feature_id REFERENCES feature(feature_id)
 , domain_id
+, score
 , left
 , right
 );

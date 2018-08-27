@@ -62,9 +62,8 @@ config['mags'] = \
 
 config['genome_group'] = \
         { 'muri':
-             { 'mags': [ 'Otu0001_vA'
+             { 'mags': [ 'Otu0001_vC'
                        , 'Otu0001_vB'
-                       , 'Otu0001_vC'
                        , 'Otu0004_vA'
                        , 'Otu0005_vA'
                        , 'Otu0007_vA'

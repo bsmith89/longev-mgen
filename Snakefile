@@ -37,6 +37,7 @@ rule all:
     input:
         [ "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
         , "data/core.muri.2.db"
+        , "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
         , "data/core.a.mags.muri.g.rfn.cds.fa"
         , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
         # , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
@@ -44,6 +45,7 @@ rule all:
         # , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
         , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
         # , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.architecture-annot.count.tsv"
         , "data/core.a.mags.muri.g.rfn.denovo-clust.count.tsv"
         # , "data/core.a.mags.muri.g.rfn.denovo-clust.tsv"
         ]

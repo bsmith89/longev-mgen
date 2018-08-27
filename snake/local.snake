@@ -1,9 +1,0 @@
-# This file is meant to be replaced with rules and configuration that should _not_
-# be version controlled:
-# E.g. links to non-public data, etc.
-
-rule setup_git_locally:
-    shell:
-        """
-        git update-index --skip-worktree snake/local.snake
-        """

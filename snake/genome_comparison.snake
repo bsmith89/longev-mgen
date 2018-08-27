@@ -4,40 +4,6 @@ from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
 
 # {{{1 Metadata
 
-config['ref_genomes'] = \
-        [ 'GP1'
-        , 'GP2'
-        , 'GP3'
-        , 'GP4'
-        , 'H1'
-        , 'H10'
-        , 'H2'
-        , 'H3'
-        , 'H4'
-        , 'H5'
-        , 'H6'
-        , 'H7'
-        , 'H8'
-        , 'H9'
-        , 'K1'
-        , 'K10'
-        , 'M1'
-        , 'M10'
-        , 'M11'
-        , 'M12'
-        , 'M13'
-        , 'M14'
-        , 'M2'
-        , 'M3'
-        , 'M5'
-        , 'M6'
-        , 'M7'
-        , 'M8'
-        , 'M9'
-        , 'Homeothermus_arabinoxylanisolvens'
-        , 'Muribaculum_intestinale_yl27'
-        ]
-
 config['sra'] = \
         {
         'GP1'                               : 'DAAI01000000',

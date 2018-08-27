@@ -52,6 +52,14 @@ rule all:
     shell:
         "# {input}"
 
+# {{{2 Tooling configuration
+
+rule setup_git_locally:
+    shell:
+        """
+        git update-index --skip-worktree snake/local.snake
+        """
+
 # {{{3 Local includes
 include: 'snake/local.snake'
 

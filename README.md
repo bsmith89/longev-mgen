@@ -361,7 +361,6 @@ females.
 # Paper Outline
 
 ## Introduction
-### OTU-1 and OTU-4 (summary of longev paper)
 The mammalian gut microbiome is a complex ecological system that influences
 energy balance [@TODO], pathogen resistance [@TODO], and inflammation [@TODO],
 among other processes with importance to host health.
@@ -374,15 +373,16 @@ digestive system in (TODO: mice/rats?) after a meal [@TODO].
 
 In a recent multi-site experimental study on the effect of ACA on the gut
 microbiota and fermentation products, the relative abundance of a number of
-bacterial taxa were found to respond to treatment with the drug, as well as the
-concentrations of propionate and butyrate.
+bacterial taxa
+as well as the concentrations of propionate and butyrate
+were found to respond to treatment with the drug.
 At two of the three study sites, UM and TJL, one OTU responded dramatically
 <!--
 TODO: Introduce UT, TJL, UM, OTU abbrevs.
 -->
 while a different OTU responded at UT.
 Both OTUs were classified as members of the recently cultured family
-Muribaculaceae&mdash;formerly the S24-7 and in some literature referred to as
+Muribaculaceae&mdash;formerly the S24-7 and sometimes referred to as
 Homeothermaceae&mdash;which has been shown to be a common and abundant
 inhabitant of the mammalian gut, especially in mice.
 Interestingly, these two OTUs are not closely related, sharing only about

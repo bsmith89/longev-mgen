@@ -1886,6 +1886,8 @@ rule architecture_annotate_proteins:
         "{input.script} {input.domains} > {output}"
 
 
+# {{{1 Master DBs
+
 # Base database, containing static metadata.
 rule generate_database_0:
     output: 'data/{group}.0.db'

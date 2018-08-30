@@ -1643,27 +1643,27 @@ rule identify_rrna_seqs:
         """
 
 rule identify_signal_peptides:
-    output:
-        "data/{stem}.signalp.tsv",
+    output: "data/{stem}.signalp-raw.tsv"
     input: "data/{stem}.cds.fa"
-    params: aa_len=5
+    params:
+        gram='gram-',
+        cutoffs="-U 0.42 -u 0.42",  # More sensitive cutoffs because false-positives are bad.
     threads: 2
     shell:
         """
-        tmp1=$(mktemp)
-        tmp2=$(mktemp)
-        signalp -t 'gram-' \
-                -m >(grep '^>' -A 1 --no-group-separator \
-                         | sed 's:^>\(\S\+\).*:\\1:' \
-                         | paste - - \
-                         | awk -v OFS='\t' \
-                               '{{print $1, substr($2, 0, {params.aa_len})}}' \
-                         > $tmp1 \
-                    ) \
-                {input} \
-                | awk -v OFS='\t' '!/^#/ && $10=="Y" {{print $1,$3}}' \
-                > $tmp2
-        join -t '\t' $tmp2 $tmp1 > {output}
+        signalp -t '{params.gram}' {params.cutoffs} {input} > {output}
+        """
+
+rule format_signalp_data:
+    output:
+        "data/{stem}.signalp.tsv"
+    input:
+        script="scripts/format_signalp_data.py",
+        tsv="data/{stem}.signalp-raw.tsv",
+        fasta="data/{stem}.cds.fa"
+    shell:
+        """
+        {input.script} {input.tsv} {input.fasta} > {output}
         """
 
 # {{{2 Sequences Analysis

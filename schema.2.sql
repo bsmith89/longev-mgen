@@ -106,7 +106,8 @@ CREATE TABLE feature_to_architecture
 CREATE TABLE feature_signal_peptide
 ( feature_id REFERENCES feature(feature_id)
 , cleavage_position INT
-, following_aminos TEXT
+, score FLOAT
+, closest_cysteine INT
 );
 
 -- {{{1 Views

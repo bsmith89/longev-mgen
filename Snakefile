@@ -1966,6 +1966,7 @@ rule denormalize_database_1:
         tmp=$(mktemp)
         cp {input.db} $tmp
         echo '
+.bail on
 PRAGMA cache_size = 1000000;
 
 CREATE TABLE __bin_coverage AS SELECT * FROM bin_coverage;

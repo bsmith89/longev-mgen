@@ -1573,10 +1573,10 @@ rule combine_pfam_and_cazy_domains:
     shell: "cat {input} > {output}"
 
 rule find_minimal_domains:
-    output: "data/{stem}.{hmm}-domain.best.tsv"
+    output: "data/{stem}.domain.best.tsv"
     input:
         script="scripts/pick_minimal_domain_set.py",
-        domains="data/{stem}.{hmm}-domain.tsv",
+        domains="data/{stem}.domain.tsv",
     params:
         max_overlap_frac = 0.2
     shell:
@@ -1881,7 +1881,7 @@ rule architecture_annotate_proteins:
         "data/{stem}.architecture.tsv"
     input:
         script="scripts/group_by_domain_structure.py",
-        domains="data/{stem}.Pfam-domain.best.tsv"
+        domains="data/{stem}.domain.best.tsv"
     shell:
         "{input.script} {input.domains} > {output}"
 

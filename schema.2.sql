@@ -179,5 +179,5 @@ JOIN feature_to_opf AS o2 ON n.neighbor_id = o2.feature_id
 JOIN feature_details AS d ON n.neighbor_id = d.feature_id
 LEFT JOIN feature_to_architecture AS a ON n.neighbor_id = a.feature_id
 JOIN sequence USING (sequence_id)
-WHERE distance < 10000
+WHERE distance < 50000
 ;

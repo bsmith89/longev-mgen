@@ -46,8 +46,8 @@ rule all:
         , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
         # , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
         , "data/core.a.mags.muri.g.rfn.architecture-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.denovo-clust.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.denovo-clust.tsv"
+        , "data/core.a.mags.muri.g.rfn.denovo50-clust.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.denovo50-clust.tsv"
         ]
     shell:
         "# {input}"
@@ -117,7 +117,7 @@ rule display_rulegraph:
     shell:
         """
         snakemake -n --rulegraph \
-                data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.dbCAN-hits.denovo-clust.tsv \
+                data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.dbCAN-hits.denovo50-clust.tsv \
                 data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.genome_stats.tsv \
                 data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.marker_genes.gb.prot.nwk \
             | dot -Tpdf > {output}
@@ -129,7 +129,7 @@ rule display_dag:
         dot="data/snake.dag.dot",
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
-        "snakemake -n --forceall --dag data/core.a.mags.muri.dbCAN-hits.denovo-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
+        "snakemake -n --forceall --dag data/core.a.mags.muri.dbCAN-hits.denovo50-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
 
 
 # {{{1 Downloading and linking data
@@ -1824,20 +1824,20 @@ rule clip_protein_similarity_graph:
 
 # TODO: Check out https://micans.org/mcl/man/mcl.html
 rule denovo_cluster_proteins:
-    output: "data/{stem}.protclusts.mcl",
+    output: "data/{stem}.protclusts-{infl}.mcl",
     input: 'data/{stem}.protsim.clip.tsv',
     params:
-        inflation=8
+        inflation=lambda wildcards: int(wildcards.infl) / 10
     shell:
         """
         mcl {input} --abc -I {params.inflation} -o {output}
         """
 
 rule mcl_to_opf_mapping:
-    output: 'data/{stem}.denovo-clust.tsv',
+    output: 'data/{stem}.denovo{infl}-clust.tsv',
     input:
         script='scripts/mcl_output_to_map.py',
-        mcl='data/{stem}.protclusts.mcl',
+        mcl='data/{stem}.protclusts-{infl}.mcl',
     shell:
         """
         {input.script} {input.mcl} > {output}
@@ -2006,7 +2006,7 @@ rule generate_database_2:
         feature_to_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
         cog='ref/cog_function.noheader.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
-        feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo-clust.tsv',
+        feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo50-clust.tsv',
         feature_domain='data/{group}.a.mags.{genomes}.g.rfn.domain-annot.tsv',
         feature_to_architecture='data/{group}.a.mags.{genomes}.g.rfn.architecture-annot.tsv',
         signal_peptide='data/{group}.a.mags.{genomes}.g.rfn.signalp-annot.tsv',

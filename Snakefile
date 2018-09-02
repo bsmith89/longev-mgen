@@ -1578,7 +1578,7 @@ rule find_minimal_domains:
         script="scripts/pick_minimal_domain_set.py",
         domains="data/{stem}.domain.tsv",
     params:
-        max_overlap_frac = 0.2
+        max_overlap_frac = 0.4
     shell:
         """
         {input.script} {input.domains} {params.max_overlap_frac} > {output}

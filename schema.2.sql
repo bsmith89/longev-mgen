@@ -45,7 +45,7 @@ CREATE TABLE _sequence
 
 CREATE TABLE _sequence_length
 ( sequence_id PRIMARY KEY REFERENCES _sequence(sequence_id)
-, nlength
+, nlength INT
 );
 
 CREATE TABLE feature
@@ -93,9 +93,9 @@ CREATE TABLE feature_to_opf
 CREATE TABLE feature_domain
 ( feature_id REFERENCES feature(feature_id)
 , domain_id
-, score
-, left
-, right
+, score FLOAT
+, left INT
+, right INT
 );
 
 CREATE TABLE feature_to_architecture

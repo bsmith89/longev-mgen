@@ -179,14 +179,6 @@ rule extract_tigrfam:
         tar -O -xzf {input} > {output}
         """
 
-rule format_tigrfam_descriptions:
-    output: "ref/TIGRFAM.tsv"
-    input: "ref/hmm/TIGRFAM.hmm"
-    shell:
-        """
-        grep '^NAME\|^DESC' {input} | sed 's:\(NAME\|DESC\)  ::' | paste - - > {output}
-        """
-
 rule download_pfam:
     output: "raw/ref/Pfam-31.0.hmm"
     params:
@@ -197,6 +189,50 @@ rule link_pfam:
     output: "ref/hmm/Pfam.hmm"
     input: "raw/ref/Pfam-31.0.hmm"
     shell: alias_recipe
+
+# {{{3 Parse HMM DBs
+
+rule format_hmm_database_descriptions:
+    output: "ref/{db}.hmm.tsv"
+    input: script="scripts/format_hmm_database_descriptions.py", hmm="ref/hmm/{db}.hmm"
+    shell:
+        """
+        {input.script} {input.hmm} > {output}
+        # grep '^NAME\|^DESC' {input} | sed 's:\(NAME\|DESC\)  ::' | paste - - > {output}
+        """
+
+rule combine_domain_descriptions:
+    output: "ref/domain.tsv"
+    input: pfam="ref/Pfam.hmm.tsv", dbcan="ref/dbCAN.hmm.tsv"
+    shell:
+        """
+        echo "
+CREATE TABLE pfam
+( domain_id
+, description
+);
+
+CREATE TABLE dbcan
+( domain_id
+, description
+);
+
+.import {input.pfam} pfam
+.import {input.dbcan} dbcan
+
+SELECT
+    domain_id
+  , pfam.description AS pfam_description
+  , dbcan.description AS dbcan_description
+FROM (SELECT domain_id FROM pfam
+      UNION
+      SELECT domain_id FROM dbcan)
+LEFT JOIN pfam USING (domain_id)
+LEFT JOIN dbcan USING (domain_id)
+;
+        " | sqlite3 -separator '\t' > {output}
+        """
+
 
 # {{{3 Metadata for sequence processing
 
@@ -215,7 +251,7 @@ rule download_dBCAN_hmms:
     shell: curl_recipe
 
 rule download_dbCAN_meta:
-    output: "raw/ref/dbCAN.tsv"
+    output: "raw/ref/dbCAN.hmm.tsv"
     params:
         url="http://csbl.bmb.uga.edu/dbCAN/download/FamInfo.txt"
     shell: curl_recipe
@@ -228,13 +264,15 @@ rule filter_dbCAN_hmms:
         sed 's:^NAME  \(.*\).hmm$:NAME  \1\nDESC  hypothetical carbohydrate-active domain (\1) containing protein:' {input} > {output}
         """
 
-rule filter_dbCAN_meta:
-    output: "ref/dbCAN.tsv"
-    input: "raw/ref/dbCAN.tsv"
+rule format_dbCAN_database_descriptions:
+    output: "ref/dbCAN.hmm.tsv"
+    input: "raw/ref/dbCAN.hmm.tsv"
     shell:
-        r"""
-        sed '1s:^#Family\t::' {input} > {output}
         """
+        awk -v FS='\t' -v OFS='\t' 'NR!=1{{print $1, $4 " " $5}}' {input} > {output}
+        """
+
+ruleorder: format_dbCAN_database_descriptions > format_hmm_database_descriptions
 
 # {{{3 COG
 
@@ -1643,7 +1681,7 @@ rule identify_rrna_seqs:
         """
 
 rule identify_signal_peptides:
-    output: "data/{stem}.signalp-raw.tsv"
+    output: "data/{stem}.signalp-raw.txt"
     input: "data/{stem}.cds.fa"
     params:
         gram='gram-',
@@ -1659,12 +1697,60 @@ rule format_signalp_data:
         "data/{stem}.signalp.tsv"
     input:
         script="scripts/format_signalp_data.py",
-        tsv="data/{stem}.signalp-raw.tsv",
+        tsv="data/{stem}.signalp-raw.txt",
         fasta="data/{stem}.cds.fa"
     shell:
         """
         {input.script} {input.tsv} {input.fasta} > {output}
         """
+
+rule identify_transmembrane_proteins:
+    output: "data/{stem}.tmhmm-raw.txt"
+    input: "data/{stem}.cds.fa"
+    shell:
+        """
+        tmhmm {input} > {output}
+        """
+
+rule format_tmhmm_data:
+    output: "data/{stem}.tmhmm.tsv"
+    input: script="scripts/format_tmhmm_data.py", data="data/{stem}.tmhmm-raw.txt"
+    shell: "{input.script} {input.data} > {output}"
+
+
+rule identify_other_secreted_proteins:
+    output: "data/{stem}.secretomep-raw.txt"
+    input: "data/{stem}.cds.fa"
+    shell:
+        """
+        echo "SecretomeP 2.0 must be run from the webserver."
+        echo "Version 1.0 is not appropriate for bacterial proteins."
+        false
+        """
+
+rule identify_lipoproteins:
+    output: "data/{stem}.lipop-raw.txt"
+    input: "data/{stem}.cds.fa"
+    shell:
+        """
+        LipoP < {input} > {output}
+        """
+
+# Take the summary line and format into a table.
+# feature_id, lipop_type, score, margin, cleavage_site, aa_at_position_plus_2
+rule format_lipop_data:
+    output: "data/{stem}.lipop.tsv"
+    input: "data/{stem}.lipop-raw.txt"
+    shell:
+        """
+        grep 'score=' {input} \
+            | awk -v OFS='\t' \
+                      '$3~/SpII/{{sub("-[0-9]+$", "", $6);
+                                 print $2, $3, substr($4,7), substr($5,8), substr($6,10), substr($7,7)
+                               }}' \
+            > {output}
+        """
+
 
 # {{{2 Sequences Analysis
 
@@ -2000,16 +2086,19 @@ rule generate_database_2:
         quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
         sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
         sequence_length='data/{group}.a.mags.{genomes}.g.rfn.nlength.noheader.tsv',
+        ko='ref/kegg.noheader.tsv',
+        cog='ref/cog_function.noheader.tsv',
+        domain='ref/domain.tsv',
         feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
         feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
-        ko='ref/kegg.noheader.tsv',
         feature_to_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
-        cog='ref/cog_function.noheader.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
         feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo50-clust.tsv',
         feature_domain='data/{group}.a.mags.{genomes}.g.rfn.domain-annot.tsv',
         feature_to_architecture='data/{group}.a.mags.{genomes}.g.rfn.architecture-annot.tsv',
         signal_peptide='data/{group}.a.mags.{genomes}.g.rfn.signalp-annot.tsv',
+        feature_tmhmm='data/{group}.a.mags.{genomes}.g.rfn.tmhmm-annot.tsv',
+        feature_lipop='data/{group}.a.mags.{genomes}.g.rfn.lipop-annot.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2024,16 +2113,19 @@ PRAGMA foreign_keys = TRUE;
 .import {input.quast} quast
 .import {input.sequence} _sequence
 .import {input.sequence_length} _sequence_length
+.import {input.ko} ko
+.import {input.cog} cog
+.import {input.domain} domain
 .import {input.feature} feature
 .import {input.feature_details} feature_details
-.import {input.ko} ko
 .import {input.feature_to_ko} feature_to_ko
-.import {input.cog} cog
 .import {input.feature_to_cog} feature_to_cog
 .import {input.feature_to_opf} feature_to_opf
 .import {input.feature_domain} feature_domain
 .import {input.feature_to_architecture} feature_to_architecture
 .import {input.signal_peptide} feature_signal_peptide
+.import {input.feature_tmhmm} feature_tmh
+.import {input.feature_lipop} feature_lipop
 ANALYZE;
              ' \
         | sqlite3 $tmp

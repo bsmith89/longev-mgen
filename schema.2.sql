@@ -48,6 +48,23 @@ CREATE TABLE _sequence_length
 , nlength INT
 );
 
+CREATE TABLE ko
+( ko_id PRIMARY KEY
+, description
+);
+
+CREATE TABLE cog
+( cog_id PRIMARY KEY
+, function_category
+, description
+);
+
+CREATE TABLE domain
+( domain_id PRIMARY KEY
+, pfam_description
+, cazy_description
+);
+
 CREATE TABLE feature
 ( feature_id PRIMARY KEY
 , sequence_id REFERENCES _sequence(sequence_id)
@@ -63,9 +80,9 @@ CREATE TABLE feature_details
 , product_description
 );
 
-CREATE TABLE ko
-( ko_id PRIMARY KEY
-, description
+CREATE TABLE feature_to_cog
+( feature_id PRIMARY KEY REFERENCES feature(feature_id)
+, cog_id REFERENCES cog(cog_id)
 );
 
 CREATE TABLE feature_to_ko
@@ -73,22 +90,11 @@ CREATE TABLE feature_to_ko
 , ko_id REFERENCES ko(ko_id)
 );
 
-CREATE TABLE cog
-( cog_id PRIMARY KEY
-, function_category
-, description
-);
-
-CREATE TABLE feature_to_cog
-( feature_id REFERENCES feature(feature_id)
-, cog_id REFERENCES cog(cog_id)
-);
-
-
 CREATE TABLE feature_to_opf
-( feature_id REFERENCES feature(feature_id)
+( feature_id PRIMARY KEY REFERENCES feature(feature_id)
 , opf_id
 );
+CREATE INDEX idx_feature_to_opf__opf_id ON feature_to_opf(opf_id);
 
 CREATE TABLE feature_domain
 ( feature_id REFERENCES feature(feature_id)
@@ -97,17 +103,32 @@ CREATE TABLE feature_domain
 , left INT
 , right INT
 );
+CREATE INDEX idx_feature_domain__domain_id ON feature_domain(domain_id);
 
 CREATE TABLE feature_to_architecture
-( feature_id REFERENCES feature(feature_id)
+( feature_id PRIMARY KEY REFERENCES feature(feature_id)
 , architecture
 );
 
 CREATE TABLE feature_signal_peptide
-( feature_id REFERENCES feature(feature_id)
+( feature_id PRIMARY KEY REFERENCES feature(feature_id)
 , cleavage_position INT
 , score FLOAT
 , closest_cysteine INT
+);
+
+CREATE TABLE feature_tmh
+( feature_id PRIMARY KEY REFERENCES feature(feature_id)
+, tmhelix_count INT
+);
+
+CREATE TABLE feature_lipop
+( feature_id PRIMARY KEY REFERENCES feature(feature_id)
+, lipop_type
+, score FLOAT
+, margin FLOAT
+, cleavage_position INT
+, aa_at_position_plus_2
 );
 
 -- {{{1 Views
@@ -119,15 +140,14 @@ SELECT * FROM _sequence JOIN _sequence_length USING (sequence_id)
 CREATE VIEW feature_neighborhood AS
 SELECT
     a.sequence_id AS sequence_id
-  , a.feature_id AS feature_id
-  , b.feature_id AS neighbor_id
+  , a.feature_id AS seed_id
+  , b.feature_id AS feature_id
   , b.left AS left
   , b.right AS right
   , ABS(((a.left + a.right) / 2) - ((b.left + b.right) / 2)) AS distance
  FROM feature AS a
  JOIN feature AS b
    ON a.sequence_id = b.sequence_id
--- WHERE a.feature_id != b.feature_id
 ;
 
 CREATE VIEW opf_architecture AS
@@ -161,23 +181,3 @@ JOIN (SELECT
 GROUP BY a.opf_id
 ;
 
-CREATE VIEW feature_neighborhood_details AS
-SELECT
-    mag_id
-  , sequence_id
-  , n.neighbor_id AS feature_id
-  , left
-  , right
-  , o2.opf_id AS opf_id
-  , d.product_description AS description
-  , a.architecture AS architecture
-  , distance
-  , o1.opf_id AS seed_opf
-FROM feature_neighborhood AS n
-JOIN feature_to_opf AS o1 USING (feature_id)
-JOIN feature_to_opf AS o2 ON n.neighbor_id = o2.feature_id
-JOIN feature_details AS d ON n.neighbor_id = d.feature_id
-LEFT JOIN feature_to_architecture AS a ON n.neighbor_id = a.feature_id
-JOIN sequence USING (sequence_id)
-WHERE distance < 50000
-;

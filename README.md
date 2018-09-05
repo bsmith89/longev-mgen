@@ -431,7 +431,39 @@ and response of bacteria to perturbations.
 TODO: Figure out better ways to refer to the two OTUs.
 -->
 
-## Recovery of Genomes
+## Recovery of Genome
+
+Metagenomes were sequenced for a set of samples containing an average of X
+percent of N OTUs classified (based on the V4 region) as Muribaculaceae.
+We roughly calculate a TODO table of expected coverages for these genomes,
+suggesting that we might be able to pick up all of them.
+Genomes were recovered through a process of
+assembly, binning, bin refinement, reassembly, reassembly refinement, and trimming.
+Raw assembly statistics TODO.
+Mapping statistics TODO.
+Genomes for all 7 OTUs were recovered with less than 5% contamination and
+in 5 cases >95% completeness.
+Two versions of OTU-1 were obtained; this is further discussed in a later
+section.
+The remainder of this section will focus on the genome recovery method,
+and the evidence that these genomes are an accurate reflection of the true
+genomes.
+
+A fraction of the samples for which we obtained sequence data were spiked
+with S. alaskensis, a marine bacterium that is highly unlikely to be found
+in the mouse gut microbiome.
+This allowed us to asses the quality of genome recovery and reconstruction
+in an internal control.
+However, this is still an idealized scenario, since recovery was not
+hindered by strain variation or the presence of closely related species.
+While binning contigs based on a mixture model of high-dimensional gaussians
+(as in CONCOCT [@TODO]) produced feasibly complete and low contamination
+bins in some cases, it was not very successful in others, including
+taxa that we had the most interest in.
+
+
+
+## Recovery of Genomes (2)
 
 TODO: It seems like we're having special trouble recovering OTU-1 compared
 to other genomes.
@@ -536,3 +568,85 @@ Does the sequencing depth lend credence?
 
 TODO: Should we talk about the apparent presence of a phage in the OTU-1 genome
 at UT?
+
+# TODO
+
+-   Consider the newly identified secreted GH13 containing enzyme
+    -   What is its genomic context?  Part of a PUL?
+    -   Is there any evidence for a similar enzyme in OTU-7?
+        -   If not, how is OTU-7 blooming with starch??
+    -   Who else has the same enzyme?
+        -   Nothing in blast has higher than ~50% id.  Is that weird??
+        -   Nothing with the same OPF, but is that because they're too granular?
+        -   Any other taxa not in this study?  Are they starch degraders?
+-   Figure out what's going on with Opf01942:
+    -   This GH13 containing enzyme is found in OTU-1 (both sites),
+        OTU-9,
+        several Ormerod strains (M11, H7, M10, all annotated as starch degraders),
+        as well as B. ovatus (but not B. theta),
+    -   It's annotated as 'Isomalto-dextranase' in all cases.
+    -   In most cases it includes a cysteine just after a signal-peptide.
+        -   One notable exception (the only exception?) is in B. ovatus, which apparently lacks the signal peptide (SignalP score approx. 0.36)
+    -   Interestingly, OTU-1 actually has THREE copies of this OPF (no other mag has copies), but they're substantially different.
+        -   Two of the copies are in successive positions in the genome
+            -   Of these, one copy is annotated as a GH97 domain, not GH13 (despite being clustered as the same OPF)
+            -   and is fused with a ["SusF_SusE" domain](https://www.ebi.ac.uk/interpro/entry/IPR032187); no other MAG has this fusion.
+            -   When I mask using Gblocks (so we're just looking at the GH13) and
+                estimate a phylogeny, the two copies in OTU-1 are more closely
+                related to each other than to any of the other sequences, suggesting
+                duplication since divergence from the other lineages.
+                -   TODO: dN/dS analysis to show positive selection on one or both copies?
+        -   The third copy is more similar to the other MAGs sequences than the first two.
+-    OTU-7, does it have starch activity on the outer membrane??
+     -  In OTU-7, I get just one hit, even using a liberal filter, for proteins
+        containing GH13, GH97, or GH31.  (Are there other GH domains I should
+        include in my search?)  Otu0007_vA_01521, is super short (75 AAs),
+        contains a partial GH97 domain.  I think it's either a pseudogene or an
+        assembly error, because the following ORF, which also contains a GH97,
+        is missing a ~80 residues from the N-terminus (based on an alignment to
+        other proteins in the same cluster).  I'm assuming the actual protein
+        is their concatenation.
+    -   So there is enzymatic breakdown of starch in OTU-7!  But it's a GH97,
+        not GH13.  It's therefore not at all clear if OTU-7 would be
+        particularly good at growing on extracellular starch.  That protein
+        family (Opf01276) is found across Muribaculaceae (including OTU-1) and
+        in both B. theta and B. ovatus,
+        (TODO: check the following) but OTU-7's is the only sequence with
+        evidence for secretion.
+        -   OTU-1 and OTU-7 are the only Muri's in the ITP mice that have a secreted GH97.
+            Opf01297 in OTU-7 and one of the versions of the duplicated
+            Opf01942 in OTU-1.
+    -   Widening the search to CBMs 20, 25, 26, and 69 I get three lipoproteins
+        (Aside: should I include other CBMs as well?  I'm having a hard time
+        finding a list of those that might bind starch.):
+        -   Otu0007_vA_00858 containing one (or maybe two) CBM26s, preceded by
+            a 'P_gingi_FimA' domain.  I'm imagining the structure as a long
+            protein "stick" with a starch "hook" on the end.  It's genomically
+            adjacent to another fimbrial-looking protein with a CBM16 on the
+            end and an 'Mfa2' containing protein.  None of the other species
+            have homologous proteins, although I do find it in the Ormerod
+            reconstruction of the same species.
+        -   Otu0007_vA_01525 with repeated SusE and SusF domains.
+        -   And Otu0007_vA_01826 containing a large fraction, but not all of a
+            SusE domain.  From my limited reading of the literature, this would
+            be a putative inner-membrane lipoprotein (since there is an Asp, 2
+            residues from the cleavage site).
+    -   I get one more hit when I widen the search still further to CBM48.
+        -   Otu0007_vA_00489: besides the CBM48, it also contains a 'PCMD'
+            which is a Pfam domain hypothesized to have GH activity...
+            Homologous sequences are found in B. ovatus, OTU-5, OTU-9, and a
+            whole bunch of the Ormerod MAGs.
+-   I've filtered my OPF list by those in which most of the member features
+    are annotated with CAZY domains (to remove everything but the polysaccharide active proteins).
+    -   In this subset I find an OPF (Opf01517) that has 18 members, mostly
+        OTU-1 duplicates (3 copies in vB and 4 copies in vC !!)
+    -   OTU-7 also has one representative, as does OTU-9.
+    -   This OPF is interesting because
+        -   It's GH31 containing
+        -   It has multiple copies in OTU-1 and is also found in OTU-7
+        -   It's found in B. ovatus, but not B. theta
+        -   In both OTU-1 _and_ M11 Opf01517 is found in the same PUL as
+            Opf01942!  (and Opf01276 is in that same PUL in OTU-1)
+        -   _However_: Opf01517 is apparently cytoplasmic in OTU-7 soooo...
+
+-   TODO: SecretomeP v2.0 ??

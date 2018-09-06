@@ -2117,7 +2117,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.cog} cog
 .import {input.domain} domain
 .import {input.feature} feature
-.import {input.feature_details} feature_details
+.import {input.feature_details} _feature_details
 .import {input.feature_to_ko} feature_to_ko
 .import {input.feature_to_cog} feature_to_cog
 .import {input.feature_to_opf} feature_to_opf
@@ -2130,4 +2130,67 @@ ANALYZE;
              ' \
         | sqlite3 $tmp
         mv $tmp {output}
+        """
+
+rule denormalize_database_2:
+    output: 'data/{stem}.2.denorm.db'
+    input:
+        db='data/{stem}.2.db',
+    shell:
+        """
+        tmp=$(mktemp)
+        cp {input.db} $tmp
+        echo '
+.bail on
+PRAGMA cache_size = 1000000;
+
+CREATE TABLE __feature_details AS SELECT * FROM feature_details;
+DROP VIEW feature_details;
+ALTER TABLE __feature_details RENAME TO feature_details;
+
+DROP TABLE feature;
+CREATE VIEW feature AS
+SELECT feature_id, sequence_id, left, right FROM feature_details
+;
+DROP TABLE _feature_details;
+CREATE VIEW _feature_details AS
+SELECT feature_id, ftype, nlength, product_description FROM feature_details
+;
+DROP VIEW feature_localization;
+CREATE VIEW feature_localization AS
+SELECT
+    feature_id, localization, lp_score, lp_margin
+  , sp_score, closest_cysteine, tmhelix_count
+FROM feature_details
+;
+DROP TABLE feature_to_opf;
+CREATE VIEW feature_to_opf AS
+SELECT feature_id, opf_id FROM feature_details
+;
+DROP TABLE feature_to_architecture;
+CREATE VIEW feature_to_architecture AS
+SELECT feature_id, architecture FROM feature_details
+;
+DROP TABLE feature_to_cog;
+CREATE VIEW feature_to_cog AS
+SELECT feature_id, cog_id FROM feature_details
+;
+DROP TABLE feature_to_ko;
+CREATE VIEW feature_to_ko AS
+SELECT feature_id, ko_id FROM feature_details
+;
+
+-- TODO: Replace the lost indices, where necessary
+
+VACUUM; ANALYZE;
+        ' | sqlite3 $tmp
+        mv $tmp {output}
+        """
+
+rule run_db2_query:
+    output: 'data/{db}.2.query_{query}.tsv'
+    input: db='data/{db}.2.denorm.db', query='scripts/queries/2/{query}.sql'
+    shell:
+        """
+        sqlite3 -header -separator '	' {input.db} < {input.query} > {output}
         """

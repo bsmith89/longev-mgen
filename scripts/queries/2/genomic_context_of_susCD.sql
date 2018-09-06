@@ -14,11 +14,8 @@ LEFT JOIN (SELECT
              , product_description AS seed_product
            FROM feature_details
           ) USING (seed_id)
-LEFT JOIN feature_localization USING (feature_id)
-LEFT JOIN feature_to_opf USING (feature_id)
-LEFT JOIN feature_to_architecture USING (feature_id)
-LEFT JOIN feature_details USING (feature_id)
-WHERE distance < 15000
+JOIN feature_details USING (feature_id)
+WHERE distance < 100000
   AND seed_product = 'TonB-dependent receptor SusC'
 ORDER BY feature_id
 ;

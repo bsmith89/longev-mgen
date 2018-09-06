@@ -73,7 +73,7 @@ CREATE TABLE feature
 );
 CREATE INDEX idx_feature__sequence_id ON feature(sequence_id);
 
-CREATE TABLE feature_details
+CREATE TABLE _feature_details
 ( feature_id PRIMARY KEY REFERENCES feature(feature_id)
 , ftype
 , nlength INT
@@ -139,11 +139,8 @@ SELECT * FROM _sequence JOIN _sequence_length USING (sequence_id)
 
 CREATE VIEW feature_neighborhood AS
 SELECT
-    a.sequence_id AS sequence_id
-  , a.feature_id AS seed_id
+    a.feature_id AS seed_id
   , b.feature_id AS feature_id
-  , b.left AS left
-  , b.right AS right
   , ABS(((a.left + a.right) / 2) - ((b.left + b.right) / 2)) AS distance
  FROM feature AS a
  JOIN feature AS b
@@ -197,13 +194,24 @@ SELECT
     WHEN sp.score > 0.4 THEN 'PP??'
     ELSE ''
     END AS localization
-  , tmhelix_count
   , lp.score AS lp_score
   , lp.margin AS lp_margin
   , sp.score AS sp_score
-  , sp.closest_cysteine
-FROM feature_neighborhood
+  , sp.closest_cysteine AS closest_cysteine
+  , tmhelix_count
+FROM feature
 LEFT JOIN feature_lipop AS lp USING (feature_id)
 LEFT JOIN feature_signal_peptide AS sp USING (feature_id)
 LEFT JOIN feature_tmh USING (feature_id)
+;
+
+CREATE VIEW feature_details AS
+SELECT *
+FROM feature
+LEFT JOIN _feature_details USING (feature_id)
+LEFT JOIN feature_localization USING (feature_id)
+LEFT JOIN feature_to_opf USING (feature_id)
+LEFT JOIN feature_to_architecture USING (feature_id)
+LEFT JOIN feature_to_cog USING (feature_id)
+LEFT JOIN feature_to_ko USING (feature_id)
 ;

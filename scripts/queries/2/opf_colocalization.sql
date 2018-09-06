@@ -5,15 +5,14 @@
 -- the search radius.
 
 SELECT
-  a.opf_id AS feature_annot
-, b.opf_id AS neighbor_annot
-, COUNT(*) / 2 AS count_neighboring_pairs
+  o1.opf_id AS opf_id_1
+, o2.opf_id AS opf_id_2
+, COUNT(*) / 2 AS tally
 FROM feature_neighborhood AS n
-JOIN feature_to_opf AS a
-  ON n.feature_id = a.feature_id
-JOIN feature_to_opf AS b
-  ON n.neighbor_id = b.feature_id
+JOIN feature_to_opf AS o1 USING (feature_id)
+JOIN feature_to_opf AS o2 ON n.seed_id = o2.feature_id
 WHERE distance < 10000
-GROUP BY feature_annot, neighbor_annot
-ORDER BY count_neighboring_pairs DESC
+  AND o1.feature_id != o2.feature_id
+GROUP BY opf_id_1, opf_id_2
+ORDER BY tally DESC
 ;

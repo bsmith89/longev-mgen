@@ -215,3 +215,62 @@ LEFT JOIN feature_to_architecture USING (feature_id)
 LEFT JOIN feature_to_cog USING (feature_id)
 LEFT JOIN feature_to_ko USING (feature_id)
 ;
+
+CREATE VIEW putative_susC AS
+SELECT DISTINCT feature_id
+FROM feature_details
+WHERE opf_id IN (SELECT opf_id
+                 FROM feature_details
+                 WHERE ko_id = 'K21573')
+   OR ko_id = 'K21573'
+;
+
+CREATE VIEW putative_susD AS
+SELECT DISTINCT feature_id
+FROM feature_details
+WHERE opf_id IN (SELECT opf_id
+                 FROM feature_details
+                 WHERE ko_id = 'K21572')
+   OR ko_id = 'K21572'
+;
+
+CREATE VIEW putative_susEF AS
+SELECT DISTINCT feature_id
+FROM feature_details
+JOIN feature_domain USING (feature_id)
+WHERE opf_id IN (SELECT opf_id
+                 FROM feature_details
+                 WHERE ko_id = 'K21571')
+   OR ko_id = 'K21571'
+   OR domain_id LIKE '%SusE%'
+   OR domain_id LIKE '%SusF%'
+;
+
+CREATE VIEW putative_susG AS
+SELECT DISTINCT feature_id
+FROM feature_details
+JOIN feature_domain USING (feature_id)
+WHERE ( lp_score > 5
+     OR (sp_score > 0.5 AND closest_cysteine < 3)
+      )
+  AND domain_id LIKE 'GH%'
+;
+
+CREATE VIEW putative_PUL_susC AS
+SELECT DISTINCT
+    seed_id AS feature_id
+  , SUM(susC) AS tally_susC
+  , SUM(susD) AS tally_susD
+  , SUM(susEF) AS tally_susEF
+  , SUM(susG) AS tally_susG
+FROM feature_neighborhood
+JOIN feature_details USING (feature_id)
+LEFT JOIN (SELECT feature_id, 1 AS susC FROM putative_susC) AS c USING (feature_id)
+LEFT JOIN (SELECT feature_id, 1 AS susD FROM putative_susD) AS d USING (feature_id)
+LEFT JOIN (SELECT feature_id, 1 AS susEF FROM putative_susEF) AS e USING (feature_id)
+LEFT JOIN (SELECT feature_id, 1 AS susG FROM putative_susG) AS g USING (feature_id)
+WHERE DISTANCE < 5000
+  AND seed_id IN (SELECT * FROM putative_susC)
+GROUP BY seed_id
+HAVING tally_susC > 0 AND tally_susD > 0
+;

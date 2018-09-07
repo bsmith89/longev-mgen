@@ -11,7 +11,6 @@ SELECT DISTINCT
   , susEF
   , susG
   , localization
-  , ko_id
   , opf_id
   , architecture
   , product_description

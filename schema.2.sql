@@ -85,7 +85,7 @@ CREATE TABLE feature_to_cog
 , cog_id REFERENCES cog(cog_id)
 );
 
-CREATE TABLE feature_to_ko
+CREATE TABLE feature_x_ko
 ( feature_id REFERENCES feature(feature_id)
 , ko_id REFERENCES ko(ko_id)
 );
@@ -213,35 +213,50 @@ LEFT JOIN feature_localization USING (feature_id)
 LEFT JOIN feature_to_opf USING (feature_id)
 LEFT JOIN feature_to_architecture USING (feature_id)
 LEFT JOIN feature_to_cog USING (feature_id)
-LEFT JOIN feature_to_ko USING (feature_id)
+-- DO NOT join KOs, because feature_x_ko is many-to-many:
+;
+
+--  Many-to-many relationship between features and plausible KO membership.
+CREATE VIEW feature_possible_ko AS
+SELECT DISTINCT *
+FROM (
+  SELECT *
+  --  All KOs assigned to the feature
+  FROM feature_x_ko AS k1
+
+  UNION
+
+  SELECT
+  --  All KOs assigned to any feature in the same OPF
+      f1.feature_id AS feature_id
+    , k2.ko_id AS ko_id
+  FROM feature AS f1
+  JOIN feature_to_opf AS o1 USING (feature_id)
+  JOIN feature_to_opf AS f2 USING (opf_id)
+  JOIN feature_x_ko AS k2
+    ON k2.feature_id = f2.feature_id
+     )
+WHERE feature_id != ''
+  AND ko_id != ''
 ;
 
 CREATE VIEW putative_susC AS
 SELECT DISTINCT feature_id
-FROM feature_details
-WHERE opf_id IN (SELECT opf_id
-                 FROM feature_details
-                 WHERE ko_id = 'K21573')
-   OR ko_id = 'K21573'
+FROM feature_possible_ko
+WHERE ko_id = 'K21573'
 ;
 
 CREATE VIEW putative_susD AS
 SELECT DISTINCT feature_id
-FROM feature_details
-WHERE opf_id IN (SELECT opf_id
-                 FROM feature_details
-                 WHERE ko_id = 'K21572')
-   OR ko_id = 'K21572'
+FROM feature_possible_ko
+WHERE ko_id = 'K21572'
 ;
 
 CREATE VIEW putative_susEF AS
 SELECT DISTINCT feature_id
-FROM feature_details
+FROM feature_possible_ko
 JOIN feature_domain USING (feature_id)
-WHERE opf_id IN (SELECT opf_id
-                 FROM feature_details
-                 WHERE ko_id = 'K21571')
-   OR ko_id = 'K21571'
+WHERE ko_id = 'K21571'
    OR domain_id LIKE '%SusE%'
    OR domain_id LIKE '%SusF%'
 ;

@@ -2091,7 +2091,7 @@ rule generate_database_2:
         domain='ref/domain.tsv',
         feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
         feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
-        feature_to_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
+        feature_x_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
         feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo50-clust.tsv',
         feature_domain='data/{group}.a.mags.{genomes}.g.rfn.domain-annot.tsv',
@@ -2118,7 +2118,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.domain} domain
 .import {input.feature} feature
 .import {input.feature_details} _feature_details
-.import {input.feature_to_ko} feature_to_ko
+.import {input.feature_x_ko} feature_x_ko
 .import {input.feature_to_cog} feature_to_cog
 .import {input.feature_to_opf} feature_to_opf
 .import {input.feature_domain} feature_domain
@@ -2174,10 +2174,6 @@ SELECT feature_id, architecture FROM feature_details
 DROP TABLE feature_to_cog;
 CREATE VIEW feature_to_cog AS
 SELECT feature_id, cog_id FROM feature_details
-;
-DROP TABLE feature_to_ko;
-CREATE VIEW feature_to_ko AS
-SELECT feature_id, ko_id FROM feature_details
 ;
 
 -- TODO: Replace the lost indices, where necessary

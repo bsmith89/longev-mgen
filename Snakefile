@@ -33,10 +33,11 @@ config['asmbl_group'] = {}
 for group, d in _asmbl_group.groupby('asmbl_group'):
     config['asmbl_group'][group] = list(d['library_id'])
 
+# TODO: Build the other files from the database.
 rule all:
     input:
         [ "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
-        , "data/core.muri.2.db"
+        , "data/core.muri.2.denorm.db"
         , "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
         , "data/core.a.mags.muri.g.rfn.cds.fa"
         , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"

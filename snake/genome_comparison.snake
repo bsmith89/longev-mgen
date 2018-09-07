@@ -104,8 +104,8 @@ config['genome_group'] = \
                        , 'Muribaculum_intestinale_yl27'
                        , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
                        , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
-                       , 'Barnesiella_viscericola_DSM_18177'
-                       , 'Porphyromonas_gingivalis_ATCC_33277'
+                       , 'Barnesiella_viscericola_DSM_18177'  # Outgroup
+                       , 'Porphyromonas_gingivalis_ATCC_33277'  # Outgroup
                        ]
              }
         }

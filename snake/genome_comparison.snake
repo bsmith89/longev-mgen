@@ -104,13 +104,15 @@ config['genome_group'] = \
                        , 'Muribaculum_intestinale_yl27'
                        , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
                        , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
+                       , 'Barnesiella_viscericola_DSM_18177'
+                       , 'Porphyromonas_gingivalis_ATCC_33277'
                        ]
              }
         }
 
 # {{{1 Download and link data
 
-# This is intended for Ormerod MAGs.
+# {{{2 SRA (All Ormerod Genomes)
 rule alias_sra_genomes:
     output: 'data/ref.mags/{mag_id}.g.fn'
     input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['sra'][wildcards.mag_id])
@@ -118,6 +120,7 @@ rule alias_sra_genomes:
         mag_id='[^.]+'
     shell: "ln -rs {input} {output}"
 
+# {{{2 Muribaculum intestinale YL27
 rule download_m_intestinale_genome:
     output: 'raw/ref/Muribaculum_intestinale_yl27.fn'
     params:
@@ -131,6 +134,7 @@ rule alias_m_intestinale_genome:
 
 ruleorder: alias_m_intestinale_genome > alias_sra_genomes
 
+# {{{2 Bacteroides thetaiotaomicron VPI5482
 rule download_btheta_genome:
     output: 'raw/ref/Bacteroides_thetaiotaomicron_VPI5482.fn'
     params:
@@ -144,6 +148,7 @@ rule alias_btheta_genome:
 
 ruleorder: alias_btheta_genome > alias_sra_genomes
 
+# {{{2 Bacteroides ovatus ATCC 8483
 rule download_bovatus_genome:
     output: 'raw/ref/Bacteroides_ovatus_ATCC_8483.fn'
     params:
@@ -156,6 +161,48 @@ rule alias_bovatus_genome:
     shell: "ln -rs {input} {output}"
 
 ruleorder: alias_bovatus_genome > alias_sra_genomes
+
+# {{{2 Barnesiella viscericola DSM 18177
+rule download_bvisc_genome:
+    output: 'raw/ref/Barnesiella_viscericola_DSM_18177.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/512/915/GCA_000512915.1_ASM51291v1/GCA_000512915.1_ASM51291v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_bvisc_genome:
+    output: 'data/ref.mags/Barnesiella_viscericola_DSM_18177.g.fn'
+    input: 'raw/ref/Barnesiella_viscericola_DSM_18177.fn'
+    shell: alias_recipe
+
+ruleorder: alias_bvisc_genome > alias_sra_genomes
+
+# {{{2 Porphyromonas gingivalis ATCC 33277
+rule download_pging_genome:
+    output: 'raw/ref/Porphyromonas_gingivalis_ATCC_33277.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/010/505/GCA_000010505.1_ASM1050v1/GCA_000010505.1_ASM1050v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_pging_genome:
+    output: 'data/ref.mags/Porphyromonas_gingivalis_ATCC_33277.g.fn'
+    input: 'raw/ref/Porphyromonas_gingivalis_ATCC_33277.fn'
+    shell: alias_recipe
+
+ruleorder: alias_pging_genome > alias_sra_genomes
+
+# {{{2 Lactobacillus johnsonii NCC 533
+rule download_ljohn_genome:
+    output: 'raw/ref/Lactobacillus_johnsonii_NCC_533.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/Lactobacillus_johnsonii/latest_assembly_versions/GCA_000008065.1_ASM806v1/GCA_000008065.1_ASM806v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_ljohn_genome:
+    output: 'data/ref.mags/Lactobacillus_johnsonii_NCC_533.g.fn'
+    input: 'raw/ref/Lactobacillus_johnsonii_NCC_533.fn'
+    shell: alias_recipe
+
+ruleorder: alias_ljohn_genome > alias_sra_genomes
 
 # {{{1 Compile data
 

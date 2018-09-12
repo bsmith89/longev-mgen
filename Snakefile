@@ -132,6 +132,20 @@ rule display_dag:
     shell:
         "snakemake -n --forceall --dag data/core.a.mags.muri.dbCAN-hits.denovo50-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
 
+rule build_documentation:
+    output: "build/{stem}.html"
+    input:
+        source="doc/{stem}.md",
+        mathjax="doc/static/MathJax.js",
+        bib="doc/bibliography.bib",
+    shell:
+        """
+        pandoc --from markdown --to html5 --filter pandoc-crossref \
+               --standalone --self-contained --mathjax={input.mathjax} \
+               --bibliography={input.bib} -s {input.source} -o {output}
+        """
+
+
 
 # {{{1 Downloading and linking data
 

@@ -418,22 +418,26 @@ Based on genomes reconstructed from metagenomes, Ormerod et al. [@Ormerod2016]
 proposed three distinct carbohydrate utilization guilds, which they describe
 as specialists on alpha-glucans, plant glycans, and host glycans, respectively.
 While it is reasonable to expect that alpha-glucan specialists would be most
-benefitted by the large influx of starch to the gut resulting from ACA
+benefited by the large influx of starch to the gut resulting from ACA
 treatment, this prediction has not been tested,
 and physiological inferences based on the genome content of members of
 this clade have been largely divorced from biological observations.
 
+<!--
+TODO: Introduce MAGs?
+-->
+
 Here we analyze genomes assembled from fecal metagenomes for mice at UT and UM
-to we explore two closely related questions about the niche of B1 and B2 in the
+and explore two closely related questions about the niche of B1 and B2 in the
 lower digestive system.
 First, why do B1 and B2 each increase with ACA treatment, while other
 Muribaculaceae do not?
-And second, why is the the response of B1 site specific, _not_ found to be
-enriched in treated mice at UT, despite its presence in the local
-community?
-Despite similar baseline abundance and effect of ACA, these two taxa seem to be
-only distantly related, sharing just 90% of positions in their 16S rRNA gene V4
-hypervariable region.
+And second, why is the response of B1 site specific;
+it is _not_ found to be enriched in treated mice at UT, but is at high relative
+abundance in the local community?
+Despite similar patterns of abundance at their respective sites, these two taxa
+seem to be only distantly related, sharing just 90% of positions in their 16S
+rRNA gene V4 hypervariable region.
 We nonetheless find evidence that B1 and B2 occupy overlapping niches,
 specializing in the degradation of alpha-glucans, a role not held by the other
 Muribaculaceae described in our study.
@@ -667,7 +671,7 @@ at UT?
 -    OTU-7, does it have starch activity on the outer membrane??
      -  In OTU-7, I get just one hit, even using a liberal filter, for proteins
         containing GH13, GH97, or GH31.  (Are there other GH domains I should
-        include in my search?)  Otu0007_vA_01521, is super short (75 AAs),
+        include in my search? perhaps GH66)  Otu0007_vA_01521, is super short (75 AAs),
         contains a partial GH97 domain.  I think it's either a pseudogene or an
         assembly error, because the following ORF, which also contains a GH97,
         is missing a ~80 residues from the N-terminus (based on an alignment to
@@ -715,5 +719,12 @@ at UT?
         -   In both OTU-1 _and_ M11 Opf01517 is found in the same PUL as
             Opf01942!  (and Opf01276 is in that same PUL in OTU-1)
         -   _However_: Opf01517 is apparently cytoplasmic in OTU-7 soooo...
+-   OTU-7 really does have just one PUL with extracellular alpha-1-4 activity.
+    -   And it doesn't even have any GH13 domains.
+    -   Is it still able to consume starch, or is it relegated to scavenging malto-oligos?
+    -   It _does_ have periplasmic GH13 activity (shared functionality with
+        OTU-1), so these could be acting on longer poly-alpha-1,4-glucans
+    -   TODO: Consider including OTU-2 in this analysis, since it is less
+        abundant with ACA.  Does it only have GH13/31 rather than GH97?
 
 -   TODO: SecretomeP v2.0 ??

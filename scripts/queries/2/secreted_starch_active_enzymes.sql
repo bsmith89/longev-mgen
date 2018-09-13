@@ -11,7 +11,13 @@ WHERE
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
    OR domain_id LIKE 'GH97%'
    OR domain_id LIKE 'GH31%'
-   OR domain_id IN ('CBM26', 'CBM25', 'CBM20', 'CBM69', 'CBM48', 'CBM58')
+   OR domain_id LIKE 'GH57%'
+   OR domain_id LIKE 'GH70%'
+   OR domain_id LIKE 'GH77%'
+   OR domain_id IN ('CBM20', 'CBM21', 'CBM25',
+                    'CBM26', 'CBM41', 'CBM48',
+                    'CBM53', 'CBM58', 'CBM74',
+                    'CBM82', 'CBM83')
     )
 ;
 
@@ -27,26 +33,14 @@ WHERE matched_domain_score = max_score
 
 SELECT
     feature_id
-  , feature_signal_peptide.score AS signalp_score
-  , feature_lipop.score AS lipop_score
   , opf_id
+  , localization
   , architecture
-  , closest_cysteine AS signalp_closest_cysteine
-  , feature_signal_peptide.cleavage_position AS signalp_cleavage_position
-  , feature_lipop.margin AS lipop_score_margin
-  , feature_lipop.cleavage_position AS lipop_cleavage_position
   , matched_domain
-  , matched_domain_score
-FROM feature_signal_peptide
-JOIN feature USING (feature_id)
-JOIN sequence USING (sequence_id)
+FROM domain_best_hits
 LEFT JOIN feature_to_opf USING (feature_id)
+LEFT JOIN feature_localization USING (feature_id)
 LEFT JOIN feature_to_architecture USING (feature_id)
-JOIN domain_best_hits USING (feature_id)
-LEFT JOIN feature_lipop USING (feature_id)
-WHERE ( (feature_signal_peptide.score > 0.5 AND ABS(signalp_closest_cysteine) < 4)
-     OR feature_lipop.score > 1
-      )
-  -- AND mag_id IN ('Otu0007_vA', 'Otu0001_vB', 'Otu0001_vC')
-ORDER BY mag_id, feature_id, matched_domain_score DESC
+ORDER BY feature_id
+WHERE localization IN ('OM', 'OM?', 'OM??', 'PP?/OM?')
 ;

@@ -20,6 +20,6 @@ LEFT JOIN (SELECT feature_id, 1 AS susC FROM putative_susC) AS c USING (feature_
 LEFT JOIN (SELECT feature_id, 1 AS susD FROM putative_susD) AS d USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susEF FROM putative_susEF) AS e USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susG FROM putative_susG) AS g USING (feature_id)
-WHERE DISTANCE < 10000
+WHERE DISTANCE < 15000
   AND seed_id IN (SELECT feature_id FROM putative_PUL_susC)
 ;

@@ -36,19 +36,19 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 # TODO: Build the other files from the database.
 rule all:
     input:
-        [ "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
+        [ "data/core.a.mags.muri.g.final.marker_genes.refine.gb.prot.nwk"
         , "data/core.muri.2.denorm.db"
-        , "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
-        , "data/core.a.mags.muri.g.rfn.cds.fa"
-        , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.architecture-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.denovo50-clust.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.denovo50-clust.tsv"
+        , "data/core.a.mags.muri.g.final.genome_stats.tsv"
+        , "data/core.a.mags.muri.g.final.cds.fa"
+        , "data/core.a.mags.muri.g.final.ec-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.final.ec-annot.tsv"
+        , "data/core.a.mags.muri.g.final.ko-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.final.ko-annot.tsv"
+        , "data/core.a.mags.muri.g.final.cog-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.final.cog-annot.tsv"
+        , "data/core.a.mags.muri.g.final.architecture-annot.count.tsv"
+        , "data/core.a.mags.muri.g.final.denovo50-clust.count.tsv"
+        # , "data/core.a.mags.muri.g.final.denovo50-clust.tsv"
         ]
     shell:
         "# {input}"
@@ -66,6 +66,7 @@ include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
 include: 'snake/genome_comparison.snake'
+include: 'snake/curation.snake'
 
 # {{{2 Params
 
@@ -2110,23 +2111,23 @@ rule generate_database_2:
     input:
         db='data/{group}.0.db',
         schema='schema.2.sql',
-        checkm='data/{group}.a.mags.{genomes}.g.rfn.genome_group.checkm_details.noheader.tsv',
-        quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
-        sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
-        sequence_length='data/{group}.a.mags.{genomes}.g.rfn.nlength.noheader.tsv',
+        checkm='data/{group}.a.mags.{genomes}.g.final.genome_group.checkm_details.noheader.tsv',
+        quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
+        sequence='data/{group}.a.mags.{genomes}.g.final.sequence_to_genome.tsv',
+        sequence_length='data/{group}.a.mags.{genomes}.g.final.nlength.noheader.tsv',
         ko='ref/kegg.noheader.tsv',
         cog='ref/cog_function.noheader.tsv',
         domain='ref/domain.tsv',
-        feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
-        feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
-        feature_x_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
-        feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
-        feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo50-clust.tsv',
-        feature_domain='data/{group}.a.mags.{genomes}.g.rfn.domain-annot.tsv',
-        feature_to_architecture='data/{group}.a.mags.{genomes}.g.rfn.architecture-annot.tsv',
-        signal_peptide='data/{group}.a.mags.{genomes}.g.rfn.signalp-annot.tsv',
-        feature_tmhmm='data/{group}.a.mags.{genomes}.g.rfn.tmhmm-annot.tsv',
-        feature_lipop='data/{group}.a.mags.{genomes}.g.rfn.lipop-annot.tsv',
+        feature='data/{group}.a.mags.{genomes}.g.final.features.tsv',
+        feature_details='data/{group}.a.mags.{genomes}.g.final.feature_details.tsv',
+        feature_x_ko='data/{group}.a.mags.{genomes}.g.final.ko-annot.tsv',
+        feature_to_cog='data/{group}.a.mags.{genomes}.g.final.cog-annot.tsv',
+        feature_to_opf='data/{group}.a.mags.{genomes}.g.final.denovo50-clust.tsv',
+        feature_domain='data/{group}.a.mags.{genomes}.g.final.domain-annot.tsv',
+        feature_to_architecture='data/{group}.a.mags.{genomes}.g.final.architecture-annot.tsv',
+        signal_peptide='data/{group}.a.mags.{genomes}.g.final.signalp-annot.tsv',
+        feature_tmhmm='data/{group}.a.mags.{genomes}.g.final.tmhmm-annot.tsv',
+        feature_lipop='data/{group}.a.mags.{genomes}.g.final.lipop-annot.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)

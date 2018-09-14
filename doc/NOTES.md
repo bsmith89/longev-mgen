@@ -728,3 +728,91 @@ at UT?
         abundant with ACA.  Does it only have GH13/31 rather than GH97?
 
 -   TODO: SecretomeP v2.0 ??
+-   TODO: Correct Otu0007_vA_01521 sequence (it get's cleaved from the rest of the
+    protein)  How should I do this?
+        -   I could manually correct the "rfn" version of the genome.
+        -   I could try to automate gene combining, look for cases of split domains
+            or something?
+        -   I could _choose_ a different refinement; give up on some accuracy
+            to get that one gene.
+        -   I could try to improve the assembly in general by using MEGAHIT
+            instead of SPADES (maybe this would be better because of
+            highly variable coverage...?)
+        -   I could split out the ORF generation step from prokka; what's it
+            doing at this point anyway??
+        -   The full protein sequence (which certainly COULD be a pseudogene),
+            is in core-k161_1293133_pilon_0_116895 and runs from 61922 to 63915
+            with a putative deletion just after 62149.
+            -   The sequence has two codons on either side of that nonsense
+                mutation/error is 'CGA|AAG|-TG|AGC|GGT', with a '-' indicating
+                the putative deletion.
+            -   I could write a correction script that replaces that (plus
+                extra sequence length) with a sequences that has an N in the
+                deletion.  This would shift everything back into frame.
+            -   That's one way to correct things, but we could also add the N
+                anywhere upstream of that point (until it introduces a stop
+                codon) That point happens at position approx. 135 in the
+                protein (or 62057), where ACG|TAT|GAA|GTG| becomes
+                AC|GTA|TGA|AGT|G where TGA is a stop codon.
+            -   Basically any erroneous deletion between 62057 and 62149 would
+                produce a putative truncation that shouldn't actually be there;
+                so we have some options.
+            -   Conversely, any REAL deletion in that range would produce a
+                REAL trunctation that looks exactly the same.
+            -   I'm really counting on the alignments for evidence of this.
+            -   If an erroneous deletion shows up somewhere before position
+                62149 (but after 62057) then that frameshift will greatly
+                change the amino-acids present between those two coords.
+                It might therefore form an especially bad match with the HMM.
+                We know that the GH97 domain bridges this frameshift.
+                The fact that the rest of the protein is "pristine" suggests
+                that this isn't a real nonsense mutation and is instead a
+                sequencing/assembly error.
+            -   When I run a 3-frame tblast on the nucleotide sequence, all
+                of the alignments are split at the truncation
+                -   Matches to Bacteroides acidifaciens and xylanisolvans (sp?).
+                -   Interestingly, the front piece (first 75 AAs) includes
+                    a match at the very last position.  This suggests
+                    that the frameshift (mutation or error) is actually
+                    right ON the stop codon itself.
+                -   This would be odd under either model.
+            -   As it currently stands (2018-09-14) I settled on adding an
+                'N' before the stop codon in a "final" genome file.
+
+```
+>core-k161_188734_pilon_0_17445:61921-63916
+AAAAAAAGAACCTTAGCTTTGGCCATGATACCTGCCATGACGCTGTGCGGCATCTCGGCA
+AAGGAATACCGGGTGACCTCGCCCGACGGGCAACTTAGCGCAATCGTCGAGACCGGGGGG
+AAACTGACGTATGAAGTGCAGCTCGAAGGGCACACCGTAATTTCACCTTCCGCCATAGGG
+ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAG-TGAGCGGTGTGAAACGG
+AACAGTGTGGATGAGATGGTGCCATCGCCGTTCTATCGTGCCGAGAGCATACGCGACAAT
+TACAACGAGTTGGCGATGAATATAGGGAAGGGGTGGACTTTGGTGTTCCGCGCCTTCAAT
+GATGCGGTGGCCTATCGTTTCGTGTGTAAGGATAAGAAACCGTTCGAAATTATAAATGAG
+ACTGTTGAATACCGGTTCCCCGCCGATTTCACAGCCACTGCACCTTATGTGCGCTCCGGC
+ACCTCCGGCGATTTCGAATCGCAGTTTATGAATTCGTTTGAAAACACCTACACTGTGGCG
+CCGGTTTCGCAACTCGACAACGGGCGGCTGGTGTTTCTGCCTATGGCAGTGGAGACTCCC
+GAAGGCGTTACGGTGGCTATGACAGAGGCCGCGCTCGAAAATTACCCCGGTCTTTACCTC
+AACAATACCGGCATGGGCACAGGCATGAAGGGGGTGTTTGCCAAGCGTCCGAAAACCATG
+GAACAGGGTGGCCATAACCGCCTGCAGATGGTTGTGAAAGACCGTGAAAACTTTATTGCG
+AAGGTTGAGGGGCCGAGGAGTTTCCCGTGGCGTGTCGCCGTGGTCACCAAAAACGATAAA
+GACCTTGCGGCAAGCAATATCAGCTATCTGCTTTCCGACCCTTCACGTGTTGCCGATACC
+TCCTGGATCAAGCCCGGAAAGGTGGCATGGGAATGGTGGAACGACTGGAACCTGGAAGGA
+GTTGATTTCAAAACCGGTGTCAATAACGAGACCTATAAGGCTTATATCGACTTTGCTGCT
+GAGAAAGGTATCGAATATGTGATTCTTGACGAAGGATGGGCTGTGAACCTCCAGGCCGAC
+CTGATGCAGGTGGTTGACAACATCAACCTGCCGGAACTCGTGGATTATGCTGCCAAAAAG
+GGGGTGGGCTTGATTTTGTGGGCGGGATATTATGCATTCGACCGTGATATGGAGAATGTG
+TGCCGACATTATGCCGATATGGGTATAAAGGGGTTCAAGGTCGACTTCATGGACCGCGAT
+GACCAGATTATGACCGATTTCAATTATAGGGCAGCCGAAACAGCCGCGCGTCATCACCTT
+GTGCTCGACCTTCACGGGACCCATAAACCTGCAGGGATGAACCGCACTTGGCCGAATGTC
+CTGAATTTCGAGGGTGTCAACGGCCTTGAGCAACTGAAATGGGCCCAGGAAAAGGATGTG
+GACCAGATTAAAAACGATGTTACCATCCCGTTCCTGCGTCAGCTTGCCGGGCCGATGGAT
+TATACCCAGGGGGCTATGCTCAACGGGGTGCCGGGCAGCTACCGTCCCAGCAATTCCGAG
+CCGATGAGCCAGGGTACACGTTGCCGCCAGCTGGCCTTGTATATGATTTTCGATTCCCCG
+CTAAACATGCTTTGCGACAGCCCTAGCAATTACCGTCGCGAGCCGGAATGCACGGGGTTT
+ATTGCCGAAGTACCTACGACATGGGATGAGACCCGTGTGCTCAATGCCTCGATGGGGGAA
+TATATAGTGACGGCACGCCGCAAGGGCAATTCATGGTATGTGGGCGGTATCACCGACCGC
+ACACCACGCGACATCAAAGTTGACCTTTCCTTCCTGGCTCCGGGCAGCCATAAGGCGGTT
+ATATTCCGCGACGGGGTTAACGCCCACCGCAAGGGGAGCGATTACAAGCGTGTTGCGAAG
+GATGTCAATGCCGATATGGTTCTTGACATGCACCTTGCCCCAGGCGGAGGCTTCGCAATC
+AGGATTGACTAA
+```

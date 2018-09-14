@@ -33,6 +33,9 @@ WHERE matched_domain_score = max_score
 
 SELECT
     feature_id
+  , sequence_id
+  , left
+  , right
   , opf_id
   , localization
   , architecture
@@ -41,6 +44,7 @@ FROM domain_best_hits
 LEFT JOIN feature_to_opf USING (feature_id)
 LEFT JOIN feature_localization USING (feature_id)
 LEFT JOIN feature_to_architecture USING (feature_id)
-ORDER BY feature_id
+JOIN feature USING (feature_id)
 WHERE localization IN ('OM', 'OM?', 'OM??', 'PP?/OM?')
+ORDER BY feature_id
 ;

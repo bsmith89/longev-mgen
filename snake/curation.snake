@@ -1,0 +1,24 @@
+# Manual curation of genomes
+from snake.misc import alias_recipe
+
+# Default action
+rule finalize_mag_without_manual_curation:
+    output: "data/{group}.a.mags/{mag}.g.final.fn"
+    input: "data/{group}.a.mags/{mag}.g.rfn.fn"
+    shell: alias_recipe
+
+rule manually_curate_core_otu7:
+    output: "data/core.a.mags/Otu0007_vA.g.final.fn"
+    input: "data/core.a.mags/Otu0007_vA.g.rfn.fn"
+    params:
+        find="ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAGTGAGCGGTGTGAAACGG",
+        rplc="ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAGNTGAGCGGTGTGAAACGG"
+    shell:
+        """
+        # Chain filters to fix any problems in the genome.
+        echo "Pattern found `grep -c {params.find} {input}` times."
+        sed 's:{params.find}:{params.rplc}:' < {input} > {output}
+        """
+
+ruleorder: manually_curate_core_otu7 > finalize_mag_without_manual_curation
+

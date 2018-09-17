@@ -45,6 +45,6 @@ LEFT JOIN feature_to_opf USING (feature_id)
 LEFT JOIN feature_localization USING (feature_id)
 LEFT JOIN feature_to_architecture USING (feature_id)
 JOIN feature USING (feature_id)
-WHERE localization IN ('OM', 'OM?', 'OM??', 'PP?/OM?')
+WHERE localization IN ('OM', 'OM?')
 ORDER BY feature_id
 ;

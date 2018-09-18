@@ -240,6 +240,26 @@ WHERE feature_id != ''
   AND ko_id != ''
 ;
 
+CREATE VIEW starch_active_domain_hits As
+SELECT
+    feature_id
+  , domain_id AS matched_domain
+FROM feature_domain
+WHERE
+   -- domain_id LIKE 'CBM%'
+    ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
+   OR domain_id LIKE 'GH97|_%' ESCAPE '|' OR domain_id = 'GH97'
+   OR domain_id LIKE 'GH31|_%' ESCAPE '|' OR domain_id = 'GH31'
+   OR domain_id LIKE 'GH57|_%' ESCAPE '|' OR domain_id = 'GH57'
+   OR domain_id LIKE 'GH70|_%' ESCAPE '|' OR domain_id = 'GH70'
+   OR domain_id LIKE 'GH77|_%' ESCAPE '|' OR domain_id = 'GH77'
+   OR domain_id IN ('CBM20', 'CBM21', 'CBM25',
+                    'CBM26', 'CBM41', 'CBM48',
+                    'CBM53', 'CBM58', 'CBM74',
+                    'CBM82', 'CBM83', 'CBM69')
+    )
+;
+
 CREATE VIEW putative_susC AS
 SELECT DISTINCT feature_id
 FROM feature_possible_ko

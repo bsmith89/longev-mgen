@@ -1,31 +1,10 @@
 -- Find all of the potentially secreted proteins that are potentially active on starch.
 
-CREATE TEMP VIEW domain_hits AS
-SELECT
-    feature_id
-  , domain_id AS matched_domain
-  , feature_domain.score AS matched_domain_score
-FROM feature_domain
-WHERE
-   -- domain_id LIKE 'CBM%'
-    ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
-   OR domain_id LIKE 'GH97%'
-   OR domain_id LIKE 'GH31%'
-   OR domain_id LIKE 'GH57%'
-   OR domain_id LIKE 'GH70%'
-   OR domain_id LIKE 'GH77%'
-   OR domain_id IN ('CBM20', 'CBM21', 'CBM25',
-                    'CBM26', 'CBM41', 'CBM48',
-                    'CBM53', 'CBM58', 'CBM74',
-                    'CBM82', 'CBM83', 'CBM69')
-    )
-;
-
 CREATE TEMP VIEW domain_best_hits AS
-SELECT domain_hits.*
-FROM domain_hits
+SELECT starch_active_domain_hits.*
+FROM starch_active_domain_hits
 JOIN ( SELECT feature_id, MAX(matched_domain_score) AS max_score
-       FROM domain_hits
+       FROM starch_active_domain_hits
        GROUP BY feature_id
      ) AS m USING (feature_id)
 WHERE matched_domain_score = max_score

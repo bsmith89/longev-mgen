@@ -1640,7 +1640,7 @@ rule combine_pfam_and_cazy_domains:
     shell: "cat {input} > {output}"
 
 rule find_minimal_domains:
-    output: "data/{stem}.domain.best.tsv"
+    output: "data/{stem}.domain-best.tsv"
     input:
         script="scripts/pick_minimal_domain_set.py",
         domains="data/{stem}.domain.tsv",
@@ -1651,6 +1651,17 @@ rule find_minimal_domains:
         {input.script} {input.domains} {params.max_overlap_frac} > {output}
         """
 
+rule find_minimal_cazy_domains:
+    output: "data/{stem}.dbCAN-domain-best.tsv"
+    input:
+        script="scripts/pick_minimal_domain_set.py",
+        domains="data/{stem}.dbCAN-domain.tsv",
+    params:
+        max_overlap_frac = 0.4
+    shell:
+        """
+        {input.script} {input.domains} {params.max_overlap_frac} > {output}
+        """
 
 rule build_blast_db:
     output:
@@ -1996,7 +2007,7 @@ rule architecture_annotate_proteins:
         "data/{stem}.architecture.tsv"
     input:
         script="scripts/group_by_domain_structure.py",
-        domains="data/{stem}.domain.best.tsv"
+        domains="data/{stem}.domain-best.tsv"
     shell:
         "{input.script} {input.domains} > {output}"
 

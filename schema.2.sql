@@ -188,7 +188,7 @@ SELECT
     WHEN lp.score > 8 AND lp.aa_at_position_plus_2 = 'D' AND lp.margin > 4 THEN 'IM'
     WHEN lp.score > 5 AND lp.aa_at_position_plus_2 = 'D' AND lp.margin > 2 THEN 'IM?'
     WHEN lp.score > 5 AND lp.aa_at_position_plus_2 = 'D' THEN 'IM??'
-    WHEN sp.score > 0.5 AND sp.closest_cysteine < 4 THEN 'PP?/OM?'
+    WHEN sp.score > 0.5 AND sp.closest_cysteine < 3 THEN 'PP?/OM?'
     WHEN sp.score > 0.7 THEN 'PP'
     WHEN sp.score > 0.5 THEN 'PP?'
     WHEN sp.score > 0.4 THEN 'PP??'

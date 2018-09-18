@@ -4,6 +4,15 @@ from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
 
 # {{{1 Metadata
 
+# TODO: Acquire Muribaculaceae genomes from GenBank starting at
+# https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2005473
+# And navigating to each organism page
+# (e.g. "Candidatus Homeothermus arabinoxylanisolvens"),
+# picking the genome (e.g. "Genome: 1"), then assembly (e.g.
+# "GCA_001689405.1 ASM168940v1 scaffolds: 60 contigs: 66 N50: 74,143 L50: 13"),
+# and finally going to the GenBank FTP site (e.g. "Download the GenBank assembly").
+# Then I copied the link to the *.fna.gz file
+# (e.g. GCA_001689405.1_ASM168940v1_genomic.fna.gz).
 config['sra'] = \
         {
         'GP1'                               : 'DAAI01000000',
@@ -102,6 +111,15 @@ config['genome_group'] = \
                        , 'M9'
                        , 'Homeothermus_arabinoxylanisolvens'
                        , 'Muribaculum_intestinale_yl27'
+                       , 'Muribaculaceae_bacterium_DSM_100739'
+                       , 'Muribaculaceae_bacterium_DSM_100746'
+                       , 'Muribaculaceae_bacterium_DSM_100749'
+                       , 'Muribaculaceae_bacterium_DSM_100720'
+                       , 'Muribaculaceae_bacterium_DSM_100764'
+                       , 'Zag10'
+                       , 'Zag1'
+                       , 'An287'  # Apparently not Muris
+                       , 'An289'  # Apparently not Muris
                        , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
                        , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
                        , 'Barnesiella_viscericola_DSM_18177'  # Outgroup
@@ -130,9 +148,135 @@ rule download_m_intestinale_genome:
 rule alias_m_intestinale_genome:
     output: 'data/ref.mags/Muribaculum_intestinale_yl27.g.fn'
     input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
-    shell: "ln -rs {input} {output}"
+    shell: alias_recipe
 
 ruleorder: alias_m_intestinale_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium DSM 100739
+rule download_dsm_100739_genome:
+    output: 'raw/ref/Muribaculaceae_bacterium_DSM_100739.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/845/GCA_003024845.1_ASM302484v1/GCA_003024845.1_ASM302484v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_dsm_100739_genome:
+    output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100739.g.fn'
+    input: 'raw/ref/Muribaculaceae_bacterium_DSM_100739.fn'
+    shell: alias_recipe
+
+ruleorder: alias_dsm_100739_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium DSM 100746
+rule download_dsm_100746_genome:
+    output: 'raw/ref/Muribaculaceae_bacterium_DSM_100746.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/855/GCA_003024855.1_ASM302485v1/GCA_003024855.1_ASM302485v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_dsm_100746_genome:
+    output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100746.g.fn'
+    input: 'raw/ref/Muribaculaceae_bacterium_DSM_100746.fn'
+    shell: alias_recipe
+
+ruleorder: alias_dsm_100746_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium DSM 100749
+rule download_dsm_100749_genome:
+    output: 'raw/ref/Muribaculaceae_bacterium_DSM_100749.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/925/GCA_003024925.1_ASM302492v1/GCA_003024925.1_ASM302492v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_dsm_100749_genome:
+    output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100749.g.fn'
+    input: 'raw/ref/Muribaculaceae_bacterium_DSM_100749.fn'
+    shell: alias_recipe
+
+ruleorder: alias_dsm_100749_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium DSM 100720
+rule download_dsm_100720_genome:
+    output: 'raw/ref/Muribaculaceae_bacterium_DSM_100720.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/805/GCA_003024805.1_ASM302480v1/GCA_003024805.1_ASM302480v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_dsm_100720_genome:
+    output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100720.g.fn'
+    input: 'raw/ref/Muribaculaceae_bacterium_DSM_100720.fn'
+    shell: alias_recipe
+
+ruleorder: alias_dsm_100720_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium DSM 100764
+rule download_dsm_100764_genome:
+    output: 'raw/ref/Muribaculaceae_bacterium_DSM_100764.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/815/GCA_003024815.1_ASM302481v1/GCA_003024815.1_ASM302481v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_dsm_100764_genome:
+    output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100764.g.fn'
+    input: 'raw/ref/Muribaculaceae_bacterium_DSM_100764.fn'
+    shell: alias_recipe
+
+ruleorder: alias_dsm_100764_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium Zag10
+rule download_zag10_genome:
+    output: 'raw/ref/Zag10.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/633/305/GCA_002633305.1_ASM263330v1/GCA_002633305.1_ASM263330v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_zag10_genome:
+    output: 'data/ref.mags/Zag10.g.fn'
+    input: 'raw/ref/Zag10.fn'
+    shell: alias_recipe
+
+ruleorder: alias_zag10_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium Zag1
+rule download_zag1_genome:
+    output: 'raw/ref/Zag1.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/633/115/GCA_002633115.1_ASM263311v1/GCA_002633115.1_ASM263311v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_zag1_genome:
+    output: 'data/ref.mags/Zag1.g.fn'
+    input: 'raw/ref/Zag1.fn'
+    shell: alias_recipe
+
+ruleorder: alias_zag1_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium An287
+rule download_an287_genome:
+    output: 'raw/ref/An287.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/159/585/GCA_002159585.1_ASM215958v1/GCA_002159585.1_ASM215958v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_an287_genome:
+    output: 'data/ref.mags/An287.g.fn'
+    input: 'raw/ref/An287.fn'
+    shell: alias_recipe
+
+ruleorder: alias_an287_genome > alias_sra_genomes
+
+# {{{2 Muribaculaceae bacterium An289
+rule download_an289_genome:
+    output: 'raw/ref/An289.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/159/555/GCA_002159555.1_ASM215955v1/GCA_002159555.1_ASM215955v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+
+rule alias_an289_genome:
+    output: 'data/ref.mags/An289.g.fn'
+    input: 'raw/ref/An289.fn'
+    shell: alias_recipe
+
+ruleorder: alias_an289_genome > alias_sra_genomes
 
 # {{{2 Bacteroides thetaiotaomicron VPI5482
 rule download_btheta_genome:

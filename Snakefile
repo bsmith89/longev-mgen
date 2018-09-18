@@ -1380,7 +1380,7 @@ rule annotate_mag:
         prokka --force --cpus {threads} {input} \
                 --outdir {output.dir} --prefix {wildcards.mag} \
                 --locustag {wildcards.mag} \
-                --metagenome --cdsrnaolap
+                --cdsrnaolap
         cp {output.dir}/{wildcards.mag}.faa {output.fa}
         cp {output.dir}/{wildcards.mag}.ffn {output.fn}
         cp {output.dir}/{wildcards.mag}.gbk {output.gbk}

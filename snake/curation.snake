@@ -11,8 +11,8 @@ rule manually_curate_core_otu7:
     output: "data/core.a.mags/Otu0007_vA.g.final.fn"
     input: "data/core.a.mags/Otu0007_vA.g.rfn.fn"
     params:
-        find="ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAGTGAGCGGTGTGAAACGG",
-        rplc="ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAGNTGAGCGGTGTGAAACGG"
+        find="GCTTTCGAACGGTGTGAAACTCGGGAAAA",
+        rplc="GCTTTCGAACGGTGTGAAACTCNGGGAAAA"
     shell:
         """
         # Chain filters to fix any problems in the genome.

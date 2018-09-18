@@ -244,9 +244,9 @@ CREATE VIEW starch_active_domain_hits As
 SELECT
     feature_id
   , domain_id AS matched_domain
+  , feature_domain.score AS matched_domain_score
 FROM feature_domain
 WHERE
-   -- domain_id LIKE 'CBM%'
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
    OR domain_id LIKE 'GH97|_%' ESCAPE '|' OR domain_id = 'GH97'
    OR domain_id LIKE 'GH31|_%' ESCAPE '|' OR domain_id = 'GH31'

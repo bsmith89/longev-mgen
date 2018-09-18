@@ -17,7 +17,7 @@ WHERE
    OR domain_id IN ('CBM20', 'CBM21', 'CBM25',
                     'CBM26', 'CBM41', 'CBM48',
                     'CBM53', 'CBM58', 'CBM74',
-                    'CBM82', 'CBM83')
+                    'CBM82', 'CBM83', 'CBM69')
     )
 ;
 

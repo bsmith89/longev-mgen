@@ -294,7 +294,10 @@ SELECT
   , domain_id
   , score
 FROM starch_active_domain_hit
-JOIN (SELECT feature_id, MAX(score) AS max_score FROM starch_active_domain_hit GROUP BY feature_id)
+JOIN (SELECT feature_id, MAX(score) AS max_score
+      FROM starch_active_domain_hit
+      GROUP BY feature_id
+     ) USING (feature_id)
 WHERE score = max_score
 ;
 

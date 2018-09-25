@@ -249,7 +249,7 @@ rule download_dBCAN_hmms:
     shell: curl_recipe
 
 rule download_dbCAN_meta:
-    output: "raw/ref/dbCAN.hmm.tsv"
+    output: "raw/ref/dbCAN.tsv"
     params:
         url="http://csbl.bmb.uga.edu/dbCAN/download/FamInfo.txt"
     shell: curl_recipe
@@ -262,15 +262,6 @@ rule filter_dbCAN_hmms:
         sed 's:^NAME  \(.*\).hmm$:NAME  \1\nDESC  hypothetical carbohydrate-active domain (\1) containing protein:' {input} > {output}
         """
 
-rule format_dbCAN_database_descriptions:
-    output: "ref/dbCAN.hmm.tsv"
-    input: "raw/ref/dbCAN.hmm.tsv"
-    shell:
-        """
-        awk -v FS='\t' -v OFS='\t' 'NR!=1{{print $1, $4 " " $5}}' {input} > {output}
-        """
-
-ruleorder: format_dbCAN_database_descriptions > format_hmm_database_descriptions
 
 # {{{3 COG
 

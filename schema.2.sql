@@ -268,11 +268,11 @@ WHERE feature_id != ''
   AND ko_id != ''
 ;
 
-CREATE VIEW starch_active_domain_hits As
+CREATE VIEW starch_active_domain_hit AS
 SELECT
     feature_id
-  , domain_id AS matched_domain
-  , score AS matched_domain_score
+  , domain_id
+  , score
 FROM feature_x_cazy_domain
 WHERE
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
@@ -286,6 +286,16 @@ WHERE
                     'CBM53', 'CBM58', 'CBM74',
                     'CBM82', 'CBM83', 'CBM69')
     )
+;
+
+CREATE VIEW starch_active_domain_best_hit AS
+SELECT
+    feature_id
+  , domain_id
+  , score
+FROM starch_active_domain_hit
+JOIN (SELECT feature_id, MAX(score) AS max_score FROM starch_active_domain_hit GROUP BY feature_id)
+WHERE score = max_score
 ;
 
 CREATE VIEW putative_susC AS
@@ -334,7 +344,7 @@ LEFT JOIN (SELECT feature_id, 1 AS susD FROM putative_susD) AS d USING (feature_
 LEFT JOIN (SELECT feature_id, 1 AS susEF FROM putative_susEF) AS e USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susG FROM putative_susG) AS g USING (feature_id)
 LEFT JOIN (SELECT DISTINCT feature_id, 1 AS starch_active
-           FROM starch_active_domain_hits
+           FROM starch_active_domain_best_hit
           ) AS s USING (feature_id)
 WHERE DISTANCE < 15000
   AND seed_id IN (SELECT * FROM putative_susC)

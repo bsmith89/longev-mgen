@@ -111,15 +111,15 @@ config['genome_group'] = \
                        , 'M9'
                        , 'Homeothermus_arabinoxylanisolvens'
                        , 'Muribaculum_intestinale_yl27'
-                       , 'Muribaculaceae_bacterium_DSM_100739'
-                       , 'Muribaculaceae_bacterium_DSM_100746'
-                       , 'Muribaculaceae_bacterium_DSM_100749'
-                       , 'Muribaculaceae_bacterium_DSM_100720'
-                       , 'Muribaculaceae_bacterium_DSM_100764'
+                       # , 'Muribaculaceae_bacterium_DSM_100739'  # These are mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100746'  # These are mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100749'  # These are mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100720'  # These are mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100764'  # These are mostly identical to M. intestinale
                        , 'Zag10'
                        , 'Zag1'
-                       , 'An287'  # Apparently not Muris
-                       , 'An289'  # Apparently not Muris
+                       # , 'An287'  # Apparently not Muris
+                       # , 'An289'  # Apparently not Muris
                        , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
                        , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
                        , 'Barnesiella_viscericola_DSM_18177'  # Outgroup

@@ -1,53 +1,53 @@
-mag_id	mag_class	family
-An287	public	unknown
-An289	public	unknown
-Bacteroides_ovatus_ATCC_8483	reference	Bacteroidaceae
-Bacteroides_thetaiotaomicron_VPI5482	reference	Bacteroidaceae
-Barnesiella_viscericola_DSM_18177	reference	Barnesiellaceae
-GP1	ormerod	Muribaculaceae
-GP2	ormerod	Muribaculaceae
-GP3	ormerod	Muribaculaceae
-GP4	ormerod	Muribaculaceae
-H1	ormerod	Muribaculaceae
-H10	ormerod	Muribaculaceae
-H2	ormerod	Muribaculaceae
-H3	ormerod	Muribaculaceae
-H4	ormerod	Muribaculaceae
-H5	ormerod	Muribaculaceae
-H6	ormerod	Muribaculaceae
-H7	ormerod	Muribaculaceae
-H8	ormerod	Muribaculaceae
-H9	ormerod	Muribaculaceae
-Homeothermus_arabinoxylanisolvens	ormerod	Muribaculaceae
-K1	ormerod	Muribaculaceae
-K10	ormerod	Muribaculaceae
-M1	ormerod	Muribaculaceae
-M10	ormerod	Muribaculaceae
-M11	ormerod	Muribaculaceae
-M12	ormerod	Muribaculaceae
-M13	ormerod	Muribaculaceae
-M14	ormerod	Muribaculaceae
-M2	ormerod	Muribaculaceae
-M3	ormerod	Muribaculaceae
-M5	ormerod	Muribaculaceae
-M6	ormerod	Muribaculaceae
-M7	ormerod	Muribaculaceae
-M8	ormerod	Muribaculaceae
-M9	ormerod	Muribaculaceae
-Muribaculaceae_bacterium_DSM_100720	public	Muribaculaceae
-Muribaculaceae_bacterium_DSM_100739	public	Muribaculaceae
-Muribaculaceae_bacterium_DSM_100746	public	Muribaculaceae
-Muribaculaceae_bacterium_DSM_100749	public	Muribaculaceae
-Muribaculaceae_bacterium_DSM_100764	public	Muribaculaceae
-Muribaculum_intestinale_yl27	reference	Muribaculaceae
-Otu0001_vB	here	Muribaculaceae
-Otu0001_vC	here	Muribaculaceae
-Otu0004_vA	here	Muribaculaceae
-Otu0005_vA	here	Muribaculaceae
-Otu0007_vA	here	Muribaculaceae
-Otu0009_vA	here	Muribaculaceae
-Otu0017_vA	here	Muribaculaceae
-Otu0049_vA	here	Muribaculaceae
-Porphyromonas_gingivalis_ATCC_33277	reference	Porphyromonadaceae
-Zag1	public	Muribaculaceae
-Zag10	public	Muribaculaceae
+mag_id	mag_class	family	guild
+An287	public	unknown	
+An289	public	unknown	
+Bacteroides_ovatus_ATCC_8483	reference	Bacteroidaceae	
+Bacteroides_thetaiotaomicron_VPI5482	reference	Bacteroidaceae	
+Barnesiella_viscericola_DSM_18177	reference	Barnesiellaceae	
+GP1	ormerod	Muribaculaceae	plant
+GP2	ormerod	Muribaculaceae	host
+GP3	ormerod	Muribaculaceae	plant
+GP4	ormerod	Muribaculaceae	plant
+H1	ormerod	Muribaculaceae	starch
+H10	ormerod	Muribaculaceae	starch
+H2	ormerod	Muribaculaceae	starch
+H3	ormerod	Muribaculaceae	starch
+H4	ormerod	Muribaculaceae	starch
+H5	ormerod	Muribaculaceae	starch
+H6	ormerod	Muribaculaceae	plant
+H7	ormerod	Muribaculaceae	host
+H8	ormerod	Muribaculaceae	plant
+H9	ormerod	Muribaculaceae	starch
+Homeothermus_arabinoxylanisolvens	ormerod	Muribaculaceae	starch
+K1	ormerod	Muribaculaceae	plant
+K10	ormerod	Muribaculaceae	plant
+M1	ormerod	Muribaculaceae	starch
+M10	ormerod	Muribaculaceae	plant
+M11	ormerod	Muribaculaceae	starch
+M12	ormerod	Muribaculaceae	starch
+M13	ormerod	Muribaculaceae	plant
+M14	ormerod	Muribaculaceae	plant
+M2	ormerod	Muribaculaceae	host
+M3	ormerod	Muribaculaceae	plant
+M5	ormerod	Muribaculaceae	starch
+M6	ormerod	Muribaculaceae	host
+M7	ormerod	Muribaculaceae	starch
+M8	ormerod	Muribaculaceae	starch
+M9	ormerod	Muribaculaceae	plant
+Muribaculaceae_bacterium_DSM_100720	public	Muribaculaceae	host
+Muribaculaceae_bacterium_DSM_100739	public	Muribaculaceae	
+Muribaculaceae_bacterium_DSM_100746	public	Muribaculaceae	
+Muribaculaceae_bacterium_DSM_100749	public	Muribaculaceae	
+Muribaculaceae_bacterium_DSM_100764	public	Muribaculaceae	
+Muribaculum_intestinale_yl27	reference	Muribaculaceae	
+Otu0001_vB	here	Muribaculaceae	
+Otu0001_vC	here	Muribaculaceae	
+Otu0004_vA	here	Muribaculaceae	
+Otu0005_vA	here	Muribaculaceae	
+Otu0007_vA	here	Muribaculaceae	
+Otu0009_vA	here	Muribaculaceae	
+Otu0017_vA	here	Muribaculaceae	
+Otu0049_vA	here	Muribaculaceae	
+Porphyromonas_gingivalis_ATCC_33277	reference	Porphyromonadaceae	
+Zag1	public	Muribaculaceae	
+Zag10	public	Muribaculaceae	

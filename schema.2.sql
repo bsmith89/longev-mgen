@@ -326,9 +326,7 @@ CREATE VIEW putative_susG AS
 SELECT DISTINCT feature_id
 FROM feature_details
 JOIN feature_x_cazy_domain USING (feature_id)
-WHERE ( lp_score > 5
-     OR (sp_score > 0.5 AND closest_cysteine < 3)
-      )
+WHERE lp_score > 5
   AND domain_id LIKE 'GH%'
 ;
 

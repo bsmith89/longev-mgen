@@ -46,7 +46,7 @@ rule all:
         # , "data/core.a.mags.muri.g.final.ko-annot.tsv"
         , "data/core.a.mags.muri.g.final.cog-annot.count.tsv"
         # , "data/core.a.mags.muri.g.final.cog-annot.tsv"
-        , "data/core.a.mags.muri.g.final.architecture-annot.count.tsv"
+        , "data/core.a.mags.muri.g.final.Pfam-architecture-annot.count.tsv"
         , "data/core.a.mags.muri.g.final.denovo50-clust.count.tsv"
         # , "data/core.a.mags.muri.g.final.denovo50-clust.tsv"
         ]
@@ -230,37 +230,6 @@ rule format_hmm_database_descriptions:
         # grep '^NAME\|^DESC' {input} | sed 's:\(NAME\|DESC\)  ::' | paste - - > {output}
         """
 
-rule combine_domain_descriptions:
-    output: "ref/domain.tsv"
-    input: pfam="ref/Pfam.hmm.tsv", dbcan="ref/dbCAN.hmm.tsv"
-    shell:
-        """
-        echo "
-CREATE TABLE pfam
-( domain_id
-, description
-);
-
-CREATE TABLE dbcan
-( domain_id
-, description
-);
-
-.import {input.pfam} pfam
-.import {input.dbcan} dbcan
-
-SELECT
-    domain_id
-  , pfam.description AS pfam_description
-  , dbcan.description AS dbcan_description
-FROM (SELECT domain_id FROM pfam
-      UNION
-      SELECT domain_id FROM dbcan)
-LEFT JOIN pfam USING (domain_id)
-LEFT JOIN dbcan USING (domain_id)
-;
-        " | sqlite3 -separator '\t' > {output}
-        """
 
 
 # {{{3 Metadata for sequence processing
@@ -1632,30 +1601,14 @@ rule parse_hmmsearch_domtblout:
         {input.script} {input.domtbl} > {output}
         """
 
-rule combine_pfam_and_cazy_domains:
-    output: "data/{stem}.domain.tsv"
-    input:
-        pfam="data/{stem}.Pfam-domain.tsv",
-        dbcan="data/{stem}.dbCAN-domain.tsv",
-    shell: "cat {input} > {output}"
 
 rule find_minimal_domains:
-    output: "data/{stem}.domain-best.tsv"
+    output: "data/{stem}.{hmm}-domain-best.tsv"
     input:
         script="scripts/pick_minimal_domain_set.py",
-        domains="data/{stem}.domain.tsv",
-    params:
-        max_overlap_frac = 0.4
-    shell:
-        """
-        {input.script} {input.domains} {params.max_overlap_frac} > {output}
-        """
-
-rule find_minimal_cazy_domains:
-    output: "data/{stem}.dbCAN-domain-best.tsv"
-    input:
-        script="scripts/pick_minimal_domain_set.py",
-        domains="data/{stem}.dbCAN-domain.tsv",
+        domains="data/{stem}.{hmm}-domain.tsv",
+    wildcard_constraints:
+        hmm=one_word_wc_constraint
     params:
         max_overlap_frac = 0.4
     shell:
@@ -2004,10 +1957,10 @@ rule join_genome_by_annotation_table:
 # TODO: Rename script to format_domain_structure.py
 rule architecture_annotate_proteins:
     output:
-        "data/{stem}.architecture.tsv"
+        "data/{stem}.Pfam-architecture.tsv"
     input:
         script="scripts/group_by_domain_structure.py",
-        domains="data/{stem}.domain-best.tsv"
+        domains="data/{stem}.Pfam-domain-best.tsv"
     shell:
         "{input.script} {input.domains} > {output}"
 
@@ -2128,14 +2081,18 @@ rule generate_database_2:
         sequence_length='data/{group}.a.mags.{genomes}.g.final.nlength.noheader.tsv',
         ko='ref/kegg.noheader.tsv',
         cog='ref/cog_function.noheader.tsv',
-        domain='ref/domain.tsv',
+        pfam_domain='ref/Pfam.hmm.tsv',
+        cazy_domain='ref/dbCAN.hmm.tsv',
+        tigr_domain='ref/TIGRFAM.hmm.tsv',
         feature='data/{group}.a.mags.{genomes}.g.final.features.tsv',
         feature_details='data/{group}.a.mags.{genomes}.g.final.feature_details.tsv',
         feature_x_ko='data/{group}.a.mags.{genomes}.g.final.ko-annot.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.final.cog-annot.tsv',
         feature_to_opf='data/{group}.a.mags.{genomes}.g.final.denovo50-clust.tsv',
-        feature_domain='data/{group}.a.mags.{genomes}.g.final.domain-annot.tsv',
-        feature_to_architecture='data/{group}.a.mags.{genomes}.g.final.architecture-annot.tsv',
+        feature_pfam_domain='data/{group}.a.mags.{genomes}.g.final.Pfam-domain-annot.tsv',
+        feature_cazy_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-annot.tsv',
+        feature_tigr_domain='data/{group}.a.mags.{genomes}.g.final.TIGRFAM-domain-annot.tsv',
+        feature_to_architecture='data/{group}.a.mags.{genomes}.g.final.Pfam-architecture-annot.tsv',
         signal_peptide='data/{group}.a.mags.{genomes}.g.final.signalp-annot.tsv',
         feature_tmhmm='data/{group}.a.mags.{genomes}.g.final.tmhmm-annot.tsv',
         feature_lipop='data/{group}.a.mags.{genomes}.g.final.lipop-annot.tsv',
@@ -2155,13 +2112,17 @@ PRAGMA foreign_keys = TRUE;
 .import {input.sequence_length} _sequence_length
 .import {input.ko} ko
 .import {input.cog} cog
-.import {input.domain} domain
+.import {input.pfam_domain} pfam_domain
+.import {input.cazy_domain} cazy_domain
+.import {input.tigr_domain} tigr_domain
 .import {input.feature} feature
 .import {input.feature_details} _feature_details
 .import {input.feature_x_ko} feature_x_ko
 .import {input.feature_to_cog} feature_to_cog
 .import {input.feature_to_opf} feature_to_opf
-.import {input.feature_domain} feature_domain
+.import {input.feature_pfam_domain} feature_x_pfam_domain
+.import {input.feature_cazy_domain} feature_x_cazy_domain
+.import {input.feature_tigr_domain} feature_x_tigr_domain
 .import {input.feature_to_architecture} feature_to_architecture
 .import {input.signal_peptide} feature_signal_peptide
 .import {input.feature_tmhmm} feature_tmh

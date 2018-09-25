@@ -1,6 +1,6 @@
 CREATE TEMP VIEW feature_has_domain AS
 SELECT DISTINCT feature_id, domain_id
-FROM feature_domain
+FROM feature_cazy_domain
 ;
 
 -- How many features are clustered into this OPF?
@@ -26,7 +26,7 @@ JOIN opf_count AS c2 USING (opf_id)
 
 -- Which OPFs are associated with dbCAN domains?
 SELECT opf_id, domain_id
-FROM domain
+FROM cazy_domain
 JOIN opf_domain USING (domain_id)
 WHERE domain.cazy_description != ''
   AND frequency > 0.5

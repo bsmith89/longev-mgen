@@ -59,10 +59,19 @@ CREATE TABLE cog
 , description
 );
 
-CREATE TABLE domain
+CREATE TABLE pfam_domain
 ( domain_id PRIMARY KEY
 , pfam_description
+);
+
+CREATE TABLE cazy_domain
+( domain_id PRIMARY KEY
 , cazy_description
+);
+
+CREATE TABLE tigr_domain
+( domain_id PRIMARY KEY
+, tigr_description
 );
 
 CREATE TABLE feature
@@ -96,14 +105,32 @@ CREATE TABLE feature_to_opf
 );
 CREATE INDEX idx_feature_to_opf__opf_id ON feature_to_opf(opf_id);
 
-CREATE TABLE feature_domain
+CREATE TABLE feature_x_pfam_domain
 ( feature_id REFERENCES feature(feature_id)
-, domain_id
+, domain_id REFERENCE pfam_domain(domain_id)
 , score FLOAT
 , left INT
 , right INT
 );
-CREATE INDEX idx_feature_domain__domain_id ON feature_domain(domain_id);
+CREATE INDEX idx_feature_x_pfam_domain__domain_id ON feature_x_pfam_domain(domain_id);
+
+CREATE TABLE feature_x_cazy_domain
+( feature_id REFERENCES feature(feature_id)
+, domain_id REFERENCE cazy_domain(domain_id)
+, score FLOAT
+, left INT
+, right INT
+);
+CREATE INDEX idx_feature_x_cazy_domain__domain_id ON feature_x_cazy_domain(domain_id);
+
+CREATE TABLE feature_x_tigr_domain
+( feature_id REFERENCES feature(feature_id)
+, domain_id REFERENCE tigr_domain(domain_id)
+, score FLOAT
+, left INT
+, right INT
+);
+CREATE INDEX idx_feature_x_tigr_domain__domain_id ON feature_x_tigr_domain(domain_id);
 
 CREATE TABLE feature_to_architecture
 ( feature_id PRIMARY KEY REFERENCES feature(feature_id)
@@ -245,7 +272,7 @@ SELECT
     feature_id
   , domain_id AS matched_domain
   , feature_domain.score AS matched_domain_score
-FROM feature_domain
+FROM feature_x_cazy_domain
 WHERE
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
    OR domain_id LIKE 'GH97|_%' ESCAPE '|' OR domain_id = 'GH97'
@@ -275,7 +302,7 @@ WHERE ko_id = 'K21572'
 CREATE VIEW putative_susEF AS
 SELECT DISTINCT feature_id
 FROM feature_possible_ko
-JOIN feature_domain USING (feature_id)
+JOIN feature_x_pfam_domain USING (feature_id)
 WHERE ko_id = 'K21571'
    OR domain_id LIKE '%SusE%'
    OR domain_id LIKE '%SusF%'
@@ -284,7 +311,7 @@ WHERE ko_id = 'K21571'
 CREATE VIEW putative_susG AS
 SELECT DISTINCT feature_id
 FROM feature_details
-JOIN feature_domain USING (feature_id)
+JOIN feature_x_cazy_domain USING (feature_id)
 WHERE ( lp_score > 5
      OR (sp_score > 0.5 AND closest_cysteine < 3)
       )

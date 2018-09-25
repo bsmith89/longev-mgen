@@ -1,12 +1,13 @@
 -- {{{1 Tables
 
--- CREATE TABLE mag
--- ( mag_id PRIMARY KEY
--- , description
--- );
+CREATE TABLE mag
+( mag_id PRIMARY KEY
+, mag_class
+, family
+);
 
 CREATE TABLE checkm
-( mag_id PRIMARY KEY --REFERENCES mag(mag_id)
+( mag_id PRIMARY KEY REFERENCES mag(mag_id)
 , n_markers INT
 , completeness FLOAT
 , contamination FLOAT
@@ -14,7 +15,7 @@ CREATE TABLE checkm
 );
 
 CREATE TABLE quast
-( mag_id PRIMARY KEY REFERENCES checkm(mag_id)
+( mag_id PRIMARY KEY REFERENCES mag(mag_id)
 , n_contigs INT
 , n_contigs_gt_1000 INT
 , n_contigs_gt_5000 INT
@@ -40,7 +41,7 @@ CREATE TABLE quast
 
 CREATE TABLE _sequence
 ( sequence_id PRIMARY KEY
-, mag_id REFERENCES checkm(mag_id)
+, mag_id REFERENCES mag(mag_id)
 );
 
 CREATE TABLE _sequence_length

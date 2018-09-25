@@ -268,7 +268,7 @@ WHERE feature_id != ''
   AND ko_id != ''
 ;
 
-CREATE VIEW starch_active_domain_hit AS
+CREATE VIEW starch_active_gh_hit AS
 SELECT
     feature_id
   , domain_id
@@ -281,11 +281,27 @@ WHERE
    OR domain_id LIKE 'GH57|_%' ESCAPE '|' OR domain_id = 'GH57'
    OR domain_id LIKE 'GH70|_%' ESCAPE '|' OR domain_id = 'GH70'
    OR domain_id LIKE 'GH77|_%' ESCAPE '|' OR domain_id = 'GH77'
-   OR domain_id IN ('CBM20', 'CBM21', 'CBM25',
+    )
+;
+
+CREATE VIEW starch_active_cbm_hit AS
+SELECT
+    feature_id
+  , domain_id
+  , score
+FROM feature_x_cazy_domain
+WHERE domain_id IN ('CBM20', 'CBM21', 'CBM25',
                     'CBM26', 'CBM41', 'CBM48',
                     'CBM53', 'CBM58', 'CBM74',
                     'CBM82', 'CBM83', 'CBM69')
-    )
+;
+
+CREATE VIEW starch_active_domain_hit AS
+SELECT feature_id, domain_id, score
+FROM starch_active_gh_hit
+UNION
+SELECT feature_id, domain_id, score
+FROM starch_active_cbm_hit
 ;
 
 CREATE VIEW starch_active_domain_best_hit AS
@@ -337,16 +353,20 @@ SELECT DISTINCT
   , SUM(susD) AS tally_susD
   , SUM(susEF) AS tally_susEF
   , SUM(susG) AS tally_susG
-  , SUM(starch_active) AS tally_starch_active
+  , SUM(starch_active_gh) AS tally_starch_active_gh
+  , SUM(starch_active_cbm) AS tally_starch_active_cbm
 FROM feature_neighborhood
 JOIN feature_details USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susC FROM putative_susC) AS c USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susD FROM putative_susD) AS d USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susEF FROM putative_susEF) AS e USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susG FROM putative_susG) AS g USING (feature_id)
-LEFT JOIN (SELECT DISTINCT feature_id, 1 AS starch_active
-           FROM starch_active_domain_best_hit
-          ) AS s USING (feature_id)
+LEFT JOIN (SELECT DISTINCT feature_id, 1 AS starch_active_gh
+           FROM starch_active_gh_hit
+          ) AS gh USING (feature_id)
+LEFT JOIN (SELECT DISTINCT feature_id, 1 AS starch_active_cbm
+           FROM starch_active_cbm_hit
+          ) AS cbm USING (feature_id)
 WHERE DISTANCE < 15000
   AND seed_id IN (SELECT * FROM putative_susC)
 GROUP BY seed_id

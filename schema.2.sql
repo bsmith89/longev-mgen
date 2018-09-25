@@ -108,7 +108,7 @@ CREATE INDEX idx_feature_to_opf__opf_id ON feature_to_opf(opf_id);
 
 CREATE TABLE feature_x_pfam_domain
 ( feature_id REFERENCES feature(feature_id)
-, domain_id REFERENCE pfam_domain(domain_id)
+, domain_id REFERENCES pfam_domain(domain_id)
 , score FLOAT
 , left INT
 , right INT
@@ -117,7 +117,7 @@ CREATE INDEX idx_feature_x_pfam_domain__domain_id ON feature_x_pfam_domain(domai
 
 CREATE TABLE feature_x_cazy_domain
 ( feature_id REFERENCES feature(feature_id)
-, domain_id REFERENCE cazy_domain(domain_id)
+, domain_id REFERENCES cazy_domain(domain_id)
 , score FLOAT
 , left INT
 , right INT
@@ -126,7 +126,7 @@ CREATE INDEX idx_feature_x_cazy_domain__domain_id ON feature_x_cazy_domain(domai
 
 CREATE TABLE feature_x_tigr_domain
 ( feature_id REFERENCES feature(feature_id)
-, domain_id REFERENCE tigr_domain(domain_id)
+, domain_id REFERENCES tigr_domain(domain_id)
 , score FLOAT
 , left INT
 , right INT
@@ -272,7 +272,7 @@ CREATE VIEW starch_active_domain_hits As
 SELECT
     feature_id
   , domain_id AS matched_domain
-  , feature_domain.score AS matched_domain_score
+  , score AS matched_domain_score
 FROM feature_x_cazy_domain
 WHERE
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'

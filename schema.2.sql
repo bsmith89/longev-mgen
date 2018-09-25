@@ -326,7 +326,9 @@ WHERE ko_id = 'K21573'
 CREATE VIEW putative_susD AS
 SELECT DISTINCT feature_id
 FROM feature_possible_ko
+LEFT JOIN feature_x_pfam_domain USING (feature_id)
 WHERE ko_id = 'K21572'
+   OR domain_id LIKE 'SusD-like%'
 ;
 
 CREATE VIEW putative_susEF AS

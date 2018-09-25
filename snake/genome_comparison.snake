@@ -111,11 +111,11 @@ config['genome_group'] = \
                        , 'M9'
                        , 'Homeothermus_arabinoxylanisolvens'
                        , 'Muribaculum_intestinale_yl27'
-                       # , 'Muribaculaceae_bacterium_DSM_100739'  # These are mostly identical to M. intestinale
-                       # , 'Muribaculaceae_bacterium_DSM_100746'  # These are mostly identical to M. intestinale
-                       # , 'Muribaculaceae_bacterium_DSM_100749'  # These are mostly identical to M. intestinale
-                       # , 'Muribaculaceae_bacterium_DSM_100720'  # These are mostly identical to M. intestinale
-                       # , 'Muribaculaceae_bacterium_DSM_100764'  # These are mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100739'  # mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100746'  # mostly identical to M. intestinale
+                       # , 'Muribaculaceae_bacterium_DSM_100749'  # identical-ish to Muribaculaceae_bacterium_DSM_100764
+                       , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
+                       , 'Muribaculaceae_bacterium_DSM_100764'  # mostly identical to OTU-49
                        , 'Zag10'
                        , 'Zag1'
                        # , 'An287'  # Apparently not Muris

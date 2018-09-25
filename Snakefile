@@ -2075,7 +2075,7 @@ rule generate_database_2:
     input:
         db='data/{group}.0.db',
         schema='schema.2.sql',
-        checkm='data/{group}.a.mags.{genomes}.g.final.genome_group.checkm_details.noheader.tsv',
+        checkm='data/{group}.a.mags.{genomes}.g.final.checkm_details.noheader.tsv',
         quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
         sequence='data/{group}.a.mags.{genomes}.g.final.sequence_to_genome.tsv',
         sequence_length='data/{group}.a.mags.{genomes}.g.final.nlength.noheader.tsv',

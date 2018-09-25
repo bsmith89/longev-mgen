@@ -370,7 +370,7 @@ rule full_genomes_group_quast_result:
 
 # This is then used by the CheckM recipe to get a summary of completeness/contamination
 rule make_genome_group_dir:
-    output: 'data/{group}.a.mags.{genomes}.g.{proc}.genome_group.d'
+    output: 'data/{group}.a.mags.{genomes}.g.{proc}.d'
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
                                 for mag in config['genome_group'][wildcards.genomes]['mags']],
@@ -421,7 +421,7 @@ rule compile_genomes_group_stats_table:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.genome_stats.tsv"
     input:
-        checkm="data/{group}.a.mags.{genomes}.g.{proc}.genome_group.checkm_details.tsv",
+        checkm="data/{group}.a.mags.{genomes}.g.{proc}.checkm_details.tsv",
         quast="data/{group}.a.mags.{genomes}.g.{proc}.quast.tsv",
         annot="data/{group}.a.mags.{genomes}.g.{proc}.prokka.summary.tsv"
     shell:

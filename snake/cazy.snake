@@ -1,0 +1,42 @@
+rule extract_gh97_hmm:
+    output: "ref/hmm/GH97.hmm"
+    input: "ref/hmm/dbCAN.hmm"
+    shell: "hmmfetch {input} GH97 > {output}"
+
+rule extract_reference_gh97_domains:
+    output: "ref/dbCAN.GH97.fa"
+    input: "ref/dbCAN.fa"
+    shell:
+        """
+        grep --no-group-separator -A1 "|GH97$" {input} > {output}
+        """
+
+rule extract_mag_gh97_domains:
+    output: "data/core.a.mags.muri.g.final.gh97-domain.fa"
+    input: db="data/core.muri.2.denorm.db", fasta="data/core.a.mags.muri.g.final.cds.fa"
+    shell:
+        """
+        seqtk subseq \
+                {input.fasta} \
+                <(sqlite3 {input.db} "SELECT DISTINCT feature_id FROM feature_x_cazy_domain WHERE domain_id = 'GH97'") \
+                > {output}
+        """
+
+rule combine_gh97_domains_with_refs:
+    output: "data/core.a.mags.muri.g.final.gh97-domain.wrefs.fa"
+    input: mags="data/core.a.mags.muri.g.final.gh97-domain.fa", refs="ref/dbCAN.GH97.fa"
+    shell: "cat {input.mags} {input.refs} > {output}"
+
+rule align_gh97_domains:
+    output: "data/core.a.mags.muri.g.final.gh97-domain.wrefs.afa"
+    input:
+        script="scripts/drop_bad_hmmalign.py",
+        fasta="data/core.a.mags.muri.g.final.gh97-domain.wrefs.fa",
+        hmm="ref/hmm/GH97.hmm",
+    shell:
+        """
+        tmp=$(mktemp)
+        hmmalign --informat fasta --trim {input.hmm} {input.fasta} \
+                | convert -f stockholm -t fasta > $tmp
+        {input.script} $tmp > {output}
+        """

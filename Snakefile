@@ -67,6 +67,7 @@ include: 'snake/local.snake'
 # {{{3 Sub-project includes
 include: 'snake/genome_comparison.snake'
 include: 'snake/curation.snake'
+include: 'snake/cazy.snake'
 
 # {{{2 Params
 

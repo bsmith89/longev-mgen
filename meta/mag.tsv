@@ -13,28 +13,28 @@ H10	ormerod	Muribaculaceae	starch
 H2	ormerod	Muribaculaceae	starch
 H3	ormerod	Muribaculaceae	starch
 H4	ormerod	Muribaculaceae	starch
-H5	ormerod	Muribaculaceae	starch
-H6	ormerod	Muribaculaceae	plant
-H7	ormerod	Muribaculaceae	host
-H8	ormerod	Muribaculaceae	plant
+H5	ormerod	Muribaculaceae	plant
+H6	ormerod	Muribaculaceae	host
+H7	ormerod	Muribaculaceae	plant
+H8	ormerod	Muribaculaceae	starch
 H9	ormerod	Muribaculaceae	starch
-Homeothermus_arabinoxylanisolvens	ormerod	Muribaculaceae	starch
+Homeothermus_arabinoxylanisolvens	ormerod	Muribaculaceae	plant
 K1	ormerod	Muribaculaceae	plant
-K10	ormerod	Muribaculaceae	plant
-M1	ormerod	Muribaculaceae	starch
-M10	ormerod	Muribaculaceae	plant
+K10	ormerod	Muribaculaceae	starch
+M1	ormerod	Muribaculaceae	plant
+M10	ormerod	Muribaculaceae	starch
 M11	ormerod	Muribaculaceae	starch
-M12	ormerod	Muribaculaceae	starch
+M12	ormerod	Muribaculaceae	plant
 M13	ormerod	Muribaculaceae	plant
-M14	ormerod	Muribaculaceae	plant
-M2	ormerod	Muribaculaceae	host
-M3	ormerod	Muribaculaceae	plant
-M5	ormerod	Muribaculaceae	starch
-M6	ormerod	Muribaculaceae	host
+M14	ormerod	Muribaculaceae	host
+M2	ormerod	Muribaculaceae	plant
+M3	ormerod	Muribaculaceae	starch
+M5	ormerod	Muribaculaceae	host
+M6	ormerod	Muribaculaceae	starch
 M7	ormerod	Muribaculaceae	starch
-M8	ormerod	Muribaculaceae	starch
-M9	ormerod	Muribaculaceae	plant
-Muribaculaceae_bacterium_DSM_100720	public	Muribaculaceae	host
+M8	ormerod	Muribaculaceae	plant
+M9	ormerod	Muribaculaceae	host
+Muribaculaceae_bacterium_DSM_100720	public	Muribaculaceae	
 Muribaculaceae_bacterium_DSM_100739	public	Muribaculaceae	
 Muribaculaceae_bacterium_DSM_100746	public	Muribaculaceae	
 Muribaculaceae_bacterium_DSM_100749	public	Muribaculaceae	

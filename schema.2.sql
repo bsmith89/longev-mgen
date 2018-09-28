@@ -206,6 +206,37 @@ JOIN (SELECT
 GROUP BY a.opf_id
 ;
 
+CREATE VIEW opf_ko AS
+SELECT
+    opf_id
+  , ko_id
+  , COUNT(feature_id) AS tally
+FROM feature_to_opf
+LEFT JOIN feature_x_ko USING (feature_id)
+GROUP BY opf_id, ko_id
+ORDER BY opf_id, tally DESC
+;
+
+-- Match each OPF to it's most common KO, with metadata.
+CREATE VIEW opf_to_ko AS
+SELECT
+    a.opf_id
+  , a.ko_id
+  , a.tally * 1.0 / m.total_tally AS fraction
+  , m.total_tally AS out_of
+FROM opf_ko AS a
+JOIN (SELECT
+          opf_id
+        , ko_id
+        , MAX(tally) AS max_tally
+        , SUM(tally) AS total_tally
+      FROM opf_ko
+      GROUP BY opf_id
+     ) AS m
+  ON a.opf_id = m.opf_id AND a.tally = max_tally
+GROUP BY a.opf_id
+;
+
 CREATE VIEW feature_localization AS
 SELECT
     feature_id

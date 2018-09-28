@@ -4,6 +4,7 @@ CREATE TABLE mag
 ( mag_id PRIMARY KEY
 , mag_class
 , family
+, guild
 );
 
 CREATE TABLE checkm

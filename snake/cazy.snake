@@ -1,38 +1,38 @@
-rule extract_gh97_hmm:
-    output: "ref/hmm/GH97.hmm"
+rule extract_gh_hmm:
+    output: "ref/hmm/GH{num}.hmm"
     input: "ref/hmm/dbCAN.hmm"
-    shell: "hmmfetch {input} GH97 > {output}"
+    shell: "hmmfetch {input} GH{wildcards.num} > {output}"
 
-rule extract_reference_gh97_domains:
-    output: "ref/dbCAN.GH97.fa"
+rule extract_reference_gh_domains:
+    output: "ref/dbCAN.GH{num}.fa"
     input: "ref/dbCAN.fa"
     shell:
         """
-        grep --no-group-separator -A1 "|GH97$" {input} > {output}
+        grep --no-group-separator -A1 "|GH{wildcards.num}$" {input} > {output}
         """
 
-rule extract_mag_gh97_domains:
-    output: "data/core.a.mags.muri.g.final.gh97-domain.fa"
+rule extract_mag_gh_domains:
+    output: "data/core.a.mags.muri.g.final.GH{num}-domain.fa"
     input: db="data/core.muri.2.denorm.db", fasta="data/core.a.mags.muri.g.final.cds.fa"
     shell:
         """
         seqtk subseq \
                 {input.fasta} \
-                <(sqlite3 {input.db} "SELECT DISTINCT feature_id FROM feature_x_cazy_domain WHERE domain_id = 'GH97'") \
+                <(sqlite3 {input.db} "SELECT DISTINCT feature_id FROM feature_x_cazy_domain WHERE domain_id = 'GH{wildcards.num}'") \
                 > {output}
         """
 
-rule combine_gh97_domains_with_refs:
-    output: "data/core.a.mags.muri.g.final.gh97-domain.wrefs.fa"
-    input: mags="data/core.a.mags.muri.g.final.gh97-domain.fa", refs="ref/dbCAN.GH97.fa"
+rule combine_gh_domains_with_refs:
+    output: "data/core.a.mags.muri.g.final.GH{num}-domain.wrefs.fa"
+    input: mags="data/core.a.mags.muri.g.final.GH{num}-domain.fa", refs="ref/dbCAN.GH{num}.fa"
     shell: "cat {input.mags} {input.refs} > {output}"
 
-rule align_gh97_domains:
-    output: "data/core.a.mags.muri.g.final.gh97-domain.wrefs.afa"
+rule align_gh_domains:
+    output: "data/core.a.mags.muri.g.final.GH{num}-domain.wrefs.afa"
     input:
         script="scripts/drop_bad_hmmalign.py",
-        fasta="data/core.a.mags.muri.g.final.gh97-domain.wrefs.fa",
-        hmm="ref/hmm/GH97.hmm",
+        fasta="data/core.a.mags.muri.g.final.GH{num}-domain.wrefs.fa",
+        hmm="ref/hmm/GH{num}.hmm",
     shell:
         """
         tmp=$(mktemp)

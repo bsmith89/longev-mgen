@@ -1097,6 +1097,17 @@ rule estimate_mag_contig_cvrg:
         {input.script} {input.depth} {input.length} > {output}
         """
 
+rule estimate_mag_feature_cvrg:
+    output: 'data/{group}.a.mags.annot/{stem}.feature_cvrg.tsv'
+    input:
+        script='scripts/calculate_feature_cvrg_all_libs.py',
+        depth='data/{group}.a.mags/{stem}.library-depth.tsv.gz',
+        feat='data/{group}.a.mags.annot/{stem}.features.tsv'
+    shell:
+        """
+        {input.script} {input.depth} {input.feat} > {output}
+        """
+
 rule calculate_position_correlation_stats:
     output: "data/{group}.a.mags/{mag}.g.{proc}.pcorr.tsv"
     input:

@@ -264,6 +264,16 @@ rule filter_dbCAN_hmms:
         sed 's:^NAME  \(.*\).hmm$:NAME  \1\nDESC  hypothetical carbohydrate-active domain (\1) containing protein:' {input} > {output}
         """
 
+rule download_dbCAN_seqs:
+    output: "raw/ref/CAZyDB.07202017.fa"
+    params:
+        url="http://csbl.bmb.uga.edu/dbCAN/download/CAZyDB.07202017.fa"
+    shell: curl_recipe
+
+rule link_dbCAN_seqs:
+    output: "ref/dbCAN.fa"
+    input: "raw/ref/CAZyDB.07202017.fa"
+    shell: alias_recipe
 
 # {{{3 COG
 

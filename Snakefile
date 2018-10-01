@@ -869,7 +869,7 @@ rule query_merge_stats:
 rule select_curated_mags:
     output:
         contigs='data/{group}.a.mags/{mag}.g.contigs.list',
-        libraries='data/{group}.a.mags/{mag}.g.libraries.list',
+        libraries='data/{group}.a.mags/{mag}.g.library.list',
     input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """

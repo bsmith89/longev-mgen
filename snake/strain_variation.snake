@@ -78,15 +78,13 @@ rule calculate_cross_mapping_ratios:
     shell: "{input.script} {input.cvrgA} {input.libA} {input.libB} > {output}"
 
 
-rule combine_feature_coverage:
-    output: "data/{group}.a.mags.muri.g.{proc}.feature_cvrg.tsv"
+rule combine_cross_mapping_ratios:
+    output: "data/{group}.a.mags.annot/Otu0001.g.{proc}.cvrg-ratio.tsv"
     input:
-        lambda wildcards: [f"data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.feature_cvrg.tsv"
-                           for mag in ['Otu0001_vC', 'Otu0001_vB',
-                                       'Otu0004_vA', 'Otu0005_vA',
-                                       'Otu0007_vA', 'Otu0009_vA',
-                                       'Otu0017_vA', 'Otu0049_vA']]
+        magB="data/{group}.a.mags.annot/Otu0001_vC.g.final.Otu0001_vB-cvrg-ratio.tsv",
+        magC="data/{group}.a.mags.annot/Otu0001_vB.g.final.Otu0001_vC-cvrg-ratio.tsv",
     shell:
         """
-        cat {input} > {output}
+        awk -v OFS='\t' -v mag_id=Otu0001_vB '{{print $1, mag_id, $2}}' {input.magB} > {output}
+        awk -v OFS='\t' -v mag_id=Otu0001_vC '{{print $1, mag_id, $2}}' {input.magC} >> {output}
         """

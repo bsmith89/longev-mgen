@@ -164,7 +164,7 @@ CREATE TABLE variant_cross_coverage
 ( feature_id
 , mag_id
 , coverage_ratio FLOAT
-PRIMARY KEY (feature_id, mag_id)
+, PRIMARY KEY (feature_id, mag_id)
 );
 
 -- {{{1 Views

@@ -2133,7 +2133,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.signal_peptide} feature_signal_peptide
 .import {input.feature_tmhmm} feature_tmh
 .import {input.feature_lipop} feature_lipop
-.import {input.variant_cross_cvrg} variant_cross_cvrg
+.import {input.variant_cross_cvrg} variant_cross_coverage
 ANALYZE;
              ' \
         | sqlite3 $tmp

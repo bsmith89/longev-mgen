@@ -160,11 +160,11 @@ CREATE TABLE feature_lipop
 , aa_at_position_plus_2
 );
 
-CREATE TABLE variant_cross_coverage
-( feature_id
-, mag_id
-, coverage_ratio FLOAT
-, PRIMARY KEY (feature_id, mag_id)
+CREATE TABLE library_feature_coverage
+( library_id
+, feature_id
+, coverage FLOAT
+, PRIMARY KEY (library_id, feature_id)
 );
 
 -- {{{1 Views

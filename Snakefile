@@ -2100,7 +2100,7 @@ rule generate_database_2:
         signal_peptide='data/{group}.a.mags.{genomes}.g.final.signalp-annot.tsv',
         feature_tmhmm='data/{group}.a.mags.{genomes}.g.final.tmhmm-annot.tsv',
         feature_lipop='data/{group}.a.mags.{genomes}.g.final.lipop-annot.tsv',
-        variant_cross_cvrg='data/core.a.mags.annot/Otu0001.g.final.cvrg-ratio.tsv',
+        library_feature_coverage='data/{group}.a.mags.{genomes}.g.final.feature_cvrg.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2133,7 +2133,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.signal_peptide} feature_signal_peptide
 .import {input.feature_tmhmm} feature_tmh
 .import {input.feature_lipop} feature_lipop
-.import {input.variant_cross_cvrg} variant_cross_coverage
+.import {input.library_feature_coverage} library_feature_coverage
 ANALYZE;
              ' \
         | sqlite3 $tmp

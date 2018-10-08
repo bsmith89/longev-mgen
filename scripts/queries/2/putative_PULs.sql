@@ -5,7 +5,7 @@
 
 -- CREATE TEMP VIEW putative_PUL AS
 SELECT DISTINCT
-    taxon_id
+    genome_id
   , putative_PUL_susC.*
 FROM putative_PUL_susC
 JOIN feature USING (feature_id)

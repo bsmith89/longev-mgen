@@ -1,7 +1,7 @@
 -- {{{1 Tables
 
 CREATE TABLE genome
-( taxon_id PRIMARY KEY
+( genome_id PRIMARY KEY
 , is_mag BOOL
 , taxon_type
 , taxon_family
@@ -9,7 +9,7 @@ CREATE TABLE genome
 );
 
 CREATE TABLE checkm
-( taxon_id PRIMARY KEY REFERENCES genome(taxon_id)
+( genome_id PRIMARY KEY REFERENCES genome(genome_id)
 , n_markers INT
 , completeness FLOAT
 , contamination FLOAT
@@ -17,7 +17,7 @@ CREATE TABLE checkm
 );
 
 CREATE TABLE quast
-( taxon_id PRIMARY KEY REFERENCES genome(taxon_id)
+( genome_id PRIMARY KEY REFERENCES genome(genome_id)
 , n_contigs INT
 , n_contigs_gt_1000 INT
 , n_contigs_gt_5000 INT
@@ -43,7 +43,7 @@ CREATE TABLE quast
 
 CREATE TABLE _sequence
 ( sequence_id PRIMARY KEY
-, taxon_id REFERENCES genome(taxon_id)
+, genome_id REFERENCES genome(genome_id)
 );
 
 CREATE TABLE _sequence_length
@@ -174,9 +174,9 @@ CREATE TABLE feature_lipop
 
 CREATE TABLE variant_cross_coverage
 ( feature_id
-, taxon_id
+, genome_id
 , coverage_ratio FLOAT
-, PRIMARY KEY (feature_id, taxon_id)
+, PRIMARY KEY (feature_id, genome_id)
 );
 
 -- {{{1 Views

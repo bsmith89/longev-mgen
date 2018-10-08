@@ -3,7 +3,8 @@
 -- This is a pretty liberal filter.
 
 SELECT DISTINCT
-    feature_id
+    sequence_id
+  , feature_id
   , left
   , right
   , susC

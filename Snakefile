@@ -2095,6 +2095,7 @@ rule generate_database_2:
         feature_to_opf='data/{group}.a.mags.{genomes}.g.final.denovo50-clust.tsv',
         feature_pfam_domain='data/{group}.a.mags.{genomes}.g.final.Pfam-domain-annot.tsv',
         feature_cazy_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-annot.tsv',
+        feature_cazy_min_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-best-annot.tsv',
         feature_tigr_domain='data/{group}.a.mags.{genomes}.g.final.TIGRFAM-domain-annot.tsv',
         feature_to_architecture='data/{group}.a.mags.{genomes}.g.final.Pfam-architecture-annot.tsv',
         signal_peptide='data/{group}.a.mags.{genomes}.g.final.signalp-annot.tsv',
@@ -2128,6 +2129,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.feature_to_opf} feature_to_opf
 .import {input.feature_pfam_domain} feature_x_pfam_domain
 .import {input.feature_cazy_domain} feature_x_cazy_domain
+.import {input.feature_cazy_min_domain} feature_x_cazy_minimal_domain
 .import {input.feature_tigr_domain} feature_x_tigr_domain
 .import {input.feature_to_architecture} feature_to_architecture
 .import {input.signal_peptide} feature_signal_peptide

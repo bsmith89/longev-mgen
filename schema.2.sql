@@ -125,6 +125,17 @@ CREATE TABLE feature_x_cazy_domain
 );
 CREATE INDEX idx_feature_x_cazy_domain__domain_id ON feature_x_cazy_domain(domain_id);
 
+-- Like the above, but excluding less-ideal hits.
+CREATE TABLE feature_x_cazy_minimal_domain
+( feature_id REFERENCES feature(feature_id)
+, domain_id REFERENCES cazy_domain(domain_id)
+, score FLOAT
+-- TODO: is_minimal BOOL
+, left INT
+, right INT
+);
+CREATE INDEX idx_feature_x_cazy_minimal_domain__domain_id ON feature_x_cazy_minimal_domain(domain_id);
+
 CREATE TABLE feature_x_tigr_domain
 ( feature_id REFERENCES feature(feature_id)
 , domain_id REFERENCES tigr_domain(domain_id)

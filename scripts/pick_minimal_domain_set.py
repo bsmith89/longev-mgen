@@ -49,4 +49,4 @@ if __name__ == "__main__":
                .apply(lambda d: select_domains(d, max_frac_overlap))
                .reset_index(drop=True)
                .sort_values(['feature_id', 'left']))
-    out[['feature_id', 'domain_id', 'left', 'right']].to_csv(sys.stdout, sep='\t', index=False, header=False)
+    out[['feature_id', 'domain_id', 'score', 'left', 'right']].to_csv(sys.stdout, sep='\t', index=False, header=False)

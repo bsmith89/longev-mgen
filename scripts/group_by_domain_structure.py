@@ -7,7 +7,7 @@ import sys
 
 if __name__ == "__main__":
     data = pd.read_table(sys.argv[1],
-                         names=['feature_id', 'domain_id', 'left', 'right'])
+                         names=['feature_id', 'domain_id', 'score', 'left', 'right'])
     (data.sort_values(['feature_id', 'left'])
          .groupby('feature_id').domain_id.apply(lambda x: ':'.join(x))
          .reset_index()

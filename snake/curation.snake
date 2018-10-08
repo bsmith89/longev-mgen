@@ -7,6 +7,8 @@ rule finalize_mag_without_manual_curation:
     input: "data/{group}.a.mags/{mag}.g.rfn.fn"
     shell: alias_recipe
 
+# Actions:
+# -   Reverse a potential pseudo-gene creating deletion in a GH97 domain containing protein
 rule manually_curate_core_otu7:
     output: "data/core.a.mags/Otu0007_vA.g.final.fn"
     input: "data/core.a.mags/Otu0007_vA.g.rfn.fn"
@@ -19,6 +21,21 @@ rule manually_curate_core_otu7:
         echo "Pattern found `grep -c {params.find} {input}` times."
         sed 's:{params.find}:{params.rplc}:' < {input} > {output}
         """
-
 ruleorder: manually_curate_core_otu7 > finalize_mag_without_manual_curation
+
+# Actions:
+# -   TODO
+rule manually_curate_core_otu1c:
+    output: "data/core.a.mags/Otu0001_vC.g.final.fn"
+    input: "data/core.a.mags/Otu0001_vC.g.rfn.fn"
+    params:
+        find="TATCTTTCTCATTATTCTTAGAAGTTGTC",
+        rplc="TATCTTTCTCATNTATTCTTAGAAGTTGTC"
+    shell:
+        """
+        # Chain filters to fix any problems in the genome.
+        echo "Pattern found `grep -c {params.find} {input}` times."
+        sed 's:{params.find}:{params.rplc}:' < {input} > {output}
+        """
+ruleorder: manually_curate_core_otu1c > finalize_mag_without_manual_curation
 

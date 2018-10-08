@@ -2078,7 +2078,7 @@ rule generate_database_2:
     input:
         db='data/{group}.0.db',
         schema='schema.2.sql',
-        mag='data/mag.noheader.tsv',
+        genome='data/genome.noheader.tsv',
         checkm='data/{group}.a.mags.{genomes}.g.final.checkm_details.noheader.tsv',
         quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
         sequence='data/{group}.a.mags.{genomes}.g.final.sequence_to_genome.tsv',
@@ -2112,7 +2112,7 @@ PRAGMA cache_size = 1000000;
 PRAGMA foreign_keys = TRUE;
 .read {input.schema}
 .separator \t
-.import {input.mag} mag
+.import {input.genome} genome
 .import {input.checkm} checkm
 .import {input.quast} quast
 .import {input.sequence} _sequence

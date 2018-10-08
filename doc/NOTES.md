@@ -775,16 +775,33 @@ at UT?
                     a match at the very last position.  This suggests
                     that the frameshift (mutation or error) is actually
                     right ON the stop codon itself.
+                -   Conversely, when I run a 3-frame blastx, I get more AAs
+                    matching when the new frame starts at position +210 (62267)
                 -   This would be odd under either model.
             -   As it currently stands (2018-09-14) I settled on adding an
                 'N' before the stop codon in a "final" genome file.
+            -   Correction (2018-09-17): This doesn't really help a ton because
+                prodigal now fails to include the signal peptide in the protein
+                when I make this change.  I think I'll take the BLASTx
+                chimeric translation as the correct one, but do all
+                my analyses with the original sequence data, just manually
+                adding the corrected protein when necessary.
+            -   Assuming this protein exists is risky:
+                I see no evidence from the sequence data
+                that this erroneous deletion happened during assembly.
+                It's unclear to me if an error here would be more surprising
+                than a pseudogene without any OTHER mutations (since I expect
+                mutation to accumulate quickly in pseudogenes).
+
+Corrected sequence region (this may not be completely accurate; for
+illustration only; look for 'N'):
 
 ```
 >core-k161_188734_pilon_0_17445:61921-63916
 AAAAAAAGAACCTTAGCTTTGGCCATGATACCTGCCATGACGCTGTGCGGCATCTCGGCA
 AAGGAATACCGGGTGACCTCGCCCGACGGGCAACTTAGCGCAATCGTCGAGACCGGGGGG
 AAACTGACGTATGAAGTGCAGCTCGAAGGGCACACCGTAATTTCACCTTCCGCCATAGGG
-ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAG-TGAGCGGTGTGAAACGG
+ATGGAGCTTTCGAACGGTGTGAAACTCGGGAAAAACCGAAAGNTGAGCGGTGTGAAACGG
 AACAGTGTGGATGAGATGGTGCCATCGCCGTTCTATCGTGCCGAGAGCATACGCGACAAT
 TACAACGAGTTGGCGATGAATATAGGGAAGGGGTGGACTTTGGTGTTCCGCGCCTTCAAT
 GATGCGGTGGCCTATCGTTTCGTGTGTAAGGATAAGAAACCGTTCGAAATTATAAATGAG

@@ -1,4 +1,4 @@
-genome_id	is_mag	taxon_type	taxon_family	ormerod_guild
+genome_id	is_mag	genome_type	taxon_family	ormerod_guild
 An287	0	public	unknown	
 An289	0	public	unknown	
 Bacteroides_ovatus_ATCC_8483	0	reference	Bacteroidaceae	

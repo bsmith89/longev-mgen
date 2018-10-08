@@ -3,7 +3,7 @@
 CREATE TABLE genome
 ( genome_id PRIMARY KEY
 , is_mag BOOL
-, taxon_type
+, genome_type
 , taxon_family
 , ormerod_guild
 );

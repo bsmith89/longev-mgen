@@ -15,6 +15,7 @@ SELECT DISTINCT
   , opf_id
   , architecture
   , product_description
+  , cazy_domain_list
 FROM feature_neighborhood
 JOIN feature_details USING (feature_id)
 LEFT JOIN (SELECT feature_id, 1 AS susC FROM putative_susC) AS c USING (feature_id)
@@ -24,6 +25,11 @@ LEFT JOIN (SELECT feature_id, 1 AS susG FROM putative_susG) AS g USING (feature_
 LEFT JOIN (SELECT DISTINCT feature_id, domain_id AS starch_active_domain
            FROM starch_active_domain_best_hit
           ) AS s USING (feature_id)
-WHERE DISTANCE < 15000
+LEFT JOIN (SELECT
+               feature_id
+             , GROUP_CONCAT(domain_id, ',') AS cazy_domain_list
+           FROM feature_x_cazy_minimal_domain
+           GROUP BY feature_id) AS ca USING (feature_id)
+WHERE DISTANCE < 25000
   AND seed_id IN (SELECT feature_id FROM putative_PUL_susC)
 ;

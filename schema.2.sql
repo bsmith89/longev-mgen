@@ -291,17 +291,10 @@ CREATE VIEW feature_localization AS
 SELECT
     feature_id
   , CASE
-    WHEN lp.score > 8 AND lp.aa_at_position_plus_2 != 'D' AND lp.margin > 4 THEN 'OM'
-    WHEN lp.score > 5 AND lp.aa_at_position_plus_2 != 'D' AND lp.margin > 2 THEN 'OM?'
-    WHEN lp.score > 5 AND lp.aa_at_position_plus_2 != 'D' THEN 'OM??'
-    WHEN lp.score > 8 AND lp.aa_at_position_plus_2 = 'D' AND lp.margin > 4 THEN 'IM'
-    WHEN lp.score > 5 AND lp.aa_at_position_plus_2 = 'D' AND lp.margin > 2 THEN 'IM?'
-    WHEN lp.score > 5 AND lp.aa_at_position_plus_2 = 'D' THEN 'IM??'
-    WHEN sp.score > 0.5 AND sp.closest_cysteine < 3 THEN 'PP?/OM?'
-    WHEN sp.score > 0.7 THEN 'PP'
-    WHEN sp.score > 0.5 THEN 'PP?'
-    WHEN sp.score > 0.4 THEN 'PP??'
-    ELSE ''
+    WHEN lp.score > 5 AND lp.aa_at_position_plus_2 != 'D' AND lp.margin > 3 THEN 'OM'
+    WHEN lp.score > 5 AND lp.aa_at_position_plus_2 = 'D' AND lp.margin > 3 THEN 'IM'
+    WHEN sp.score > 0.4 THEN 'PP'
+    ELSE 'CY'
     END AS localization
   , lp.score AS lp_score
   , lp.margin AS lp_margin

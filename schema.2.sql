@@ -179,6 +179,17 @@ CREATE TABLE variant_cross_coverage
 , PRIMARY KEY (feature_id, genome_id)
 );
 
+CREATE TABLE library_size
+( library_id
+, tally INT
+);
+
+CREATE TABLE feature_library_coverage
+( feature_id REFERENCES feature(feature_id)
+, library_id
+, coverage INT
+);
+
 -- {{{1 Views
 
 CREATE VIEW sequence AS

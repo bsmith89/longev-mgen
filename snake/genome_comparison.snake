@@ -390,6 +390,16 @@ rule make_genome_group_dir:
         done
         """
 
+rule combine_feature_cvrgs:
+    output: 'data/{group}.a.mags.{genomes}.g.{proc}.feature_cvrg.tsv'
+    input:
+        lambda wildcards: [f'data/{wildcards.group}.a.mags.annot/{mag}.g.{wildcards.proc}.feature_cvrg.tsv'
+                           for mag in config['genome_group'][wildcards.genomes]['mags']],
+    shell:
+        """
+        cat {input} > {output}
+        """
+
 rule combine_annotation_summaries:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.prokka.summary.tsv"

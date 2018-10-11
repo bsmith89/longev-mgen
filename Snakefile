@@ -395,6 +395,30 @@ rule alias_rrs_reps:
 
 # {{{2 Data pre-processing
 
+
+rule count_library_size:
+    output: 'data/{library}.m.{proc}.library_size.tsv'
+    input: r1='data/{library}.m.r1.{proc}.fq.gz',
+           r2='data/{library}.m.r2.{proc}.fq.gz',
+    shell:
+        """
+        zcat {input.r1} {input.r2} \
+                | awk -v OFS='\t' -v library='{wildcards.library}' \
+                      'NR%4==2 {{total+=length($1)}}
+                       END{{print library, total}}' \
+                > {output}
+        """
+
+rule combine_library_sizes:
+    output: 'data/{group}.m.{proc}.library_size.tsv'
+    input:
+        lambda wildcards: [f'data/{library}.m.{wildcards.proc}.library_size.tsv'
+                           for library in config['asmbl_group'][wildcards.group]],
+    shell:
+        """
+        cat {input} > {output}
+        """
+
 rule deduplicate_reads:
     output:
         r1='data/{stem}.m.r1.dedup.fq.gz',
@@ -2079,6 +2103,7 @@ rule generate_database_2:
         db='data/{group}.0.db',
         schema='schema.2.sql',
         genome='data/genome.noheader.tsv',
+        library_size='data/library_size.tsv',
         checkm='data/{group}.a.mags.{genomes}.g.rfn.checkm_details.noheader.tsv',
         quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
         sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
@@ -2102,6 +2127,7 @@ rule generate_database_2:
         feature_tmhmm='data/{group}.a.mags.{genomes}.g.rfn.tmhmm-annot.tsv',
         feature_lipop='data/{group}.a.mags.{genomes}.g.rfn.lipop-annot.tsv',
         variant_cross_cvrg='data/core.a.mags.annot/B1.g.rfn.cvrg-ratio.tsv',
+        feature_library_cvrg='data/{group}.a.mags.{genomes}.g.rfn.feature_cvrg.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2113,6 +2139,7 @@ PRAGMA foreign_keys = TRUE;
 .read {input.schema}
 .separator \t
 .import {input.genome} genome
+.import {input.library_size} library_size
 .import {input.checkm} checkm
 .import {input.quast} quast
 .import {input.sequence} _sequence
@@ -2136,6 +2163,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.feature_tmhmm} feature_tmh
 .import {input.feature_lipop} feature_lipop
 .import {input.variant_cross_cvrg} variant_cross_coverage
+.import {input.feature_library_cvrg} feature_library_coverage
 ANALYZE;
              ' \
         | sqlite3 $tmp

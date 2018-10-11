@@ -36,19 +36,19 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 # TODO: Build the other files from the database.
 rule all:
     input:
-        [ "data/core.a.mags.muri.g.final.marker_genes.refine.gb.prot.nwk"
+        [ "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
         , "data/core.muri.2.denorm.db"
-        , "data/core.a.mags.muri.g.final.genome_stats.tsv"
-        , "data/core.a.mags.muri.g.final.cds.fa"
-        , "data/core.a.mags.muri.g.final.ec-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.final.ec-annot.tsv"
-        , "data/core.a.mags.muri.g.final.ko-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.final.ko-annot.tsv"
-        , "data/core.a.mags.muri.g.final.cog-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.final.cog-annot.tsv"
-        , "data/core.a.mags.muri.g.final.Pfam-architecture-annot.count.tsv"
-        , "data/core.a.mags.muri.g.final.denovo50-clust.count.tsv"
-        # , "data/core.a.mags.muri.g.final.denovo50-clust.tsv"
+        , "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
+        , "data/core.a.mags.muri.g.rfn.cds.fa"
+        , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
+        , "data/core.a.mags.muri.g.rfn.Pfam-architecture-annot.count.tsv"
+        , "data/core.a.mags.muri.g.rfn.denovo50-clust.count.tsv"
+        # , "data/core.a.mags.muri.g.rfn.denovo50-clust.tsv"
         ]
     shell:
         "# {input}"
@@ -66,7 +66,7 @@ include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
 include: 'snake/genome_comparison.snake'
-include: 'snake/curation.snake'
+# include: 'snake/curation.snake'
 include: 'snake/cazy.snake'
 include: 'snake/strain_variation.snake'
 
@@ -2079,29 +2079,29 @@ rule generate_database_2:
         db='data/{group}.0.db',
         schema='schema.2.sql',
         genome='data/genome.noheader.tsv',
-        checkm='data/{group}.a.mags.{genomes}.g.final.checkm_details.noheader.tsv',
-        quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
-        sequence='data/{group}.a.mags.{genomes}.g.final.sequence_to_genome.tsv',
-        sequence_length='data/{group}.a.mags.{genomes}.g.final.nlength.noheader.tsv',
+        checkm='data/{group}.a.mags.{genomes}.g.rfn.checkm_details.noheader.tsv',
+        quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
+        sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
+        sequence_length='data/{group}.a.mags.{genomes}.g.rfn.nlength.noheader.tsv',
         ko='ref/kegg.noheader.tsv',
         cog='ref/cog_function.noheader.tsv',
         pfam_domain='ref/Pfam.hmm.tsv',
         cazy_domain='ref/dbCAN.hmm.tsv',
         tigr_domain='ref/TIGRFAM.hmm.tsv',
-        feature='data/{group}.a.mags.{genomes}.g.final.features.tsv',
-        feature_details='data/{group}.a.mags.{genomes}.g.final.feature_details.tsv',
-        feature_x_ko='data/{group}.a.mags.{genomes}.g.final.ko-annot.tsv',
-        feature_to_cog='data/{group}.a.mags.{genomes}.g.final.cog-annot.tsv',
-        feature_to_opf='data/{group}.a.mags.{genomes}.g.final.denovo50-clust.tsv',
-        feature_pfam_domain='data/{group}.a.mags.{genomes}.g.final.Pfam-domain-annot.tsv',
-        feature_cazy_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-annot.tsv',
-        feature_cazy_min_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-best-annot.tsv',
-        feature_tigr_domain='data/{group}.a.mags.{genomes}.g.final.TIGRFAM-domain-annot.tsv',
-        feature_to_architecture='data/{group}.a.mags.{genomes}.g.final.Pfam-architecture-annot.tsv',
-        signal_peptide='data/{group}.a.mags.{genomes}.g.final.signalp-annot.tsv',
-        feature_tmhmm='data/{group}.a.mags.{genomes}.g.final.tmhmm-annot.tsv',
-        feature_lipop='data/{group}.a.mags.{genomes}.g.final.lipop-annot.tsv',
-        variant_cross_cvrg='data/core.a.mags.annot/Otu0001.g.final.cvrg-ratio.tsv',
+        feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
+        feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
+        feature_x_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
+        feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
+        feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo50-clust.tsv',
+        feature_pfam_domain='data/{group}.a.mags.{genomes}.g.rfn.Pfam-domain-annot.tsv',
+        feature_cazy_domain='data/{group}.a.mags.{genomes}.g.rfn.dbCAN-domain-annot.tsv',
+        feature_cazy_min_domain='data/{group}.a.mags.{genomes}.g.rfn.dbCAN-domain-best-annot.tsv',
+        feature_tigr_domain='data/{group}.a.mags.{genomes}.g.rfn.TIGRFAM-domain-annot.tsv',
+        feature_to_architecture='data/{group}.a.mags.{genomes}.g.rfn.Pfam-architecture-annot.tsv',
+        signal_peptide='data/{group}.a.mags.{genomes}.g.rfn.signalp-annot.tsv',
+        feature_tmhmm='data/{group}.a.mags.{genomes}.g.rfn.tmhmm-annot.tsv',
+        feature_lipop='data/{group}.a.mags.{genomes}.g.rfn.lipop-annot.tsv',
+        variant_cross_cvrg='data/core.a.mags.annot/B1.g.rfn.cvrg-ratio.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)

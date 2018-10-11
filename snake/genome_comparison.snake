@@ -47,38 +47,38 @@ config['sra'] = \
         'Homeothermus_arabinoxylanisolvens' : 'LUJO01000000',
         }
 
-config['mags'] = \
-        {
-        'Otu0003'     : {'taxon' : 'Sphingopyxis alaskensis'},
-        'Otu0002'     : {'taxon' : 'Lactobacillus johnsonii'},
-        'Otu0001'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0007'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0009'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0005'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0004'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0049'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0017'     : {'taxon' : 'Muribaculaceae sp.'},
-        'Otu0015'     : {'taxon' : 'Lachnospiraceae sp.'},
-        'Otu0025'     : {'taxon' : 'Lachnospiraceae sp.'},
-        'Otu0032'     : {'taxon' : 'Lachnospiraceae sp.'},
-        'Otu0012'     : {'taxon' : 'Ruminiclostridium sp.'},
-        'Otu0006'     : {'taxon' : 'Turicibacter sp.'},
-        'Otu0020'     : {'taxon' : 'Ruminococcaceae sp.'},
-        'Otu0035'     : {'taxon' : 'Ruminococcaceae sp.'},
-        'Otu0058'     : {'taxon' : 'Mollicutes sp.'},
-        'Otu0041'     : {'taxon' : 'Bacteroides sp.'},
-        }
-
+# config['mags'] = \
+#         {
+#         'Otu0003'     : {'taxon' : 'Sphingopyxis alaskensis'},
+#         'Otu0002'     : {'taxon' : 'Lactobacillus johnsonii'},
+#         'Otu0001'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0007'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0009'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0005'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0004'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0049'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0017'     : {'taxon' : 'Muribaculaceae sp.'},
+#         'Otu0015'     : {'taxon' : 'Lachnospiraceae sp.'},
+#         'Otu0025'     : {'taxon' : 'Lachnospiraceae sp.'},
+#         'Otu0032'     : {'taxon' : 'Lachnospiraceae sp.'},
+#         'Otu0012'     : {'taxon' : 'Ruminiclostridium sp.'},
+#         'Otu0006'     : {'taxon' : 'Turicibacter sp.'},
+#         'Otu0020'     : {'taxon' : 'Ruminococcaceae sp.'},
+#         'Otu0035'     : {'taxon' : 'Ruminococcaceae sp.'},
+#         'Otu0058'     : {'taxon' : 'Mollicutes sp.'},
+#         'Otu0041'     : {'taxon' : 'Bacteroides sp.'},
+#         }
+#
 config['genome_group'] = \
         { 'muri':
-             { 'mags': [ 'Otu0001_vC'
-                       , 'Otu0001_vB'
-                       , 'Otu0004_vA'
-                       , 'Otu0005_vA'
-                       , 'Otu0007_vA'
-                       , 'Otu0009_vA'
-                       , 'Otu0017_vA'
-                       , 'Otu0049_vA'
+             { 'mags': [ 'B1A'
+                       , 'B1B'
+                       , 'B3'
+                       , 'B4'
+                       , 'B2'
+                       , 'B5'
+                       , 'B6'
+                       , 'B7'
                        ]
              , 'refs': [ 'GP1'
                        , 'GP2'

@@ -80,8 +80,8 @@ CREATE TABLE tigr_domain
 CREATE TABLE feature
 ( feature_id PRIMARY KEY
 , sequence_id REFERENCES _sequence(sequence_id)
-, left INT
-, right INT
+, feature_start INT
+, feature_stop INT
 );
 CREATE INDEX idx_feature__sequence_id ON feature(sequence_id);
 
@@ -112,8 +112,8 @@ CREATE TABLE feature_x_pfam_domain
 ( feature_id REFERENCES feature(feature_id)
 , domain_id REFERENCES pfam_domain(domain_id)
 , score FLOAT
-, left INT
-, right INT
+, domain_start INT
+, domain_stop INT
 );
 CREATE INDEX idx_feature_x_pfam_domain__domain_id ON feature_x_pfam_domain(domain_id);
 
@@ -121,8 +121,8 @@ CREATE TABLE feature_x_cazy_domain
 ( feature_id REFERENCES feature(feature_id)
 , domain_id REFERENCES cazy_domain(domain_id)
 , score FLOAT
-, left INT
-, right INT
+, domain_start INT
+, domain_stop INT
 );
 CREATE INDEX idx_feature_x_cazy_domain__domain_id ON feature_x_cazy_domain(domain_id);
 
@@ -132,8 +132,8 @@ CREATE TABLE feature_x_cazy_minimal_domain
 , domain_id REFERENCES cazy_domain(domain_id)
 , score FLOAT
 -- TODO: is_minimal BOOL
-, left INT
-, right INT
+, domain_start INT
+, domain_stop INT
 );
 CREATE INDEX idx_feature_x_cazy_minimal_domain__domain_id ON feature_x_cazy_minimal_domain(domain_id);
 
@@ -141,8 +141,8 @@ CREATE TABLE feature_x_tigr_domain
 ( feature_id REFERENCES feature(feature_id)
 , domain_id REFERENCES tigr_domain(domain_id)
 , score FLOAT
-, left INT
-, right INT
+, domain_start INT
+, domain_stop INT
 );
 CREATE INDEX idx_feature_x_tigr_domain__domain_id ON feature_x_tigr_domain(domain_id);
 
@@ -192,19 +192,35 @@ CREATE TABLE feature_library_coverage
 
 -- {{{1 Views
 
+-- {{{2 General
+
 CREATE VIEW sequence AS
 SELECT * FROM _sequence JOIN _sequence_length USING (sequence_id)
 ;
 
-CREATE VIEW feature_neighborhood AS
+CREATE VIEW feature_to_strand AS
+SELECT
+    feature_id
+  , CASE
+      WHEN (feature_stop > feature_start) THEN 1
+      WHEN (feature_stop < feature_start) THEN -1
+      ELSE NULL
+    END AS strand
+FROM feature
+WHERE strand NOT NULL
+;
+
+CREATE VIEW feature_distance AS
 SELECT
     a.feature_id AS seed_id
   , b.feature_id AS feature_id
-  , ABS(((a.left + a.right) / 2) - ((b.left + b.right) / 2)) AS distance
+  , ABS(((a.feature_start + a.feature_stop) / 2) - ((b.feature_start + b.feature_stop) / 2)) AS distance
  FROM feature AS a
  JOIN feature AS b
    ON a.sequence_id = b.sequence_id
 ;
+
+-- {{{2 Annotations
 
 CREATE VIEW opf_architecture AS
 SELECT
@@ -354,11 +370,19 @@ WHERE feature_id != ''
   AND ko_id != ''
 ;
 
-CREATE VIEW starch_active_gh_hit AS
-SELECT
-    feature_id
-  , domain_id
-  , score
+-- {{{2 PULs, CAZy, etc.
+
+CREATE VIEW starch_active_cbm_domain AS
+SELECT DISTINCT domain_id
+FROM feature_x_cazy_domain
+WHERE domain_id IN ('CBM20', 'CBM21', 'CBM25',
+                    'CBM26', 'CBM41', 'CBM48',
+                    'CBM53', 'CBM58', 'CBM74',
+                    'CBM82', 'CBM83', 'CBM69')
+;
+
+CREATE VIEW starch_active_gh_domain AS
+SELECT DISTINCT domain_id
 FROM feature_x_cazy_domain
 WHERE
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
@@ -370,16 +394,22 @@ WHERE
     )
 ;
 
+CREATE VIEW starch_active_gh_hit AS
+SELECT
+    feature_id
+  , domain_id
+  , score
+FROM feature_x_cazy_domain
+WHERE domain_id IN starch_active_gh_domain
+;
+
 CREATE VIEW starch_active_cbm_hit AS
 SELECT
     feature_id
   , domain_id
   , score
 FROM feature_x_cazy_domain
-WHERE domain_id IN ('CBM20', 'CBM21', 'CBM25',
-                    'CBM26', 'CBM41', 'CBM48',
-                    'CBM53', 'CBM58', 'CBM74',
-                    'CBM82', 'CBM83', 'CBM69')
+WHERE domain_id IN starch_active_cbm_domain
 ;
 
 CREATE VIEW starch_active_domain_hit AS
@@ -403,7 +433,7 @@ JOIN (SELECT feature_id, MAX(score) AS max_score
 WHERE score = max_score
 ;
 
-CREATE VIEW putative_susC AS
+CREATE VIEW susC AS
 SELECT DISTINCT feature_id
 FROM feature_details
 LEFT JOIN feature_possible_ko USING (feature_id)
@@ -411,7 +441,7 @@ WHERE ko_id = 'K21573'
    OR product_description = 'TonB-dependent receptor SusC'
 ;
 
-CREATE VIEW putative_susD AS
+CREATE VIEW susD AS
 SELECT DISTINCT feature_id
 FROM feature
 LEFT JOIN feature_x_pfam_domain USING (feature_id)
@@ -420,7 +450,7 @@ WHERE ko_id = 'K21572'
    OR domain_id LIKE 'SusD-like%'
 ;
 
-CREATE VIEW putative_susEF AS
+CREATE VIEW susEF AS
 SELECT DISTINCT feature_id
 FROM feature
 LEFT JOIN feature_possible_ko USING (feature_id)
@@ -430,37 +460,26 @@ WHERE ko_id = 'K21571'
    OR domain_id LIKE '%SusF%'
 ;
 
-CREATE VIEW putative_susG AS
-SELECT DISTINCT feature_id
-FROM feature_details
-JOIN feature_x_cazy_domain USING (feature_id)
-WHERE lp_score > 5
-  AND domain_id LIKE 'GH%'
-;
-
-CREATE VIEW putative_PUL_susC AS
+CREATE VIEW pul_susC AS
 SELECT DISTINCT
-    seed_id AS feature_id
-  , SUM(susC) AS tally_susC
-  , SUM(susD) AS tally_susD
-  , SUM(susEF) AS tally_susEF
-  , SUM(susG) AS tally_susG
-  , SUM(starch_active_gh) AS tally_starch_active_gh
-  , SUM(starch_active_cbm) AS tally_starch_active_cbm
-FROM feature_neighborhood
-JOIN feature_details USING (feature_id)
-LEFT JOIN (SELECT feature_id, 1 AS susC FROM putative_susC) AS c USING (feature_id)
-LEFT JOIN (SELECT feature_id, 1 AS susD FROM putative_susD) AS d USING (feature_id)
-LEFT JOIN (SELECT feature_id, 1 AS susEF FROM putative_susEF) AS e USING (feature_id)
-LEFT JOIN (SELECT feature_id, 1 AS susG FROM putative_susG) AS g USING (feature_id)
-LEFT JOIN (SELECT DISTINCT feature_id, 1 AS starch_active_gh
-           FROM starch_active_gh_hit
-          ) AS gh USING (feature_id)
-LEFT JOIN (SELECT DISTINCT feature_id, 1 AS starch_active_cbm
-           FROM starch_active_cbm_hit
-          ) AS cbm USING (feature_id)
-WHERE DISTANCE < 15000
-  AND seed_id IN (SELECT * FROM putative_susC)
-GROUP BY seed_id
-HAVING tally_susC > 0 AND tally_susD > 0
+    c.feature_id AS feature_id
+FROM feature_distance AS n
+JOIN ( SELECT
+           feature_id
+         , strand
+         , feature_start
+       FROM susC
+       JOIN feature_to_strand USING (feature_id)
+       JOIN feature USING (feature_id)
+     ) AS c ON c.feature_id = n.seed_id
+JOIN ( SELECT
+           feature_id
+         , strand
+         , feature_start
+       FROM susD
+       JOIN feature_to_strand USING (feature_id)
+       JOIN feature USING (feature_id)
+     ) AS d ON d.feature_id = n.feature_id AND d.strand = c.strand
+WHERE distance < 5000
+  AND (d.feature_start - c.feature_start) * d.strand > 0  -- susD follows susC
 ;

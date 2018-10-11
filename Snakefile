@@ -2188,7 +2188,7 @@ ALTER TABLE __feature_details RENAME TO feature_details;
 
 DROP TABLE feature;
 CREATE VIEW feature AS
-SELECT feature_id, sequence_id, left, right FROM feature_details
+SELECT feature_id, sequence_id, feature_start, feature_stop FROM feature_details
 ;
 DROP TABLE _feature_details;
 CREATE VIEW _feature_details AS

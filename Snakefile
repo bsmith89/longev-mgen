@@ -36,19 +36,19 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 # TODO: Build the other files from the database.
 rule all:
     input:
-        [ "data/core.a.mags.muri.g.rfn.marker_genes.refine.gb.prot.nwk"
+        [ "data/core.a.mags.muri.g.final.marker_genes.refine.gb.prot.nwk"
         , "data/core.muri.2.denorm.db"
-        , "data/core.a.mags.muri.g.rfn.genome_stats.tsv"
-        , "data/core.a.mags.muri.g.rfn.cds.fa"
-        , "data/core.a.mags.muri.g.rfn.ec-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.ec-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.ko-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.ko-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.cog-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.cog-annot.tsv"
-        , "data/core.a.mags.muri.g.rfn.Pfam-architecture-annot.count.tsv"
-        , "data/core.a.mags.muri.g.rfn.denovo50-clust.count.tsv"
-        # , "data/core.a.mags.muri.g.rfn.denovo50-clust.tsv"
+        , "data/core.a.mags.muri.g.final.genome_stats.tsv"
+        , "data/core.a.mags.muri.g.final.cds.fa"
+        , "data/core.a.mags.muri.g.final.ec-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.final.ec-annot.tsv"
+        , "data/core.a.mags.muri.g.final.ko-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.final.ko-annot.tsv"
+        , "data/core.a.mags.muri.g.final.cog-annot.count.tsv"
+        # , "data/core.a.mags.muri.g.final.cog-annot.tsv"
+        , "data/core.a.mags.muri.g.final.Pfam-architecture-annot.count.tsv"
+        , "data/core.a.mags.muri.g.final.denovo50-clust.count.tsv"
+        # , "data/core.a.mags.muri.g.final.denovo50-clust.tsv"
         ]
     shell:
         "# {input}"
@@ -1133,10 +1133,10 @@ rule estimate_mag_contig_cvrg:
         """
 
 rule estimate_mag_feature_cvrg:
-    output: 'data/{group}.a.mags.annot/{stem}.feature_cvrg.tsv'
+    output: 'data/{group}.a.mags.annot/{mag_stem}.feature_cvrg.tsv'
     input:
-        depth='data/{group}.a.mags/{stem}.library-depth.tsv.gz',
-        feature='data/{group}.a.mags.annot/{stem}.features.tsv'
+        depth='data/{group}.a.mags/{mag_stem}.library-depth.tsv.gz',
+        feature='data/{group}.a.mags.annot/{mag_stem}.features.tsv'
     shell:
         """
 script=$(mktemp)
@@ -1295,6 +1295,17 @@ rule select_mag_refinement:
 
 EOF
         false
+        """
+
+rule rename_mag_sequences:
+    output: "data/{group}.a.mags/{mag}.g.final.fn"
+    input: "data/{group}.a.mags/{mag}.g.rfn.fn"
+    shell:
+        """
+        awk -v name={wildcards.mag} -v i=1 \
+                '/^>/{{print ">" name "." i; i+=1}}
+                !/^>/{{print $0}}' \
+                < {input} > {output}
         """
 
 # {{{2 QC
@@ -2037,7 +2048,7 @@ rule generate_database_1:
         contig_bin='data/{group}.a.contigs.bins.noheader.tsv',
         contig_coverage='data/{group}.a.contigs.cvrg.noheader.tsv',
         bin_checkm='data/{group}.a.bins.checkm_details.noheader.tsv',
-        contig_linkage='data/{group}.a.contigs.linkage_tally.noheader.tsv',
+        # contig_linkage='data/{group}.a.contigs.linkage_tally.noheader.tsv',
         checkm_merge='data/{group}.a.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
@@ -2054,7 +2065,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.contig_bin} contig_bin
 .import {input.bin_checkm} bin_checkm
 .import {input.checkm_merge} _bin_complementarity
-.import {input.contig_linkage} _contig_linkage
+-- .import {{input.contig_linkage}} _contig_linkage
 ANALYZE;
              ' \
         | sqlite3 $tmp
@@ -2103,31 +2114,30 @@ rule generate_database_2:
         db='data/{group}.0.db',
         schema='schema.2.sql',
         genome='data/genome.noheader.tsv',
-        library_size='data/library_size.tsv',
-        checkm='data/{group}.a.mags.{genomes}.g.rfn.checkm_details.noheader.tsv',
-        quast='data/{group}.a.mags.{genomes}.g.rfn.quast.noheader.tsv',
-        sequence='data/{group}.a.mags.{genomes}.g.rfn.sequence_to_genome.tsv',
-        sequence_length='data/{group}.a.mags.{genomes}.g.rfn.nlength.noheader.tsv',
+        library_size='data/{group}.m.proc.library_size.tsv',
+        checkm='data/{group}.a.mags.{genomes}.g.final.checkm_details.noheader.tsv',
+        quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
+        sequence='data/{group}.a.mags.{genomes}.g.final.sequence_to_genome.tsv',
+        sequence_length='data/{group}.a.mags.{genomes}.g.final.nlength.noheader.tsv',
         ko='ref/kegg.noheader.tsv',
         cog='ref/cog_function.noheader.tsv',
         pfam_domain='ref/Pfam.hmm.tsv',
         cazy_domain='ref/dbCAN.hmm.tsv',
         tigr_domain='ref/TIGRFAM.hmm.tsv',
-        feature='data/{group}.a.mags.{genomes}.g.rfn.features.tsv',
-        feature_details='data/{group}.a.mags.{genomes}.g.rfn.feature_details.tsv',
-        feature_x_ko='data/{group}.a.mags.{genomes}.g.rfn.ko-annot.tsv',
-        feature_to_cog='data/{group}.a.mags.{genomes}.g.rfn.cog-annot.tsv',
-        feature_to_opf='data/{group}.a.mags.{genomes}.g.rfn.denovo50-clust.tsv',
-        feature_pfam_domain='data/{group}.a.mags.{genomes}.g.rfn.Pfam-domain-annot.tsv',
-        feature_cazy_domain='data/{group}.a.mags.{genomes}.g.rfn.dbCAN-domain-annot.tsv',
-        feature_cazy_min_domain='data/{group}.a.mags.{genomes}.g.rfn.dbCAN-domain-best-annot.tsv',
-        feature_tigr_domain='data/{group}.a.mags.{genomes}.g.rfn.TIGRFAM-domain-annot.tsv',
-        feature_to_architecture='data/{group}.a.mags.{genomes}.g.rfn.Pfam-architecture-annot.tsv',
-        signal_peptide='data/{group}.a.mags.{genomes}.g.rfn.signalp-annot.tsv',
-        feature_tmhmm='data/{group}.a.mags.{genomes}.g.rfn.tmhmm-annot.tsv',
-        feature_lipop='data/{group}.a.mags.{genomes}.g.rfn.lipop-annot.tsv',
-        variant_cross_cvrg='data/core.a.mags.annot/B1.g.rfn.cvrg-ratio.tsv',
-        feature_library_cvrg='data/{group}.a.mags.{genomes}.g.rfn.feature_cvrg.tsv',
+        feature='data/{group}.a.mags.{genomes}.g.final.features.tsv',
+        feature_details='data/{group}.a.mags.{genomes}.g.final.feature_details.tsv',
+        feature_x_ko='data/{group}.a.mags.{genomes}.g.final.ko-annot.tsv',
+        feature_to_cog='data/{group}.a.mags.{genomes}.g.final.cog-annot.tsv',
+        feature_to_opf='data/{group}.a.mags.{genomes}.g.final.denovo50-clust.tsv',
+        feature_pfam_domain='data/{group}.a.mags.{genomes}.g.final.Pfam-domain-annot.tsv',
+        feature_cazy_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-annot.tsv',
+        feature_cazy_min_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-best-annot.tsv',
+        feature_tigr_domain='data/{group}.a.mags.{genomes}.g.final.TIGRFAM-domain-annot.tsv',
+        feature_to_architecture='data/{group}.a.mags.{genomes}.g.final.Pfam-architecture-annot.tsv',
+        signal_peptide='data/{group}.a.mags.{genomes}.g.final.signalp-annot.tsv',
+        feature_tmhmm='data/{group}.a.mags.{genomes}.g.final.tmhmm-annot.tsv',
+        feature_lipop='data/{group}.a.mags.{genomes}.g.final.lipop-annot.tsv',
+        feature_library_cvrg='data/{group}.a.mags.{genomes}.g.final.feature_cvrg.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2162,7 +2172,6 @@ PRAGMA foreign_keys = TRUE;
 .import {input.signal_peptide} feature_signal_peptide
 .import {input.feature_tmhmm} feature_tmh
 .import {input.feature_lipop} feature_lipop
-.import {input.variant_cross_cvrg} variant_cross_coverage
 .import {input.feature_library_cvrg} feature_library_coverage
 ANALYZE;
              ' \
@@ -2219,6 +2228,22 @@ SELECT feature_id, cog_id FROM feature_details
 VACUUM; ANALYZE;
         ' | sqlite3 $tmp
         mv $tmp {output}
+        """
+
+rule run_db0_query:
+    output: 'data/{db}.0.query_{query}.tsv'
+    input: db='data/{db}.0.db', query='scripts/queries/0/{query}.sql'
+    shell:
+        """
+        sqlite3 -header -separator '	' {input.db} < {input.query} > {output}
+        """
+
+rule run_db1_query:
+    output: 'data/{db}.1.query_{query}.tsv'
+    input: db='data/{db}.1.denorm.db', query='scripts/queries/1/{query}.sql'
+    shell:
+        """
+        sqlite3 -header -separator '	' {input.db} < {input.query} > {output}
         """
 
 rule run_db2_query:

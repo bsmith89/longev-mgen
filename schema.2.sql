@@ -173,20 +173,20 @@ CREATE TABLE feature_lipop
 );
 
 CREATE TABLE variant_cross_coverage
-( feature_id
-, genome_id
+( feature_id REFERENCES feature(feature_id)
+, genome_id REFERENCES genome(genome_id)
 , coverage_ratio FLOAT
 , PRIMARY KEY (feature_id, genome_id)
 );
 
 CREATE TABLE library_size
-( library_id
+( library_id PRIMARY KEY REFERENCES library(library_id)
 , tally INT
 );
 
 CREATE TABLE feature_library_coverage
-( feature_id REFERENCES feature(feature_id)
-, library_id
+( library_id REFERENCES library(library_id)
+, feature_id REFERENCES feature(feature_id)
 , coverage INT
 );
 

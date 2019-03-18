@@ -1,3 +1,4 @@
 notemp: true
 timestamp: true
 printshellcmds: true
+keep-going: true

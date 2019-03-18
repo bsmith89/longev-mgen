@@ -40,3 +40,27 @@ rule align_gh_domains:
                 | convert -f stockholm -t fasta > $tmp
         {input.script} $tmp > {output}
         """
+
+rule combine_domains_of_interest:
+    output: "data/core.a.mags.muri.g.final.multiGH.afa"
+    input:
+        GH97="data/core.a.mags.muri.g.final.GH97-domain.wrefs.refine.afa",
+        GH31="data/core.a.mags.muri.g.final.GH31-domain.wrefs.refine.afa",
+        GH27="data/core.a.mags.muri.g.final.GH27-domain.wrefs.refine.afa",
+        GH36="data/core.a.mags.muri.g.final.GH36-domain.wrefs.refine.afa",
+        GH13="data/core.a.mags.muri.g.final.GH13-domain.wrefs.refine.afa",
+        GH20="data/core.a.mags.muri.g.final.GH20-domain.wrefs.refine.afa",
+    shell:
+        """
+        tmp1=$(mktemp)
+        tmp2=$(mktemp)
+        cat data/core.a.mags.muri.g.final.GH97-domain.wrefs.afa > $tmp1
+        for gh in GH31 GH27 GH36 GH13 GH20
+        do
+            muscle -profile -in1 $tmp1 -in2 data/core.a.mags.muri.g.final.$gh-domain.wrefs.afa -out $tmp2
+            mv $tmp2 $tmp1
+        done
+        mv $tmp1 {output}
+        """
+
+# awk -v gh=$gh '/^>/{{print $0 "|" gh}} !/^>/{{print $0}}' data/core.a.mags.muri.g.final.$gh-domain.wrefs.afa

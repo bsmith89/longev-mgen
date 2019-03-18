@@ -1359,6 +1359,74 @@ rule quality_asses_spike_mag:
                 {input.asmbl}
         """
 
+localrules: quality_asses_reassembly, quality_asses_spike_reassembly
+
+# {{{3 Strain Comparison
+rule compare_strains:
+    output:
+        delta="data/{group_stem}/{magA}.g.{proc}.{magB}-align.delta",
+    input:
+        magA="data/{group_stem}/{magA}.g.{proc}.fn",
+        magB="data/{group_stem}/{magB}.g.{proc}.fn",
+    wildcard_constraints:
+        magA=one_word_wc_constraint,
+        magB=one_word_wc_constraint,
+    shell:
+        """
+        nucmer --mum --delta {output.delta} {input.magA} {input.magB}
+        """
+
+# TODO
+# FROM http://mummer.sourceforge.net/manual/#coords
+# When run with the -B option, output format will consist of 21 tab-delimited
+# columns. These are as follows: [1] query sequence ID [2] date of alignment
+# [3] length of query sequence [4] alignment type [5] reference file [6]
+# reference sequence ID [7] start of alignment in the query [8] end of
+# alignment in the query [9] start of alignment in the reference [10] end of
+# alignment in the reference [11] percent identity [12] percent similarity [13]
+# length of alignment in the query [14] 0 for compatibility [15] 0 for
+# compatibility [16] NULL for compatibility [17] 0 for compatibility [18]
+# strand of the query [19] length of the reference sequence [20] 0 for
+# compatibility [21] and 0 for compatibility.
+rule process_strain_comparison_table:
+    output:
+        coords="data/{group_stem}/{magA}.g.{proc}.{magB}-align.coords",
+    input:
+        delta="data/{group_stem}/{magA}.g.{proc}.{magB}-align.delta",
+    wildcard_constraints:
+        magA=one_word_wc_constraint,
+        magB=one_word_wc_constraint,
+    shell:
+        """
+        show-coords -B {input.delta} > {output.coords}
+        """
+
+rule plot_strain_comparison:
+    output:
+        pdf="data/{group_stem}/{magA}.g.{proc}.{magB}-align.pdf",
+    input:
+        script="scripts/plot_nucmer_comparison.py",
+        coords="data/{group_stem}/{magA}.g.{proc}.{magB}-align.coords",
+        length1="data/{group_stem}/{magA}.g.{proc}.nlength.tsv",
+        length2="data/{group_stem}/{magB}.g.{proc}.nlength.tsv",
+        depth1="data/{group_stem}/{magA}.g.{proc}.cvrg.unstack.tsv",
+        depth2="data/{group_stem}/{magB}.g.{proc}.cvrg.unstack.tsv",
+        lib1="data/{group_stem}/{magA}.g.library.list",
+        lib2="data/{group_stem}/{magB}.g.library.list",
+    wildcard_constraints:
+        magA=one_word_wc_constraint,
+        magB=one_word_wc_constraint,
+    params:
+        alignment_length_thresh=150
+    shell:
+        """
+        {input.script} {input.coords} \
+                {input.length1} {input.length2} \
+                {input.depth1} {input.depth2} \
+                {input.lib1} {input.lib2} \
+                {params.alignment_length_thresh} \
+                {output}
+        """
 
 
 # {{{2 Annotation

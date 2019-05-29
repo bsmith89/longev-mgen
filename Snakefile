@@ -52,6 +52,7 @@ rule all:
         ]
     shell:
         "# {input}"
+localrules: all
 
 # {{{2 Tooling configuration
 
@@ -60,6 +61,7 @@ rule setup_git_locally:
         """
         git update-index --skip-worktree snake/local.snake
         """
+localrules: setup_git_locally
 
 # {{{3 Local includes
 include: 'snake/local.snake'
@@ -85,21 +87,24 @@ if 'MAX_THREADS' in config:
 rule print_config:
     shell:
         '{config}'
+localrules: print_config
 
 rule drop_header:
     output: '{stem}.noheader.{ext,(tsv|csv)}'
     input: '{stem}.{ext}'
     shell: 'sed 1,1d {input} > {output}'
+localrules: drop_header
 
 rule drop_header_meta:
     output: 'data/{stem}.noheader.{ext,(tsv|csv)}'
     input: 'meta/{stem}.{ext}'
     shell: 'sed 1,1d {input} > {output}'
-
+localrules: drop_header_meta
 ruleorder: drop_header_meta > drop_header
 
 rule start_jupyter:
     shell: "jupyter notebook --config=nb/jupyter_notebook_config.py --notebook-dir=nb/"
+localrules: start_jupyter
 
 rule configure_git:
     shell:
@@ -114,6 +119,7 @@ rule configure_git:
         git config --local merge.daff-csv.name "daff.py tabular merge"
         git config --local merge.daff-csv.driver "daff.py merge --output %A %O %A %B"
         """
+localrules: configure_git
 
 rule display_rulegraph:
     output: "data/snake.rulegraph.pdf"
@@ -126,6 +132,7 @@ rule display_rulegraph:
                 data/core.a.mags.muri.g.rsmbl.scaffolds.pilon.ctrim.marker_genes.gb.prot.nwk \
             | dot -Tpdf > {output}
         """
+localrules: display_rulegraph
 
 rule display_dag:
     output:
@@ -134,6 +141,7 @@ rule display_dag:
     input: "Snakefile", "snake/genome_comparison.snake"
     shell:
         "snakemake -n --forceall --dag data/core.a.mags.muri.dbCAN-hits.denovo50-clust.tsv | tee {output.dot} | dot -Tpdf > {output.pdf}"
+localrules: display_dag
 
 rule build_html_documentation:
     output: "build/{stem}.html"
@@ -147,6 +155,7 @@ rule build_html_documentation:
                --standalone --self-contained --mathjax={input.mathjax} \
                --bibliography={input.bib} -s {input.source} -o {output}
         """
+localrules: build_html_documentation
 
 rule build_docx_documentation:
     output: "build/{stem}.docx"
@@ -159,6 +168,7 @@ rule build_docx_documentation:
                --standalone --self-contained \
                --bibliography={input.bib} -s {input.source} -o {output}
         """
+localrules: build_docx_documentation
 
 
 
@@ -174,17 +184,20 @@ rule download_salask_reference:
     params:
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000356.1&rettype=fasta&retmode=text'
     shell: curl_recipe
+localrules: download_salask_reference
 
 rule alias_salask_reference:
     output: 'ref/salask.fn'
     input: 'raw/ref/salask.fn'
     shell: alias_recipe
+localrules: alias_salask_reference
 
 rule download_mouse_reference:
     output: 'raw/ref/mouse.fn'
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Mus_musculus/latest_assembly_versions/GCA_001632575.1_C3H_HeJ_v1/GCA_001632575.1_C3H_HeJ_v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_mouse_reference
 
 rule download_sra_data:
     output: 'raw/sra/{sra_id}.fn'
@@ -192,6 +205,7 @@ rule download_sra_data:
         """
         fastq-dump -Z {wildcards.sra_id} | seqtk seq -A > {output}
         """
+localrules: download_sra_data
 
 # {{{3 TIGRFAM
 
@@ -201,6 +215,7 @@ rule download_tigrfam:
         url="ftp://ftp.jcvi.org/pub/data/TIGRFAMs/14.0_Release/TIGRFAMs_14.0_HMM.tar.gz"
     shell:
         curl_recipe
+localrules: download_tigrfam
 
 rule extract_tigrfam:
     output: "ref/hmm/TIGRFAM.hmm"
@@ -215,11 +230,13 @@ rule download_pfam:
     params:
         url="ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam31.0/Pfam-A.hmm.gz"
     shell: curl_unzip_recipe
+localrules: download_pfam
 
 rule link_pfam:
     output: "ref/hmm/Pfam.hmm"
     input: "raw/ref/Pfam-31.0.hmm"
     shell: alias_recipe
+localrules: link_pfam
 
 # {{{3 Parse HMM DBs
 
@@ -241,6 +258,7 @@ rule download_illumina_adapters:
     params:
         url='https://raw.githubusercontent.com/vsbuffalo/scythe/master/illumina_adapters.fa'
     shell: curl_recipe
+localrules: download_illumina_adapters
 
 # {{{3 dbCAN
 
@@ -249,12 +267,14 @@ rule download_dBCAN_hmms:
     params:
         url="http://csbl.bmb.uga.edu/dbCAN/download/dbCAN-fam-HMMs.txt.v6"
     shell: curl_recipe
+localrules: download_dBCAN_hmms
 
 rule download_dbCAN_meta:
     output: "raw/ref/dbCAN.tsv"
     params:
         url="http://csbl.bmb.uga.edu/dbCAN/download/FamInfo.txt"
     shell: curl_recipe
+localrules: download_dbCAN_meta
 
 rule filter_dbCAN_hmms:
     output: "ref/hmm/dbCAN.hmm"
@@ -269,11 +289,13 @@ rule download_dbCAN_seqs:
     params:
         url="http://csbl.bmb.uga.edu/dbCAN/download/CAZyDB.07202017.fa"
     shell: curl_recipe
+localrules: download_dbCAN_seqs
 
 rule link_dbCAN_seqs:
     output: "ref/dbCAN.fa"
     input: "raw/ref/CAZyDB.07202017.fa"
     shell: alias_recipe
+localrules: link_dbCAN_seqs
 
 # {{{3 COG
 
@@ -282,6 +304,7 @@ rule download_cog_function_mapping:
     params:
         url="ftp://ftp.ncbi.nih.gov/pub/COG/COG2014/data/cognames2003-2014.tab"
     shell: curl_recipe
+localrules: download_cog_function_mapping
 
 rule process_cog_function_mapping:
     output: 'ref/cog_function.tsv'
@@ -294,16 +317,19 @@ rule download_cog_to_ko_mapping:
     params:
         url="http://pathways2.embl.de/data/cog_from_string7_to_ko20080319_filtered_005.txt.gz"
     shell: curl_unzip_recipe
+localrules: download_cog_to_ko_mapping
 
 rule alias_cog_to_ko_mapping:
     output: 'ref/cog_to_ko.tsv'
     input: 'raw/ref/cog_from_string7_to_ko20080319_filtered_005.txt'
     shell: alias_recipe
+localrules: alias_cog_to_ko_mapping
 
 rule alias_kegg_fasta:
     output: 'ref/kegg.fa'
     input: 'raw/ref/kegg.fa'
     shell: alias_recipe
+localrules: alias_kegg_fasta
 
 # {{{3 Enzyme Commission
 
@@ -311,6 +337,7 @@ rule download_ec_mapping:
     output: 'raw/ref/expasy_enzyme.dat'
     params: url='ftp://ftp.expasy.org/databases/enzyme/enzyme.dat'
     shell: curl_recipe
+localrules: download_ec_mapping
 
 rule transform_ec_mapping:
     output: 'ref/expasy.tsv'
@@ -332,6 +359,7 @@ rule download_metacyc_pathways_page:
         """
         wget -O {output} {params.url}
         """
+localrules: download_metacyc_pathways_page
 
 # TODO: Improve this
 rule scrape_metacyc_pathways_table:
@@ -350,6 +378,7 @@ rule download_picrust_metacyc_pathways:
     output: 'raw/ref/ec2path.picrust_prokaryotic.tsv'
     params: url='https://raw.githubusercontent.com/picrust/picrust2/master/MinPath/ec2metacyc_picrust_prokaryotic.txt'
     shell: curl_recipe
+localrules: download_picrust_metacyc_pathways
 
 rule reformat_picrust_metacyc_pathways:
     output: 'ref/ec2path.picrust.tsv'
@@ -368,11 +397,13 @@ rule alias_raw_read_r1:
     output: 'data/{library}.m.r1.fq.gz',
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r1'])
     shell: alias_recipe
+localrules: alias_raw_read_r1
 
 rule alias_raw_read_r2:
     output: 'data/{library}.m.r2.fq.gz',
     input: lambda wildcards: 'raw/mgen/{}'.format(config['library'][wildcards.library]['r2'])
     shell: alias_recipe
+localrules: alias_raw_read_r2
 
 # {{{3 Import results from 16S libraries
 
@@ -380,16 +411,19 @@ rule query_count_info:
     output: 'data/core.r.count.tsv'
     input: script='scripts/query_longev_rrs_count.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
+localrules: query_count_info
 
 rule query_taxonomy_info:
     output: 'data/core.r.taxonomy.tsv'
     input: script='scripts/query_longev_rrs_taxonomy.sql', db='raw/longev_rrs_results.db'
     shell: "sqlite3 -header -separator '\t' {input.db} < {input.script} > {output}"
+localrules: query_taxonomy_info
 
 rule alias_rrs_reps:
     output: 'ref/core.r.reps.fn'
     input: 'raw/longev_rrs_reps.fn'
     shell: alias_recipe
+localrules: alias_rrs_reps
 
 # {{{1 Metagenomic Assembly
 
@@ -469,11 +503,13 @@ rule alias_read_processing_r1:
     output: 'data/{library}.m.r1.proc.fq.gz'
     input: 'data/{library}.m.r1.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
+localrules: alias_read_processing_r1
 
 rule alias_read_processing_r2:
     output: 'data/{library}.m.r2.proc.fq.gz'
     input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
     shell: alias_recipe
+localrules: alias_read_processing_r2
 
 # {{{2 Metagenome Assembly
 
@@ -1069,6 +1105,7 @@ rule alias_seqs_for_pilon:
     output: 'data/{stem}.fasta'
     input: 'data/{stem}.fn'
     shell: alias_recipe
+localrules: alias_seqs_for_pilon
 
 rule pilon_refine:
     output: "data/{group}.a.mags/{mag}.g.{proc}.pilon.fn",
@@ -1307,6 +1344,7 @@ rule rename_mag_sequences:
                 !/^>/{{print $0}}' \
                 < {input} > {output}
         """
+localrules: rename_mag_sequences
 
 # {{{2 QC
 
@@ -2236,6 +2274,7 @@ rule run_db0_query:
         """
         sqlite3 -header -separator '	' {input.db} < {input.query} > {output}
         """
+localrules: run_db0_query
 
 rule run_db1_query:
     output: 'data/{db}.1.query_{query}.tsv'
@@ -2244,6 +2283,7 @@ rule run_db1_query:
         """
         sqlite3 -header -separator '	' {input.db} < {input.query} > {output}
         """
+localrules: run_db1_query
 
 rule run_db2_query:
     output: 'data/{db}.2.query_{query}.tsv'

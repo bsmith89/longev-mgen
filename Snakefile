@@ -764,11 +764,11 @@ rule transform_contig_space:
     input:
         cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
         seqs='data/{group}.a.contigs.fn'
-    threads: MAX_THREADS
     params:
         length_threshold=1000
     conda: 'conda/concoct.yaml'
     shadow: 'full'
+    threads: MAX_THREADS
     shell:
         r"""
         concoct --coverage_file={input.cvrg} --composition_file={input.seqs} \

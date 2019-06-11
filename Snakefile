@@ -22,8 +22,8 @@ wildcard_constraints:
 config_file = 'config.yaml'
 configfile: config_file
 # Metadata specific configurations
-_library = pd.read_table(config['_meta_library'], index_col='library_id')
-_asmbl_group = pd.read_table(config['_meta_asmbl_group'])
+_library = pd.read_csv(config['_meta_library'], index_col='library_id', sep='\t')
+_asmbl_group = pd.read_csv(config['_meta_asmbl_group'], sep='\t')
 config['library'] = {}
 for library_id, row in _library.iterrows():
     config['library'][library_id] = {}

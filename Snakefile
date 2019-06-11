@@ -767,6 +767,7 @@ rule transform_contig_space:
     threads: MAX_THREADS
     params:
         length_threshold=1000
+    conda: 'conda/concoct.yaml'
     shadow: 'full'
     shell:
         r"""
@@ -849,6 +850,7 @@ rule checkm_seqs:
         summary='data/{stem}.checkm.tsv'
     input: 'data/{stem}.d'
     threads: min(20, MAX_THREADS)
+    conda: 'conda/checkm.yaml'
     shell:
         r"""
         rm -rf {output.dir}
@@ -877,6 +879,7 @@ rule checkm_refinements:
         , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
         ]
     threads: 6
+    conda: 'conda/checkm.yaml'
     shell:
         r"""
         tmpdir=$(mktemp -d)
@@ -901,6 +904,7 @@ rule reformat_checkm_output:
 rule generate_checkm_markerset:
     output:
         'data/{level}_{taxon}.ms'
+    conda: 'conda/checkm.yaml'
     shell:
         'checkm taxon_set {wildcards.level} {wildcards.taxon} {output}'
 
@@ -918,6 +922,7 @@ rule checkm_content_merge:
         markerset='data/domain_Bacteria.ms',
     threads: MAX_THREADS
     shadow: 'full'
+    conda: 'conda/checkm.yaml'
     shell:
         """
         rm -rf {output.checkm_work}

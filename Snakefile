@@ -848,7 +848,7 @@ rule checkm_seqs:
     output:
         dir=temp('data/{stem}.checkm.d'),
         summary='data/{stem}.checkm.tsv'
-    input: 'data/{stem}.d'
+    input: 'data/{stem}.for_checkm.d'
     threads: min(20, MAX_THREADS)
     conda: 'conda/checkm.yaml'
     shell:

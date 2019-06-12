@@ -945,6 +945,7 @@ rule select_curated_mags:
     output:
         contigs='data/{group}.a.mags/{mag}.g.contigs.list',
         libraries='data/{group}.a.mags/{mag}.g.library.list',
+        trusted='data/{group}.a.mags/{mag}.g.trusted_depth.tsv'
     input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
     shell:
         """

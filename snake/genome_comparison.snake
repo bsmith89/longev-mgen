@@ -137,6 +137,7 @@ rule alias_sra_genomes:
     wildcard_constraints:
         mag_id='[^.]+'
     shell: "ln -rs {input} {output}"
+localrules: alias_sra_genomes
 
 # {{{2 Muribaculum intestinale YL27
 rule download_m_intestinale_genome:
@@ -144,11 +145,13 @@ rule download_m_intestinale_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_m_intestinale_genome
 
 rule alias_m_intestinale_genome:
     output: 'data/ref.mags/Muribaculum_intestinale_yl27.g.fn'
     input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
     shell: alias_recipe
+localrules: alias_m_intestinale_genome
 
 ruleorder: alias_m_intestinale_genome > alias_sra_genomes
 
@@ -158,11 +161,13 @@ rule download_dsm_100739_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/845/GCA_003024845.1_ASM302484v1/GCA_003024845.1_ASM302484v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_dsm_100739_genome
 
 rule alias_dsm_100739_genome:
     output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100739.g.fn'
     input: 'raw/ref/Muribaculaceae_bacterium_DSM_100739.fn'
     shell: alias_recipe
+localrules: alias_dsm_100739_genome
 
 ruleorder: alias_dsm_100739_genome > alias_sra_genomes
 
@@ -172,11 +177,13 @@ rule download_dsm_100746_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/855/GCA_003024855.1_ASM302485v1/GCA_003024855.1_ASM302485v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_dsm_100746_genome
 
 rule alias_dsm_100746_genome:
     output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100746.g.fn'
     input: 'raw/ref/Muribaculaceae_bacterium_DSM_100746.fn'
     shell: alias_recipe
+localrules: alias_dsm_100746_genome
 
 ruleorder: alias_dsm_100746_genome > alias_sra_genomes
 
@@ -186,11 +193,13 @@ rule download_dsm_100749_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/925/GCA_003024925.1_ASM302492v1/GCA_003024925.1_ASM302492v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_dsm_100749_genome
 
 rule alias_dsm_100749_genome:
     output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100749.g.fn'
     input: 'raw/ref/Muribaculaceae_bacterium_DSM_100749.fn'
     shell: alias_recipe
+localrules: alias_dsm_100749_genome
 
 ruleorder: alias_dsm_100749_genome > alias_sra_genomes
 
@@ -200,11 +209,13 @@ rule download_dsm_100720_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/805/GCA_003024805.1_ASM302480v1/GCA_003024805.1_ASM302480v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_dsm_100720_genome
 
 rule alias_dsm_100720_genome:
     output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100720.g.fn'
     input: 'raw/ref/Muribaculaceae_bacterium_DSM_100720.fn'
     shell: alias_recipe
+localrules: alias_dsm_100720_genome
 
 ruleorder: alias_dsm_100720_genome > alias_sra_genomes
 
@@ -214,11 +225,13 @@ rule download_dsm_100764_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/815/GCA_003024815.1_ASM302481v1/GCA_003024815.1_ASM302481v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_dsm_100764_genome
 
 rule alias_dsm_100764_genome:
     output: 'data/ref.mags/Muribaculaceae_bacterium_DSM_100764.g.fn'
     input: 'raw/ref/Muribaculaceae_bacterium_DSM_100764.fn'
     shell: alias_recipe
+localrules: alias_dsm_100764_genome
 
 ruleorder: alias_dsm_100764_genome > alias_sra_genomes
 
@@ -228,11 +241,13 @@ rule download_zag10_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/633/305/GCA_002633305.1_ASM263330v1/GCA_002633305.1_ASM263330v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_zag10_genome
 
 rule alias_zag10_genome:
     output: 'data/ref.mags/Zag10.g.fn'
     input: 'raw/ref/Zag10.fn'
     shell: alias_recipe
+localrules: alias_zag10_genome
 
 ruleorder: alias_zag10_genome > alias_sra_genomes
 
@@ -242,11 +257,13 @@ rule download_zag1_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/633/115/GCA_002633115.1_ASM263311v1/GCA_002633115.1_ASM263311v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_zag1_genome
 
 rule alias_zag1_genome:
     output: 'data/ref.mags/Zag1.g.fn'
     input: 'raw/ref/Zag1.fn'
     shell: alias_recipe
+localrules: alias_zag1_genome
 
 ruleorder: alias_zag1_genome > alias_sra_genomes
 
@@ -256,11 +273,13 @@ rule download_an287_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/159/585/GCA_002159585.1_ASM215958v1/GCA_002159585.1_ASM215958v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_an287_genome
 
 rule alias_an287_genome:
     output: 'data/ref.mags/An287.g.fn'
     input: 'raw/ref/An287.fn'
     shell: alias_recipe
+localrules: alias_an287_genome
 
 ruleorder: alias_an287_genome > alias_sra_genomes
 
@@ -270,11 +289,13 @@ rule download_an289_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/159/555/GCA_002159555.1_ASM215955v1/GCA_002159555.1_ASM215955v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_an289_genome
 
 rule alias_an289_genome:
     output: 'data/ref.mags/An289.g.fn'
     input: 'raw/ref/An289.fn'
     shell: alias_recipe
+localrules: alias_an289_genome
 
 ruleorder: alias_an289_genome > alias_sra_genomes
 
@@ -284,11 +305,13 @@ rule download_btheta_genome:
     params:
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=AE015928.1&rettype=fasta&retmode=text'
     shell: curl_recipe
+localrules: download_btheta_genome
 
 rule alias_btheta_genome:
     output: 'data/ref.mags/Bacteroides_thetaiotaomicron_VPI5482.g.fn'
     input: 'raw/ref/Bacteroides_thetaiotaomicron_VPI5482.fn'
     shell: "ln -rs {input} {output}"
+localrules: alias_btheta_genome
 
 ruleorder: alias_btheta_genome > alias_sra_genomes
 
@@ -298,11 +321,13 @@ rule download_bovatus_genome:
     params:
         url='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP012938.1&rettype=fasta&retmode=text'
     shell: curl_recipe
+localrules: download_bovatus_genome
 
 rule alias_bovatus_genome:
     output: 'data/ref.mags/Bacteroides_ovatus_ATCC_8483.g.fn'
     input: 'raw/ref/Bacteroides_ovatus_ATCC_8483.fn'
     shell: "ln -rs {input} {output}"
+localrules: alias_bovatus_genome
 
 ruleorder: alias_bovatus_genome > alias_sra_genomes
 
@@ -312,11 +337,13 @@ rule download_bvisc_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/512/915/GCA_000512915.1_ASM51291v1/GCA_000512915.1_ASM51291v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_bvisc_genome
 
 rule alias_bvisc_genome:
     output: 'data/ref.mags/Barnesiella_viscericola_DSM_18177.g.fn'
     input: 'raw/ref/Barnesiella_viscericola_DSM_18177.fn'
     shell: alias_recipe
+localrules: alias_bvisc_genome
 
 ruleorder: alias_bvisc_genome > alias_sra_genomes
 
@@ -326,11 +353,13 @@ rule download_pging_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/010/505/GCA_000010505.1_ASM1050v1/GCA_000010505.1_ASM1050v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_pging_genome
 
 rule alias_pging_genome:
     output: 'data/ref.mags/Porphyromonas_gingivalis_ATCC_33277.g.fn'
     input: 'raw/ref/Porphyromonas_gingivalis_ATCC_33277.fn'
     shell: alias_recipe
+localrules: alias_pging_genome
 
 ruleorder: alias_pging_genome > alias_sra_genomes
 
@@ -340,11 +369,13 @@ rule download_ljohn_genome:
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/Lactobacillus_johnsonii/latest_assembly_versions/GCA_000008065.1_ASM806v1/GCA_000008065.1_ASM806v1_genomic.fna.gz'
     shell: curl_unzip_recipe
+localrules: download_ljohn_genome
 
 rule alias_ljohn_genome:
     output: 'data/ref.mags/Lactobacillus_johnsonii_NCC_533.g.fn'
     input: 'raw/ref/Lactobacillus_johnsonii_NCC_533.fn'
     shell: alias_recipe
+localrules: alias_ljohn_genome
 
 ruleorder: alias_ljohn_genome > alias_sra_genomes
 

@@ -14,4 +14,4 @@ keep-going: true
 resources: 'net_requests_per_second=3'
 use-conda: true
 use-singularity: true
-config: 'MAX_THREADS=40'
+config: 'MAX_THREADS=24'

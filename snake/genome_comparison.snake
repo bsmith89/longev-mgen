@@ -662,7 +662,7 @@ rule pick_phylogenetic_marker_genes:
                                      for g in config['genome_group'][wildcards.genomes]['mags']],
         refs_seqs=lambda wildcards: [f'data/ref.mags.annot/{g}.g.cds.fa'
                                      for g in config['genome_group'][wildcards.genomes]['refs']],
-        tigrfam="ref/TIGRFAM.tsv",
+        tigrfam="ref/TIGRFAM.hmm.tsv",
     params:
         mags=lambda wildcards: [(f'{g}:data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.TIGRFAM-hits.hmmer-tc.tsv'
                                  f':data/{wildcards.group}.a.mags.annot/{g}.g.{wildcards.proc}.cds.fa')

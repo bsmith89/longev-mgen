@@ -888,6 +888,22 @@ rule checkm_seqs:
                 {input} {output.dir}
         """
 
+rule checkm_simple_bins:
+    output:
+        dir=directory('data/{stem}.a.bins.checkm.d'),
+        summary='data/{stem}.a.bins.checkm.tsv'
+    input: 'data/{stem}.a.bins.d'
+    threads: min(20, MAX_THREADS)
+    conda: 'conda/checkm.yaml'
+    shell:
+        r"""
+        rm -rf {output.dir}
+        checkm lineage_wf -x fn \
+                --threads {threads} --pplacer_threads {threads} \
+                --file {output.summary} --tab_table \
+                {input} {output.dir}
+        """
+
 rule checkm_refinements:
     output:
         dir=directory('data/{group}.a.mags/{mag}.g.rfn_check.checkm.d'),

@@ -1696,11 +1696,32 @@ rule search_hmm:
                   {input.hmm} {input.faa} > /dev/null
         """
 
+rule search_hmm_no_threshold:
+    output:
+        tbl="data/{stem}.{hmm}-hits.hmmer-nothresh.tblout",
+        domtbl="data/{stem}.{hmm}-hits.hmmer-nothresh.domtblout"
+    input:
+        faa = "data/{stem}.cds.fa",
+        hmm = "ref/hmm/{hmm}.hmm",
+        h3f = "ref/hmm/{hmm}.hmm.h3f",
+        h3i = "ref/hmm/{hmm}.hmm.h3i",
+        h3m = "ref/hmm/{hmm}.hmm.h3m",
+        h3p = "ref/hmm/{hmm}.hmm.h3p"
+    threads: min(2, MAX_THREADS)
+    shell:
+        r"""
+        printf "orf_id\tmodel_id\tscore" > {output.tbl}
+        hmmsearch --cpu {threads} \
+                  --tblout {output.tbl} \
+                  --domtblout {output.domtbl} \
+                  {input.hmm} {input.faa} > /dev/null
+        """
+
 rule parse_hmmsearch_tblout:
     output: "data/{stem}.hmmer-{cutoff}.tsv"
     input:  "data/{stem}.hmmer-{cutoff}.tblout"
     wildcard_constraints:
-        cutoff='ga|nc|tc'
+        cutoff='ga|nc|tc|nothresh'
     shell:
         r"""
         grep -v '^#' {input} | sed 's:\s\+:\t:g' | cut -f1,3,6 >> {output}
@@ -1710,7 +1731,7 @@ rule parse_hmmsearch_domtblout:
     output: "data/{stem}.{hmm}-domain.tsv"
     input:
         script="scripts/parse_domtbl_to_domains.py",
-        domtbl="data/{stem}.{hmm}-hits.hmmer-nc.domtblout",
+        domtbl="data/{stem}.{hmm}-hits.hmmer-nothresh.domtblout",
     shell:
         """
         {input.script} {input.domtbl} > {output}

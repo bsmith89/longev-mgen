@@ -974,23 +974,29 @@ rule select_curated_mags:
         contigs='data/{group}.a.mags/{mag}.g.contigs.list',
         libraries='data/{group}.a.mags/{mag}.g.library.list',
         trusted='data/{group}.a.mags/{mag}.g.trusted_depth.tsv'
-    input: 'data/{group}.a.bins.checkm_merge_stats.tsv'
+    input:
+        contig='data/{group}.a.contigs.nlength.tsv',
+        contig_bin='data/{group}.a.contigs.bins.tsv',
+        contig_coverage='data/{group}.a.contigs.cvrg.tsv',
+        bin_checkm='data/{group}.a.bins.checkm_details.tsv',
+        checkm_merge='data/{group}.a.bins.checkm_merge_stats.tsv',
     shell:
         """
         cat <<EOF
-        Select the contigs that belong to {wildcards.mag} and the libraries
-        from which to collect reads for refinement.
+        Select the contigs that belong to {wildcards.mag} ({output.contigs})
+        and the libraries from which to collect reads for refinement
+        ({output.libraries}), and provide an estimate of the expected depth of
+        single-copy genes ({trusted}).
 
-        This can be accomplished by merely touching
-        `{output.contigs}`
-        and `{output.libraries}`
+        If these already exist and are up-to-date, this can be accomplished by
+        `touch {output}`
         if they already exist and you are confident that they reflects the
         current state of `data/{group}.a.bins.*` .
 
-        However, since `{input}`
-        is newer, this may not be the case, or you may
-        want to refine your curation.  Instead you should manually identify all
-        of contigs that belong to this MAG  and save their names to this list.
+        However, since one of {input} is newer, this may not be the case, or
+        you may want to refine your curation.  Instead you should manually
+        identify all of contigs that belong to this MAG and save their names to
+        this list.
 
 EOF
         false

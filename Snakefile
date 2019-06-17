@@ -270,6 +270,22 @@ rule download_illumina_adapters:
     shell: curl_recipe
 localrules: download_illumina_adapters
 
+# {{{3 CheckM DB
+
+rule download_checkm_reference:
+    output: 'raw/ref/checkm_data_2015_01_16.tar.gz'
+    params:
+        url='https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz'
+    shell: curl_recipe
+
+rule extract_checkm_reference:
+    output: "raw/ref/checkm_db"
+    input: 'raw/ref/checkm_data_2015_01_16.tar.gz'
+    shell:
+        """
+        tar -C {output} -xzf {input}
+        """
+
 # {{{3 dbCAN
 
 rule download_dBCAN_hmms:

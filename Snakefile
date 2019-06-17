@@ -16,6 +16,16 @@ wildcard_constraints:
     bin = one_word_wc_constraint,
     genomes = one_word_wc_constraint
 
+limit_numpy_procs = \
+        """
+        export MKL_NUM_THREADS={threads}
+        export OPENBLAS_NUM_THREADS={threads}
+        export NUMEXPR_NUM_THREADS={threads}
+        export OMP_NUM_THREADS={threads}
+        export VECLIB_MAXIMUM_THREADS={threads}
+
+        """
+
 # {{{2 Project configuration
 
 # Configure the pipeline
@@ -768,13 +778,13 @@ rule transform_contig_space:
         length_threshold=1000
     conda: 'conda/concoct.yaml'
     shadow: 'full'
-    threads: MAX_THREADS
+    threads: 16
     shell:
-        r"""
+        limit_numpy_procs + r"""
         concoct --coverage_file={input.cvrg} --composition_file={input.seqs} \
                 --length_threshold={params.length_threshold} \
                 --basename={output.dir}/ \
-                --cluster=10 --iterations=1 --num-threads={threads} --epsilon=1 --converge_out
+                --cluster=10 --iterations=1 --epsilon=1 --converge_out
         sed 's:,:\t:g' {output.dir}/original_data_gt{params.length_threshold}.csv | sed '1,1s:^:contig_id:' > {output.raw}
         sed 's:,:\t:g' {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv > {output.pca}
         """
@@ -798,8 +808,9 @@ rule cluster_contigs:
         alpha=1,
         max_clusters=2000,
         seed=1,
+    threads: 20
     shell:
-        r"""
+        limit_numpy_procs + r"""
         {input.script} {input.pca} {input.length} \
                 --min-length {params.min_contig_length} \
                 --frac {params.frac} \

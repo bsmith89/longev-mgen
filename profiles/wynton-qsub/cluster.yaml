@@ -17,3 +17,9 @@ cluster_contigs:
   walltime: 72:00:00
 split_out_bins:
   walltime: 10:00:00
+checkm_content_merge:
+  walltime: 07:00:00
+checkm_simple_bins:
+  walltime: 10:00:00
+generate_database_1:
+  walltime: 01:00:00

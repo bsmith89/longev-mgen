@@ -42,6 +42,9 @@ Muribaculaceae_bacterium_DSM_100764	0	public	Muribaculaceae
 Muribaculum_intestinale_yl27	0	reference	Muribaculaceae		
 B1A	1	here	Muribaculaceae		Otu0001_vC refined manually from OTU-1 at UM
 B1B	1	here	Muribaculaceae		Otu0001_vB refined manually from OTU-1 variant specific to UT
+B1C	1	here	Muribaculaceae		Otu0001_vA refined manually from OTU-1 variant found at UM and UT
+B1D	1	here	Muribaculaceae		Otu0001_vD refined manually a second time from OTU-1 variant specific to UT, without considering UM
+B1E	1	here	Muribaculaceae		Otu0001_vE refined manually from OTU-1 variant at UT, without considering UM but probably related to the UM variant
 B3	1	here	Muribaculaceae		Otu0009_vA
 B4	1	here	Muribaculaceae		Otu0005_vA
 B2	1	here	Muribaculaceae		Otu0007_vA when considering all ITP/Glenn mice, but OTU-4 in Smith2019.

@@ -73,6 +73,9 @@ config['genome_group'] = \
         { 'muri':
              { 'mags': [ 'B1A'
                        , 'B1B'
+                       , 'B1C'
+                       , 'B1D'
+                       , 'B1E'
                        , 'B3'
                        , 'B4'
                        , 'B2'

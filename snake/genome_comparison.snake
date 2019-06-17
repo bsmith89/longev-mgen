@@ -383,7 +383,7 @@ ruleorder: alias_ljohn_genome > alias_sra_genomes
 
 rule full_genomes_group_quast_result:
     output:
-        dir="data/{group}.a.mags.{genomes}.g.{proc}.quast.d",
+        dir=directory("data/{group}.a.mags.{genomes}.g.{proc}.quast.d"),
         report="data/{group}.a.mags.{genomes}.g.{proc}.quast.tsv",
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag_stem}.g.{wildcards.proc}.fn'
@@ -401,7 +401,7 @@ rule full_genomes_group_quast_result:
 
 # This is then used by the CheckM recipe to get a summary of completeness/contamination
 rule make_genome_group_dir:
-    output: 'data/{group}.a.mags.{genomes}.g.{proc}.for_checkm.d'
+    output: directory('data/{group}.a.mags.{genomes}.g.{proc}.for_checkm.d')
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
                                 for mag in config['genome_group'][wildcards.genomes]['mags']],
@@ -648,7 +648,7 @@ rule combine_minpath_results:
 
 rule pick_phylogenetic_marker_genes:
     output:
-        dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d",
+        dir=directory("data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d"),
         # .../markers.list  # List of shared single-copy markers
         # .../GENE_NAME.fa  # Amino-acid sequences to be aligned for each gene
         # .../genome_to_cds.tsv  # Mapping from sequences to genomes
@@ -683,7 +683,7 @@ rule pick_phylogenetic_marker_genes:
 
 rule align_phylogenetic_marker_genes:
     output:
-        dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.align.d",
+        dir=directory("data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.align.d"),
     input:
         squeeze_script="scripts/squeeze_alignment.py",
         dir="data/{group}.a.mags.{genomes}.g.{proc}.marker_genes.d",

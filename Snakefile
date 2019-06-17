@@ -578,7 +578,7 @@ rule assemble_mgen:
 # {{{3 QC
 
 rule quality_asses_assembly_with_spike:
-    output: 'data/{group}.a.quast.d'
+    output: directory('data/{group}.a.quast.d')
     input: contigs='data/{group}.a.contigs.fn', ref='ref/salask.fn'
     threads: MAX_THREADS
     params: min_contig_length=1000,
@@ -786,7 +786,7 @@ rule transform_contig_space:
     output:
         pca='data/{group}.a.contigs.concoct.pca.tsv',
         raw='data/{group}.a.contigs.concoct.tsv',
-        dir=temp('data/{group}.a.contigs.concoct.d')
+        dir=directory('data/{group}.a.contigs.concoct.d')
     input:
         cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
         seqs='data/{group}.a.contigs.fn'
@@ -853,7 +853,7 @@ rule rename_clusters_to_bins:
         """
 
 rule split_out_bins:
-    output: 'data/{group}.a.bins.d'
+    output: directory('data/{group}.a.bins.d')
     input:
         script='scripts/fetch_bin.sh',
         bins='data/{group}.a.contigs.bins.tsv',
@@ -874,7 +874,7 @@ rule split_out_bins:
 
 rule checkm_seqs:
     output:
-        dir=temp('data/{stem}.checkm.d'),
+        dir=directory('data/{stem}.checkm.d'),
         summary='data/{stem}.checkm.tsv'
     input: 'data/{stem}.for_checkm.d'
     threads: min(20, MAX_THREADS)
@@ -890,7 +890,7 @@ rule checkm_seqs:
 
 rule checkm_refinements:
     output:
-        dir=temp('data/{group}.a.mags/{mag}.g.rfn_check.checkm.d'),
+        dir=directory('data/{group}.a.mags/{mag}.g.rfn_check.checkm.d'),
         summary='data/{group}.a.mags/{mag}.g.rfn_check.checkm.tsv'
     input:
         [ 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
@@ -943,7 +943,7 @@ rule generate_checkm_markerset:
 # increased contamination.)
 rule checkm_content_merge:
     output:
-        checkm_work=temp('data/{group}.a.bins.checkm_merge.d'),
+        checkm_work=directory('data/{group}.a.bins.checkm_merge.d'),
         merge_stats='data/{group}.a.bins.checkm_merge_stats.tsv',
     input:
         bins='data/{group}.a.bins.d',
@@ -1127,7 +1127,7 @@ rule reassemble_mag:
     output:
         scaffolds='data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn',
         contigs='data/{group}.a.mags/{mag}.g.rsmbl.contigs.fn',
-        dir='data/{group}.a.mags/{mag}.g.spades.d',
+        dir=directory('data/{group}.a.mags/{mag}.g.spades.d'),
     input:
         r1='data/{group}.a.mags/{mag}.g.contigs.map.r1.dnorm.fq.gz',
         r2='data/{group}.a.mags/{mag}.g.contigs.map.r2.dnorm.fq.gz'
@@ -1391,7 +1391,7 @@ localrules: rename_mag_sequences
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_mag:
-    output: 'data/{group}.a.mags/{mag}.g.quast.d'
+    output: directory('data/{group}.a.mags/{mag}.g.quast.d')
     input:
         asmbl=[
                'data/{group}.a.mags/{mag}.g.contigs.fn',
@@ -1419,7 +1419,7 @@ rule quality_asses_mag:
 # TODO: Custom (non-16S) blast db for reference finding
 # see http://quast.bioinf.spbau.ru/manual.html#faq_q12
 rule quality_asses_spike_mag:
-    output: 'data/{group}.a.mags/{mag}.g.quast-spike.d'
+    output: directory('data/{group}.a.mags/{mag}.g.quast-spike.d')
     input:
         ref='ref/salask.fn',
         asmbl=[
@@ -1456,7 +1456,7 @@ rule annotate_mag:
         tbl="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.tbl",
         tsv="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.tsv",
         gff="data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.gff",
-        dir=temp("data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.d"),
+        dir=directory("data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.d"),
     input: "data/{stem}.mags/{mag}.g.{proc}.fn"
     threads: min(10, MAX_THREADS)
     shell:
@@ -1482,7 +1482,7 @@ rule annotate_reference_mag:
         tbl="data/ref.mags.annot/{mag}.g.prokka-annot.tbl",
         tsv="data/ref.mags.annot/{mag}.g.prokka-annot.tsv",
         gff="data/ref.mags.annot/{mag}.g.prokka-annot.gff",
-        dir=temp("data/ref.mags.annot/{mag}.g.prokka-annot.d"),
+        dir=directory("data/ref.mags.annot/{mag}.g.prokka-annot.d"),
     input: "data/ref.mags/{mag}.g.fn"
     threads: min(10, MAX_THREADS)
     shell:

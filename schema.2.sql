@@ -6,6 +6,7 @@ CREATE TABLE genome
 , genome_type
 , taxon_family
 , ormerod_guild
+, comment
 );
 
 CREATE TABLE checkm

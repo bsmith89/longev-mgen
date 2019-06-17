@@ -1,53 +1,53 @@
-genome_id	is_mag	genome_type	taxon_family	ormerod_guild
-An287	0	public	unknown	
-An289	0	public	unknown	
-Bacteroides_ovatus_ATCC_8483	0	reference	Bacteroidaceae	
-Bacteroides_thetaiotaomicron_VPI5482	0	reference	Bacteroidaceae	
-Barnesiella_viscericola_DSM_18177	0	reference	Barnesiellaceae	
-GP1	1	ormerod	Muribaculaceae	plant
-GP2	1	ormerod	Muribaculaceae	host
-GP3	1	ormerod	Muribaculaceae	plant
-GP4	1	ormerod	Muribaculaceae	plant
-H1	1	ormerod	Muribaculaceae	starch
-H10	1	ormerod	Muribaculaceae	starch
-H2	1	ormerod	Muribaculaceae	starch
-H3	1	ormerod	Muribaculaceae	starch
-H4	1	ormerod	Muribaculaceae	starch
-H5	1	ormerod	Muribaculaceae	plant
-H6	1	ormerod	Muribaculaceae	host
-H7	1	ormerod	Muribaculaceae	plant
-H8	1	ormerod	Muribaculaceae	starch
-H9	1	ormerod	Muribaculaceae	starch
-Homeothermus_arabinoxylanisolvens	1	ormerod	Muribaculaceae	plant
-K1	1	ormerod	Muribaculaceae	plant
-K10	1	ormerod	Muribaculaceae	starch
-M1	1	ormerod	Muribaculaceae	plant
-M10	1	ormerod	Muribaculaceae	starch
-M11	1	ormerod	Muribaculaceae	starch
-M12	1	ormerod	Muribaculaceae	plant
-M13	1	ormerod	Muribaculaceae	plant
-M14	1	ormerod	Muribaculaceae	host
-M2	1	ormerod	Muribaculaceae	plant
-M3	1	ormerod	Muribaculaceae	starch
-M5	1	ormerod	Muribaculaceae	host
-M6	1	ormerod	Muribaculaceae	starch
-M7	1	ormerod	Muribaculaceae	starch
-M8	1	ormerod	Muribaculaceae	plant
-M9	1	ormerod	Muribaculaceae	host
-Muribaculaceae_bacterium_DSM_100720	0	public	Muribaculaceae	
-Muribaculaceae_bacterium_DSM_100739	0	public	Muribaculaceae	
-Muribaculaceae_bacterium_DSM_100746	0	public	Muribaculaceae	
-Muribaculaceae_bacterium_DSM_100749	0	public	Muribaculaceae	
-Muribaculaceae_bacterium_DSM_100764	0	public	Muribaculaceae	
-Muribaculum_intestinale_yl27	0	reference	Muribaculaceae	
-B1A	1	here	Muribaculaceae	
-B1B	1	here	Muribaculaceae	
-B3	1	here	Muribaculaceae	
-B4	1	here	Muribaculaceae	
-B2	1	here	Muribaculaceae	
-B5	1	here	Muribaculaceae	
-B6	1	here	Muribaculaceae	
-B7	1	here	Muribaculaceae	
-Porphyromonas_gingivalis_ATCC_33277	0	reference	Porphyromonadaceae	
-Zag1	1	public	Muribaculaceae	
-Zag10	1	public	Muribaculaceae	
+genome_id	is_mag	genome_type	taxon_family	ormerod_guild	comment
+An287	0	public	unknown		
+An289	0	public	unknown		
+Bacteroides_ovatus_ATCC_8483	0	reference	Bacteroidaceae		
+Bacteroides_thetaiotaomicron_VPI5482	0	reference	Bacteroidaceae		
+Barnesiella_viscericola_DSM_18177	0	reference	Barnesiellaceae		
+GP1	1	ormerod	Muribaculaceae	plant	
+GP2	1	ormerod	Muribaculaceae	host	
+GP3	1	ormerod	Muribaculaceae	plant	
+GP4	1	ormerod	Muribaculaceae	plant	
+H1	1	ormerod	Muribaculaceae	starch	
+H10	1	ormerod	Muribaculaceae	starch	
+H2	1	ormerod	Muribaculaceae	starch	
+H3	1	ormerod	Muribaculaceae	starch	
+H4	1	ormerod	Muribaculaceae	starch	
+H5	1	ormerod	Muribaculaceae	plant	
+H6	1	ormerod	Muribaculaceae	host	
+H7	1	ormerod	Muribaculaceae	plant	
+H8	1	ormerod	Muribaculaceae	starch	
+H9	1	ormerod	Muribaculaceae	starch	
+Homeothermus_arabinoxylanisolvens	1	ormerod	Muribaculaceae	plant	
+K1	1	ormerod	Muribaculaceae	plant	
+K10	1	ormerod	Muribaculaceae	starch	
+M1	1	ormerod	Muribaculaceae	plant	
+M10	1	ormerod	Muribaculaceae	starch	
+M11	1	ormerod	Muribaculaceae	starch	
+M12	1	ormerod	Muribaculaceae	plant	
+M13	1	ormerod	Muribaculaceae	plant	
+M14	1	ormerod	Muribaculaceae	host	
+M2	1	ormerod	Muribaculaceae	plant	
+M3	1	ormerod	Muribaculaceae	starch	
+M5	1	ormerod	Muribaculaceae	host	
+M6	1	ormerod	Muribaculaceae	starch	
+M7	1	ormerod	Muribaculaceae	starch	
+M8	1	ormerod	Muribaculaceae	plant	
+M9	1	ormerod	Muribaculaceae	host	
+Muribaculaceae_bacterium_DSM_100720	0	public	Muribaculaceae		
+Muribaculaceae_bacterium_DSM_100739	0	public	Muribaculaceae		
+Muribaculaceae_bacterium_DSM_100746	0	public	Muribaculaceae		
+Muribaculaceae_bacterium_DSM_100749	0	public	Muribaculaceae		
+Muribaculaceae_bacterium_DSM_100764	0	public	Muribaculaceae		
+Muribaculum_intestinale_yl27	0	reference	Muribaculaceae		
+B1A	1	here	Muribaculaceae		Otu0001_vC refined manually from OTU-1 at UM
+B1B	1	here	Muribaculaceae		Otu0001_vB refined manually from OTU-1 variant specific to UT
+B3	1	here	Muribaculaceae		Otu0009_vA
+B4	1	here	Muribaculaceae		Otu0005_vA
+B2	1	here	Muribaculaceae		Otu0007_vA when considering all ITP/Glenn mice, but OTU-4 in Smith2019.
+B5	1	here	Muribaculaceae		Otu0004_vA
+B6	1	here	Muribaculaceae		Otu0049_vA
+B7	1	here	Muribaculaceae		Otu0017_vA
+Porphyromonas_gingivalis_ATCC_33277	0	reference	Porphyromonadaceae		
+Zag1	1	public	Muribaculaceae		
+Zag10	1	public	Muribaculaceae		

@@ -861,10 +861,11 @@ rule split_out_bins:
     threads: MAX_THREADS
     shell:
         r"""
+        njobs=`expr {threads} \* 4`
         rm -rf {output}
         mkdir {output}
         bins=$(sed '1,1d' {input.bins} | cut -f 2 | sort | uniq)
-        parallel --progress --jobs {threads} {input.script} {input.contigs} {input.bins} {{1}} {output}/{{1}}.fn ::: $bins
+        parallel --progress --jobs $njobs {input.script} {input.contigs} {input.bins} {{1}} {output}/{{1}}.fn ::: $bins
         """
 
 # TODO: refine bins (scaffolds, contig extension, splitting/merging

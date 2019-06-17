@@ -2194,10 +2194,11 @@ rule denormalize_database_1:
         db='data/{stem}.1.db',
     shell:
         """
-        tmp=$(mktemp)
+        tmp=$(mktemp --dry-run)
+        echo $tmp
         cp {input.db} $tmp
+        ls -l $tmp
         echo '
-.bail on
 PRAGMA cache_size = 1000000;
 
 CREATE TABLE __bin_coverage AS SELECT * FROM bin_coverage;
@@ -2218,7 +2219,7 @@ DROP VIEW library_total_nucleotides_mapping;
 ALTER TABLE __library_total_nucleotides_mapping RENAME TO library_total_nucleotides_mapping;
 
 VACUUM; ANALYZE;
-        ' | sqlite3 $tmp
+        ' | sqlite3 -bail -echo $tmp
         mv $tmp {output}
         """
 

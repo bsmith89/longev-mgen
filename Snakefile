@@ -964,8 +964,7 @@ rule checkm_content_merge:
     input:
         bins='data/{group}.a.bins.d',
         markerset='data/domain_Bacteria.ms',
-    threads: MAX_THREADS
-    shadow: 'full'
+    threads: min(20, MAX_THREADS)
     conda: 'conda/checkm.yaml'
     shell:
         """

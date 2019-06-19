@@ -120,7 +120,7 @@ config['genome_group'] = \
                        # , 'Muribaculaceae_bacterium_DSM_100749'  # identical-ish to Muribaculaceae_bacterium_DSM_100764
                        , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
                        , 'Muribaculaceae_bacterium_DSM_100764'  # mostly identical to OTU-49
-                       , 'Duncaniella_muris_DSM_103720'
+                       # , 'Duncaniella_muris_DSM_103720'  # TODO
                        , 'Zag10'
                        , 'Zag1'
                        # , 'An287'  # Apparently not Muris

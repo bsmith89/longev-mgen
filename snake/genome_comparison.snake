@@ -82,6 +82,7 @@ config['genome_group'] = \
                        , 'B5'
                        , 'B6'
                        , 'B7'
+                       , 'B8'
                        ]
              , 'refs': [ 'GP1'
                        , 'GP2'

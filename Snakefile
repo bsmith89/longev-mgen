@@ -580,7 +580,7 @@ rule assemble_mgen:
 rule quality_asses_assembly_with_spike:
     output: directory('data/{group}.a.quast.d')
     input: contigs='data/{group}.a.contigs.fn', ref='ref/salask.fn'
-    threads: MAX_THREADS
+    threads: min(20, MAX_THREADS)
     params: min_contig_length=1000,
     shell:
         """
@@ -1040,6 +1040,7 @@ rule map_reads_to_mag:
         inx_rev2='data/{group}.a.mags/{mag}.g.{proc}.rev.2.bt2',
     params:
         inx_name="data/{group}.a.mags/{mag}.g.{proc}"
+    threads: 2
     shell:
         """
         tmp1=$(mktemp)
@@ -1700,7 +1701,7 @@ rule search_hmm:
         h3i = "ref/hmm/{hmm}.hmm.h3i",
         h3m = "ref/hmm/{hmm}.hmm.h3m",
         h3p = "ref/hmm/{hmm}.hmm.h3p"
-    threads: min(2, MAX_THREADS)
+    threads: 2
     shell:
         r"""
         printf "orf_id\tmodel_id\tscore" > {output.tbl}
@@ -1722,7 +1723,7 @@ rule search_hmm_no_threshold:
         h3i = "ref/hmm/{hmm}.hmm.h3i",
         h3m = "ref/hmm/{hmm}.hmm.h3m",
         h3p = "ref/hmm/{hmm}.hmm.h3p"
-    threads: min(2, MAX_THREADS)
+    threads: 2
     shell:
         r"""
         printf "orf_id\tmodel_id\tscore" > {output.tbl}
@@ -2016,7 +2017,7 @@ rule all_by_all_blastp:
     input:
         fa='data/{stem}.cds.fa',
         db='data/{stem}.cds.fa.dmnd',
-    threads: MAX_THREADS
+    threads: min(20, MAX_THREADS)
     params:
         # Should probably be substantially greater than the effective number of
         # genomes being compared.

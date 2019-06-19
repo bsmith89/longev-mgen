@@ -120,6 +120,7 @@ config['genome_group'] = \
                        # , 'Muribaculaceae_bacterium_DSM_100749'  # identical-ish to Muribaculaceae_bacterium_DSM_100764
                        , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
                        , 'Muribaculaceae_bacterium_DSM_100764'  # mostly identical to OTU-49
+                       , 'Duncaniella_muris_DSM_103720'
                        , 'Zag10'
                        , 'Zag1'
                        # , 'An287'  # Apparently not Muris
@@ -302,6 +303,22 @@ rule alias_an289_genome:
 localrules: alias_an289_genome
 
 ruleorder: alias_an289_genome > alias_sra_genomes
+
+# {{{2 Duncaniella_muris
+rule download_duncaniella_muris_genome:
+    output: 'raw/ref/Duncaniella_muris_DSM_103720.fn'
+    params:
+        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/805/GCA_003024805.1_ASM302480v1'
+    shell: curl_unzip_recipe
+localrules: download_duncaniella_muris_genome
+
+rule alias_duncaniella_muris_genome:
+    output: 'data/ref.mags/Duncaniella_muris_DSM_103720.fn'
+    input: 'raw/ref/Duncaniella_muris_DSM_103720.fn'
+    shell: alias_recipe
+localrules: alias_duncaniella_muris_genome
+
+ruleorder: alias_duncaniella_muris_genome > alias_sra_genomes
 
 # {{{2 Bacteroides thetaiotaomicron VPI5482
 rule download_btheta_genome:

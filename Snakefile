@@ -1065,6 +1065,29 @@ rule map_reads_to_mag:
         rm $tmp1 $tmp2 $tmp3
         """
 
+
+rule extract_library_bam_for_strain_contigs:
+    output: 'data/{group}.a.mags/{library}.m.{mag}-map.contigs.sort.bam'
+    input:
+        bam='data/{library}.m.{group}-map.sort.bam',
+        contigs='data/{group}.a.mags/{mag}.g.contigs.list'
+    params:
+        max_contig_length=9999999999
+    shell:
+        """
+        tmp=$(mktemp)
+        awk -v dummy_len={params.max_contig_length} \
+                '{{print $1, 0, dummy_len}}' \
+                {input.contigs} \
+                > $tmp
+        samtools view -b \
+                -L $tmp \
+                {input.bam} \
+            > {output}
+        """
+ruleorder: extract_library_bam_for_strain_contigs > map_reads_to_mag
+
+
 rule combine_mag_read_mappings:
     output: 'data/{group}.a.mags/{mag}.g.{proc}.map-{group}.sort.bam'
     input:

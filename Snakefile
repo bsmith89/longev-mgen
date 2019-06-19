@@ -1499,6 +1499,7 @@ rule annotate_mag:
         dir=directory("data/{stem}.mags.annot/{mag}.g.{proc}.prokka-annot.d"),
     input: "data/{stem}.mags/{mag}.g.{proc}.fn"
     threads: min(10, MAX_THREADS)
+    conda: 'conda/prokka.yaml'
     shell:
         r"""
         prokka --force --cpus {threads} {input} \
@@ -1525,6 +1526,7 @@ rule annotate_reference_mag:
         dir=directory("data/ref.mags.annot/{mag}.g.prokka-annot.d"),
     input: "data/ref.mags/{mag}.g.fn"
     threads: min(10, MAX_THREADS)
+    conda: 'conda/prokka.yaml'
     shell:
         r"""
         prokka --force --cpus {threads} {input} \

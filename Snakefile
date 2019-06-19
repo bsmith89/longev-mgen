@@ -944,6 +944,7 @@ rule reformat_checkm_output:
         """
         cut -f1,4,12-15 {input} > {output}
         """
+localrules: reformat_checkm_output
 
 rule generate_checkm_markerset:
     output:

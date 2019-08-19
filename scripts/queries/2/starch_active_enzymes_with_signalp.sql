@@ -4,8 +4,8 @@ CREATE TEMP VIEW domain_hits AS
 SELECT
     feature_id
   , domain_id AS matched_domain
-  , feature_domain.score AS matched_domain_score
-FROM feature_domain
+  , feature_x_cazy_domain.score AS matched_domain_score
+FROM feature_x_cazy_domain
 WHERE
     ( domain_id LIKE 'GH13|_%' ESCAPE '|' OR domain_id = 'GH13'
    OR domain_id LIKE 'GH97%'
@@ -39,5 +39,5 @@ LEFT JOIN feature_to_opf USING (feature_id)
 LEFT JOIN feature_to_architecture USING (feature_id)
 JOIN domain_best_hits USING (feature_id)
 WHERE ABS(closest_cysteine) <= 4 AND feature_signal_peptide.score > 0.5
-ORDER BY mag_id, feature_id, matched_domain_score DESC
+ORDER BY genome_id, feature_id, matched_domain_score DESC
 ;

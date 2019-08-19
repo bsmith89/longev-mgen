@@ -32,30 +32,30 @@ in being replicated across three sites: The University of Michigan (UM)
 in Ann Arbor, The University of Texas Health Science Center at San
 Antonio (UT), and The Jackson Laboratory (TJL) in Bar Harbor, Maine. At
 UM and TJL one highly abundant operational taxonomic unit (OTU),
-classified as a member of the *Bacteroidales* family *Muribaculaceae*
+classified as a member of the _Bacteroidales_ family _Muribaculaceae_
 and here designated as B1, was found to be enriched nearly 4-fold in ACA
 treated mice. B1 was also present and abundant at UT but was not found
 to be significantly more abundant in ACA treated mice relative to
-controls. Instead, a different member of the *Muribaculaceae*,
+controls. Instead, a different member of the _Muribaculaceae_,
 designated B2, was found to be highly abundant and 4-fold enriched in
 ACA-treated mice, but was nearly absent at UM and TJL. Other
-*Muribaculaceae* were also identified as among the most abundant members
+_Muribaculaceae_ were also identified as among the most abundant members
 of the mouse gut microbiota across the three sites, although none of
 these were found to be enriched in ACA treatment.
 
-Family *Muribaculaceae*---formerly the S24-7 and sometimes referred to
-as *Candidatus Homeothermaceae*---has only one published
+Family _Muribaculaceae_---formerly the S24-7 and sometimes referred to
+as _Candidatus Homeothermaceae_---has only one published
 cultivar [@Lagkouvardos2016] despite being a common and abundant
 inhabitant of the mammalian gut, especially in mice [@Ormerod2016].
-Previous studies have suggested that the *Muribaculaceae* specialize on
+Previous studies have suggested that the _Muribaculaceae_ specialize on
 the fermentation of complex polysaccharides [@Ormerod2016], much like
-members of the genus *Bacteroides* also in order *Bacteroidales*.
+members of the genus _Bacteroides_ also in order _Bacteroidales_.
 
 Recently, techniques have been developed for the reconstruction of
 genomes of uncultivated members of bacterial
 communities [@Parks2017; @Lee2017]. Based on 30 such metagenome
 assembled genomes (MAGs) they reconstructed using this approach,
-Ormerod *et al.* [@Ormerod2016] proposed that the *Muribaculaceae* fall
+Ormerod _et al._ [@Ormerod2016] proposed that the _Muribaculaceae_ fall
 into three distinct carbohydrate utilization guilds, which they describe
 as specialists on -glucans, plant glycans, and host glycans,
 respectively. While it is reasonable to expect that -glucan specialists
@@ -70,26 +70,26 @@ without cultivated members and generate hypotheses about their
 physiology. Given the observed, dramatically increased relative
 abundance of B1 and B2 (here referred to as "responders") in mice
 treated with ACA, we hypothesize that these OTUs are capable of robust
-growth on starch, while the other *Muribaculaceae* found in the study
+growth on starch, while the other _Muribaculaceae_ found in the study
 ("non-responders"), lack the genomic features necessary for the
 utilization of the polysaccharide. Alternatively, responders may be
 resistant to the inhibitory effects of ACA, or benefit from elevated
 levels of intermediate starch degradation products. Since isolates of
-the *Muribaculaceae* species in these mice are not available for
+the _Muribaculaceae_ species in these mice are not available for
 characterization, a comparative genomic approach is taken to explore
 their functional potential.
 
 Most of the research on the genomic components of polysaccharide
 degradation in gram negative bacteria has been carried out in the genus
-*Bacteroides*, and in particular *B. thetaiotaomicron* [@Martens2009].
-Starch utilization in *B. thetaiotaomicron* is dependent on an ensemble
+_Bacteroides_, and in particular _B. thetaiotaomicron_ [@Martens2009].
+Starch utilization in _B. thetaiotaomicron_ is dependent on an ensemble
 of eight proteins, SusRABCDEFG that enable recognition, binding,
 hydrolysis, and import of starch and related
 polysaccharides [@Foley2016]. Homologs of SusC and SusD characterize all
 known polysaccharide utilization systems in this clade [@Grondin2017],
 are encoded in Sus-like genomic regions known as polysaccharide
 utilization loci (PULs), and are widespread in the
-*Bacteroidetes* [@Fernandez-Gomez2013]. The molecular range of these
+_Bacteroidetes_ [@Fernandez-Gomez2013]. The molecular range of these
 systems is determined by the carbohydrate-active enzymes and structural
 proteins they encode, based on the specificity of glycoside hydrolase
 (GH) and carbohydrate binding module (CBM) domains, which have been
@@ -98,7 +98,7 @@ extensively cataloged in the dbCAN database [@Yin2012; @Zhang2018].
 Here MAGs from the feces of mice at UT and UM are analyzed to explore
 two closely related questions about the niche of B1 and B2 in the lower
 digestive system. First, why do B1 and B2 each increase with ACA
-treatment, while other *Muribaculaceae* do not? And second, why is the
+treatment, while other _Muribaculaceae_ do not? And second, why is the
 response of B1 site specific? Despite similar patterns of abundance at
 their respective sites, these two OTUs seem to be only distantly
 related, sharing just 90% of nucleotides in their 16S rRNA gene V4
@@ -106,14 +106,14 @@ hypervariable region (see
 Appendix [\[app:otu\_tax\]](#app:otu_tax){reference-type="ref"
 reference="app:otu_tax"}). We nonetheless find genomic evidence that B1
 and B2 occupy overlapping niches, specializing in the degradation of
--glucans, a role not held by the other *Muribaculaceae* described in
+-glucans, a role not held by the other _Muribaculaceae_ described in
 this study. In addition, we identify two distinct variants of B1,
 referred to as B1-A and B1-B, which are differentially distributed
 between UM and UT and have functionally relevant differences in gene
 content.
 
 Reconstructing genomes from metagenomes allow for the comparison of the
-functional potential of *Muribaculaceae* at UM and UT. This work
+functional potential of _Muribaculaceae_ at UM and UT. This work
 demonstrates the utility of culture-free genomics to understand the
 ecological role of these key members of the mouse gut microbial
 community and explore several hypotheses that may explain differences in
@@ -127,9 +127,9 @@ powerful tool for expanding understanding to these understudied taxa.
 
 # Results
 
-## Recovered population genomes are of high quality and resemble other *Muribaculaceae* genomes
+## Recovered population genomes are of high quality and resemble other _Muribaculaceae_ genomes
 
-MAGs were constructed for 7 populations in the family *Muribaculaceae*,
+MAGs were constructed for 7 populations in the family _Muribaculaceae_,
 including ACA responders B1 and B2, and non-responders B3 through B7.
 For B1, two genomic variants were recovered, B1-A and B1-B, MAGs that
 possess 0.63 and 0.36 Mbp of unshared sequence, respectively (additional
@@ -142,7 +142,7 @@ statistic was approximately 71 kbp, indicating successful assembly, and
 suggesting that inferences based on genomic context are generally
 possible. Estimated genome sizes, GC%, and number of predicted genes are
 all similar to previously published MAGs as well as the finished
-*Muribaculum intestinale* YL27 genome.
+_Muribaculum intestinale_ YL27 genome.
 
 +---------+---------+---------+---------+---------+---------+---------+
 | Taxon   | Complet | Scaffol | Length^ | N50     | GC      | in      |
@@ -182,11 +182,11 @@ all similar to previously published MAGs as well as the finished
 
 : [\[tbl:mag\_qual\_summary\]]{#tbl:mag_qual_summary
 label="tbl:mag_qual_summary"} Summary of novel MAGs compared to the
-genome of *Muribaculum intestinale* YL27
+genome of _Muribaculum intestinale_ YL27
 
 \vspace{2mm}
 In order to confirm the assertion that each of the reconstructed genomes
-is representative of *Muribaculaceae* OTU described in
+is representative of _Muribaculaceae_ OTU described in
 Chapter [\[ch:longev\]](#ch:longev){reference-type="ref"
 reference="ch:longev"}, per library mapping rates of each genome were
 compared to the relative abundance of the associated 16S rRNA gene in
@@ -202,21 +202,21 @@ mapped and OTU relative abundance were above 0.86 for all MAGs,
 To better understand the evolutionary relationships between these
 organisms, a concatenated gene tree was constructed for all 8 novel
 MAGs, as well as 30 publicly available MAG sequences [@Ormerod2016], and
-*M. intestinale* YL27. The tree was rooted by four other *Bacteroidales*
-species: *Bacteroides ovatus* (ATCC-8483), *Bacteroides
-thetaiotaomicron* VPI-5482, *Porphyromonas gingivalis* (ATCC-33277), and
-*Barnesiella viscericola* (DSM-18177). Most internal nodes were found to
+_M. intestinale_ YL27. The tree was rooted by four other _Bacteroidales_
+species: _Bacteroides ovatus_ (ATCC-8483), _Bacteroides
+thetaiotaomicron_ VPI-5482, _Porphyromonas gingivalis_ (ATCC-33277), and
+_Barnesiella viscericola_ (DSM-18177). Most internal nodes were found to
 have high topological confidence, and the placement of the MAGs
-reconstructed by Ormerod *et al.* was highly consistent with their
+reconstructed by Ormerod _et al._ was highly consistent with their
 published tree. To check that this concatenated approach is reflective
 of the organismal evolutionary history, a second maximum likelihood tree
-was constructed based on the *rpoB* gene, which is generally not thought
+was constructed based on the _rpoB_ gene, which is generally not thought
 to be transmitted horizontally, (despite exceptions [@Kim2013]), also
 recapitulating the published topology. The estimated phylogeny shows
 that the 8 OTUs with newly reconstructed MAGs encompass most of the
-documented diversity of *Muribaculaceae*. Two of our taxa, B2 and B6,
+documented diversity of _Muribaculaceae_. Two of our taxa, B2 and B6,
 appear to be closely related to taxa with genomes reconstructed by
-Ormerod *et al.*: M6, and M1, respectively. Nonetheless, this
+Ormerod _et al._: M6, and M1, respectively. Nonetheless, this
 phylogenetic analysis suggests that many of the genomes reconstructed
 here have not been described previously.
 
@@ -225,11 +225,11 @@ here have not been described previously.
 Annotations based on alignment to a database of previously characterized
 sequences may provide only limited insight, in particular for genomes
 from largely unstudied families of bacteria. In order to identify
-previously uncharacterized orthologous groups, *de novo*
+previously uncharacterized orthologous groups, _de novo_
 clustering [@Schloss2008] was carried out based on amino acid similarity
 of all putative genes found in the 8 novel MAGs, 30 previously
-reconstructed MAGs, *M. intestinale*, four publicly available draft
-genomes from the family, and the four reference *Bacteroidales*. The
+reconstructed MAGs, _M. intestinale_, four publicly available draft
+genomes from the family, and the four reference _Bacteroidales_. The
 resulting clusters are referred to as operational protein families
 (OPFs). While a fraction of the 12,648 resulting OPFs may be due to
 spurious sequence similarity and without biological relevance, 5,767 had
@@ -242,8 +242,8 @@ genomes
 ### Annotation ordination
 
 To compare novel MAGs to other available genomes, a previous published
-analysis was recreated, harnessing a set of 8 COGs found by Ormerod *et
-al.* to maximally differentiate the three hypothesized guilds. By
+analysis was recreated, harnessing a set of 8 COGs found by Ormerod _et al._ to
+maximally differentiate the three hypothesized guilds. By
 projecting genome annotations onto a reproduction of this previously
 defined space (see
 Figure [\[fig:muri\_comparison\]](#fig:muri_comparison){reference-type="ref"
@@ -252,13 +252,13 @@ to the three clusters hypothesized to represent specialization on
 -glucans, plant glycans, and host glycans. While the 8 novel MAGs
 inhabit approximately the same volume as those previously reconstructed,
 and some could be plausibly classified based on these criteria, the
-ambiguous placement of B4 and *M. intestinale* suggests that new genomes
+ambiguous placement of B4 and _M. intestinale_ suggests that new genomes
 will present additional exceptions to the three-guild model.
 
 It is notably that both responders cluster with the proposed -glucan
 guild, consistent with a functional potential for starch utilization not
 present in the non-responders. To expand on this descriptive analysis
-and to leverage the more comprehensive view provided by *de novo*
+and to leverage the more comprehensive view provided by _de novo_
 clustering to explore differences and similarities in carbohydrate
 utilization potential, a second ordination of genomes was performed,
 this time based on OPF labels of predicted genes found to contain GH
@@ -266,16 +266,16 @@ domains
 (Figure [\[fig:pul\_diagrams\]](#fig:pul_diagrams){reference-type="ref"
 reference="fig:pul_diagrams"}). Similar to the previous ordination based
 on COGs, three groups of genomes approximately reflecting those proposed
-by Ormerod *et al.* are apparent. However, the placement of B2 (as well
+by Ormerod _et al._ are apparent. However, the placement of B2 (as well
 as the closely related M6) relative to the proposed guilds are
 substantially different.
 
 ## Comparison of responder and non-responder MAGs suggest genomic features with role in starch utilization
 
 Based on the characterization of genes and genomic regions with a role
-in starch utilization in the closely related genus *Bacteroides*, it is
+in starch utilization in the closely related genus _Bacteroides_, it is
 plausible that -amylase localized to the outer membrane may be common to
-starch utilizing bacteria in the order *Bacteroidales* [@Shipman1999].
+starch utilizing bacteria in the order _Bacteroidales_ [@Shipman1999].
 Indeed, B1 has three OM-localized genes predicted to code for GH13
 containing lipoproteins (B1A280, B1A301, B1A333), each in a separate PUL
 (see
@@ -289,7 +289,7 @@ carbohydrate-active domains that are expected to interact with -glucans.
 
 Besides B1, B5 is the only other OTU to possess a putative PUL coding
 for a full complement of predicted starch-active proteins. Several OPFs
-have members in both this region and either B1 or *B. thetaiotaomicron*
+have members in both this region and either B1 or _B. thetaiotaomicron_
 PULs, suggesting shared function. This set including SusC-homologs
 Opf01277, Opf02066, which includes relatives of SusD, and Opf02791 whose
 members possess CBM20 starch-binding domains. However, while B5 also has
@@ -308,31 +308,31 @@ machinery. We speculate about one putative locus (see
 Figure [\[fig:pul\_diagrams\]](#fig:pul_diagrams){reference-type="ref"
 reference="fig:pul_diagrams"} panel F), which has a similar gene content
 to characterized [@Ravcheev2013; @Rogers2013; @VanBueren2015] dextran
-PULs in *B. thetaiotaomicron* and *B. ovatus*.
+PULs in _B. thetaiotaomicron_ and _B. ovatus_.
 
-To expand the search for relevant genetic features, *de novo* protein
+To expand the search for relevant genetic features, _de novo_ protein
 clusters were filtered to those with members in the MAGs for both B1 and
 B2. Of these OPFs, several stood out as particularly relevant. Opf01144
 includes SusR, the regulator of transcription of the starch utilization
-system in *B. thetaiotaomicron*, as well as its homolog in *B. ovatus*.
+system in _B. thetaiotaomicron_, as well as its homolog in _B. ovatus_.
 It is an apparent subcluster of the larger family defined by K21557, and
-in many cases is encoded directly upstream of *susC* in putative PULs
+in many cases is encoded directly upstream of _susC_ in putative PULs
 which consider likely to have affinity for -glucans. In B1, two of the
 three putative starch PULs encode a member of Opf01144, and it is
 similarly located in PULs with starch-active CBM and GH domains in B2
-and B5. In addition, of the seven MAGs reconstructed by Ormerod *et al.*
+and B5. In addition, of the seven MAGs reconstructed by Ormerod _et al._
 that encode a member of this cluster, five of them are classified to the
 -glucan guild. It is plausible that members of Opf01144 share a
 functional role regulating transcriptional responses to -glucans.
 
 Opf01391, which recapitulates K21575, includes SusA: the periplasmic
-neopullulanase of *B. thetaiotaomicron* and an important component of
+neopullulanase of _B. thetaiotaomicron_ and an important component of
 starch utilization in that organism [@DElia1996]. This family is found
 in the MAGs of both responders, B1 and B2, and none of the
 non-responders. What's more, it's found in twelve of the thirteen
 -glucan and a minority of the plant glycan guild members. Interestingly,
-although it is encoded by the Sus operon in *B. thetaiotaomicron* and
-its homologous locus in *B. ovatus*, in the *Muribaculaceae* members of
+although it is encoded by the Sus operon in _B. thetaiotaomicron_ and
+its homologous locus in _B. ovatus_, in the _Muribaculaceae_ members of
 Opf01391 do not in general appear to be encoded in PULs.
 
 ## Genomic variation in B1 {#subsec:mags-b1-var}
@@ -381,7 +381,7 @@ indicate variation in copy number, differential gene content between
 variants is a more parsimonious explanation for most loci. These
 predicted genes reflect 2.7% of unique KOs in B1-A and 1.9% in B1-B.
 Interestingly, the fraction of variant specific OPFs is greater, 7.5%
-and 7.1% respectively, suggesting that *de novo* clustering could be
+and 7.1% respectively, suggesting that _de novo_ clustering could be
 more sensitive to potential differences in physiology.
 
 +:-----------------------------------------------+:------+:---------+:------+:---------+
@@ -427,12 +427,12 @@ be specific to B1-B.
 Most strikingly, a 16 kbp region (from B1A01498 to B1A01514) specific to
 B1-A was found to contain several genes with homology to cell capsule
 and exopolysaccharide synthesizing enzymes. Based on annotations with
-KEGG orthologous groups, these include homologs of *tuaG* (K16698),
-*tagE* (K00712), *gmhB* (K03273), *gmhA*/*lpcA* (K03271),
-*hddA* (K07031), *exoO* (K16555), *waaH* (K19354), and *tagF* (K09809).
+KEGG orthologous groups, these include homologs of _tuaG_ (K16698),
+_tagE_ (K00712), _gmhB_ (K03273), _gmhA_/_lpcA_ (K03271),
+_hddA_ (K07031), _exoO_ (K16555), _waaH_ (K19354), and _tagF_ (K09809).
 Interestingly, the B1-B MAG contains a different such region of about
-6.5 kbp (B1B00851 to B1B00856) with *wfeD* (K21364), *pglJ* (K17248),
-and *epsH* (K19425). For each, several of the OPFs in the respective
+6.5 kbp (B1B00851 to B1B00856) with _wfeD_ (K21364), _pglJ_ (K17248),
+and _epsH_ (K19425). For each, several of the OPFs in the respective
 regions were not found anywhere in the opposing genome, suggesting that
 the makeup of each variant's exterior surface might be distinctly
 different.
@@ -445,7 +445,7 @@ role of this community on host health [@Nguyen2015]. The
 generalizability of observations made in mice is a constant
 concern [@Nguyen2015], in part due to extensive difference in taxonomic
 composition compared to humans [@Lagkouvardos2016]. The members of the
-*Muribaculaceae* are abundant in the murine gut
+_Muribaculaceae_ are abundant in the murine gut
 microbiome [@Ormerod2016]. While these bacteria are also found in humans
 (although at lower abundance), only one cultivated member of this clade
 has been described [@Lagkouvardos2016]. As a result, the ecological
@@ -460,16 +460,16 @@ Here we have extended that approach to eight new genomes, and associated
 those with taxa for which changes in relative abundance in response to
 ACA treatment have been experimentally assessed. This enabled us to
 explore why responders B1 and B2 each increase with ACA treatment, while
-the other *Muribaculaceae* do not. Annotations of reconstructed genomes
+the other _Muribaculaceae_ do not. Annotations of reconstructed genomes
 suggest that these may possess starch degradation capabilities absent in
 the non-responders.
 
-We examine the three-guild model proposed by Ormerod *et
-al.* [@Ormerod2016] by reproducing their dimensional reduction approach
+We examine the three-guild model proposed by Ormerod _et al._ [@Ormerod2016] by
+reproducing their dimensional reduction approach
 with the addition of these new genomes. In this analysis, B1 and B2
 annotations appear to be consistent with a hypothesized -glucan
 degradation guild, supporting their interpretation. A more nuanced
-approach to annotation was also applied by constructing *de novo*
+approach to annotation was also applied by constructing _de novo_
 clusters of proteins based on homology. Interestingly, this analysis
 indicates that B2, and the closely related M6, share physiological
 potential with taxa in the host-glycan guild, suggesting that a more
@@ -481,7 +481,7 @@ confounding effects of shared evolutionary history.
 By including otherwise unannotated genes, genomic comparisons based on
 OPFs instead of previously defined gene orthologies may better reflect
 shared functional potential. Besides the identification of potentially
-novel gene families, *de novo* homology clustering [@Schloss2008] also
+novel gene families, _de novo_ homology clustering [@Schloss2008] also
 enables differentiation of sub-groups not captured by standard
 annotations. For instance, hypothetical genes annotated as homologs of
 SusC, SusD, and SusEF, were clustered into 119, 162, and 33 different
@@ -509,8 +509,8 @@ In addition, a gene encoding a SusA homolog was identified in both B1
 and B2 but in none of the non-responders. While it is unclear how
 expression of this important component of starch utilization might be
 regulated, given that it is not located in a PUL in either of the
-responders, SusA is important for growth on amylopectin in *B.
-thetaiotaomicron* [@DElia1996]. Since inhibition by acarbose is variable
+responders, SusA is important for growth on amylopectin in
+_B.  thetaiotaomicron_ [@DElia1996]. Since inhibition by acarbose is variable
 across enzymes [@Kim1999], it is possible that acarbose treatment
 results in elevated levels of dextrin and maltooligosaccharides in the
 lower guts of mice due to residual -amylase activity, even at levels
@@ -546,12 +546,12 @@ might demonstrate active expression of these genes, or differential
 expression in mice treated with acarbose compared to controls. Likewise,
 even in the absence of a B2 cultivar, the sufficiency of the dextran PUL
 for increased growth with acarbose treatment could be tested using
-available cultivars, including *B. thetaiotaomicron*.
+available cultivars, including _B. thetaiotaomicron_.
 
 # Conclusions
 
 In this study we have reconstructed and described genomes representing 7
-OTUs in the family *Muribaculaceae* from the mouse fecal microbiome, and
+OTUs in the family _Muribaculaceae_ from the mouse fecal microbiome, and
 have found features that differentiate those that respond positively to
 ACA treatment from those that do not. This analysis suggests that
 utilization of starch and related polysaccharides enables increased
@@ -563,7 +563,7 @@ relative abundance during experimental manipulation with inferred
 functional gene content, we are able to study mammalian symbionts in the
 absence of cultured representatives. This sequence-based approach is
 broadly applicable in microbial ecology and enables improved
-understanding of *in situ* dynamics within complex microbial
+understanding of _in situ_ dynamics within complex microbial
 communities.
 
 # Methods
@@ -588,11 +588,11 @@ criteria. Samples were from 54 mice, with at least six treated and
 control representatives of both males and females at each site.
 
 Fecal samples were slurried with nuclease free water at a 1:10 (w/v)
-ratio, and most samples were spiked with *Sphingopyxis alaskensis*
+ratio, and most samples were spiked with _Sphingopyxis alaskensis_
 RB2256 prepared as described in
 Chapter [\[ch:longev\]](#ch:longev){reference-type="ref"
 reference="ch:longev"} before DNA extraction and sequencing. Based on
-alignment to the reference genome, sequenced reads from *S. alaskensis*
+alignment to the reference genome, sequenced reads from _S. alaskensis_
 can be distinguished from all endogenous bacteria in mouse feces. A
 small number of these were split for both spiked and unspiked samples,
 which we used to validate this procedure. For each, 150 $\mu$Lof this
@@ -627,7 +627,7 @@ reference="ch:longev"}. Bins were then recruited to one or more OTUs by
 calculating a Canonical partial least squares between OTU abundance and
 bin coverage as implemented in the scikit-learn machine learning library
 for Python [@Pedregosa2012]. For bins recruited to OTUs classified as
-*Muribaculaceae*, contigs were re-clustered based on coverage across
+_Muribaculaceae_, contigs were re-clustered based on coverage across
 samples. First "trusted contigs" were manually selected which correlated
 closely with OTU abundance. The mean coverage of these was used to
 normalize the per-library coverage of all other contigs. Then, using a
@@ -664,16 +664,16 @@ and with contamination \< 1% was selected from the various refinements.
 
 ## Reference genomes
 
-The *Muribaculum intestinale* genome sequence was obtained from GenBank
+The _Muribaculum intestinale_ genome sequence was obtained from GenBank
 (accession GCA002201515.1), as well as four additional draft genomes
 (GCA003024805.1, GCA003024815.1, GCA002633305.1, GCA002633115.1). While
-other genomes labeled as *Muribaculaceae* have also been deposited, they
+other genomes labeled as _Muribaculaceae_ have also been deposited, they
 were excluded from this analysis due to redundancy or apparent
 misidentification to the family. The 30 MAGs reconstructed by
-Ormerod *et al.* [@Ormerod2016] were obtained from the SRA. For
-comparison, nucleotide sequences for *B. thetaiotaomicron* VPI-5482
-(AE015928.1), *B. ovatus* (CP012938.1), *Barnesiella viscericola*
-(GCA000512915.1), and *Porphyromonas gingivalis* (GCA000010505.1), were
+Ormerod _et al._ [@Ormerod2016] were obtained from the SRA. For
+comparison, nucleotide sequences for _B. thetaiotaomicron_ VPI-5482
+(AE015928.1), _B. ovatus_ (CP012938.1), _Barnesiella viscericola_
+(GCA000512915.1), and _Porphyromonas gingivalis_ (GCA000010505.1), were
 also downloaded from GenBank.
 
 ## Genome annotation

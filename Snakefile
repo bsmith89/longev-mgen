@@ -172,10 +172,11 @@ rule build_docx_documentation:
     input:
         source="doc/{stem}.md",
         bib="doc/bibliography.bib",
+        template="doc/static/example_style.docx",
     shell:
         """
         pandoc --from markdown --to docx --filter pandoc-crossref \
-               --standalone --self-contained \
+               --standalone --self-contained --reference-doc {input.template} \
                --bibliography={input.bib} -s {input.source} -o {output}
         """
 localrules: build_docx_documentation

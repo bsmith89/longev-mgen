@@ -163,14 +163,12 @@ _Muribaculum intestinale_ YL27 genome.
 +----------+-----------------+-------------+-----------+----------+---------+---------+
 | B7       | 98%             | 97          | 2.5       | 59,037   | 53.9%   | OTU-39  |
 +----------+-----------------+-------------+-----------+----------+---------+---------+
-: Summary of novel MAGs compared to the genome of _Muribaculum intestinale_ YL27
 
-^1^ Estimated by CheckM [@Parks2015]
+: Table: Summary of novel MAGs compared to the genome of _Muribaculum intestinale_ YL27
 
-^2^ Total length in Mbp
-
-^3^ _Muribaculum intestinale_ YL-27 reference genome 
-
+^1^ Estimated by CheckM [@Parks2015] \
+^2^ Total length in Mbp \
+^3^ _Muribaculum intestinale_ YL-27 reference genome
 
 In order to confirm the assertion that each of the reconstructed genomes
 is representative of a previously described _Muribaculaceae_ OTU [@Smith2019],
@@ -181,9 +179,8 @@ inherent to both sequencing methods, and the limitations of mapping
 software, Pearson correlation coefficients between the fraction of reads
 mapped and OTU relative abundance were above 0.86 for all MAGs,
 
-![muri_comparison](fig/muri_comparison.pdf){width="\textwidth"}
-
-_Comparison of novel and previously described _Muribaculaceae_ genomes.
+![
+Figure muri_comparison: Comparison of novel and previously described _Muribaculaceae_ genomes.
 Novel MAGs (for OTUs "B1" through "B7") are combined with the finished genome
 for _M. intestinale_ strain YL27, as well as 30 MAGs reconstructed by Ormerod _et
 al._, hypothesized to reflect three polysaccharide utilization guilds: specializing on
@@ -202,7 +199,9 @@ Ormerod _et al._ and the percent of variation described by the first two compone
 is included in the axis labels. All genomes were then projected onto that space.
 Novel MAGs (black triangles) are labeled, as are the previously described MAGs M1,
 M6, and the proposed H. arabinoxylanisolvens (Ha), and the finished genome of M.
-intestinale (Mi, grey circle)._
+intestinale (Mi, grey circle).
+](fig/muri_comparison.pdf)
+
 
 ### Phylogenetics
 
@@ -286,9 +285,8 @@ this activity, GH13 is the main family of alpha-amylases [@Janecek2014].
 These genomic regions also possess additional genes with
 carbohydrate-active domains that are expected to interact with alpha-glucans.
 
-![pul_diagrams](fig/pul_diagrams.pdf){width="\textwidth"}
-
-_Polysaccharide utilization loci in _Bacteroidales_. Diagrams of the Sus
+![
+Figure pul_diagrams: Polysaccharide utilization loci in _Bacteroidales_. Diagrams of the Sus
 operon (**A**) and the dextran associated PUL (**B**) of _B. thetaiotaomicron_ along with
 five putative starch-associated PULs identified in three _Muribaculaceae_ MAGs (**C**-**G**).
 Predicted protein coding sequences are shown as boxes pointed in the direction
@@ -298,7 +296,9 @@ as shallow rectangles, and are colored as indicated in the legend. Several OPFs
 are noted with members in multiple genomes, including clusters that contain SusR
 (Opf01144), SusA (Opf01391), and SusB (Opf00018). The inferred localization of
 each protein product is also indicated: cytoplasmic (genes labeled C), periplasmic
-(**P**), outer membrane (**O**), or inner membrane (**I**)._
+(**P**), outer membrane (**O**), or inner membrane (**I**).
+](fig/pul_diagrams.pdf)
+
 
 Besides B1, B5 is the only other OTU to possess a putative PUL coding
 for a full complement of predicted starch-active proteins. Several OPFs
@@ -367,9 +367,8 @@ Figure b1_vars), suggesting that mice are primarily inhabited
 by one of the two variants, and that a portion of genes are variant
 specific.
 
-![b1_vars](fig/b1_vars.pdf){width="\textwidth"}
-
-_Visualization of differential gene content in two B1 populations. Heatmaps
+![
+Figure b1_vars: Visualization of differential gene content in two B1 populations. Heatmaps
 depict mapping coverage of metagenomes against putative protein coding genes in
 the B1-A or B1-B MAG normalized to the median coverage. Rows represent one or
 more pooled libraries for each mouse included in the study and columns
@@ -379,7 +378,8 @@ indicated by triangles in the far left column: UT (green, left pointing) or UM
 representative of a single B1 variant for downstream analysis. Genes are shown
 only where the median normalized coverage ratio between these B1-A and B1-B
 specific metagenomes is greater than 1.5. Rows and columns are arbitrarily
-ordered to maximize visual distinction between variants._
+ordered to maximize visual distinction between variants.
+](fig/b1_vars.pdf)
 
 Metagenomic libraries manually chosen as unambiguous representatives of
 a single B1 MAG were used to systematically identify genes
@@ -412,11 +412,9 @@ more sensitive to potential differences in physiology.
 |                                                |       |          |       |          |
 +------------------------------------------------+-------+----------+-------+----------+
 
-: Summary of variant
-specific features in two B1 MAGs
+: Table: Summary of variant specific features in two B1 MAGs
 
-^1^ in Mbp
-
+^1^ in Mbp \
 ^2^ unique
 
 Given the observation that the relative abundance of B1 was dramatically
@@ -607,7 +605,7 @@ Based on alignment to the reference genome, sequenced reads from
 _S. alaskensis_ can be distinguished from all endogenous bacteria in mouse
 feces.
 A small number of these were split for both spiked and unspiked samples,
-which we used to validate this procedure. For each, 150 $\mu$L of this
+which we used to validate this procedure. For each, 150 uL of this
 sample was transferred for extraction using the MoBio PowerMag
 Microbiome kit. Metagenomic libraries were prepared using standard
 procedures sequenced on the Illumina HiSeq 400 platform using the v4

@@ -8,6 +8,8 @@
 -   MinPath (v1.4, patched shebang line to 'python2' not 'python'
 -   Bignorm (see https://git.informatik.uni-kiel.de/axw/Bignorm)
 -   MCL (https://micans.org/mcl/)
+-   biblib from https://github.com/aclements/biblib (works at current master:
+    ab0e857b9198fe425ec9b02fcc293b5d9fd0c406)
 -   TODO
 
 Metadata:

@@ -438,6 +438,8 @@ and 7.1% respectively, suggesting that _de novo_ clustering could be
 more sensitive to potential differences in physiology.
 
 +:-----------------------------------------------+:------+:---------+:------+:---------+
+|                                                |B1-A              |B1-B              |
++:-----------------------------------------------+:------+:---------+:------+:---------+
 |                                                | Total | Specific | Total | Specific |
 +------------------------------------------------+-------+----------+-------+----------+
 | Nucleotide length^1^                           | 3.23  | 0.63     | 2.96  | 0.36     |

@@ -7,38 +7,41 @@ title: '_Muribaculaceae_ genomes assembled from metagenomes suggest
 # Abstract
 
 Understanding how the bacterial inhabitants of the gut respond to
-pharmaceutical and dietary perturbations is a major step in developing a
-predictive framework for microbiome-based therapies.
-In rodents, the alpha-amylase inhibitor acarbose (ACA) increases the amount of
+pharmaceutical and dietary perturbations is necessary for the design of
+microbiome based therapies.
+The alpha-amylase inhibitor acarbose (ACA) increases the amount of
 starch entering the lower digestive system after a meal, resulting in changes
 to the composition of the gut microbiota and its fermentation products.
-ACA also substantially increases longevity in male mice and to a lesser extent
-in females, an effect that could be related to increased concentrations of the
+ACA also increases longevity in mice, an effect that could be related to
+increased concentrations of the
 short-chain fatty acids propionate and butyrate.
-Members of the family Muribaculaceae, formerly the S24-7, are abundant and
-diverse in the guts of mice, and yet the vast majority of species in this clade
-are known only from 16S rRNA gene sequence and have never been cultured.
-In a study replicated across three study sites, two distantly related taxa—97%
-operational taxanomic units referred to here as B1 and B2—in this family were
-dramatically more abundant in ACA treated mice, while others were not
-positively affected.
+In an experiment replicated across three study sites, two distantly related
+members of the family _Muribaculaceae_&mdash;referred to here as B1 and
+B2&mdash;were dramatically more abundant in ACA treated mice, while
+others were not positively affected.
+Members of this family likely produce propionate and are abundant and diverse
+in the guts of mice, although only a handful of isolates are available.
 We reconstructed genomes from metagenomes for seven members of the
-Muribaculaceae in order to ask why B1 and B2 each respond positively to ACA
-while others do not.
-We find that the genome of B1 is the only one of these that encodes a
+_Muribaculaceae_ to examine what differentiates responders from
+non-responders.
+We find that the genome of B1 is the only one encoding a
 polysaccharide utilization locus with a predicted extracellular alpha-amylase,
 and that B1 and B2 are differentiated from the five non-responders by the
 presence of a gene encoding a periplasmic neopullulanase.
+We also identify two variants of B1 with distinct gene
+content, potentially accounting for surprising patterns of ACA response
+across study sites.
 This work demonstrates the utility of culture-free genomics for understanding
-the ecological role of key members of the mouse gut microbial community and
-explores several hypotheses that may explain the distribution and response of
+the ecological role gut bacteria and
+explores hypotheses that may explain the distribution and response of
 bacteria to perturbations.
+
+# Importance
+
 While a preponderance of host-associated bacterial species have never been
 isolated, let alone characterized, combining experimental data from complex
 communities with the analysis of reconstructed genomes provides a powerful tool
 for expanding understanding to these understudied taxa.
-
-# Importance
 
 TODO
 

@@ -85,11 +85,13 @@ these were found to be enriched in ACA treatment.
 
 Family _Muribaculaceae_---formerly the S24-7 and sometimes referred to
 as _Candidatus Homeothermaceae_---has only one published
-cultivar [@Lagkouvardos2016] despite being a common and abundant
+cultivar<!--TODO: Update with new cultivars--> [@Lagkouvardos2016]
+despite being a common and abundant
 inhabitant of the mammalian gut, especially in mice [@Ormerod2016].
 Previous studies have suggested that the _Muribaculaceae_ specialize on
 the fermentation of complex polysaccharides [@Ormerod2016], much like
 members of the genus _Bacteroides_ also in order _Bacteroidales_.
+<!--TODO: Add additional Muri mags to this paragram-->
 
 Recently, techniques have been developed for the reconstruction of
 genomes of uncultivated members of bacterial

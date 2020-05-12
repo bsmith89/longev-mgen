@@ -31,7 +31,7 @@ These MAGs shared a periplasmic neopullulanase with the distantly related
 B2, also from a responsive species,
 <!--TODO: Is it unclear that B1 and B2 together encompass all responsive species?-->
 <!--TODO: Is it clear that we can only classify _species_ as responsive or not?-->
-and this gene differentiated these three from MAGs for all non-responding species.
+and this gene differentiated these three from MAGs of non-responding species.
 Unshared gene content in B1A and B1B may account for surprising patterns
 in the response of this species across study sites.
 This work demonstrates the utility of culture-free genomics for understanding
@@ -62,10 +62,11 @@ Acarbose (ACA) is an alpha-glucosidase inhibitor
 prescribed for the treatment of type 2 diabetes mellitus because it
 reduces the absorption of glucose from starch in the small
 intestine [@Hiele1992].
-In rodents, ACA has been shown to increase the
+In rats, ACA has been shown to increase the
 amount of starch entering the lower digestive system after a
-meal [@Dehghan-Kooshkghazi2004], resulting in changes to the composition
-of the gut microbiota and its fermentation products
+meal [@Dehghan-Kooshkghazi2004].
+ACA treatment also changes the composition
+of the gut microbiota and its fermentation products in many rodents.
 [@Zhao2018; @Holt1996; @Wolever2000; @Dehghan-Kooshkghazi2004; @Weaver1997; @Weaver2000; @Wolin1999; @Zhang2017].
 Interestingly, long-term treatment with ACA has been shown to
 substantially increase longevity in male mice and to a lesser extent in
@@ -79,20 +80,21 @@ notable in being replicated across three sites: The University of Michigan (UM)
 in Ann Arbor, The University of Texas Health Science Center at San
 Antonio (UT), and The Jackson Laboratory (TJL) in Bar Harbor, Maine.
 At
-UM and TJL one highly abundant operational taxonomic unit (OTU),
-classified as a member of the _Bacteroidales_ family _Muribaculaceae_
-and here designated as B1, was found to be enriched nearly 4-fold in ACA
-treated mice.
-B1 was also present and abundant at UT but was not found
-to be significantly more abundant in ACA treated mice relative to
+UM and TJL one highly abundant bacterial species was enriched nearly
+4-fold in ACA treated mice.
+This species, designated as OTU-1, was
+classified as a member of the family _Muribaculaceae_ in order _Bacteroidales_.
+OTU-1 was also present and abundant at UT but was not
+significantly more abundant in ACA treated mice relative to
 controls.
-Instead, a different member of the _Muribaculaceae_,
-designated B2, was found to be highly abundant and 4-fold enriched in
+Instead, a different _Muribaculaceae_ species,
+designated OTU-4, was found to be highly abundant and 4-fold enriched in
 ACA-treated mice, but was nearly absent at UM and TJL.
-Other
-_Muribaculaceae_ were also identified as among the most abundant members
+Other _Muribaculaceae_ were also identified as among the most abundant members
 of the mouse gut microbiota across the three sites, although none of
 these were found to be enriched in ACA treatment.
+<!-- We refer to OTU-1 and OTU-4 as the two species responding to ACA, while other
+_Muribaculaceae_ are referred to as non-responding species. -->
 
 Family _Muribaculaceae_---formerly the S24-7 and sometimes referred to
 as _Candidatus Homeothermaceae_---has only one published
@@ -102,14 +104,14 @@ inhabitant of the mammalian gut, especially in mice [@Ormerod2016].
 Previous studies have suggested that the _Muribaculaceae_ specialize on
 the fermentation of complex polysaccharides [@Ormerod2016], much like
 members of the genus _Bacteroides_ also in order _Bacteroidales_.
-<!--TODO: Add additional Muri mags to this paragram-->
+<!--TODO: Add additional Muri mags to this paragraph.-->
 
 Recently, techniques have been developed for the reconstruction of
 genomes of uncultivated members of bacterial
 communities [@Parks2017; @Lee2017].
 Based on 30 such metagenome
 assembled genomes (MAGs) they reconstructed using this approach,
-Ormerod _et al._ [@Ormerod2016] proposed that the _Muribaculaceae_ fall
+Ormerod and colleagues [@Ormerod2016] proposed that the _Muribaculaceae_ fall
 into three distinct carbohydrate utilization guilds, which they describe
 as specialists on alpha-glucans, plant glycans, and host glycans,
 respectively.
@@ -124,7 +126,7 @@ opportunity to observe ecological features of many bacterial taxa
 without cultivated members and generate hypotheses about their
 physiology.
 Given the observed, dramatically increased relative
-abundance of B1 and B2 (here referred to as "responders") in mice
+abundance of OTU-1 and OTU-4 (here referred to as "responders") in mice
 treated with ACA, we hypothesize that these OTUs are capable of robust
 growth on starch, while the other _Muribaculaceae_ found in the study
 ("non-responders"), lack the genomic features necessary for the
@@ -147,7 +149,7 @@ polysaccharides [@Foley2016].
 Homologs of SusC and SusD characterize all
 known polysaccharide utilization systems in this clade [@Grondin2017],
 are encoded in Sus-like genomic regions known as polysaccharide
-utilization loci (PULs), and are widespread in the
+utilization loci (PULs), and are widespread in the phylum
 _Bacteroidetes_ [@Fernandez-Gomez2013].
 The molecular range of these
 systems is determined by the carbohydrate-active enzymes and structural
@@ -156,30 +158,32 @@ proteins they encode, based on the specificity of glycoside hydrolase
 extensively cataloged in the dbCAN database [@Yin2012; @Zhang2018].
 
 Here MAGs from the feces of mice at UT and UM are analyzed to explore
-two closely related questions about the niche of B1 and B2 in the lower
+two closely related questions about the niche of OTU-1 and OTU-4 in the lower
 digestive system.
-First, why do B1 and B2 each increase with ACA
-treatment, while other _Muribaculaceae_ do not? And second, why is the
-response of B1 site specific? Despite similar patterns of abundance at
-their respective sites, these two OTUs seem to be only distantly
+First, why do these populations each increase with ACA
+treatment, while other populations of _Muribaculaceae_ do not?
+And second, why is the
+response of OTU-1 site specific?
+Despite similar patterns of abundance at
+their respective sites, the two responding OTUs seem to be only distantly
 related, sharing just 90% of nucleotides in their 16S rRNA gene V4
 hypervariable region [@Smith2019].
-We nonetheless find genomic evidence that B1
-and B2 occupy overlapping niches, specializing in the degradation of
+We nonetheless find genomic evidence that OTU-1
+and OTU-4 occupy overlapping niches, specializing in the degradation of
 alpha-glucans, a role not held by the other _Muribaculaceae_ described in
 this study.
-In addition, we identify two distinct variants of B1,
+In addition, we identify two distinct genomic variants of OTU-1,
 referred to as B1-A and B1-B, which are differentially distributed
 between UM and UT and have functionally relevant differences in gene
 content.
 
-Reconstructing genomes from metagenomes allow for the comparison of the
+Reconstructing genomes from metagenomes allows for the comparison of the
 functional potential of _Muribaculaceae_ at UM and UT.
 This work
 demonstrates the utility of culture-free genomics to understand the
 ecological role of these key members of the mouse gut microbial
 community and explore several hypotheses that may explain differences in
-the distribution and response of bacteria to perturbations.
+the distribution and response of these bacteria to acarbose treatment.
 Hypotheses
 derived from this analysis provide a foundation for future physiological
 studies in recently obtained cultivars.

@@ -16,19 +16,19 @@ ACA also increases longevity in mice, an effect that could be related to
 increased concentrations of the
 short-chain fatty acids propionate and butyrate.
 In an experiment replicated across three study sites, two distantly related
-members of the family _Muribaculaceae_&mdash;referred to here as B1 and
-B2&mdash;were dramatically more abundant in ACA treated mice, while
-others were not positively affected.
+operational taxonomic units (OTUs)&mdash;referred to here as B1 and
+B2&mdash;both in the family _Muribaculaceae_ were dramatically more abundant in
+ACA treated mice, while other OTUs were not positively affected.
 Members of this family likely produce propionate and are abundant and diverse
 in the guts of mice, although only a handful of isolates are available.
-We reconstructed genomes from metagenomes for seven members of the
-_Muribaculaceae_ to examine what differentiates responders from
+We reconstructed genomes from metagenomes for seven
+_Muribaculaceae_ OTUs to examine what differentiates responders from
 non-responders.
-We find that the genome of B1 is the only one encoding a
+We find that B1 encodes a
 polysaccharide utilization locus with a predicted extracellular alpha-amylase,
-and that B1 and B2 are differentiated from the five non-responders by the
-presence of a gene encoding a periplasmic neopullulanase.
-We also identify two variants of B1 with distinct gene
+and that B1 and B2 are differentiated from the five non-responders by their
+genomes encoding a periplasmic neopullulanase.
+We also identify two genomic variants of B1 with both shared and distinct gene
 content, potentially accounting for surprising patterns of ACA response
 across study sites.
 This work demonstrates the utility of culture-free genomics for understanding

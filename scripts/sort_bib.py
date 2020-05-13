@@ -1,13 +1,16 @@
-#!/usr/bin/env python
-"""Sort all of the entries in the files found in the arguments.
+#!/usr/bin/env python3
+"""Normalize a bibliography
+
+Consumes all entries in all input files
+and sorts them by citation key.
+
+Should normalize entries via the biblib package:
+<https://github.com/aclements/biblib>.
 
 Prints the sorted entries to stdout.
 
-Entry recognition is based on the @ARTICLE command syntax, so @PREAMBLE,
-@COMMENT, and @STRING are all treated as bibleography entries.
-with the string leading up to the first comma used as the key.
-
-TODO: Fix the sorting to deal correctly with non-entry items in the file.
+USAGE:
+    sort_bib.py <input_file1.bib> [<input_file2.bib> [...]] > <output.bib>
 
 """
 

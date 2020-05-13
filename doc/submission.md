@@ -523,7 +523,7 @@ differentiating the two.
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
 providing a measure of the relative enrichment or depletion of genomic
-sequences between the two populations of B1.
+sequences between the two populations of OTU-1.
 This analysis found 12.8%
 of predicted genes in B1-A were depleted at least 5-fold in B1-B
 populations, and 12.4% the reverse.

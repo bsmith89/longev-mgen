@@ -281,7 +281,7 @@ the first two principal components of an ordination on annotation counts of eith
 (**B**) eight COGs identified by Ormerod as maximally discriminatory between
 hypothesized guilds, or (**C**) _de novo_ clusters based on sequence similarity of GH
 domain containing proteins.
-PCA was performed on 30 previously reconstructed MAGs from family _Muribaculaceae_ 
+PCA was performed on 30 previously reconstructed MAGs from family _Muribaculaceae_
 [@Ormerod2016] and the percent of variation described by the first two
 components is included in the axis labels.
 All genomes were then projected onto that space.
@@ -708,7 +708,7 @@ these taxa in acarbose treated mice.
 It is notable that two closely related variants, B1-A and B1-B,
 were associated with OTU-1
 and that B1-B is only found at UT and not UM.
-This is suggestive given the 
+This is suggestive given the
 previously observed site-specificity of the ACA response of
 this species, in which OTU-1 did not have a significantly
 increased abundance in treated mice at UT, while it was the most

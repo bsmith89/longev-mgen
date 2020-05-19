@@ -27,11 +27,8 @@ responsive to acarbose.
 We found two closely related MAGs from one responsive species, B1-A and B1-B,
 that contain a polysaccharide utilization locus with a predicted extracellular
 alpha-amylase.
-<!-- TODO: MAGs have (present tense) genes -->
 These also shared a periplasmic neopullulanase with the distantly related
 B2, a MAG representative of the other responsive species,
-<!-- TODO: Is it unclear that B1 and B2 together encompass all responsive species? -->
-<!-- TODO: Is it clear that we only classify _species_ as responsive or not? -->
 and this gene differentiated these three from MAGs from non-responding species.
 Unshared gene content in B1-A and B1-B may account for surprising patterns
 in the response of this species across study sites.
@@ -47,10 +44,20 @@ microbes to perturbations.
 
 While a preponderance of host-associated bacterial species have never been
 isolated, let alone characterized, combining experimental data from complex
-communities with the analysis of reconstructed genomes provides a powerful tool
-for expanding understanding to these understudied taxa.
-
-<!-- TODO: Write this and keep under 150 word maximum. -->
+communities with the comparison of genomes reconstructed from metagenomes
+provides a powerful tool for expanding understanding to these understudied
+taxa.
+In a previous study, two related, uncultured species of bacteria living in
+the mouse gut and known only by the sequence of a
+taxonomic marker gene were observed to increase in abundance in
+response to the addition of a compound that prevents the breakdown of
+starch in the upper digestive system while other species in this family did
+not respond positively.
+We harnessed this experimental observation to interrogate the
+likely functional importance of shared and unshared genes in a number of
+genomes reconstructed for the species.
+Gene sequences resembling those known to enable growth on starch were found
+in the genomes of responders.
 
 # Background
 
@@ -98,8 +105,6 @@ ACA-treated mice, but was nearly absent at UM and TJL.
 Other _Muribaculaceae_ were also identified as among the most abundant members
 of the mouse gut microbiota across the three sites, although none of
 these were found to be enriched in ACA treatment.
-<!-- We refer to OTU-1 and OTU-4 as the two species responding to ACA, while other
-_Muribaculaceae_ are referred to as non-responding species. -->
 
 The family _Muribaculaceae_---previously referred to as the S24-7 after an
 early clone [@s247clone],
@@ -265,10 +270,6 @@ in these mice [@Smith2019],
 per library mapping rates of each genome were
 compared to the relative abundance of the associated 16S rRNA gene in
 amplicon libraries.
-<!-- TODO: Consider if the below qualification is valid/necessary:
-"Despite the biases and technical variability
-inherent to sequencing and the limitations of mapping
-software" -->
 Pearson correlation coefficients between the fraction of reads
 mapped and species relative abundance were above 0.86 for all MAGs,
 
@@ -333,7 +334,6 @@ Nonetheless, this phylogenetic analysis suggests that the majority of the
 MAGs derived here have not been described previously.
 <!---->
 <!--
-TODO: Do we "reconstruct" MAGs?  No, we reconstruct genomes.  Fix everywhere.
 TODO: Add information about
  <https://www.ncbi.nlm.nih.gov/assembly/GCF_004102775.1/> which has perfect
  matches to (at least) B1A_279 - 284 (one of the starch PULs).
@@ -370,7 +370,6 @@ sequences across the 47 genomes
 ### Ordination of gene content
 
 To compare the novel MAGs to other available MAGs and reference genomes,
-<!-- TODO: Are MAGs _not_ genomes? -->
 a previous published
 analysis was recreated, harnessing a set of 8 COGs found by Ormerod and
 colleagues to
@@ -435,6 +434,9 @@ are noted with members in multiple genomes, including clusters that contain SusR
 The inferred localization of
 each protein product is also indicated: cytoplasmic (genes labeled C), periplasmic
 (**P**), outer membrane (**O**), or inner membrane (**I**).
+<!-- TODO: Make clear that B1-A and B1-B are identical over their Sus-like
+PULs. Consider referencing both in the figure.  Add strain identifier to
+reference rows. -->
 ](fig/pul_diagrams.pdf)
 
 
@@ -588,13 +590,12 @@ more sensitive to potential differences in physiology.
 ^1^ in Mbp \
 ^2^ unique
 
-<!-- TODO: Fix this paragraph to more clearly communicate the pattern
-that we're trying to understand by comparing these MAGs. -->
 Given the observation that the relative abundance of OTU-1 was dramatically
 increased with ACA treatment at UM, while not being significantly
 affected at UT, and that B1-B was not found in metagenomes at UM, we
-searched for differences in functional potential between the two
-variants that could explain this pattern.
+hypothesized that differences in the genomic potential
+of B1-A and B1-B could explain the differential response to ACA
+between the two sites.
 
 Genomic regions apparently specific to B1-A---defined as an at least
 5-fold enrichment in B1-A specific libraries relative to
@@ -725,7 +726,10 @@ monomers in dextran [@Kim2012],
 it is plausible that this PUL can be
 repurposed and confers some ability to grow on starch.
 <!-- TODO: Figure out if [@Chaudet2016] show that the PUL in B.t. that is
-closely related to B2's putative starch PUL is active on starch. -->
+closely related to B2's putative starch PUL is active on starch.
+I don't THINK so.  I think it's a different PUL.
+How to reference this study?
+-->
 
 In addition, a gene encoding a SusA homolog was identified in B1-A, B1-B,
 and B2 but in none of the non-responders.
@@ -757,8 +761,8 @@ Despite evidence that
 large differences in gene content can occur between
 even in closely related populations [@Rasko2008; @Medini2005],
 studies reconstructing genomes from
-metagenomes often ignore these pangenome dynamics (with a few notably
-exceptions [@Truong2017a; @Delmont2018]).
+metagenomes have just started to consider these pangenome dynamics
+[@Scholz2016; @Truong2017a; @Delmont2018; @Segata2018a].
 <!-- TODO: Introduce other studies that have "just started to consider these
 pangenome dynamics"? -->
 The discovery of two
@@ -836,7 +840,7 @@ Individual fecal pellets were collected from a single mouse per cage.
 as described previously [@Smith2019].
 From this collection, a subset of samples were
 non-randomly selected for metagenomic sequencing in order to test
-several hypotheses about SCFA production.
+several unrelated hypotheses about SCFA production.
 <!-- TODO: Is this still too ambiguous? Too specific? -->
 Samples were from 54 mice, with at least six treated and
 control representatives of both males and females at each site.
@@ -944,7 +948,8 @@ The _Muribaculum intestinale_ genome sequence was obtained from GenBank
 (accession GCA002201515.1), as well as four additional draft genomes
 (GCA003024805.1, GCA003024815.1, GCA002633305.1, GCA002633115.1)
 enabling comparison of MAGs to cultured isolates.
-<!-- TODO: Does the analysis need to be updated due to the below? -->
+<!-- TODO: Does the analysis need to be updated due to the addition of other
+isolate genomes? -->
 While other genomes labeled as _Muribaculaceae_ had also been deposited at the
 time of this work, they were excluded from this analysis due to redundancy or
 apparent misidentification to the family.

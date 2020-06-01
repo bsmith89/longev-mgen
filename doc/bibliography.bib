@@ -81,8 +81,7 @@
   number       = 7,
 }
 @article{Ahn2013,
-  title        = {Human {{Gut Microbiome}} and {{Risk}} of
-    {{Colorectal Cancer}}.},
+  title        = {Human Gut Microbiome and Risk of Colorectal Cancer},
   author       = {Ahn, Jiyoung and Sinha, Rashmi and Pei, Zhiheng and
     Dominianni, Christine and Wu, Jing and Shi, Jianxin and Goedert,
     James J and Hayes, Richard B and Yang, Liying},
@@ -127,8 +126,8 @@
     - 2003 - A concise guide to compositional data analysis.pdf},
 }
 @article{Aitchison2005,
-  title        = {Compositional {{Data Analysis}}: {{Where Are We}}
-    and {{Where Should We Be Heading}}?},
+  title        = {Compositional Data Analysis: {{Where}} Are We and
+    Where Should We Be Heading?},
   author       = {Aitchison, J. and J. Egozcue, J.},
   date         = {2005-10},
   journaltitle = {Mathematical Geology},
@@ -432,8 +431,8 @@
   number       = 20,
 }
 @article{Bankevich2012,
-  title        = {{{SPAdes}}: {{A New Genome Assembly Algorithm}} and
-    {{Its Applications}} to {{Single}}-{{Cell Sequencing}}},
+  title        = {{{SPAdes}}: {{A}} New Genome Assembly Algorithm and
+    Its Applications to Single-Cell Sequencing},
   author       = {Bankevich, Anton and Nurk, Sergey and Antipov,
     Dmitry and Gurevich, Alexey A. and Dvorkin, Mikhail and Kulikov,
     Alexander S. and Lesin, Valery M. and Nikolenko, Sergey I. and
@@ -564,9 +563,8 @@
     sequencing,RNA-seq,Transcriptome},
 }
 @article{Baxter2019,
-  title        = {The {{Glucoamylase Inhibitor Acarbose Has}} a
-    {{Diet}}-{{Dependent}} and {{Reversible Effect}} on the {{Murine
-    Gut Microbiome}}},
+  title        = {The Glucoamylase Inhibitor Acarbose Has a
+    Diet-Dependent and Reversible Effect on the Murine Gut Microbiome},
   author       = {Baxter, Nielsen T. and Lesniak, Nicholas A. and
     Sinani, Hamide and Schloss, Patrick D. and Koropatkin, Nicole M.},
   date         = 2019,
@@ -625,8 +623,8 @@
   number       = 1,
 }
 @article{Benjamini1995,
-  title        = {Controlling the {{False Discovery Rate}} : {{A
-    Practical}} and {{Powerful Approach}} to {{Multiple Testing}}},
+  title        = {Controlling the False Discovery Rate : {{A}}
+    Practical and Powerful Approach to Multiple Testing},
   author       = {Benjamini, Yoav and Hochberg, Yosef},
   date         = 1995,
   journaltitle = {Journal of the Royal Statistical Society: Series B
@@ -689,8 +687,8 @@
   keywords     = {nan},
 }
 @report{Bio-Rad2010,
-  title        = {Guidelines for {{Use}} and {{Care}} of {{Aminex
-    Resin}}-{{Based Columns}}},
+  title        = {Guidelines for Use and Care of {{Aminex}}
+    Resin-Based Columns},
   author       = {{Bio-Rad}},
   date         = 2010,
   pages        = {1--22},
@@ -699,8 +697,8 @@
     Columns.pdf},
 }
 @article{Biswas2016,
-  title        = {Learning {{Microbial Interaction Networks}} from
-    {{Metagenomic Count Data}}},
+  title        = {Learning Microbial Interaction Networks from
+    Metagenomic Count Data},
   author       = {Biswas, Surojit and Mcdonald, Meredith and Lundberg,
     Derek S. and Dangl, Jeffery L. and Jojic, Vladimir},
   date         = 2016,
@@ -1006,8 +1004,8 @@
   number       = 7,
 }
 @article{Brown2012a,
-  title        = {A {{Reference}}-{{Free Algorithm}} for
-    {{Computational Normalization}} of {{Shotgun Sequencing Data}}},
+  title        = {A Reference-Free Algorithm for Computational
+    Normalization of Shotgun Sequencing Data},
   author       = {Brown, C. Titus and Howe, Adina and Zhang, Qingpeng
     and Pyrkosz, Alexis B. and Brom, Timothy H.},
   date         = 2012,
@@ -1120,10 +1118,35 @@
     respiration,tion model},
   number       = 4,
 }
-@online{Buffalo2018,
-  title        = {Scythe: {{A}} 3'-End Adapter Contaminant Trimmer},
+@software{Buffalo2018,
+  title        = {Scythe - {{A Bayesian}} Adapter Trimmer},
   author       = {Buffalo, Vince},
   date         = 2018,
+  url          = {https://github.com/vsbuffalo/scythe},
+  urldate      = {2020-05-18},
+  abstract     = {Scythe uses a Naive Bayesian approach to classify
+    contaminant substrings in sequence reads. It considers quality
+    information, which can make it robust in picking out 3'-end
+    adapters, which often include poor quality bases. Most next
+    generation sequencing reads have deteriorating quality towards the
+    3'-end. It's common for a quality-based trimmer to be employed
+    before mapping, assemblies, and analysis to remove these poor
+    quality bases. However, quality-based trimming could remove bases
+    that are helpful in identifying (and removing) 3'-end adapter
+    contaminants. Thus, it is recommended you run Scythe before
+    quality-based trimming, as part of a read quality control
+    pipeline. The Bayesian approach Scythe uses compares two
+    likelihood models: the probability of seeing the matches in a
+    sequence given contamination, and not given contamination. Given
+    that the read is contaminated, the probability of seeing a certain
+    number of matches and mismatches is a function of the quality of
+    the sequence. Given the read is not contaminated (and is thus
+    assumed to be random sequence), the probability of seeing a
+    certain number of matches and mismatches is chance. The posterior
+    is calculated across both these likelihood models, and the class
+    (contaminated or not contaminated) with the maximum posterior
+    probability is the class selected.},
+  version      = {version 0.994 BETA},
 }
 @article{Buse2016,
   title        = {The Primary Glucose-Lowering Effect of Metformin
@@ -1367,7 +1390,7 @@
     (Linking)},
   number       = 6,
 }
-@article{Caporaso2010a,
+@article{Caporaso2010,
   title        = {{{QIIME}} Allows Analysis of High-Throughput
     Community Sequencing Data},
   author       = {Caporaso, J Gregory and Kuczynski, Justin and
@@ -1440,6 +1463,43 @@
     resistance,macrophage,MyD88,obesity},
   number       = 11,
   options      = {useprefix=true},
+}
+@article{Cerqueira2020,
+  ids          = {Cerqueira2019},
+  title        = {Starch Digestion by Gut Bacteria: {{Crowdsourcing}}
+    for Carbs},
+  shorttitle   = {Starch {{Digestion}} by {{Gut Bacteria}}},
+  author       = {Cerqueira, Filipe M. and Photenhauer, Amanda L. and
+    Pollet, Rebecca M. and Brown, Haley A. and Koropatkin, Nicole M.},
+  date         = {2020-02},
+  journaltitle = {Trends in Microbiology},
+  shortjournal = {Trends Microbiol.},
+  volume       = 28,
+  pages        = {95--108},
+  issn         = {1878-4380},
+  doi          = {10.1016/j.tim.2019.09.004},
+  abstract     = {Starch is a polymer of glucose and is one of the
+    most abundant carbohydrates in a Western diet. Resistant starch
+    escapes digestion by host small intestinal glucoamylases and
+    transits the colon where it is degraded by the combined efforts of
+    many gut bacteria. Bacterial metabolism and fermentation of
+    resistant starch leads to increases in short-chain fatty acids,
+    including the clinically beneficial butyrate. Here, we review the
+    molecular machinery that gut bacteria use to degrade starch and
+    how these functions may intersect to facilitate complete starch
+    digestion. While the protein complexes that gut bacteria use to
+    degrade starch differ across phyla, some molecular details
+    converge to promote the optimal positioning of enzymes and
+    substrate for starch degradation.},
+  eprint       = 31624005,
+  eprinttype   = {pmid},
+  file         = {/Users/byronsmith/Zotero/storage/DKITJGH5/Cerqueira
+    et al. - 2020 - Starch Digestion by Gut Bacteria Crowdsourcing
+    fo.pdf},
+  keywords     = {amylase,GH13,gut
+    microbiota,prebiotics,pullulanase,starch},
+  langid       = {english},
+  number       = 2,
 }
 @article{Choo2015,
   title        = {Sample Storage Conditions Significantly Influence
@@ -1709,7 +1769,7 @@
 }
 @article{DElia1996,
   title        = {Contribution of a Neopullulanase, a Pullulanase, and
-    an ??-Glucosidase to Growth of {{Bacteroides}} Thetaiotaomicron on
+    an α-Glucosidase to Growth of {{Bacteroides}} Thetaiotaomicron on
     Starch},
   author       = {D'Elia, John N. and Salyers, Abigail A.},
   date         = 1996,
@@ -2123,9 +2183,8 @@
     ecology,network,random matrix theory},
 }
 @article{Dennis2008,
-  title        = {Modulation of {{Chemical Composition}} and {{Other
-    Parameters}} of the {{Cell}} at {{Different Exponential Growth
-    Rates}}},
+  title        = {Modulation of Chemical Composition and Other
+    Parameters of the Cell at Different Exponential Growth Rates},
   author       = {Dennis, Patrick P. and Bremer, Hans},
   date         = 2008,
   journaltitle = {EcoSal Plus},
@@ -2209,7 +2268,7 @@
   number       = 1,
 }
 @article{Eddy2011,
-  title        = {Accelerated {{Profile HMM Searches}}.},
+  title        = {Accelerated Profile {{HMM}} Searches},
   author       = {Eddy, Sean R},
   date         = {2011-10},
   journaltitle = {PLoS computational biology},
@@ -2465,7 +2524,7 @@
   number       = 1,
 }
 @article{Faith2013,
-  title        = {Response to {{Diet}} in {{Gnotobiotic Mice}}},
+  title        = {Response to Diet in Gnotobiotic Mice},
   author       = {Faith, Jeremiah J and Faith, Jeremiah J and Mcnulty,
     Nathan P and Rey, Federico E and Gordon, Jeffrey I},
   date         = 2013,
@@ -3039,8 +3098,8 @@
     complex},
 }
 @article{Gelman2014,
-  title        = {Beyond {{Power Calculations}}: {{Assessing Type S}}
-    ({{Sign}}) and {{Type M}} ({{Magnitude}}) {{Errors}}},
+  title        = {Beyond Power Calculations: Assessing Type {{S}}
+    (Sign) and Type {{M}} (Magnitude) Errors},
   author       = {Gelman, Andrew and Carlin, John},
   date         = 2014,
   journaltitle = {Perspectives on Psychological Science},
@@ -3418,8 +3477,8 @@
   number       = 10,
 }
 @article{Handelsman2004,
-  title        = {Metagenomics: {{Application}} of {{Genomics}} to
-    {{Uncultured Microorganisms}}},
+  title        = {Metagenomics: {{Application}} of Genomics to
+    Uncultured Microorganisms},
   author       = {Handelsman, Jo},
   date         = {2004-12-01},
   journaltitle = {Microbiology and Molecular Biology Reviews},
@@ -3528,6 +3587,7 @@
   number       = 7253,
 }
 @article{Harrison2014,
+  ids          = {Harrison2014a},
   title        = {Acarbose, 17-α-Estradiol, and Nordihydroguaiaretic
     Acid Extend Mouse Lifespan Preferentially in Males},
   author       = {Harrison, David E. and Strong, Randy and Allison,
@@ -3568,8 +3628,11 @@
     testing hypotheses about sexual dimorphism in aging and health.},
   eprint       = 24245565,
   eprinttype   = {pmid},
-  file         = {/Users/byronsmith/Zotero/storage/A353QWG6/Harrison
+  file         = {/Users/byronsmith/Zotero/storage/24NNL586/Harrison
     et al. - 2014 - Acarbose, 17-α-estradiol, and nordihydroguaiaretic
+    acid extend mouse lifespan preferentially in
+    males(2).pdf;/Users/byronsmith/Zotero/storage/A353QWG6/Harrison et
+    al. - 2014 - Acarbose, 17-α-estradiol, and nordihydroguaiaretic
     acid extend mouse lifespan preferentially in
     males.docx;/Users/byronsmith/Zotero/storage/TCJCITRX/Harrison et
     al. - 2014 - Acarbose, 17-α-estradiol, and nordihydroguaiaretic
@@ -3790,8 +3853,8 @@
   number       = 1,
 }
 @article{Hoffman2011,
-  title        = {The {{No}}-{{U}}-{{Turn Sampler}}: {{Adaptively
-    Setting Path Lengths}} in {{Hamiltonian Monte Carlo}}},
+  title        = {The {{No}}-{{U}}-{{Turn}} Sampler: {{Adaptively}}
+    Setting Path Lengths in {{Hamiltonian Monte Carlo}}},
   author       = {Hoffman, Matthew D. and Gelman, Andrew},
   date         = 2011,
   volume       = 15,
@@ -3836,8 +3899,7 @@
     averaging,hamiltonian monte carlo,markov chain monte carlo},
 }
 @article{Holm-Hansen1969,
-  title        = {Determination of {{Microbial Biomass}} in {{Ocean
-    Profiles}}},
+  title        = {Determination of Microbial Biomass in Ocean Profiles},
   author       = {Holm-Hansen, Osmund},
   date         = 1969,
   journaltitle = {Limnology and Oceanography},
@@ -4112,8 +4174,8 @@
   number       = 3,
 }
 @article{Jackson1997,
-  title        = {Compositional {{Data}} in {{Community Ecology}}:
-    {{The Paradigm}} or {{Peril}} of {{Proportions}}?},
+  title        = {Compositional Data in Community Ecology: {{The}}
+    Paradigm or Peril of Proportions?},
   author       = {Jackson, DA},
   date         = 1997,
   journaltitle = {Ecology},
@@ -4582,9 +4644,9 @@
   number       = 17,
 }
 @article{Kim2013,
-  title        = {Molecular {{Evidence}} of {{Lateral Gene Transfer}}
-    in {{rpoB Gene}} of {{Mycobacterium}} Yongonense {{Strains}} via
-    {{Multilocus Sequence Analysis}}},
+  title        = {Molecular Evidence of Lateral Gene Transfer in
+    {{rpoB}} Gene of {{Mycobacterium}} Yongonense Strains via
+    Multilocus Sequence Analysis},
   author       = {Kim, Byoung Jun and Hong, Seok Hyun and Kook, Yoon
     Hoh and Kim, Bum Joon},
   date         = 2013,
@@ -4733,9 +4795,9 @@
   number       = 6,
 }
 @article{Koropatkin2010,
-  title        = {{{SusG}}: {{A Unique
-    Cell}}-{{Membrane}}-{{Associated}} α-{{Amylase}} from a
-    {{Prominent Human Gut Symbiont Targets Complex Starch Molecules}}},
+  title        = {{{SusG}}: {{A}} Unique Cell-Membrane-Associated
+    α-Amylase from a Prominent Human Gut Symbiont Targets Complex
+    Starch Molecules},
   author       = {Koropatkin, Nicole M. and Smith, Thomas J.},
   date         = 2010,
   journaltitle = {Structure},
@@ -4835,8 +4897,8 @@
   number       = 17,
 }
 @article{Kurtz2015,
-  title        = {Sparse and {{Compositionally Robust Inference}} of
-    {{Microbial Ecological Networks}}},
+  title        = {Sparse and Compositionally Robust Inference of
+    Microbial Ecological Networks},
   author       = {Kurtz, Zachary D. and Müller, Christian L. and
     Miraldi, Emily R. and Littman, Dan R. and Blaser, Martin J. and
     Bonneau, Richard A.},
@@ -4903,6 +4965,42 @@
     provides host-specific insight into cultured diversity and.pdf},
   isbn         = {2058-5276 (Electronic) 2058-5276 (Linking)},
   issue        = {August},
+}
+@article{Lagkouvardos2017,
+  title        = {Cultured Microbes Represent a Substantial Fraction
+    of the Human and Mouse Gut Microbiota},
+  author       = {Lagkouvardos, Ilias and Overmann, Jörg and Clavel,
+    Thomas},
+  date         = {2017-04-18},
+  journaltitle = {Gut Microbes},
+  shortjournal = {Gut Microbes},
+  volume       = 8,
+  pages        = {493--503},
+  issn         = {1949-0976},
+  doi          = {10.1080/19490976.2017.1320468},
+  url          = {https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5628658/},
+  urldate      = {2020-05-08},
+  abstract     = {During the last 15~years, molecular techniques have
+    been preferred over culture-based approaches for the study of
+    mammalian gut microbiota, i.e. the communities of microorganisms
+    dwelling in the intestine of mammals. The main reason is the
+    belief that the majority of gut bacteria, especially strict
+    anaerobes, escape cultivation. Despite numerous such statements in
+    publications, the literature does not provide a clear overview on
+    the subject. In the present manuscript, we highlight recent work
+    on the cultivation of bacteria from the intestine of mammals,
+    review the literature and provide novel data pertaining to
+    cultured fractions of mammalian gut microbiota. These data show
+    that, despite marked inter-sample variations, 35 to 65\% of
+    molecular species detected by sequencing have representative
+    strains in culture.},
+  eprint       = 28418756,
+  eprinttype   = {pmid},
+  file         = {/Users/byronsmith/Zotero/storage/NVCTVMWY/Lagkouvardos
+    et al. - 2017 - Cultured microbes represent a substantial
+    fraction.pdf},
+  number       = 5,
+  pmcid        = {PMC5628658},
 }
 @article{Lagkouvardos2019,
   title        = {Sequence and Cultivation Study of {{Muribaculaceae}}
@@ -5250,6 +5348,48 @@
     transplantation,Metagenome-assembled genomes,Metagenomics},
   number       = 1,
 }
+@article{Lesker2020,
+  title        = {An Integrated Metagenome Catalog Reveals New
+    Insights into the Murine Gut Microbiome},
+  author       = {Lesker, Till R. and Durairaj, Abilash C. and Gálvez,
+    Eric J. C. and Lagkouvardos, Ilias and Baines, John F. and Clavel,
+    Thomas and Sczyrba, Alexander and McHardy, Alice C. and Strowig,
+    Till},
+  date         = {2020-03-03},
+  journaltitle = {Cell Reports},
+  shortjournal = {Cell Reports},
+  volume       = 30,
+  pages        = {2909-2922.e6},
+  issn         = {2211-1247},
+  doi          = {10.1016/j.celrep.2020.02.036},
+  url          = {http://www.sciencedirect.com/science/article/pii/S2211124720301972},
+  urldate      = {2020-04-29},
+  abstract     = {The complexity of host-associated microbial
+    ecosystems requires host-specific reference catalogs to survey the
+    functions and diversity of these communities. We generate a
+    comprehensive resource, the integrated mouse gut metagenome
+    catalog (iMGMC), comprising 4.6 million unique genes and 660
+    metagenome-assembled genomes (MAGs), many (485 MAGs, 73\%) of
+    which are linked to reconstructed full-length 16S rRNA gene
+    sequences. iMGMC enables unprecedented coverage and taxonomic
+    resolution of the mouse gut microbiota; i.e., more than 92\% of
+    MAGs lack species-level representatives in public repositories
+    ({$<$}95\% ANI match). The integration of MAGs and 16S rRNA gene
+    data allows more accurate prediction of functional profiles of
+    communities than predictions based on 16S rRNA amplicons alone.
+    Accompanying iMGMC, we provide a set of MAGs representing 1,296
+    gut bacteria obtained through complementary assembly strategies.
+    We envision that integrated resources such as iMGMC, together with
+    MAG collections, will enhance the resolution of numerous existing
+    and future sequencing-based studies.},
+  file         = {/Users/byronsmith/Zotero/storage/MGSUBZIG/Lesker et
+    al. - 2020 - An Integrated Metagenome Catalog Reveals New
+    Insig.pdf;/Users/byronsmith/Zotero/storage/AJYD5966/S2211124720301972.html},
+  keywords     = {gene catalog,metagenome assembled
+    genome,microbiome,mouse gut microbiota},
+  langid       = {english},
+  number       = 9,
+}
 @article{Ley2006a,
   title        = {Human Gut Microbes Associated with Obesity},
   author       = {Ley, Ruth E. and Turnbaugh, Peter J. and Klein,
@@ -5298,6 +5438,37 @@
     complex metagenomics assembly via succinct de Bruijn graph.pdf},
   isbn         = {1367-4803},
   number       = 10,
+}
+@article{Liu2020,
+  title        = {The {{Mouse Gut Microbial Biobank}} Expands the
+    Coverage of Cultured Bacteria},
+  author       = {Liu, Chang and Zhou, Nan and Du, Meng-Xuan and Sun,
+    Yu-Tong and Wang, Kai and Wang, Yu-Jing and Li, Dan-Hua and Yu,
+    Hai-Ying and Song, Yuqin and Bai, Bing-Bing and Xin, Yuhua and Wu,
+    Linhuan and Jiang, Cheng-Ying and Feng, Jie and Xiang, Hua and
+    Zhou, Yuguang and Ma, Juncai and Wang, Jun and Liu, Hong-Wei and
+    Liu, Shuang-Jiang},
+  date         = {2020-01-07},
+  journaltitle = {Nature Communications},
+  volume       = 11,
+  pages        = {1--12},
+  publisher    = {{Nature Publishing Group}},
+  issn         = {2041-1723},
+  doi          = {10.1038/s41467-019-13836-5},
+  url          = {https://www.nature.com/articles/s41467-019-13836-5},
+  urldate      = {2020-04-27},
+  abstract     = {Here, the authors established and characterized the
+    mouse gut microbial biobank (mGMB), which includes 244 strains and
+    126 species that enlarges previous mouse intestinal bacterial
+    collections and represents a resource for studies using mouse
+    models to investigate microbiome-associated health and disease.},
+  file         = {/Users/byronsmith/Zotero/storage/J4TCL4Q6/Liu et
+    al_2020_The Mouse Gut Microbial Biobank expands the coverage of
+    cultured
+    bacteria.pdf;/Users/byronsmith/Zotero/storage/CHFIFNZ7/s41467-019-13836-5.html},
+  issue        = 1,
+  langid       = {english},
+  number       = 1,
 }
 @article{Love2014a,
   title        = {Moderated Estimation of Fold Change and Dispersion
@@ -6149,8 +6320,7 @@
   number       = 2,
 }
 @article{Merino2015,
-  title        = {Bacterial {{Capsules}} and {{Evasion}} of {{Immune
-    Responses}}},
+  title        = {Bacterial Capsules and Evasion of Immune Responses},
   author       = {Merino, Susana and Tomás, Juán M},
   date         = 2015,
   journaltitle = {eLS},
@@ -6232,8 +6402,8 @@
   number       = 11,
 }
 @article{Miller2007,
-  title        = {An Aging {{Interventions Testing Program}}: Study
-    Design and Interim Report},
+  title        = {An Aging {{Interventions Testing Program}}:
+    {{Study}} Design and Interim Report},
   author       = {Miller, Richard A. and Harrison, David E. and Astle,
     Clinton M. and Floyd, Robert A. and Flurkey, Kevin and Hensley,
     Kenneth L. and Javors, Martin A. and Leeuwenburgh, Christiaan and
@@ -6367,8 +6537,8 @@
   number       = 3,
 }
 @article{Mimno2012,
-  title        = {Topic {{Models Conditioned}} on {{Arbitrary
-    Features}} with {{Dirichlet}}-Multinomial {{Regression}}},
+  title        = {Topic Models Conditioned on Arbitrary Features with
+    Dirichlet-Multinomial Regression},
   author       = {Mimno, David and McCallum, Andrew},
   date         = 2012,
   issn         = {1040-5488},
@@ -6435,10 +6605,89 @@
     metabolism in wildtype mice.pdf},
   number       = 1,
 }
+@article{Miyake2019,
+  title        = {Complete {{Genome Sequence}} of {{Duncaniella}}
+    Muris {{Strain B8}}, {{Isolated}} from the {{Feces}} of
+    {{C57}}/{{BL6 Mice}}},
+  author       = {Miyake, Sou and Ding, Yichen and Soh, Melissa and
+    Seedorf, Henning},
+  date         = {2019-07-25},
+  journaltitle = {Microbiology Resource Announcements},
+  shortjournal = {Microbiol Resour Announc},
+  volume       = 8,
+  publisher    = {{American Society for Microbiology}},
+  issn         = {2576-098X},
+  doi          = {10.1128/MRA.00566-19},
+  url          = {https://mra.asm.org/content/8/30/e00566-19},
+  urldate      = {2020-04-25},
+  abstract     = {Here, the complete genome sequence of Duncaniella
+    muris strain B8 is presented. The anaerobic strain was isolated
+    from the feces of C57/BL6 mice and is closely related to D. muris
+    strain DSM 103720, which is the type strain of the recently
+    proposed genus Duncaniella of the Muribaculaceae.},
+  eprint       = 31346018,
+  eprinttype   = {pmid},
+  file         = {/Users/byronsmith/Zotero/storage/8XXFU73A/Miyake et
+    al. - 2019 - Complete Genome Sequence of iDuncaniella
+    muris.pdf;/Users/byronsmith/Zotero/storage/FA6XHC96/Miyake et
+    al_2019_Complete Genome Sequence of Duncaniella muris Strain B8,
+    Isolated from
+    the.pdf;/Users/byronsmith/Zotero/storage/9Z99M84M/e00566-19.html},
+  langid       = {english},
+  number       = 30,
+}
+@article{Miyake2020,
+  title        = {Cultivation and Description of {{Duncaniella}}
+    Dubosii Sp. Nov., {{Duncaniella}} Freteri Sp. Nov. and Emended
+    Description of the Species {{Duncaniella}} Muris},
+  author       = {Miyake, Sou and Ding, Yichen and Soh, Melissa and
+    Low, Adrian and Seedorf, Henning},
+  date         = {2020-04-06},
+  journaltitle = {International Journal of Systematic and Evolutionary
+    Microbiology},
+  publisher    = {{Microbiology Society,}},
+  issn         = {1466-5026, 1466-5034},
+  doi          = {10.1099/ijsem.0.004137},
+  url          = {https://www.microbiologyresearch.org/content/journal/ijsem/10.1099/ijsem.0.004137},
+  urldate      = {2020-05-18},
+  abstract     = {Three bacterial strains, C9, H5 and TLL-A­ 3, were
+    isolated from fecal pellets of conventionally raised C57BL/6J
+    mice. Analysis of 16S rRNA genes indicated that the strains
+    belonged to the Muribaculaceae, and shared 91.6–99.9 \% sequence
+    identity with the recently described Duncaniella muris DSM
+    103720T. Genome-­sequencing of the isolates was performed to
+    compare average nucleotide identities (ANI) between strains. The
+    ANI analysis revealed that all isolates shared highest ANI with D.
+    muris DSM 103720T, with strain C9 being most similar (ANI:
+    98.0{$\mkern1mu\%$}) followed by strains H5 (ANI:
+    76.4{$\mkern1mu\%$}) and TLL-A­ 3 (ANI: 74.4{$\mkern1mu\%$}).
+    Likewise, digital DNA–DNA hybridization (dDDH) indicated high
+    similarity of strain C9 (dDDH: 86.6{$\mkern1mu\%$}) to D. muris
+    DSM 103720T, but strains H5 and TLL-A­ 3 showed lower similarity
+    (dDDH {$<$}35{$\mkern1mu\%$}) to either of the three type species
+    of the Muribaculaceae (Muribaculum intestinale DSM 28989T,
+    Paramuribaculum intestinale DSM 100749T, D. muris DSM 103720T).
+    MK-10 and MK-11 were abundant in all three isolates, but
+    concentrations varied between species. Based on genotypic,
+    phylogenetic and phenotypic differences, the strains TLL-A­ 3 and
+    H5 are considered to represent novel species of the genus
+    Duncaniella, for which the names Duncaniella freteri sp. nov., and
+    Duncaniella dubosii sp. nov., are proposed. The respective type
+    strains are TLL-A­ 3T (=DSM 108168T=KCTC 15769T), and H5T (=DSM
+    107170T=KCTC 15734T). Strain C9 reveals limited sequence
+    dissimilarity and minor differences in morphological properties
+    with Duncaniella muris DSM 103720T and is therefore proposed to
+    belong to the same species. The respective strain is C9 (=DSM
+    107165=KCTC 15733).},
+  file         = {/Users/byronsmith/Zotero/storage/HIQHJXMF/Miyake et
+    al. - 2020 - Cultivation and description of Duncaniella
+    dubosii.pdf;/Users/byronsmith/Zotero/storage/INLR4EBR/ijsem.0.html},
+  langid       = {english},
+}
 @article{Mobley2013,
-  title        = {A {{Survey}} on {{Data Reproducibility}} in {{Cancer
-    Research Provides Insights}} into {{Our Limited Ability}} to
-    {{Translate Findings}} from the {{Laboratory}} to the {{Clinic}}},
+  title        = {A Survey on Data Reproducibility in Cancer Research
+    Provides Insights into Our Limited Ability to Translate Findings
+    from the Laboratory to the Clinic},
   author       = {Mobley, Aaron and Linder, Suzanne K. and Braeuer,
     Russell and Ellis, Lee M. and Zwelling, Leonard},
   date         = 2013,
@@ -6558,8 +6807,8 @@
 }
 @article{Nadon2017,
   title        = {{{NIA Interventions Testing Program}}:
-    {{Investigating Putative Aging Intervention Agents}} in a
-    {{Genetically Heterogeneous Mouse Model}}},
+    {{Investigating}} Putative Aging Intervention Agents in a
+    Genetically Heterogeneous Mouse Model},
   author       = {Nadon, Nancy L. and Strong, Randy and Miller,
     Richard A. and Harrison, David E.},
   date         = 2017,
@@ -6862,8 +7111,8 @@
   number       = 1,
 }
 @article{Palarea-Albaladejo2007,
-  title        = {A {{Parametric Approach}} for {{Dealing}} with
-    {{Compositional Rounded Zeros}}},
+  title        = {A Parametric Approach for Dealing with Compositional
+    Rounded Zeros},
   author       = {Palarea-Albaladejo, Javier and a. Martín-Fernández,
     Josep and Gómez-García, Juan},
   date         = {2007-09-14},
@@ -8141,9 +8390,9 @@
   keywords     = {Metagenomics Metatranscriptomics Internal standard},
 }
 @article{Schaechter1958,
-  title        = {Dependency on {{Medium}} and {{Temperature}} of
-    {{Cell Size}} and {{Chemical Composition}} during {{Balanced
-    Growth}} of {{Salmonella}} Typhimurium},
+  title        = {Dependency on Medium and Temperature of Cell Size
+    and Chemical Composition during Balanced Growth of {{Salmonella}}
+    Typhimurium},
   author       = {Schaechter, M. and MaalOe, O. and Kjeldgaard, N. O.},
   date         = 1958,
   journaltitle = {Journal of General Microbiology},
@@ -8405,6 +8654,34 @@
     (Linking)},
   number       = 14,
 }
+@article{Scholz2016,
+  title        = {Strain-Level Microbial Epidemiology and Population
+    Genomics from Shotgun Metagenomics},
+  author       = {Scholz, Matthias and Ward, Doyle V. and Pasolli,
+    Edoardo and Tolio, Thomas and Zolfo, Moreno and Asnicar, Francesco
+    and Truong, Duy Tin and Tett, Adrian and Morrow, Ardythe L. and
+    Segata, Nicola},
+  date         = {2016-05},
+  journaltitle = {Nature Methods},
+  volume       = 13,
+  pages        = {435--438},
+  publisher    = {{Nature Publishing Group}},
+  issn         = {1548-7105},
+  doi          = {10.1038/nmeth.3802},
+  url          = {https://www.nature.com/articles/nmeth.3802},
+  urldate      = {2020-05-19},
+  abstract     = {PanPhlAn detects strains and characterizes
+    strain-specific gene content and activity within metagenomic and
+    metatranscriptomic samples for microbial population analysis and
+    epidemiology.},
+  file         = {/Users/byronsmith/Zotero/storage/UZ3WJ4DW/Scholz et
+    al_2016_Strain-level microbial epidemiology and population
+    genomics from
+    shotgun.pdf;/Users/byronsmith/Zotero/storage/IDYJWMHK/nmeth.html},
+  issue        = 5,
+  langid       = {english},
+  number       = 5,
+}
 @article{Seedorf2014,
   title        = {Bacteria from Diverse Habitats Colonize and Compete
     in the Mouse Gut},
@@ -8561,6 +8838,56 @@
     inhibition},
   number       = 6,
 }
+@article{Selengut2007,
+  title        = {{{TIGRFAMs}} and {{Genome Properties}}: Tools for
+    the Assignment of Molecular Function and Biological Process in
+    Prokaryotic Genomes.},
+  author       = {Selengut, Jeremy D and Haft, Daniel H and Davidsen,
+    Tanja and Ganapathy, Anurhada and Gwinn-Giglio, Michelle and
+    Nelson, William C and Richter, Alexander R and White, Owen},
+  date         = {2007-01},
+  journaltitle = {Nucleic acids research},
+  volume       = 35,
+  pages        = {D260-4},
+  issn         = {1362-4962},
+  doi          = {10.1093/nar/gkl1043},
+  url          = {http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=1781115&tool=pmcentrez&rendertype=abstract},
+  urldate      = {2013-02-06},
+  abstract     = {TIGRFAMs is a collection of protein family
+    definitions built to aid in high-throughput annotation of specific
+    protein functions. Each family is based on a hidden Markov model
+    (HMM), where both cutoff scores and membership in the seed
+    alignment are chosen so that the HMMs can classify numerous
+    proteins according to their specific molecular functions. Most
+    TIGRFAMs models describe 'equivalog' families, where both
+    orthology and lateral gene transfer may be part of the
+    evolutionary history, but where a single molecular function has
+    been conserved. The Genome Properties system contains a queriable
+    set of metabolic reconstructions, genome metrics and extractions
+    of information from the scientific literature. Its
+    genome-by-genome assertions of whether or not specific structures,
+    pathways or systems are present provide high-level conceptual
+    descriptions of genomic content. These assertions enable
+    comparative genomics, provide a meaningful biological context to
+    aid in manual annotation, support assignments of Gene Ontology
+    (GO) biological process terms and help validate HMM-based
+    predictions of protein function. The Genome Properties system is
+    particularly useful as a generator of phylogenetic profiles,
+    through which new protein family functions may be discovered. The
+    TIGRFAMs and Genome Properties systems can be accessed at
+    http://www.tigr.org/TIGRFAMs and
+    http://www.tigr.org/Genome\_Properties.},
+  eprint       = 17151080,
+  eprinttype   = {pmid},
+  issue        = {Database issue},
+  keywords     = {Archaeal Proteins,Archaeal Proteins:
+    classification,Archaeal Proteins: genetics,Archaeal Proteins:
+    physiology,Bacterial Proteins,Bacterial Proteins:
+    classification,Bacterial Proteins: genetics,Bacterial Proteins:
+    physiology,Databases; Protein,Genome;
+    Bacterial,Genomics,Internet,Phylogeny,Software,User-Computer
+    Interface},
+}
 @article{Shastri2015,
   title        = {Sex Differences in Gut Fermentation and Immune
     Parameters in Rats Fed an Oligofructose-Supplemented Diet.},
@@ -8623,6 +8950,46 @@
     parameters in rats fed an oligofructose-supplemented diet.pdf},
   keywords     = {★,butyrate,Butyrate,ca,correspondence,green-johnson,iga,IgA,julia,liver,Liver,microbiota,Microbiota,oligofructose,Oligofructose,sex,Sex,uoit},
 }
+@article{Shimizu2019,
+  title        = {Dietary Short-Chain Fatty Acid Intake Improves the
+    Hepatic Metabolic Condition via {{FFAR3}}},
+  author       = {Shimizu, Hidenori and Masujima, Yuki and Ushiroda,
+    Chihiro and Mizushima, Rina and Taira, Satsuki and Ohue-Kitano,
+    Ryuji and Kimura, Ikuo},
+  date         = {2019-11-12},
+  journaltitle = {Scientific Reports},
+  volume       = 9,
+  pages        = {1--10},
+  publisher    = {{Nature Publishing Group}},
+  issn         = {2045-2322},
+  doi          = {10.1038/s41598-019-53242-x},
+  url          = {https://www.nature.com/articles/s41598-019-53242-x},
+  urldate      = {2020-04-27},
+  abstract     = {Fermented foods represent a significant portion of
+    human diets with several beneficial effects. Foods produced by
+    bacterial fermentation are enriched in short-chain fatty acids
+    (SCFAs), which are functional products of dietary fibers via gut
+    microbial fermentation. In addition to energy sources, SCFAs also
+    act as signaling molecules via G-protein coupled receptors such as
+    FFAR2 and FFAR3. Hence, dietary SCFAs in fermented foods may have
+    a direct influence on metabolic functions. However, the detailed
+    mechanism by dietary SCFAs remains unclear. Here, we show that
+    dietary SCFAs protected against high-fat diet-induced obesity in
+    mice in parallel with increased plasma SCFAs without changing
+    cecal SCFA or gut microbial composition. Dietary SCFAs suppressed
+    hepatic weight and lipid synthesis. These effects were abolished
+    in FFAR3-deficient mice but not FFAR2-deficient. Thus, SCFAs
+    supplementation improved hepatic metabolic functions via FFAR3
+    without influencing intestinal environment. These findings could
+    help to promote the development of functional foods using SCFAs.},
+  file         = {/Users/byronsmith/Zotero/storage/P297PW4C/Shimizu et
+    al_2019_Dietary short-chain fatty acid intake improves the hepatic
+    metabolic
+    condition.pdf;/Users/byronsmith/Zotero/storage/BDSQAKVM/s41598-019-53242-x.html},
+  issue        = 1,
+  langid       = {english},
+  number       = 1,
+}
 @article{Shipman1999,
   title        = {Physiological Characterization of {{SusG}}, an Outer
     Membrane Protein Essential for Starch Utilization by
@@ -8664,8 +9031,7 @@
   number       = 23,
 }
 @article{Singer2017,
-  title        = {Bacterial {{Dissemination}} to the {{Brain}} in
-    {{Sepsis}}},
+  title        = {Bacterial Dissemination to the Brain in Sepsis},
   author       = {Singer, Benjamin H. and Dickson, Robert P. and
     Denstaedt, Scott J. and Newstead, Michael W. and Kim, Kwi and
     Falkowski, Nicole R. and Erb-Downward, John R. and Schmidt, Thomas
@@ -8978,6 +9344,7 @@
   shortjournal = {BMC Microbiology},
   volume       = 19,
   pages        = 130,
+  publisher    = {{BMC Microbiology}},
   issn         = {1471-2180},
   doi          = {10.1186/s12866-019-1494-7},
   url          = {https://doi.org/10.1186/s12866-019-1494-7},
@@ -8996,15 +9363,23 @@
     increased longevity in mice. To explore this hypothesis, we
     compared the fecal microbiome of mice treated with acarbose to
     control mice at three independent study sites.},
-  file         = {/Users/byronsmith/Zotero/storage/XVRRYL59/Smith et
+  file         = {/Users/byronsmith/Zotero/storage/F7WS4UID/Smith et
     al. - 2019 - Changes in the gut microbiome and fermentation
+    products concurrent with enhanced longevity in acarbose-treated
+    mic.pdf;/Users/byronsmith/Zotero/storage/WBPLHLRM/Smith et al. -
+    Unknown - Changes in the gut microbiome and fermentation products
+    concurrent with enhanced longevity in
+    acarbose-treated.pdf;/Users/byronsmith/Zotero/storage/XVRRYL59/Smith
+    et al. - 2019 - Changes in the gut microbiome and fermentation
     pro.pdf;/Users/byronsmith/Zotero/storage/ZFE8RMAQ/s12866-019-1494-7.html},
-  keywords     = {\#duplicate-citation-key},
+  keywords     = {\#duplicate-citation-key,acarbose,Candidatus
+    Homeothermaceae,gut
+    microbiome,longevity,Muribaculaceae,S24-7,short-chain fatty acids},
   number       = 1,
 }
 @article{Sohn2017,
-  title        = {Compositional {{Mediation Analysis}} for
-    {{Microbiome Studies}}},
+  title        = {Compositional Mediation Analysis for Microbiome
+    Studies},
   author       = {Sohn, Michael B. and Li, Hongzhe},
   date         = 2017,
   journaltitle = {bioRxiv},
@@ -9463,7 +9838,7 @@
   number       = 1,
 }
 @software{Therneau2015,
-  title        = {A {{Package}} for {{Survival Analysis}} in {{S}}},
+  title        = {A Package for Survival Analysis in {{S}}},
   author       = {Therneau, Terry M.},
   date         = 2015,
   url          = {https://cran.r-project.org/package=survival},
@@ -9546,6 +9921,39 @@
   isbn         = {1369-5274 (Print)\textbackslash{}r1369-5274
     (Linking)},
   number       = 5,
+}
+@article{Truong2015,
+  title        = {{{MetaPhlAn2}} for Enhanced Metagenomic Taxonomic
+    Profiling},
+  author       = {Truong, Duy Tin and Franzosa, Eric A and Tickle,
+    Timothy L and Scholz, Matthias and Weingart, George and Pasolli,
+    Edoardo and Tett, Adrian and Huttenhower, Curtis and Segata,
+    Nicola},
+  date         = 2015,
+  journaltitle = {Nature Methods},
+  volume       = 12,
+  pages        = {902--903},
+  issn         = 15487105,
+  doi          = {10.1038/nmeth.3589},
+  url          = {http://www.nature.com/doifinder/10.1038/nmeth.3589},
+  abstract     = {MetaPhlAn (metagenomic phylogenetic analy- sis)1 is
+    a method for characterizing the taxonomic profiles of
+    whole-metagenome shotgun (WMS) samples that has been used
+    successfully in large-scale microbial community studies2,3. This
+    work complements the original species-level profiling method with
+    a system for eukaryotic and viral quantitation, strain-level
+    identification and strain tracking. These and other extensions
+    make the MetaPhlAn2 computational package (http://segatalab.
+    cibio.unitn.it/tools/metaphlan2/ and Supplementary Software) an
+    efficient tool for mining WMS samples.},
+  archiveprefix = {arXiv},
+  eprint       = 26418763,
+  eprinttype   = {pmid},
+  file         = {/Users/byronsmith/Zotero/storage/WX73GAE9/Truong et
+    al. - 2015 - MetaPhlAn2 for enhanced metagenomic taxonomic
+    profiling.pdf},
+  isbn         = {1548-7091},
+  number       = 10,
 }
 @article{Truong2017a,
   title        = {Microbial Strain-Level Population Structure and
@@ -9861,7 +10269,7 @@
   options      = {useprefix=true},
 }
 @book{VandenBoogaart2011,
-  title        = {Analyzing {{Compositional Data}} with {{R}}},
+  title        = {Analyzing Compositional Data with {{R}}},
   author       = {van den Boogaart, K Gerald and Tolosana-Delgado,
     Raimon},
   date         = 2011,
@@ -10224,9 +10632,9 @@
   number       = 1,
 }
 @article{Watanabe2010,
-  title        = {Asymptotic {{Equivalence}} of {{Bayes Cross
-    Validation}} and {{Widely Applicable Information Criterion}} in
-    {{Singular Learning Theory}}},
+  title        = {Asymptotic Equivalence of {{Bayes}} Cross Validation
+    and {{Widely Applicable Information Criterion}} in Singular
+    Learning Theory},
   author       = {Watanabe, Sumio},
   date         = 2010,
   volume       = 11,
@@ -10275,8 +10683,7 @@
   number       = 1,
 }
 @article{Weaver1997,
-  title        = {Acarbose {{Enhances Human Colonic Butyrate
-    Production}}},
+  title        = {Acarbose Enhances Human Colonic Butyrate Production},
   author       = {Weaver, Gary A. and Tangel, Colette T. and Krause,
     Jean A. and Parfitt, Margaret M. and Jenkins, Paul L. and Rader,
     Joanne M. and Lewis, Bertha A. and Miller, Terry L. and Wolin,
@@ -10990,11 +11397,11 @@
   number       = 1,
 }
 @article{Wolin1999,
-  title        = {Changes of {{Fermentation Pathways}} of {{Fecal
-    Microbial Communities Associated}} with a {{Drug Treatment That
-    Increases Dietary Starch}} in the {{Human Colon Changes}} of
-    {{Fermentation Pathways}} of {{Fecal Microbial Communities
-    Associated}} with a {{Drug Treatment That Increas}}},
+  title        = {Changes of Fermentation Pathways of Fecal Microbial
+    Communities Associated with a Drug Treatment That Increases
+    Dietary Starch in the Human Colon Changes of Fermentation Pathways
+    of Fecal Microbial Communities Associated with a Drug Treatment
+    That Increases Dietary Starch in the Human Colon},
   author       = {Wolin, Meyer J. and Miller, Terry L. and Yerry,
     Susan and Bank, Shelton and Weaver, Gary A. and Zhang, Yongchao},
   date         = 1999,
@@ -11009,8 +11416,8 @@
   number       = 7,
 }
 @article{Wong2006,
-  title        = {Colonic {{Health}}: {{Fermentation}} and {{Short
-    Chain Fatty Acids}}},
+  title        = {Colonic Health: {{Fermentation}} and Short Chain
+    Fatty Acids},
   author       = {Wong, Julia M. W. and de Souza, Russell and Kendall,
     Cyril W. C. and Emam, Azadeh and Jenkins, David J. A.},
   date         = 2006,
@@ -11342,7 +11749,7 @@
   number       = {D1},
 }
 @article{Yin2012,
-  title        = {{{DbCAN}}: {{A}} Web Resource for Automated
+  title        = {{{dbCAN}}: {{A}} Web Resource for Automated
     Carbohydrate-Active Enzyme Annotation},
   author       = {Yin, Yanbin and Mao, Xizeng and Yang, Jincai and
     Chen, Xin and Mao, Fenglou and Xu, Ying},
@@ -11606,7 +12013,7 @@
   number       = 1,
 }
 @article{Zhang2018,
-  title        = {{{DbCAN2}}: {{A}} Meta Server for Automated
+  title        = {{{dbCAN2}}: {{A}} Meta Server for Automated
     Carbohydrate-Active Enzyme Annotation},
   author       = {Zhang, Han and Yohe, Tanner and Huang, Le and
     Entwistle, Sarah and Wu, Peizhi and Yang, Zhenglu and Busk, Peter
@@ -11653,49 +12060,14 @@
   title        = {Gut Bacteria Selectively Promoted by Dietary Fibers
     Alleviate Type 2 Diabetes},
   author       = {Zhao, Liping and Zhang, Feng and Ding, Xiaoying and
-    Wu, Guojun and Lam, Yan Y. and Shi, Yu and Shen, Qingyun and Dong,
-    Weiping and Liu, Rui and Ling, Yunxia and Zeng, Yue},
-  date         = 2018,
-  journaltitle = {Science},
-  volume       = 1156,
-  pages        = {1151--1156},
-  doi          = {10.1126/science.aao5774},
-  url          = {http://science.sciencemag.org/cgi/content/short/359/6380/1151},
-  abstract     = {The gut microbiota benefits humans via short-chain
-    fatty acid (SCFA) production from carbohydrate fermentation, and
-    deficiency in SCFA production is associated with type 2 diabetes
-    mellitus (T2DM). We conducted a randomized clinical study of
-    specifically designed isoenergetic diets, together with fecal
-    shotgun metagenomics, to show that a select group of
-    SCFA-producing strains was promoted by dietary fibers and that
-    most other potential producers were either diminished or unchanged
-    in patients with T2DM. When the fiber-promoted SCFA producers were
-    present in greater diversity and abundance, participants had
-    better improvement in hemoglobin A1c levels, partly via increased
-    glucagon-like peptide-1 production. Promotion of these positive
-    responders diminished producers of metabolically detrimental
-    compounds such as indole and hydrogen sulfide. Targeted
-    restoration of these SCFA producers may present a novel ecological
-    approach for managing T2DM.},
-  file         = {/Users/byronsmith/Zotero/storage/D5AQE569/Zhao et
-    al. - 2018 - Gut bacteria selectively promoted by dietary fibers
-    alleviate type 2 diabetes.pdf},
-  issue        = {March},
-}
-@article{Zhao2018a,
-  title        = {Gut Bacteria Selectively Promoted by Dietary Fibers
-    Alleviate Type 2 Diabetes},
-  author       = {Zhao, Liping and Zhang, Feng and Ding, Xiaoying and
-    Wu, Guojun and Lam, Yan Y. and Shi, Yu and Shen, Qingyun and Dong,
+    Wu, Guojun and Lam, Yan Y. and Wang, Xuejiao and Fu, Huaqing and
+    Xue, Xinhe and Lu, Chunhua and Ma, Jilin and Yu, Lihua and Xu,
+    Chengmei and Ren, Zhongying and Xu, Ying and Xu, Songmei and Shen,
+    Hongli and Zhu, Xiuli and Shi, Yu and Shen, Qingyun and Dong,
     Weiping and Liu, Rui and Ling, Yunxia and Zeng, Yue and Wang,
-    Xuejiao Xingpeng and Fu, Huaqing and Xue, Xinhe and Lu, Chunhua
-    and Ma, Jilin and Yu, Lihua and Xu, Chengmei and Ren, Zhongying
-    and Xu, Ying and Xu, Songmei and Shen, Hongli and Zhu, Xiuli and
-    Shi, Yu and Shen, Qingyun and Dong, Weiping and Liu, Rui and Ling,
-    Yunxia and Zeng, Yue and Wang, Xuejiao Xingpeng and Zhang,
-    Qianpeng and Wang, Jing and Wang, Linghua and Wu, Yanqiu and Zeng,
-    Benhua and Wei, Hong and Zhang, Menghui and Peng, Yongde and
-    Zhang, Chenhong},
+    Xingpeng and Zhang, Qianpeng and Wang, Jing and Wang, Linghua and
+    Wu, Yanqiu and Zeng, Benhua and Wei, Hong and Zhang, Menghui and
+    Peng, Yongde and Zhang, Chenhong},
   date         = 2018,
   journaltitle = {Science},
   volume       = 359,
@@ -11721,7 +12093,16 @@
     approach for managing T2DM.},
   eprint       = 29590046,
   eprinttype   = {pmid},
-  file         = {/Users/byronsmith/Zotero/storage/H95WJUA2/Zhao et
+  file         = {/Users/byronsmith/Zotero/storage/2LJPQ696/Zhao et
+    al. - 2018 - Gut bacteria selectively promoted by dietary fibers
+    alleviate type 2
+    diabetes(3).pdf;/Users/byronsmith/Zotero/storage/D5AQE569/Zhao et
+    al. - 2018 - Gut bacteria selectively promoted by dietary fibers
+    alleviate type 2
+    diabetes.pdf;/Users/byronsmith/Zotero/storage/H95WJUA2/Zhao et al.
+    - 2018 - Gut bacteria selectively promoted by dietary fibers
+    alleviate type 2
+    diabetes(2).pdf;/Users/byronsmith/Zotero/storage/YKDUIDNA/Zhao et
     al. - 2018 - Gut bacteria selectively promoted by dietary fibers
     alleviate type 2 diabetes(2).pdf},
   isbn         = 1223326500,
@@ -11773,9 +12154,29 @@
     gut bacterial species.pdf},
   number       = 1,
 }
-@online{patsy,
-  title        = {Patsy - {{Describing}} Statistical Models in
-    {{Python}}},
-  url          = {https://patsy.readthedocs.io/en/latest/},
-  urldate      = {2018-11-08},
+@software{patsy,
+  ids          = {patsy},
+  title        = {Pydata/{{Patsy}}: {{V0}}.5.1},
+  shorttitle   = {Pydata/{{Patsy}}},
+  author       = {Smith, Nathaniel J. and Hudon, Christian and
+    Broessli and Skipper Seabold and Quackenbush, Peter and
+    Hudson-Doyle, Michael and Humber, Max and Leinweber, Katrin and
+    Kibirige, Hassan and Davidson-Pilon, Cameron and Portnoy, Andrey},
+  date         = {2018-10-28},
+  doi          = {10.5281/zenodo.1472929},
+  url          = {https://zenodo.org/record/1472929},
+  urldate      = {2020-05-18},
+  abstract     = {See release notes:
+    http://patsy.readthedocs.org/en/latest/changes.html\#v0-5-1},
+  organization = {{Zenodo}},
+}
+@online{s247clone,
+  title        = {Uncultured Bacterium Partial {{16S rRNA}} Gene,
+    Clone {{S24}}-7},
+  date         = {2001-06-28},
+  url          = {http://www.ncbi.nlm.nih.gov/nuccore/AJ400263.1},
+  urldate      = {2020-05-19},
+  keywords     = {dna,insd,uncultured bacterium},
+  langid       = {american},
+  note         = {\{:itemType: dataset\}},
 }

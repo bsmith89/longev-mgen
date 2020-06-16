@@ -45,22 +45,25 @@ perturbations.
 
 # Importance
 
-While a preponderance of host-associated bacterial species have never been
-isolated, let alone characterized, combining experimental data from complex
-communities with the comparison of genomes reconstructed from metagenomes
-provides a powerful tool for expanding understanding to these understudied
-taxa.
-In a previous study, two related, uncultured species of bacteria living in
-the mouse gut and known only by the sequence of a
-taxonomic marker gene were observed to increase in abundance in
-response to the addition of a compound that prevents the breakdown of
-starch in the upper digestive system while other species in this family did
-not respond positively.
-We harnessed this experimental observation to interrogate the
-likely functional importance of shared and unshared genes in a number of
-genomes reconstructed for the species.
-Gene sequences resembling those known to enable growth on starch were found
-in the genomes of responders.
+
+The drug acarbose is used to treat diabetes by preventing the breakdown of
+starch in the small intestine.
+Acarbose treatment increases longevity in mice.
+By reconstructing the genomes of bacteria that respond to acarbose
+treatment, these species were shown to have genes that enable growth on
+starch, and which are expected to
+give them a competitive advantage in the guts of animals consuming acarbose.
+The responsive bacteria are within a family of microbes that
+produce propionate as a primary product of growth on starch,
+and propionate has been
+associated with gut health and increased longevity.
+Combined with the observed responses to acarbose treatment,
+comparisons among genomes support existing theories about the ecological roles
+occupied by members of this family.
+
+<!--
+TOOD: Make this more about the results and use the abstract for the background.
+-->
 
 # Background
 

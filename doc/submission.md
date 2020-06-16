@@ -6,38 +6,41 @@ title: '_Muribaculaceae_ genomes assembled from metagenomes suggest
 
 # Abstract
 
-Understanding how bacterial inhabitants of the gut respond to
-pharmaceutical and dietary perturbations is necessary for the design of
-microbiome-based therapies.
-The alpha-amylase inhibitor acarbose increases the amount of
-starch entering the lower digestive system after meals, resulting in changes
-to the composition of the microbiota and its fermentation products.
+The drug acarbose (ACA) is used to treat
+diabetes, and through inhibition of alpha-amylase increases the amount of
+starch entering the lower digestive system after meals.  This results in
+changes to the composition of the microbiota and its fermentation products.
 Acarbose also increases longevity in mice, an effect that could be related to
-increased concentrations of the
+increased production of the
 short-chain fatty acids propionate and butyrate.
-In an experiment replicated across three study sites, two distantly related
+In experiments replicated across three study sites, two distantly related
 species in
 the family _Muribaculaceae_ were dramatically more abundant in ACA treated
-mice, while others in this clade were not positively affected.
-Members of this family likely produce propionate and are abundant and diverse
-in the guts of mice, although only a handful of isolates are available.
+mice, distinguishing these responders from other members of the family.
+Members of the _Muribaculaceae_ likely produce propionate and are abundant and
+diverse in the guts of mice, although only a small number of isolates are
+available.
 We reconstructed genomes from metagenomes (MAGs) for eight populations of
-_Muribaculaceae_ to examine what distinguishes species that are positively
-responsive to acarbose.
-We found two closely related MAGs from one responsive species, B1-A and B1-B,
-that contain a polysaccharide utilization locus with a predicted extracellular
-alpha-amylase.
-These also shared a periplasmic neopullulanase with the distantly related
-B2, a MAG representative of the other responsive species,
-and this gene differentiated these three from MAGs from non-responding species.
-Unshared gene content in B1-A and B1-B may account for surprising patterns
-in the response of this species across study sites.
-This work demonstrates the utility of culture-free genomics for understanding
-the ecological role of gut bacteria and
-explores hypotheses that may explain the distribution and response of
-microbes to perturbations.
+_Muribaculaceae_ to examine what distinguishes species that respond positively
+to acarbose.
+We found two closely related MAGs from one of the responsive species (B1-A and
+B1-B) that contain a polysaccharide utilization locus with a predicted
+extracellular alpha-amylase.
+<!--
+TODO: Check the following and add if true: "...and these were the only two to
+posses a predicted OM-localized GH13 domain containing gene product.
+-->
+These also shared a periplasmic neopullulanase with another, distantly related
+MAG (B2) representative of the only other responsive species.
+This gene differentiated these three from MAGs representative of non-responding
+species.
+Differential gene content in B1-A and B1-B may be associated with the
+inconsistent response of this species across study sites.
+This work demonstrates the utility of culture-free genomics for infering
+the ecological role of gut bacteria including their response to pharmeceutical
+perturbations.
 
-<!-- TODO: Get abstract into 250 word maximum. Drop ~8 words. -->
+<!-- TODO: Ensure abstract not over word limit. -->
 
 
 # Importance

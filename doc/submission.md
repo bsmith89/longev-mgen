@@ -7,24 +7,25 @@ title: '_Muribaculaceae_ genomes assembled from metagenomes suggest
 # Abstract
 
 The drug acarbose (ACA) is used to treat
-diabetes, and through inhibition of alpha-amylase increases the amount of
-starch entering the lower digestive system after meals.  This results in
+diabetes, and by inhibiting alpha-amylase in the small intestine increases the amount of
+starch entering the lower digestive tract.
+This results in
 changes to the composition of the microbiota and its fermentation products.
 Acarbose also increases longevity in mice, an effect that could be related to
 increased production of the
 short-chain fatty acids propionate and butyrate.
 In experiments replicated across three study sites, two distantly related
-species in
-the family _Muribaculaceae_ were dramatically more abundant in ACA treated
-mice, distinguishing these responders from other members of the family.
+species in the bacterial family _Muribaculaceae_ were dramatically more
+abundant in ACA treated mice, distinguishing these responders from other
+members of the family.
 Members of the _Muribaculaceae_ likely produce propionate and are abundant and
-diverse in the guts of mice, although only a small number of isolates are
+diverse in the guts of mice, although few isolates are
 available.
 We reconstructed genomes from metagenomes (MAGs) for eight populations of
 _Muribaculaceae_ to examine what distinguishes species that respond positively
 to acarbose.
-We found two closely related MAGs from one of the responsive species (B1-A and
-B1-B) that contain a polysaccharide utilization locus with a predicted
+We found two closely related MAGs (B1-A and B1-B) from one responsive species
+that both contain a polysaccharide utilization locus with a predicted
 extracellular alpha-amylase.
 <!--
 TODO: Check the following and add if true: "...and these were the only two to
@@ -32,12 +33,12 @@ posses a predicted OM-localized GH13 domain containing gene product.
 -->
 These also shared a periplasmic neopullulanase with another, distantly related
 MAG (B2) representative of the only other responsive species.
-This gene differentiated these three from MAGs representative of non-responding
-species.
+This gene differentiated these three MAGs from MAGs representative of
+non-responding species.
 Differential gene content in B1-A and B1-B may be associated with the
-inconsistent response of this species across study sites.
+inconsistent response of this species to acarbose across study sites.
 This work demonstrates the utility of culture-free genomics for infering
-the ecological role of gut bacteria including their response to pharmeceutical
+the ecological roles of gut bacteria including their response to pharmeceutical
 perturbations.
 
 <!-- TODO: Ensure abstract not over word limit. -->
@@ -53,16 +54,22 @@ By reconstructing the genomes of bacteria that respond to acarbose
 treatment, these species were shown to have genes that enable growth on
 starch, and which are expected to
 give them a competitive advantage in the guts of animals consuming acarbose.
-The responsive bacteria are within a family of microbes that
+Several of the responsive bacteria are within a family of microbes,
+the _Muribaculaceae_, that
 produce propionate as a primary product of growth on starch,
 and propionate has been
 associated with gut health and increased longevity.
 Combined with the observed responses to acarbose treatment,
-comparisons among genomes support existing theories about the ecological roles
-occupied by members of this family.
+comparisons among _Muribaculaceae_ genomes support existing theories about the
+ecological roles occupied by members of this family.
+Reconstructed genomes of species in this family that respond positively to
+acarbose showed signs of specialization for starch fermentation.
+In addition, a gene encoding one type of enzyme
+known to participate in starch breakdown was found in all three genomes
+from responding species, but none of the others.
 
 <!--
-TOOD: Make this more about the results and use the abstract for the background.
+TODO: 172 words (lose 22)
 -->
 
 # Background

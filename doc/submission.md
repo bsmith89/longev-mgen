@@ -222,7 +222,8 @@ Hypotheses
 derived from this analysis provide a foundation for future physiological
 studies in recently obtained cultivars.
 While a preponderance of
-host-associated bacterial species have never been isolated, let alone
+host-associated bacterial species are without isolated representatives,
+let alone
 characterized [@Stewart2012], combining experimental data from complex
 communities with the analysis of reconstructed genomes provides a
 powerful tool for expanding understanding to these understudied taxa.
@@ -391,7 +392,7 @@ only 2,404 had members annotated with any COG, KO, or putative function.
 The remaining 3,363 unannotated OPFs encompass 17,831 predicted protein
 sequences across the 47 genomes.
 Annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
-KOs, and PFAM and CAZy domains are all available in the Supplementary Results.
+KOs, and Pfam and CAZy domains are all available in the Supplementary Results.
 <!--
 TODO: Supplementary Results
 -->>
@@ -1069,8 +1070,13 @@ FastTree software version 2.1.10 [@Price2010] with the default parameters.
 
 ## Data Availability
 
-TODO
+Metagenomic libraries have been uploaded to the short read archive (SRA
+Accession: TODO).
+All code and additional metadata needed to reproduce this analysis are
+available at <https://github.com/bsmith89/longev-mgen>.
 
 # References
 
 <!-- TODO: Move websites to links in the text rather than in the refs. -->
+
+<!-- TODO: Check taxon names italic and captalized correctly in all refs.>

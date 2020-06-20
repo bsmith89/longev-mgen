@@ -128,7 +128,8 @@ despite being a common and abundant
 inhabitant of the mammalian gut, especially in mice [@Ormerod2016].
 Previous studies have suggested that the _Muribaculaceae_ specialize on
 the fermentation of complex polysaccharides [@Ormerod2016], much like
-members of the genus _Bacteroides_ also in order _Bacteroidales_.
+members of the genus _Bacteroides_, which is also a member of the order
+_Bacteroidales_.
 <!-- TODO: Add the Baxter 2019 finding of reduced muri relative abundance
 with ACA. -->
 
@@ -158,7 +159,8 @@ abundance of OTU-1 and OTU-4 (here referred to as "responders") in mice
 treated with ACA, we hypothesize that these species are capable of robust
 growth on starch, while the other _Muribaculaceae_ found in the study
 ("non-responders"), lack the genomic features necessary for the
-utilization of the polysaccharide.
+utilization of polysaccharides that reach the colon in
+greater quantities following ACA treatment.
 Alternatively, responders may be
 resistant to the inhibitory effects of ACA, or benefit from elevated
 levels of intermediate starch degradation products.
@@ -174,6 +176,10 @@ Starch utilization in _B. thetaiotaomicron_ is dependent on an ensemble
 of eight proteins, SusRABCDEFG that enable recognition, binding,
 hydrolysis, and import of starch and related
 polysaccharides [@Foley2016].
+<!--
+TODO: Do I need to be more explicit about what polysaccharides make up the
+category "starch"?
+-->
 Homologs of SusC and SusD characterize all
 known polysaccharide utilization systems in this clade [@Grondin2017],
 are encoded in Sus-like genomic regions known as polysaccharide
@@ -229,7 +235,7 @@ MAGs were constructed for 8 populations classified as members of the family
 _Muribaculaceae_,
 including for two species, OTU-1 and OTU-4, previously shown to
 respond positively to ACA.
-For OTU-1, two closely genomic variants were recovered,
+For OTU-1, two closely related genomic variants were recovered,
 here designated B1-A and B1-B,
 possessing 0.63 and 0.36 Mbp of unshared sequence, respectively
 (Table 2).
@@ -280,7 +286,7 @@ as well as the finished genome for _Muribaculum intestinale_ strain YL27.
 To confirm the assertion that each of the reconstructed genomes
 is representative of a previously described _Muribaculaceae_ species identified
 in these mice [@Smith2019],
-per library mapping rates of each genome were
+the per-library mapping rates of each genome were
 compared to the relative abundance of the associated 16S rRNA gene in
 amplicon libraries.
 Pearson correlation coefficients between the fraction of reads
@@ -337,7 +343,11 @@ published tree.
 To further check the robustness of our phylogeny, a second maximum
 likelihood tree was constructed based on the _rpoB_ gene, which is generally
 not thought to be transmitted horizontally (despite exceptions [@Kim2013]),
-This approach also recapitulated the published topology.
+This approach also recapitulated the published topology (See Supplementary
+Results).
+<!--
+TODO: Supplementary results
+-->
 The estimated phylogeny shows
 that the newly generated MAGs encompass most of the
 documented diversity of _Muribaculaceae_.
@@ -345,7 +355,6 @@ Two of the new MAGs, B2 and B6, appear to be closely related to previous
 MAGs M6, and M1, respectively [@Ormerod2016].
 Nonetheless, this phylogenetic analysis suggests that the majority of the
 MAGs derived here have not been described previously.
-<!---->
 <!--
 TODO: Add information about
  <https://www.ncbi.nlm.nih.gov/assembly/GCF_004102775.1/> which has perfect
@@ -353,12 +362,14 @@ TODO: Add information about
  This means that I have to repeat that part of the analysis, because
  I'll definitely have to include this genome (and other isolates/MAGs)
  in all of my comparisons.
+TODO: Do all of the above statements still hold?
 -->
 
 ### Novel protein families
 
 Annotations based on alignment to a database of previously characterized
-sequences may provide only limited insight, in particular for genes
+sequences may provide only limited insight into the function of gene products,
+in particular for genes
 from largely unstudied families of bacteria.
 In order to identify
 previously uncharacterized orthologous groups of genes, _de novo_
@@ -366,8 +377,8 @@ clustering [@Schloss2008] was carried out based on amino acid similarity
 of all putative genes found in the 8 novel MAGs, 30 previously
 generated MAGs, _M. intestinale_, four publicly available draft
 genomes from the family, and four reference _Bacteroidales_
-(see Figure 1).
-<!-- TODO: Add all available other genomes/MAGs to this analysis. -->
+(see Fig. 1).
+<!-- TODO: Long term: Add all available other genomes/MAGs to this analysis. -->
 The
 resulting clusters are referred to as operational protein families
 (OPFs).
@@ -378,7 +389,12 @@ that these reflect evolutionarily conserved protein sequences.
 Of these,
 only 2,404 had members annotated with any COG, KO, or putative function.
 The remaining 3,363 unannotated OPFs encompass 17,831 predicted protein
-sequences across the 47 genomes
+sequences across the 47 genomes.
+Annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
+KOs, and PFAM and CAZy domains are all available in the Supplementary Results.
+<!--
+TODO: Supplementary Results
+-->>
 
 ### Ordination of gene content
 
@@ -389,7 +405,7 @@ colleagues to
 maximally differentiate the three hypothesized guilds [@Ormerod2016].
 We replicated the original ordination analysis using our annotation of the
 publicly available MAGs, and then projected all other genomes onto this same
-space (see Figure 1).
+space (see Fig. 1).
 Newly available genomes were compared
 to the three clusters hypothesized to represent specialization on
 alpha-glucans, plant glycans, and host glycans.
@@ -407,7 +423,7 @@ and to leverage the more comprehensive view provided by _de novo_
 clustering to explore differences and similarities in carbohydrate
 utilization potential, a second ordination of genomes was performed,
 this time based on OPF labels of predicted genes found to contain GH
-domains (Figure 1).
+domains (Fig. 1).
 Similar to the previous ordination based
 on COGs, three groups of genomes approximately reflecting those proposed
 by Ormerod and colleagues are apparent.
@@ -423,7 +439,10 @@ plausible that alpha-amylase localized to the outer membrane may be common to
 starch utilizing bacteria in the order _Bacteroidales_ [@Shipman1999].
 Indeed, B1-A and B1-B both have three OM-localized genes predicted to code for
 GH13 containing lipoproteins (B1A280, B1A301, B1A333 in B1-A and B1B...TODO...in B1-B),
-each in a separate PUL (see Figure 2).
+<!--
+TODO: Add gene numbers for B1B GH13 containing lipoproteins.
+-->
+each in a separate PUL (see Fig. 2).
 <!-- TODO: Update figure references and be consistent. -->
 While it also includes members without
 this activity, GH13 is the main family of alpha-amylases [@Janecek2014].
@@ -433,8 +452,12 @@ carbohydrate-active domains that are expected to interact with alpha-glucans.
 ![
 Figure 2: Polysaccharide utilization loci in _Bacteroidales_.
 Diagrams of the Sus
-operon (**A**) and the dextran associated PUL (**B**) of _B. thetaiotaomicron_ along with
-five putative starch-associated PULs identified in three _Muribaculaceae_ MAGs (**C**-**G**).
+operon (**A**) and the dextran associated PUL (**B**) of _B. thetaiotaomicron_
+VPI-5482 along with
+five putative starch-associated PULs identified in _Muribaculaceae_ MAGs
+B1-A and B4
+(**C**-**G**).
+B1-A PULs shown here are syntenic in B1-B (not shown).
 Predicted protein coding sequences are shown as boxes pointed in the direction
 of transcription.
 Homology to SusC, SusD, and SusEF is indicated.
@@ -447,9 +470,6 @@ are noted with members in multiple genomes, including clusters that contain SusR
 The inferred localization of
 each protein product is also indicated: cytoplasmic (genes labeled C), periplasmic
 (**P**), outer membrane (**O**), or inner membrane (**I**).
-<!-- TODO: Make clear that B1-A and B1-B are identical over their Sus-like
-PULs. Consider referencing both in the figure.  Add strain identifier to
-reference rows. -->
 ](fig/pul_diagrams.pdf)
 
 
@@ -477,7 +497,7 @@ Despite the absence of a GH13 domain on the outer-membrane, it is
 plausible that B2 is capable of degrading starch using other enzymatic
 machinery.
 We speculate about one putative locus
-(see Figure 2F),
+(see Fig. 2F),
 which has a similar gene content to characterized
 [@Ravcheev2013; @Rogers2013; @VanBueren2015]
 dextran PULs in _B. thetaiotaomicron_ and _B. ovatus_.
@@ -536,7 +556,7 @@ gene coverage in order to identify genes with conspicuously fewer reads
 in particular subsets of the mice.
 Libraries have low coverage of large
 portions of either the B1-A or B1-B MAG (see
-Figure 3), suggesting that mice are primarily inhabited
+Fig. 3), suggesting that mice are primarily inhabited
 by one of the two variants, and that a portion of genes are variant
 specific.
 
@@ -567,7 +587,10 @@ differentiating the two.
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
 providing a measure of the relative enrichment or depletion of genomic
-sequences between the two populations of OTU-1.
+sequences between the two populations of OTU-1 (see Supplementary Results).
+<!--
+TODO: Supplementary Results
+-->
 This analysis found 12.8%
 of predicted genes in B1-A were depleted at least 5-fold in B1-B
 populations, and 12.4% the reverse.
@@ -607,8 +630,8 @@ Given the observation that the relative abundance of OTU-1 was dramatically
 increased with ACA treatment at UM, while not being significantly
 affected at UT, and that B1-B was not found in metagenomes at UM, we
 hypothesized that differences in the genomic potential
-of B1-A and B1-B could explain the differential response to ACA at
-between two sites.
+of B1-A and B1-B could explain the different response to ACA
+at the two sites.
 
 Genomic regions apparently specific to B1-A---defined as an at least
 5-fold enrichment in B1-A specific libraries relative to
@@ -673,7 +696,7 @@ Here we have extended that approach to eight new genomes, and associated
 those with species for which changes in relative abundance in response to
 ACA treatment have been experimentally assessed.
 This enabled us to
-explore why responding species, with representative MAGs B1-A, B1-B, and B2,
+explore why two responding species, represented by MAGs B1-A, B1-B, and B2,
 increase with ACA treatment, while
 the other species of _Muribaculaceae_ do not.
 Annotations of reconstructed genomes
@@ -767,8 +790,9 @@ We previously observed site-specificity of the ACA response of
 this species, in which OTU-1 did not have a significantly
 increased abundance in treated mice at UT, while it was the most
 dramatic change at UM.
-Genomic differences between populations found at each of the sites
-is one possible explanation for this pattern.
+Differences in the functional potential due to differences in gene content of
+populations found at each of the sites is one possible explanation for this
+pattern.
 
 Despite evidence that
 large differences in gene content can be found between
@@ -930,7 +954,7 @@ To avoid challenges associated with admixture, only libraries that appeared on
 further inspection to have just one of the two variants were considered
 in downstream refinement steps.
 The mice matching these libraries are
-highlighted in Figure 3.
+highlighted in Fig. 3.
 Genomic variants were not found associated with any of the other
 _Muribaculaceae_ OTUs described in this study.
 

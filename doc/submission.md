@@ -1078,5 +1078,4 @@ available at <https://github.com/bsmith89/longev-mgen>.
 # References
 
 <!-- TODO: Move websites to links in the text rather than in the refs. -->
-
-<!-- TODO: Check taxon names italic and captalized correctly in all refs.>
+<!-- TODO: Check taxon names italic and captalized correctly in all refs. -->

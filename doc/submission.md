@@ -48,29 +48,20 @@ perturbations.
 
 
 The drug acarbose is used to treat diabetes by preventing the breakdown of
-starch in the small intestine.
-Acarbose treatment increases longevity in mice.
-By reconstructing the genomes of bacteria that respond to acarbose
-treatment, these species were shown to have genes that enable growth on
-starch, and which are expected to
-give them a competitive advantage in the guts of animals consuming acarbose.
-Several of the responsive bacteria are within a family of microbes,
-the _Muribaculaceae_, that
-produce propionate as a primary product of growth on starch,
-and propionate has been
-associated with gut health and increased longevity.
-Combined with the observed responses to acarbose treatment,
-comparisons among _Muribaculaceae_ genomes support existing theories about the
-ecological roles occupied by members of this family.
-Reconstructed genomes of species in this family that respond positively to
-acarbose showed signs of specialization for starch fermentation.
-In addition, a gene encoding one type of enzyme
-known to participate in starch breakdown was found in all three genomes
-from responding species, but none of the others.
-
-<!--
-TODO: 172 words (lose 22)
--->
+starch in the small intestine, resulting in dramatic changes in the abundance
+of some members of the gut microbiome and its fermentation products.
+In mice, several of the bacteria that respond most positively are classified in
+the family _Muribaculaceae_, members of which produce propionate as a primary
+fermentation product.
+Propionate has been associated with gut health and increased longevity.
+We found that genomes of the most responsive _Muribaculaceae_ showed signs of
+specialization for starch fermentation, presumably providing them a competitive
+advantage in the large intestine of animals consuming acarbose.
+Comparisons among genomes support existing models for the ecological niches
+occupied by members of this family.
+In addition, genes encoding one type of enzyme known to participate in starch
+breakdown were found in all three genomes from responding species, but none of
+the others.
 
 # Background
 

@@ -503,7 +503,7 @@ includes SusR, the regulator of transcription of the starch utilization
 system in _B. thetaiotaomicron_, as well as its homolog in _B. ovatus_.
 It is an apparent subcluster of the larger family defined by K21557, and
 in many cases is encoded directly upstream of _susC_ in putative PULs
-which consider likely to have affinity for alpha-glucans.
+that are considered likely to have affinity for alpha-glucans.
 In B1-A and B1-B, two of the
 three putative starch PULs encode a member of Opf01144, and it is
 similarly located in PULs with starch-active CBM and GH domains in B2
@@ -574,7 +574,7 @@ ordered to maximize visual distinction between variants.
 ](fig/b1_vars.pdf)
 
 Metagenomic libraries manually chosen as unambiguous representatives of
-either B1-A or B1-B, were used to systematically identify genes
+either B1-A or B1-B were used to systematically identify genes
 differentiating the two.
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
@@ -675,13 +675,13 @@ While these bacteria are also found in humans
 have been cultivated and described
 [@Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020].
 As a result, the ecological
-roles of these bacteria have not yet been characterized
+roles of these bacteria have not yet been characterized,
 limiting the value of the mouse as a model system.
 Better understanding the ecology of _Muribaculaceae_ in the murine gut
-will increase the transferability of microbiome studies from mice to humans.
+will increase the transferability of microbiome findings from mice to humans.
 Attempts to study these
-organisms leverage genomes reconstructed from metagenomic reads, and
-have proposed---in the absence of experimental data---that members of
+organisms make use of genomes reconstructed from metagenomic reads, and
+have suggested---in the absence of experimental data---that members of
 the family consume a diversity of polysaccharides in the lower gut.
 
 Here we have extended that approach to eight new genomes, and associated
@@ -827,8 +827,8 @@ cluster.
 
 In this study we have reconstructed and described genomes representing 7
 species in the family _Muribaculaceae_ from the mouse fecal microbiome, and
-have found features that differentiate those that respond positively to
-ACA treatment from those that do not.
+have found features that differentiate those bacterial species
+that respond positively to ACA treatment from those that do not.
 This analysis suggests that
 utilization of starch and related polysaccharides enables increased
 population size in mice treated with ACA---an alpha-amylase inhibitor.
@@ -851,14 +851,14 @@ communities.
 
 Mice were bred, housed, and treated as described in [@Harrison2014].
 Briefly, genetically heterogeneous UM-HET3 mice at each study site were
-produced by the four-way cross detailed in [@Miller2011].
-Mice were fed
-LabDiet 5LG6 (TestDiet Inc.) from weaning onwards.
+produced by the four-way cross between (BALB/cByJ x C57BL/6J) F1 mothers and
+(C3H/HeJ x DBA.2J) F1 fathers, as detailed in [@Miller2011].
+Mice were fed LabDiet 5LG6 (TestDiet Inc.) from weaning onwards.
 Starting at 8 months
 of age, mice randomly assigned to treatment were fed chow with 1,000 ppm
 ACA (Spectrum Chemical Manufacturing Corporation).
-Mice were housed 4
-males or 5 females to a cage.
+Mice were housed 3
+males or 4 females to a cage.
 Colonies were assessed for infectious
 agents every 3 months, and all tests were negative.
 
@@ -879,6 +879,9 @@ sequencing.
 Based on alignment to the reference genome, sequenced reads from
 _S. alaskensis_ can be distinguished from all endogenous bacteria in mouse
 feces.
+This spike was added as an internal standard to quantify total 16S rRNA
+gene abundance, and also provides a benchmark for the reconstruction
+of bacterial genomes.
 <!-- TODO: Also discuss S.a. assembly quality? Perhaps skim over this by
 explaining that spiking was done for experimental consideration not dealt
 with in this manuscript. -->

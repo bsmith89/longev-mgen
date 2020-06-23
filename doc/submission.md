@@ -111,7 +111,7 @@ of the mouse gut microbiota across the three sites, although none of
 these were found to be enriched in ACA treatment.
 
 The family _Muribaculaceae_---previously referred to as the S24-7 after an
-early clone [@s247clone],
+early clone [@s247clone; @Salzman2002],
 or sometimes as _Candidatus Homeothermaceae_ [@Ormerod2016]---has only
 a handful of published cultivars
 [@Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
@@ -121,8 +121,14 @@ Previous studies have suggested that the _Muribaculaceae_ specialize on
 the fermentation of complex polysaccharides [@Ormerod2016], much like
 members of the genus _Bacteroides_, which is also a member of the order
 _Bacteroidales_.
-<!-- TODO: Add the Baxter 2019 finding of reduced muri relative abundance
-with ACA. -->
+Genomic analysis has also suggested that the capacity for propionate production
+is widespread in the family [@Ormerod2016].
+<!--
+TODO: Add the Baxter 2019 finding of reduced muri relative abundance
+with ACA.
+TODO: Add functional findings from other Muri MAG/cultivation studies here?
+TODO: Other literature on propionate production?
+-->
 
 Recently, techniques have been developed to reconstruct
 genomes of uncultivated members of bacterial
@@ -208,14 +214,15 @@ This work
 demonstrates the utility of culture-free genomics to understand the
 potential ecological roles of these key members of the mouse gut microbial
 community and explore several hypotheses that may explain differences in
-the distribution and response of these bacteria to acarbose treatment.
+the distribution and response of these bacteria to ACA treatment.
 Hypotheses
 derived from this analysis provide a foundation for future physiological
 studies in recently obtained cultivars.
-While a preponderance of
-host-associated bacterial species are without isolated representatives,
-let alone
-characterized [@Stewart2012], combining experimental data from complex
+While a large fraction of
+host-associated bacterial species are without isolated representatives
+[@Lagkouvardos2017],
+let alone characterized [@Stewart2012],
+combining experimental data from complex
 communities with the analysis of reconstructed genomes provides a
 powerful tool for expanding understanding to these understudied taxa.
 
@@ -244,30 +251,30 @@ all similar to previously published MAGs belonging to the
 family _Muribaculaceae_,
 as well as the finished genome for _Muribaculum intestinale_ strain YL27.
 
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| Genome   | Completeness^1^ | Scaffolds   | Length^2^ | N50      | GC      | in      |
-|  / MAG   |                 |             |           |          |         | Smith   |
-|          |                 |             |           |          |         | et al., |
-|          |                 |             |           |          |         | 2019    |
-+:=========+================:+============:+==========:+=========:+========:+:========+
-| YL-27^3^ | 99%             | 1           | 3.3       | 33,070   | 50.1%   | _n/a_   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B1-A     | 97%             | 228         | 3.2       | 41,412   | 46.6%   | OTU-1   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B1-B     | 97%             | 152         | 3.0       | 59,916   | 46.9%   | OTU-1   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B2       | 98%             | 65          | 2.6       | 79,454   | 50.5%   | OTU-4   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B3       | 86%             | 98          | 2.2       | 63,818   | 54.0%   | OTU-6   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B4       | 98%             | 31          | 2.7       | 148,039  | 55.2%   | OTU-5   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B5       | 86%             | 50          | 2.5       | 78,179   | 55.7%   | OTU-8   |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B6       | 99%             | 110         | 3.2       | 87,115   | 48.3%   | OTU-30  |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
-| B7       | 98%             | 97          | 2.5       | 59,037   | 53.9%   | OTU-39  |
-+----------+-----------------+-------------+-----------+----------+---------+---------+
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| Genome   | Completeness^1^ | Scaffolds   | Length^2^ | N50      | GC      | in      | Top nr BLAST            |
+|  / MAG   |                 |             |           |          |         | Smith   | Hit                     |
+|          |                 |             |           |          |         | et al., | (Identity)              |
+|          |                 |             |           |          |         | 2019    |                         |
++:=========+================:+============:+==========:+=========:+========:+:========+=========================+
+| YL-27^3^ | 99%             | 1           | 3.3       | 33,070   | 50.1%   | _n/a_   | _n/a_                   |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B1-A     | 97%             | 228         | 3.2       | 41,412   | 46.6%   | OTU-1   | WP_123406077.1 (99.92%) |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B1-B     | 97%             | 152         | 3.0       | 59,916   | 46.9%   | OTU-1   | WP_123406077.1 (100%)   |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B2       | 98%             | 65          | 2.6       | 79,454   | 50.5%   | OTU-4   | WP_128713622.1 (92.52%) |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B3       | 86%             | 98          | 2.2       | 63,818   | 54.0%   | OTU-6   | OKY86749.1 (90.84%)     |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B4       | 98%             | 31          | 2.7       | 148,039  | 55.2%   | OTU-5   | WP_123486179.1 (91.80%) |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B5       | 86%             | 50          | 2.5       | 78,179   | 55.7%   | OTU-8   | WP_123486179.1 (92.43%) |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B6       | 99%             | 110         | 3.2       | 87,115   | 48.3%   | OTU-30  | WP_123613567.1 (100%)   |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
+| B7       | 98%             | 97          | 2.5       | 59,037   | 53.9%   | OTU-39  | WP_123541885.1 (100%)   |
++----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
 
 : Table 1: Summary of novel MAGs compared to the genome of _Muribaculum intestinale_ YL27
 
@@ -293,7 +300,7 @@ hypothesized to reflect three polysaccharide utilization guilds: specializing on
 alpha-glucans (points and labels colored blue), host glycans (violet), and plant glycans
 (green) [@Ormerod2016].
 (**A**) MAGs described in this study were placed in a phylogenetic context using a
-maximum-likelihood concatenated gene tree based on an amino-acid alignment of 9 shared,
+maximum-likelihood concatenated gene tree based on an amino acid alignment of 9 shared,
 single-copy genes, and four other _Bacteroidales_ species as an outgroup (not shown).
 Nodes with
 less than 70% confidence are collapsed into polytomies and topological support greater
@@ -316,7 +323,6 @@ standing given by Ormerod et al. -->
 and the finished genome of M.
 intestinale (Mi, gray circle).
 ](fig/muri_comparison.pdf)
-
 
 ### Phylogenetics
 
@@ -346,7 +352,16 @@ documented diversity of _Muribaculaceae_.
 Two of the new MAGs, B2 and B6, appear to be closely related to previous
 MAGs M6, and M1, respectively [@Ormerod2016].
 Nonetheless, this phylogenetic analysis suggests that the majority of the
-MAGs derived here have not been described previously.
+MAGs derived here had not been described at the time of this study.
+To further link our MAGs with recently generated MAGs and isolate
+genomes, we BLASTed translated _rpoB_ sequences against
+the NCBI non-redundant protein database (updated 2020-06-22).
+GenBank accession numbers for the closest hits as well as the amino acid
+identity are reported in Table 1.
+Despite a growing number of _Muribaculaceae_ genomes
+deposited in public repositories, four of the eight MAGs reconstructed
+here have rpoB genes with less than 93% amino acid identity to their highest
+scoring match.
 <!--
 TODO: Add information about
  <https://www.ncbi.nlm.nih.gov/assembly/GCF_004102775.1/> which has perfect
@@ -422,6 +437,11 @@ by Ormerod and colleagues are apparent.
 However, the placement of B2 (as well
 as the closely related M6) relative to the proposed guilds are
 substantially different.
+
+<!--
+TODO: Consider adding some results on the ability of these organisms to produce
+propionate.
+-->
 
 ## Analysis of MAGs from species responsive to ACA treatment suggests genes involved in starch utilization.
 
@@ -766,14 +786,14 @@ expression of this important component of starch utilization might be
 regulated, given that it is not located in a PUL in any of the
 responding populations, SusA is important for growth on amylopectin in
 _B.  thetaiotaomicron_ [@DElia1996].
-Since inhibition by acarbose is variable
-across enzymes [@Kim1999], it is possible that acarbose treatment
+Since inhibition by ACA is variable
+across enzymes [@Kim1999], it is possible that ACA treatment
 results in elevated production of dextrin and maltooligosaccharides in the
 lower guts of mice due to residual alpha-amylase activity, even at levels
 sufficient to prohibit host digestion.
 Periplasmic hydrolysis of these
 starch breakdown products may be sufficient for increased abundance of
-these species in acarbose treated mice.
+these species in ACA treated mice.
 
 It is notable that of the closely related variants, B1-A and B1-B
 associated with OTU-1,
@@ -785,6 +805,11 @@ dramatic change at UM.
 Differences in the functional potential due to differences in gene content of
 populations found at each of the sites is one possible explanation for this
 pattern.
+Intriguingly, while we do not conjecture a mechanistic link,
+an ACA-by-site interaction effect on longevity has been
+previously observed in the mouse colonies sampled here,
+with male mice at UT showing a larger increase in median longevity with ACA
+treatment than those at UM [@Harrison2014; @Harrison2019].
 
 Despite evidence that
 large differences in gene content can be found between

@@ -53,7 +53,7 @@ of some members of the gut microbiome and its fermentation products.
 In mice, several of the bacteria that respond most positively are classified in
 the family _Muribaculaceae_, members of which produce propionate as a primary
 fermentation product.
-Propionate has been associated with gut health and increased longevity.
+Propionate has been associated with gut health and increased longevity in mice.
 We found that genomes of the most responsive _Muribaculaceae_ showed signs of
 specialization for starch fermentation, presumably providing them a competitive
 advantage in the large intestine of animals consuming acarbose.

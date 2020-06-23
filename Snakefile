@@ -167,6 +167,19 @@ rule build_html_documentation:
         """
 localrules: build_html_documentation
 
+rule build_pdf_documentation:
+    output: "build/{stem}.pdf"
+    input:
+        source="doc/{stem}.md",
+        bib="doc/bibliography.bib",
+    shell:
+        """
+        pandoc --from markdown --to pdf --filter pandoc-crossref \
+               --pdf-engine=xelatex \
+               --bibliography={input.bib} -s {input.source} -o {output}
+        """
+localrules: build_pdf_documentation
+
 rule build_docx_documentation:
     output: "build/{stem}.docx"
     input:

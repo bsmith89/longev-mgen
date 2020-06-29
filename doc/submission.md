@@ -37,8 +37,8 @@ This gene differentiated these three MAGs from MAGs representative of
 non-responding species.
 Differential gene content in B1-A and B1-B may be associated with the
 inconsistent response of this species to acarbose across study sites.
-This work demonstrates the utility of culture-free genomics for infering
-the ecological roles of gut bacteria including their response to pharmeceutical
+This work demonstrates the utility of culture-free genomics for inferring
+the ecological roles of gut bacteria including their response to pharmaceutical
 perturbations.
 
 <!-- TODO: Ensure abstract not over word limit. -->
@@ -323,8 +323,7 @@ Novel MAGs (black triangles) are labeled, as are the previously described MAGs M
 M6, and the proposed H. arabinoxylanisolvens (Ha),
 <!-- TODO: Discuss w/ Tom H. arabinoxylanisolvens is a species name without
 standing given by Ormerod et al. -->
-and the finished genome of M.
-intestinale (Mi, gray circle).
+and the finished genome of _M. intestinale_ (Mi, gray circle).
 ](fig/muri_comparison.pdf)
 
 ### Phylogenetics
@@ -357,13 +356,13 @@ MAGs M6, and M1, respectively [@Ormerod2016].
 Nonetheless, this phylogenetic analysis suggests that the majority of the
 MAGs derived here had not been described at the time of this study.
 To further link our MAGs with recently generated MAGs and isolate
-genomes, we BLASTed translated _rpoB_ sequences against
-the GenBank non-redundant protein database (updated 2020-06-22).
+genomes, we searched translated _rpoB_ sequences against
+the GenBank non-redundant protein database (updated 2020-06-22) using BLASTp.
 Accession numbers for the closest hits as well as the amino acid
 identity are reported in Table 1.
 Despite a growing number of _Muribaculaceae_ genomes
 deposited in public repositories, four of the eight MAGs reconstructed
-here have rpoB genes with less than 93% amino acid identity to their highest
+here have _rpoB_ genes with less than 93% amino acid identity to their highest
 scoring match.
 <!--
 TODO: Add information about
@@ -1100,4 +1099,3 @@ available at <https://github.com/bsmith89/longev-mgen>.
 # References
 
 <!-- TODO: Move websites to links in the text rather than in the refs. -->
-<!-- TODO: Figure out how to add DOI links in bib. -->

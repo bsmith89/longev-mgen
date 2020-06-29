@@ -358,8 +358,8 @@ Nonetheless, this phylogenetic analysis suggests that the majority of the
 MAGs derived here had not been described at the time of this study.
 To further link our MAGs with recently generated MAGs and isolate
 genomes, we BLASTed translated _rpoB_ sequences against
-the NCBI non-redundant protein database (updated 2020-06-22).
-GenBank accession numbers for the closest hits as well as the amino acid
+the GenBank non-redundant protein database (updated 2020-06-22).
+Accession numbers for the closest hits as well as the amino acid
 identity are reported in Table 1.
 Despite a growing number of _Muribaculaceae_ genomes
 deposited in public repositories, four of the eight MAGs reconstructed

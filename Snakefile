@@ -159,10 +159,12 @@ rule build_html_documentation:
         source="doc/{stem}.md",
         mathjax="doc/static/MathJax.js",
         bib="doc/bibliography.bib",
+        csl="doc/static/style.csl",
     shell:
         """
-        pandoc --from markdown --to html5 --filter pandoc-crossref \
+        pandoc --from markdown --to html5 \
                --standalone --self-contained --mathjax={input.mathjax} \
+               --filter pandoc-crossref --csl {input.csl} \
                --bibliography={input.bib} -s {input.source} -o {output}
         """
 localrules: build_html_documentation
@@ -172,10 +174,12 @@ rule build_pdf_documentation:
     input:
         source="doc/{stem}.md",
         bib="doc/bibliography.bib",
+        csl="doc/static/style.csl",
     shell:
         """
-        pandoc --from markdown --to pdf --filter pandoc-crossref \
+        pandoc --from markdown --to pdf \
                --pdf-engine=xelatex \
+               --filter pandoc-crossref --csl {input.csl} \
                --bibliography={input.bib} -s {input.source} -o {output}
         """
 localrules: build_pdf_documentation
@@ -186,10 +190,12 @@ rule build_docx_documentation:
         source="doc/{stem}.md",
         bib="doc/bibliography.bib",
         template="doc/static/example_style.docx",
+        csl="doc/static/style.csl",
     shell:
         """
-        pandoc --from markdown --to docx --filter pandoc-crossref \
+        pandoc --from markdown --to docx \
                --standalone --self-contained --reference-doc {input.template} \
+               --filter pandoc-crossref --csl {input.csl} \
                --bibliography={input.bib} -s {input.source} -o {output}
         """
 localrules: build_docx_documentation

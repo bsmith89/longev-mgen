@@ -28,7 +28,7 @@
     <category citation-format="numeric"/>
     <category field="biology"/>
     <summary>Style for all American Society for Microbiology journals.</summary>
-    <updated>2020-06-29T19:24:36+00:00</updated>
+    <updated>2020-06-29T19:34:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -118,6 +118,9 @@
       <if match="any" variable="DOI">
         <text variable="DOI" prefix="doi:"/>
       </if>
+      <else-if match="any" variable="PMID">
+        <text variable="PMID" prefix="PMID:"/>
+      </else-if>
       <else-if match="any" variable="URL">
         <text variable="URL"/>
       </else-if>

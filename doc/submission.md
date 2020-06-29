@@ -1092,8 +1092,8 @@ FastTree software version 2.1.10 [@Price2010] with the default parameters.
 
 ## Data Availability
 
-Metagenomic libraries have been uploaded to the short read archive (SRA
-Accession: TODO).
+Metagenomic libraries will be uploaded to the short read archive,
+and the SRA Accession will be added in an upcoming version of this manuscript.
 All code and additional metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
 

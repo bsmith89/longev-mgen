@@ -1100,6 +1100,4 @@ available at <https://github.com/bsmith89/longev-mgen>.
 # References
 
 <!-- TODO: Move websites to links in the text rather than in the refs. -->
-<!-- TODO: Fix capitalization of Sp. Nov. in references. -->
-<!-- TODO: Fix capitalization of species names (due to italization) in references -->
-<!-- TODO: Figure out appropriate use of journal title capitalization. -->
+<!-- TODO: Figure out how to add DOI links in bib. -->

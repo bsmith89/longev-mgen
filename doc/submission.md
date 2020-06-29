@@ -112,6 +112,9 @@ these were found to be enriched in ACA treatment.
 
 The family _Muribaculaceae_---previously referred to as the S24-7 after an
 early clone [@s247clone; @Salzman2002],
+<!--
+TODO: Convert s247clone reference to an inlined URL.
+-->
 or sometimes as _Candidatus Homeothermaceae_ [@Ormerod2016]---has only
 a handful of published cultivars
 [@Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
@@ -1097,4 +1100,6 @@ available at <https://github.com/bsmith89/longev-mgen>.
 # References
 
 <!-- TODO: Move websites to links in the text rather than in the refs. -->
-<!-- TODO: Check taxon names italic and captalized correctly in all refs. -->
+<!-- TODO: Fix capitalization of Sp. Nov. in references. -->
+<!-- TODO: Fix capitalization of species names (due to italization) in references -->
+<!-- TODO: Figure out appropriate use of journal title capitalization. -->

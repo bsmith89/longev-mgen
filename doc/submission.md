@@ -1091,6 +1091,25 @@ Aligned markers were then concatenated for each MAG and reference genome,
 and an approximate maximum likelihood phylogeny was estimated using the
 FastTree software version 2.1.10 [@Price2010] with the default parameters.
 
+
+# Acknowledgments
+
+We would like to acknowledge the technical support from Randy Strong and others
+at The University of Texas Health Science Center at San Antonio for initial
+sample collection.
+We would also like to thank Nicole Koropatkin for feedback on the manuscript.
+<!--
+TODO: Anyone else?
+-->
+
+## Funding
+
+Funding for this work was provided by the Glenn Foundation for Medical
+Research.
+<!--
+TODO: Anything else?
+-->
+
 ## Data Availability
 
 Metagenomic libraries will be uploaded to the short read archive,

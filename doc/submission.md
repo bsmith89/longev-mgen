@@ -345,10 +345,9 @@ published tree.
 To further check the robustness of our phylogeny, a second maximum
 likelihood tree was constructed based on the _rpoB_ gene, which is generally
 not thought to be transmitted horizontally (despite exceptions [@Kim2013]),
-This approach also recapitulated the published topology (See Supplementary
-Results).
+This approach also recapitulated the published topology (results not shown).
 <!--
-TODO: Supplementary results
+TODO: Add these to the Supplementary results
 -->
 The estimated phylogeny shows
 that the newly generated MAGs encompass most of the
@@ -401,9 +400,9 @@ Of these,
 only 2,404 had members annotated with any COG, KO, or putative function.
 The remaining 3,363 unannotated OPFs encompass 17,831 predicted protein
 sequences across the 47 genomes.
+<!--
 Annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
 KOs, and Pfam and CAZy domains are all available in the Supplementary Results.
-<!--
 TODO: Supplementary Results
 -->>
 
@@ -570,6 +569,16 @@ For each pairing of metagenomic read
 library to genomic variant, gene coverage was normalized by the median
 gene coverage in order to identify genes with conspicuously fewer reads
 in particular subsets of the mice.
+Metagenomic libraries manually chosen as unambiguous representatives of
+either B1-A or B1-B were used to systematically identify genes
+differentiating the two.
+The median normalized mapping depths in each
+set of libraries against predicted genes in each MAG were compared,
+providing a measure of the relative enrichment or depletion of genomic
+sequences between the two populations of OTU-1.
+<!--
+TODO: Add these to Supplementary Results
+-->
 Libraries have low coverage of large
 portions of either the B1-A or B1-B MAG (see
 Fig. 3), suggesting that mice are primarily inhabited
@@ -597,16 +606,6 @@ Rows and columns are arbitrarily
 ordered to maximize visual distinction between variants.
 ](fig/b1_vars.pdf)
 
-Metagenomic libraries manually chosen as unambiguous representatives of
-either B1-A or B1-B were used to systematically identify genes
-differentiating the two.
-The median normalized mapping depths in each
-set of libraries against predicted genes in each MAG were compared,
-providing a measure of the relative enrichment or depletion of genomic
-sequences between the two populations of OTU-1 (see Supplementary Results).
-<!--
-TODO: Supplementary Results
--->
 This analysis found 12.8%
 of predicted genes in B1-A were depleted at least 5-fold in B1-B
 populations, and 12.4% the reverse.

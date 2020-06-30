@@ -281,7 +281,7 @@ as well as the finished genome for _Muribaculum intestinale_ strain YL27.
 | B7       | 98%             | 97          | 2.5       | 59,037   | 53.9%   | OTU-39  | WP_123541885.1 (100%)   |
 +----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
 
-: Table 1: Summary of novel MAGs compared to the genome of _Muribaculum intestinale_ YL27
+: **Table 1**: Summary of novel MAGs compared to the genome of _Muribaculum intestinale_ YL27
 
 ^1^ Estimated by CheckM [@Parks2015] \
 ^2^ Total length in Mbp \
@@ -297,7 +297,7 @@ Pearson correlation coefficients between the fraction of reads
 mapped and species relative abundance were above 0.86 for all MAGs,
 
 ![
-Figure 1: Comparison of novel and previously described
+**Figure 1**: Comparison of novel and previously described
 _Muribaculaceae_ genomes.  Novel MAGs ("B1-A", "B1-B", and "B2" through "B7")
 are combined with the finished genome for _M. intestinale_ strain YL27, as well
 as 30 previously described MAGs that are
@@ -466,7 +466,7 @@ These genomic regions also possess additional genes with
 carbohydrate-active domains that are expected to interact with alpha-glucans.
 
 ![
-Figure 2: Polysaccharide utilization loci in _Bacteroidales_.
+**Figure 2**: Polysaccharide utilization loci in _Bacteroidales_.
 Diagrams of the Sus
 operon (**A**) and the dextran associated PUL (**B**) of _B. thetaiotaomicron_
 VPI-5482 along with
@@ -577,7 +577,7 @@ by one of the two variants, and that a portion of genes are variant
 specific.
 
 ![
-Figure 3: Visualization of differential gene content in two OTU-1 populations.
+**Figure 3**: Visualization of differential gene content in two OTU-1 populations.
 Heatmaps
 depict mapping coverage of metagenomes against putative protein coding genes in
 MAGs B1-A or B1-B normalized to the median coverage.
@@ -637,7 +637,7 @@ more sensitive to potential differences in physiology.
 |                                                |       |          |       |          |
 +------------------------------------------------+-------+----------+-------+----------+
 
-: Table 2: Summary of variant specific features in two highly similar MAGs
+: **Table 2**: Summary of variant specific features in two highly similar MAGs
 
 ^1^ in Mbp \
 ^2^ unique

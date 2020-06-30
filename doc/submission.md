@@ -2,6 +2,8 @@
 title: '_Muribaculaceae_ genomes assembled from metagenomes suggest
     genetic drivers of differential response to acarbose treatment in mice'
 
+author: ['Byron J. Smith', 'Richard A. Miller', 'Thomas M. Schmidt']
+
 ---
 
 # Abstract

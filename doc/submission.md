@@ -1114,7 +1114,7 @@ TODO: Anything else?
 
 Metagenomic libraries will be uploaded to the short read archive,
 and the SRA Accession will be added in an upcoming version of this manuscript.
-All code and additional metadata needed to reproduce this analysis are
+All code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
 
 # References

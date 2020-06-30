@@ -1,5 +1,6 @@
 SELECT DISTINCT
-    sequence_id
+    genome_id
+  , sequence_id
   , feature_id
   , feature_start
   , feature_stop
@@ -26,5 +27,6 @@ LEFT JOIN (SELECT
              , GROUP_CONCAT(domain_id, ',') AS cazy_domain_list
            FROM feature_x_cazy_minimal_domain
            GROUP BY feature_id) USING (feature_id)
+JOIN sequence USING (sequence_id)
 WHERE DISTANCE < 25000
 ;

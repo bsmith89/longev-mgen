@@ -1977,6 +1977,12 @@ rule codonalign:
     shell:
         "codonalign {input.prot} {input.nucl} > {output}"
 
+rule muscle_align:
+    output: "data/{stem}.muscle.afa"
+    input: "data/{stem}.fa"
+    shell:
+        "muscle < {input} > {output}"
+
 # {{{3 Filter Alignment
 
 rule squeeze_codon_alignment:

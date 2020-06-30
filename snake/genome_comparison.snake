@@ -620,7 +620,6 @@ rule compile_cds:
         """
         cat {input} > {output}
         """
-
 ruleorder: compile_cds > annotate_mag
 
 rule combine_prokka_annotations:
@@ -742,4 +741,14 @@ rule concatenate_marker_gene_alignments:
                   done
                  ) \
                 > {output}
+        """
+
+rule extract_rpoB_cds:
+    output: "data/{group}.a.mags.{genomes}.g.{proc}.cds.rpoB.fa"
+    input: "data/{group}.a.mags.{genomes}.g.{proc}.cds.fa"
+    params:
+        regex='DNA-directed RNA polymerase subunit beta$'
+    shell:
+        """
+        seqtk seq {input} | grep -A1 "{params.regex}" | awk 'NR%3!=0' > {output}
         """

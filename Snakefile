@@ -1022,7 +1022,7 @@ rule select_curated_mags:
         Select the contigs that belong to {wildcards.mag} ({output.contigs})
         and the libraries from which to collect reads for refinement
         ({output.libraries}), and provide an estimate of the expected depth of
-        single-copy genes ({trusted}).
+        single-copy genes ({output.trusted}).
 
         If these already exist and are up-to-date, this can be accomplished by
         `touch {output}`

@@ -2,7 +2,10 @@
 title: '_Muribaculaceae_ genomes assembled from metagenomes suggest
     genetic drivers of differential response to acarbose treatment in mice'
 
-author: ['Byron J. Smith', 'Richard A. Miller', 'Thomas M. Schmidt']
+author:
+    -   Byron J. Smith
+    -   Richard A. Miller
+    -   Thomas M. Schmidt
 
 ---
 
@@ -256,6 +259,15 @@ all similar to previously published MAGs belonging to the
 family _Muribaculaceae_,
 as well as the finished genome for _Muribaculum intestinale_ strain YL27.
 
+To confirm the assertion that each of the reconstructed genomes
+is representative of a previously described _Muribaculaceae_ species identified
+in these mice [@Smith2019],
+the per-library mapping rates of each genome were
+compared to the relative abundance of the associated 16S rRNA gene in
+amplicon libraries.
+Pearson correlation coefficients between the fraction of reads
+mapped and species relative abundance were above 0.86 for all MAGs,
+
 +----------+-----------------+-------------+-----------+----------+---------+---------+-------------------------+
 | Genome   | Completeness^1^ | Scaffolds   | Length^2^ | N50      | GC      | in      | Top nr BLAST            |
 |  / MAG   |                 |             |           |          |         | Smith   | Hit                     |
@@ -287,15 +299,6 @@ as well as the finished genome for _Muribaculum intestinale_ strain YL27.
 ^2^ Total length in Mbp \
 ^3^ _Muribaculum intestinale_ YL-27 reference genome
 
-To confirm the assertion that each of the reconstructed genomes
-is representative of a previously described _Muribaculaceae_ species identified
-in these mice [@Smith2019],
-the per-library mapping rates of each genome were
-compared to the relative abundance of the associated 16S rRNA gene in
-amplicon libraries.
-Pearson correlation coefficients between the fraction of reads
-mapped and species relative abundance were above 0.86 for all MAGs,
-
 ![
 **Figure 1**: Comparison of novel and previously described
 _Muribaculaceae_ genomes.  Novel MAGs ("B1-A", "B1-B", and "B2" through "B7")
@@ -323,10 +326,11 @@ components is included in the axis labels.
 All genomes were then projected onto that space.
 Novel MAGs (black triangles) are labeled, as are the previously described MAGs M1,
 M6, and the proposed H. arabinoxylanisolvens (Ha),
-<!-- TODO: Discuss w/ Tom H. arabinoxylanisolvens is a species name without
-standing given by Ormerod et al. -->
 and the finished genome of _M. intestinale_ (Mi, gray circle).
 ](fig/muri_comparison.pdf)
+
+<!-- TODO: Discuss w/ Tom H. arabinoxylanisolvens is a species name without
+standing given by Ormerod et al. -->
 
 ### Phylogenetics
 
@@ -453,12 +457,12 @@ in starch utilization in the closely related genus _Bacteroides_, it is
 plausible that alpha-amylase localized to the outer membrane may be common to
 starch utilizing bacteria in the order _Bacteroidales_ [@Shipman1999].
 Indeed, B1-A and B1-B both have three OM-localized genes predicted to code for
-GH13 containing lipoproteins (B1A280, B1A301, B1A333 in B1-A and B1B...TODO...in B1-B),
+GH13 containing lipoproteins (B1A280, B1A301, B1A333 in B1-A and matching
+genes in B1-B),
 <!--
 TODO: Add gene numbers for B1B GH13 containing lipoproteins.
 -->
 each in a separate PUL (see Fig. 2).
-<!-- TODO: Update figure references and be consistent. -->
 While it also includes members without
 this activity, GH13 is the main family of alpha-amylases [@Janecek2014].
 These genomic regions also possess additional genes with

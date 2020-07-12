@@ -36,9 +36,9 @@ M8	1	ormerod	Muribaculaceae	plant
 M9	1	ormerod	Muribaculaceae	host	
 Muribaculaceae_bacterium_DSM_100720	0	public	Muribaculaceae		
 Muribaculaceae_bacterium_DSM_100739	0	public	Muribaculaceae		GCA_003024845.1
-Muribaculaceae_bacterium_DSM_100746	0	public	Muribaculaceae		GCA_003024855.1 updated name: Muribaculum_intestinale_DSM_100746
-Muribaculaceae_bacterium_DSM_100749	0	public	Muribaculaceae		GCA_003024925.1 updated name: Paramuribaculum_intestinale_DSM_100749
-Muribaculaceae_bacterium_DSM_100764	0	public	Muribaculaceae		GCA_003024815.1 updated name: Paramuribaculum_intestinale_DSM_100764
+Muribaculum_intestinale_DSM_100746	0	public	Muribaculaceae		GCA_003024855.1
+Paramuribaculum_intestinale_DSM_100749	0	public	Muribaculaceae		GCA_003024925.1
+Paramuribaculum_intestinale_DSM_100764	0	public	Muribaculaceae		GCA_003024815.1
 Muribaculum_intestinale_yl27	0	reference	Muribaculaceae		
 B1A	1	here	Muribaculaceae		Otu0001_vC refined manually from OTU-1 at UM
 B1B	1	here	Muribaculaceae		Otu0001_vB refined manually from OTU-1 variant specific to UT

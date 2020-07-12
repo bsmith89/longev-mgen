@@ -138,7 +138,8 @@ config['genome_group'] = \
 # {{{2 SRA (All Ormerod Genomes)
 rule alias_sra_genomes:
     output: 'data/ref.mags/{mag_id}.g.fn'
-    input: lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['sra'][wildcards.mag_id])
+    input:
+        lambda wildcards: 'raw/sra/{accession}.fn'.format(accession=config['sra'][wildcards.mag_id])
     wildcard_constraints:
         mag_id='[^.]+'
     shell: "ln -rs {input} {output}"
@@ -414,6 +415,7 @@ rule full_genomes_group_quast_result:
     params:
         labels=lambda wildcards: ', '.join(list(config['genome_group'][wildcards.genomes]['mags']) +
                                            list(config['genome_group'][wildcards.genomes]['refs']))
+    conda: 'conda/quast.yaml'
     shell:
         """
         quast.py --threads={threads} --min-contig 0 --output-dir {output.dir} --labels "{params.labels}" {input.mags} {input.refs}

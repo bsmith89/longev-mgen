@@ -6,7 +6,7 @@ __default__:
   errdir: 'log'
 assemble_mgen:
   walltime: 72:00:00
-  memory: 8192
+  memory: '{resources.pmem}'
 bowtie_index_build:
   walltime: 03:00:00
 map_reads_to_metagenome_assembly:
@@ -25,3 +25,7 @@ checkm_seqs:
   walltime: 03:00:00
 generate_database_1:
   walltime: 01:00:00
+trim_adapters:
+  walltime: 02:00:00
+quality_trim_reads:
+  walltime: 02:00:00

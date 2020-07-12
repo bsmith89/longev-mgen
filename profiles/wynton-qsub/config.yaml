@@ -1,17 +1,21 @@
 cluster-config: 'profiles/wynton-qsub/cluster.yaml'
 jobscript: 'profiles/wynton-qsub/jobscript.sh'
-cluster-sync: >-
-    qsub -cwd -sync y -v PATH="$PATH" \
-         -pe smp {cluster.processors} \
-         -l mem_free={cluster.memory}M \
-         -l h_rt={cluster.walltime} \
-         -o {cluster.outdir} -e {cluster.errdir} \
-         -terse
+drmaa: " -cwd \
+        -v PATH \
+        -pe smp {cluster.processors} \
+        -l mem_free={cluster.memory}M \
+        -l h_rt={cluster.walltime} \
+        -o {cluster.outdir} \
+        -j yes \
+        -terse \
+        "
 notemp: true
 local-cores: 6
+latency-wait: 60
+max-jobs-per-second: 10
 printshellcmds: true
 keep-going: true
-resources: 'net_requests_per_second=3'
+resources: 'nas_io_threads=60'
 use-conda: true
 use-singularity: true
 config: 'MAX_THREADS=24'

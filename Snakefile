@@ -9,6 +9,7 @@ from snake.misc import alias_recipe, alias_fmt, curl_recipe, curl_unzip_recipe
 # {{{2 Nomenclature
 
 one_word_wc_constraint = '[^./]+'
+integer_wc_constraint = '[0-9]+'
 wildcard_constraints:
     group = one_word_wc_constraint,
     library = one_word_wc_constraint,
@@ -308,19 +309,17 @@ rule extract_checkm_reference:
 
 # {{{3 dbCAN
 
+# FIXME: Update manuscript with new dbCAN version
+# http://bcb.unl.edu/dbCAN2/download/Databases/dbCAN-HMMdb-V8.txt
+# and re-run downstream
+# analyses.
 rule download_dBCAN_hmms:
     output: "raw/ref/dbCAN.hmm"
     params:
-        url="http://csbl.bmb.uga.edu/dbCAN/download/dbCAN-fam-HMMs.txt.v6"
+        url="http://bcb.unl.edu/dbCAN2/download/Databases/dbCAN-old@UGA/dbCAN-fam-HMMs.txt.v6"
     shell: curl_recipe
 localrules: download_dBCAN_hmms
 
-rule download_dbCAN_meta:
-    output: "raw/ref/dbCAN.tsv"
-    params:
-        url="http://csbl.bmb.uga.edu/dbCAN/download/FamInfo.txt"
-    shell: curl_recipe
-localrules: download_dbCAN_meta
 
 rule filter_dbCAN_hmms:
     output: "ref/hmm/dbCAN.hmm"
@@ -376,6 +375,16 @@ rule alias_kegg_fasta:
     input: 'raw/ref/kegg.fa'
     shell: alias_recipe
 localrules: alias_kegg_fasta
+
+# TODO: Where does raw/ref/kegg.tsv come from??
+# raw/ref/kegg.fa comes from parse_kegg_files...
+# The current version of raw/ref/kegg.tsv was read out of an archived copy of
+# the output DB.
+rule alias_kegg_tsv:
+    output: 'ref/kegg.tsv'
+    input: 'raw/ref/kegg.tsv'
+    shell: alias_recipe
+localrules: alias_kegg_tsv
 
 # {{{3 Enzyme Commission
 
@@ -490,7 +499,7 @@ rule count_library_size:
         """
 
 rule combine_library_sizes:
-    output: 'data/{group}.m.{proc}.library_size.tsv'
+    output: 'data/{group}.a.{proc}.library_size.tsv'
     input:
         lambda wildcards: [f'data/{library}.m.{wildcards.proc}.library_size.tsv'
                            for library in config['asmbl_group'][wildcards.group]],
@@ -508,7 +517,8 @@ rule deduplicate_reads:
         r1='data/{stem}.m.r1.fq.gz',
         r2='data/{stem}.m.r2.fq.gz'
     resources:
-        mem_mb=24000
+        mem_mb=24000,
+        nas_io_threads=1,
     shell: "{input.script} {input.r1} {input.r2} {output.r1} {output.r2}"
 
 rule trim_adapters:
@@ -564,35 +574,56 @@ localrules: alias_read_processing_r2
 # TODO: Consider dropping the contig renaming since it's redundant with the filename.
 rule assemble_mgen:
     output:
-        fasta='data/{group}.a.contigs.fn',
-        dir='data/{group}.a.megahit.d',
-        fastg='data/{group}.a.contigs.fg',
+        fastg='data/{group}.a-k{k}.fg',
     input:
-        lambda wildcards: [f'data/{library}.m.{read}.proc.fq.gz'
-                           for library, read
-                           in product(config['asmbl_group'][wildcards.group],
-                                      ['r1', 'r2'])
-                          ]
-    log: 'data/{group}.a.megahit.log'
-    threads: MAX_THREADS
+        r1=lambda w: [f'data/{library}.m.r1.proc.fq.gz'
+                      for library in config['asmbl_group'][w.group]],
+        r2=lambda w: [f'data/{library}.m.r2.proc.fq.gz'
+                      for library in config['asmbl_group'][w.group]],
+    wildcard_constraints:
+        k=integer_wc_constraint,
     params:
-        r1=lambda wildcards: ','.join([f'data/{library}.m.r1.proc.fq.gz'
-                                      for library in config['asmbl_group'][wildcards.group]]),
-        r2=lambda wildcards: ','.join([f'data/{library}.m.r2.proc.fq.gz'
-                                      for library in config['asmbl_group'][wildcards.group]]),
+        r1_list=lambda w, input: ','.join(input.r1),
+        r2_list=lambda w, input: ','.join(input.r2),
+        k_min=21,
+        k_max=lambda w: int(w.k),
+        k_step=20,
+        dir='data/{group}.a-k{k}.megahit.d',
+    threads: 18
+    resources:
+        mem_mb=int(400e3),
+        mem_b=int(400e3 * 1e6),  # Should match the mem_mb resource * 1e6
+        pmem=int(400e3 / 18)
+    log: 'data/{group}.a-k{k}.megahit.d/log'
     shell:
-        r"""
+        r'''
+        rm -rf {params.dir}
+        du -L -hsc {input.r1} {input.r2}
         megahit \
-            -1 {params.r1} \
-            -2 {params.r2} \
-            --k-min 21 --k-max 161 --k-step 20 \
-            --out-dir {output.dir} \
+            -1 {params.r1_list} \
+            -2 {params.r2_list} \
+            --k-min {params.k_min} --k-max {params.k_max} --k-step {params.k_step} \
+            --min-contig-len {params.k_max} \
+            --out-dir {params.dir} \
             --num-cpu-threads {threads} \
-            --verbose \
-            2>&1 > {log}
-        sed 's:^>k161_\([0-9]\+\):>{wildcards.group}_\1:' {output.dir}/final.contigs.fa > {output.fasta}
-        # TODO: Fix this hard-coding of k-parameters.
-        megahit_toolkit contig2fastg 141 {output.dir}/intermediate_contigs/k141.contigs.fa > {output.fastg}
+            --memory {resources.mem_b} --mem-flag 2
+        megahit_toolkit contig2fastg {params.k_max} {params.dir}/intermediate_contigs/k{params.k_max}.contigs.fa > {output.fastg}
+        '''
+
+rule fastg_to_gfa:
+    output: '{stem}.a-k{k}.gfa'
+    input: '{stem}.a-k{k}.fg'
+    params:
+        k=lambda w: int(w.k)
+    shell: "fastg2gfa {input} | sed 's:\<NODE_\([0-9]\+\)_[^\\t]*\>:\\1:g' | sed 's:\\<0M\\>:{params.k}M:' > {output}"
+
+# TODO: Ensure this hardcoded k is appropriate.
+rule gfa_to_fn:
+    output: '{stem}.a.contigs.fn'
+    input: '{stem}.a-k141.gfa'
+    shell:
+        """
+        awk '/^S/{{print ">"$2"\\n"$3}}' < {input} > {output}
         """
 
 # {{{3 QC
@@ -602,6 +633,7 @@ rule quality_asses_assembly_with_spike:
     input: contigs='data/{group}.a.contigs.fn', ref='ref/salask.fn'
     threads: min(20, MAX_THREADS)
     params: min_contig_length=1000,
+    conda: 'conda/quast.yaml'
     shell:
         """
         metaquast.py --threads={threads} --min-contig {params.min_contig_length} -R {input.ref} --output-dir {output} {input.contigs}
@@ -811,16 +843,26 @@ rule transform_contig_space:
         cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
         seqs='data/{group}.a.contigs.fn'
     params:
-        length_threshold=1000
+        seed=1,
+        total_percentage_pca=90,
+        read_length=140,
+        kmer_length=4,
+        length_threshold=1000,
     conda: 'conda/concoct.yaml'
-    shadow: 'full'
+    # shadow: 'full'
     threads: 16
     shell:
         limit_numpy_procs + r"""
-        concoct --coverage_file={input.cvrg} --composition_file={input.seqs} \
+        concoct --coverage_file={input.cvrg} \
+                --composition_file={input.seqs} \
+                --threads {threads} \
+                --seed={params.seed} \
+                --total_percentage_pca={params.total_percentage_pca} \
+                --read_length={params.read_length} \
+                --kmer_length={params.kmer_length} \
                 --length_threshold={params.length_threshold} \
                 --basename={output.dir}/ \
-                --cluster=10 --iterations=1 --epsilon=1 --converge_out
+                --cluster=10 --iterations=1 --converge_out
         sed 's:,:\t:g' {output.dir}/original_data_gt{params.length_threshold}.csv | sed '1,1s:^:contig_id:' > {output.raw}
         sed 's:,:\t:g' {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv > {output.pca}
         """
@@ -929,25 +971,31 @@ rule checkm_refinements:
         dir=directory('data/{group}.a.mags/{mag}.g.rfn_check.checkm.d'),
         summary='data/{group}.a.mags/{mag}.g.rfn_check.checkm.tsv'
     input:
-        [ 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
-        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
-        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
-        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
-        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
-        , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
-        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
-        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
-        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
-        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
-        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
-        , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
-        ]
+        seqs=[ 'data/{group}.a.mags/{mag}.g.contigs.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+             ],
     threads: 6
     conda: 'conda/checkm.yaml'
     shell:
         r"""
         tmpdir=$(mktemp -d)
-        ln -rst $tmpdir {input}
+        ln -rst $tmpdir {input.seqs}
         rm -rf {output.dir}
         checkm lineage_wf -x fn \
                 --threads {threads} --pplacer_threads {threads} \
@@ -1141,10 +1189,10 @@ ruleorder: extract_all_read_mappings > extract_relevant_read_mappings
 
 rule bam_to_fastq:
     output:
-        r1='data/{stem}.r1.fq.gz',
-        r2='data/{stem}.r2.fq.gz',
+        r1='data/{stem}.map.r1.fq.gz',
+        r2='data/{stem}.map.r2.fq.gz',
     input:
-        bam='data/{stem}.sort.bam',
+        bam='data/{stem}.map.sort.bam',
         script='scripts/match_paired_reads.py',
     threads: min(10, MAX_THREADS)
     shell:
@@ -1399,18 +1447,24 @@ rule select_mag_refinement:
     output:
         fn="data/{group}.a.mags/{mag}.g.rfn.fn",
     input:
-        seqs=[ 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
-             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
-             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
-             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
-             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
-             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
-             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
-             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
-             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
-             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
-             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
-             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+        seqs=[ 'data/{group}.a.mags/{mag}.g.contigs.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
              ],
         checkm="data/{group}.a.mags/{mag}.g.rfn_check.checkm_details.tsv",
     shell:
@@ -1433,6 +1487,7 @@ rule select_mag_refinement:
 EOF
         false
         """
+localrules: select_mag_refinement
 
 rule rename_mag_sequences:
     output: "data/{group}.a.mags/{mag}.g.final.fn"
@@ -1469,6 +1524,7 @@ rule quality_asses_mag:
                'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn',
                ]
     threads: min(7, MAX_THREADS)
+    conda: 'conda/quast.yaml'
     shell:
         r"""
         quast.py --threads={threads} --min-contig 0 --output-dir {output} \
@@ -1489,6 +1545,7 @@ rule quality_asses_spike_mag:
                'data/{group}.a.mags/{mag}.g.scaffolds.pilon.ctrim.fn',
                ]
     threads: min(6, MAX_THREADS)
+    conda: 'conda/quast.yaml'
     shell:
         r"""
         quast.py --threads={threads} --min-contig 0 --output-dir {output} \
@@ -1947,17 +2004,17 @@ rule format_lipop_data:
 
 # {{{3 Domain Analysis
 
-# rule hmmsearch_domains:
-#     output: "data/{stem}.{hmm}.domtblout"
-#     input:
-#         fa="data/{stem}.cds.fa",
-#         hmm="ref/hmm/{hmm}.hmm"
-#     log: "data/{stem}.{hmm}.domtblout.log"
-#     threads: min(6, MAX_THREADS)
-#     shell:
-#         """
-#         hmmsearch --cpu {threads} --cut_nc --domtblout {output} {input.hmm} {input.fa} > {log}
-#         """
+rule hmmsearch_domains:
+    output: "data/{stem}.{hmm}.domtblout"
+    input:
+        fa="data/{stem}.cds.fa",
+        hmm="ref/hmm/{hmm}.hmm"
+    log: "data/{stem}.{hmm}.domtblout.log"
+    threads: min(6, MAX_THREADS)
+    shell:
+        """
+        hmmsearch --cpu {threads} --cut_nc --domtblout {output} {input.hmm} {input.fa} > {log}
+        """
 
 # {{{3 Alignment
 
@@ -2272,7 +2329,7 @@ rule generate_database_2:
         db='data/{group}.0.db',
         schema='schema.2.sql',
         genome='data/genome.noheader.tsv',
-        library_size='data/{group}.m.proc.library_size.tsv',
+        library_size='data/{group}.a.proc.library_size.tsv',
         checkm='data/{group}.a.mags.{genomes}.g.final.checkm_details.noheader.tsv',
         quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
         sequence='data/{group}.a.mags.{genomes}.g.final.sequence_to_genome.tsv',

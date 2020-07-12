@@ -3,7 +3,7 @@ jobscript: 'profiles/wynton-qsub/jobscript.sh'
 drmaa: " -cwd \
         -v PATH \
         -pe smp {cluster.processors} \
-        -l mem_free={cluster.memory}M \
+        -l mem_free={cluster.pmem}M \
         -l h_rt={cluster.walltime} \
         -o {cluster.outdir} \
         -j yes \

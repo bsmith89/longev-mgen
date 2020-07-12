@@ -832,72 +832,83 @@ rule unstack_cvrg:
 # {{{1 MAGs
 # {{{2 MAG Finding
 
-# {{{3 Prepare input data
+# {{{3 Binning
 
-rule transform_contig_space:
+rule cut_up_contigs_for_concoct_binning:
     output:
-        pca='data/{group}.a.contigs.concoct.pca.tsv',
-        raw='data/{group}.a.contigs.concoct.tsv',
-        dir=directory('data/{group}.a.contigs.concoct.d')
-    input:
-        cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
-        seqs='data/{group}.a.contigs.fn'
+        fn='{stem}.shard-{maxshard}.fn',
+        bed='{stem}.shard-{maxshard}.bed',
+    input: '{stem}.fn'
     params:
-        seed=1,
-        total_percentage_pca=90,
-        read_length=140,
-        kmer_length=4,
-        length_threshold=1000,
+        maxshard=lambda w: int(float(w.maxshard)),
+        overlap=0,
     conda: 'conda/concoct.yaml'
-    # shadow: 'full'
-    threads: 16
     shell:
-        limit_numpy_procs + r"""
-        concoct --coverage_file={input.cvrg} \
-                --composition_file={input.seqs} \
-                --threads {threads} \
-                --seed={params.seed} \
-                --total_percentage_pca={params.total_percentage_pca} \
-                --read_length={params.read_length} \
-                --kmer_length={params.kmer_length} \
-                --length_threshold={params.length_threshold} \
-                --basename={output.dir}/ \
-                --cluster=10 --iterations=1 --converge_out
-        sed 's:,:\t:g' {output.dir}/original_data_gt{params.length_threshold}.csv | sed '1,1s:^:contig_id:' > {output.raw}
-        sed 's:,:\t:g' {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv > {output.pca}
+        """
+        cut_up_fasta.py {input} -c {params.maxshard} -o {params.overlap} --merge_last -b {output.bed} > {output.fn}
         """
 
-# {{{3 Clustering
-
-# TODO: Don't rename as a separate stem.
-# TODO: Refine this script.
-rule cluster_contigs:
+rule construct_concoct_coverage_table:
     output:
-        out='data/{group}.a.contigs.cluster.tsv',
-        summary='data/{group}.a.contigs.cluster.summary.tsv',
+        'data/{group}.a.contigs.shard-{maxshard}.concoct_cvrg.tsv'
     input:
-        script='scripts/cluster_contigs.py',
-        pca='data/{group}.a.contigs.concoct.pca.tsv',
-        length='data/{group}.a.contigs.nlength.tsv',
-    log: 'log/{group}.a.contigs.cluster.log'
-    params:
-        min_contig_length=1000,
-        frac=0.10,
-        alpha=1,
-        max_clusters=2000,
-        seed=1,
-    threads: 20
+        bam=lambda wildcards: [f'data/{library}.m.{wildcards.group}-map.sort.bam'
+                               for library
+                               in config['asmbl_group'][wildcards.group]
+                              ],
+        bai=lambda wildcards: [f'data/{library}.m.{wildcards.group}-map.sort.bam.bai'
+                               for library
+                               in config['asmbl_group'][wildcards.group]
+                              ],
+        bed='data/{group}.a.contigs.shard-{maxshard}.bed',
+    conda: 'conda/concoct.yaml'
+    resources:
+        mem_mb=int(100e3)
     shell:
-        limit_numpy_procs + r"""
-        {input.script} {input.pca} {input.length} \
-                --min-length {params.min_contig_length} \
-                --frac {params.frac} \
-                --max-nbins {params.max_clusters} \
-                --alpha {params.alpha} \
-                --seed {params.seed} \
-                --summary {output.summary} \
-                > {output.out} 2> {log}
         """
+        concoct_coverage_table.py {input.bed} {input.bam} > {output}
+        """
+
+# TODO: Be explicit about parameters to this.
+# FIXME: Why does '--converge_out' not give me any debug info in the log file?
+# TODO: Consider if the concoct default of 400 clusters is appropriate.  Other defaults?
+rule concoct_cluster_contigs:
+    output: directory('{stem}.concoct.d/')
+    input:
+        fn='{stem}.fn',
+        cvrg='{stem}.concoct_cvrg.tsv',
+    conda: 'conda/concoct.yaml'
+    threads: 18
+    shell:
+        """
+        concoct --threads {threads} --converge_out --composition_file {input.fn} --coverage_file {input.cvrg} -b {output}
+        """
+
+# FIXME: 'gt1000' in recipe means that I've hard-coded the minimum contig length.
+rule merge_concoct_sharded_clusters:
+    output: 'data/{group}.a.contigs.shard-{maxshard}.unshard.concoct.csv'
+    input:  'data/{group}.a.contigs.shard-{maxshard}.concoct.d'
+    conda: 'conda/concoct.yaml'
+    shell:
+        """
+        merge_cutup_clustering.py {input}/clustering_gt1000.csv > {output}
+        """
+
+# This reformatting saves me from having to rework any of my rules downstream
+# of the clustering.
+rule reformat_concoct_clusters:
+    output: '{stem}.concoct.rfmt.tsv'
+    input: '{stem}.concoct.csv'
+    shell:
+        """
+        sed '1,1d' {input} | (echo 'contig_id\tcluster'; tr ',' '\t') > {output}
+        """
+
+rule alias_concoct_binning:
+    output: 'data/{group}.a.contigs.cluster.tsv'
+    input: 'data/{group}.a.contigs.shard-1e4.unshard.concoct.rfmt.tsv'
+    shell: alias_recipe
+
 
 rule rename_clusters_to_bins:
     output: 'data/{group}.a.contigs.bins.tsv'

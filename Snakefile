@@ -2632,7 +2632,7 @@ localrules: run_db1_query
 
 rule run_db2_query:
     output: 'data/{db}.2.query_{query}.tsv'
-    input: db='data/{db}.2.db', query='scripts/queries/2/{query}.sql'
+    input: db='data/{db}.2.denorm.db', query='scripts/queries/2/{query}.sql'
     shell:
         """
         sqlite3 -header -separator '	' {input.db} < {input.query} > {output}

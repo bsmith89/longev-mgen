@@ -11,14 +11,14 @@ from contextlib import redirect_stdout
 
 import pandas as pd
 import numpy as np
-from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
+from sklearn.mixture import BayesianGaussianMixture
 
 logger = logging.getLogger(__name__)
 
 
 def load_data(data_path, length_path, min_length):
     # Load from file.
-    data = pd.read_table(args.data_path, index_col='contig_id')
+    data = pd.read_csv(args.data_path, index_col='contig_id')
     length = pd.read_table(args.length_path, index_col='contig_id').length
     # Align indices.
     length = length.loc[data.index]
@@ -33,11 +33,16 @@ def load_data(data_path, length_path, min_length):
 def _fit_gmm(data, max_nbins, alpha=None, seed=None):
     logger.info('Fitting a VBGMM model:'
                 f' max_nbins={max_nbins}, alpha={alpha}, seed={seed}')
-    model = BayesianGaussianMixture(max_nbins, covariance_type='full',
-                                    weight_concentration_prior_type='dirichlet_process',
-                                    weight_concentration_prior=alpha,
-                                    random_state=seed,
-                                    verbose=2, verbose_interval=1)
+    model = BayesianGaussianMixture(
+            n_components=max_nbins,
+            covariance_type='full',
+            weight_concentration_prior_type='dirichlet_process',
+            weight_concentration_prior=alpha,
+            random_state=seed,
+            max_iter=int(1e3),
+            verbose=2,
+            verbose_interval=1
+    )
     with redirect_stdout(sys.stderr):
         model.fit(data)
     if model.converged_:
@@ -61,7 +66,7 @@ def _label_gmm(model, data, pthresh=0.0):
         # Are any of the probs > pthresh?
         mask = (probs > pthresh).sum(axis=1).astype(bool)
     cluster = pd.Series(best_guess.astype(int),
-                        index=data.index, name='cluster')
+                        index=data.index, name='cluster_id')
     return cluster[mask]
 
 
@@ -76,7 +81,7 @@ def cluster_gmm(data, length, max_nbins, frac,
     if 0 < frac < 1:
         subdata = data.sample(frac=frac, weights=length, random_state=seed)
         logger.info(f'Subsampling data weighted by contig length: frac={frac}')
-        logger.info('Subsampled {} reads with {} bp total.'
+        logger.info('Subsampled {} contigs with {} bp total.'
                     .format(subdata.shape[0], length.loc[subdata.index].sum()))
     elif frac == 1:
         subdata = data.copy()
@@ -103,7 +108,7 @@ def rename_clusters(cluster, length):
     cluster_length = length.groupby(cluster).sum()
     rename_by = (-cluster_length).argsort()
     renamed_cluster = cluster.map(rename_by)
-    return renamed_cluster 
+    return renamed_cluster
 
 
 def summarize_clusters(cluster, length):
@@ -169,4 +174,4 @@ if __name__ == "__main__":
 
     if args.summary:
         cluster_summary.to_csv(args.summary, sep='\t')
-    clusters.to_csv(args.outfile, sep='\t', header=True)
+    clusters.to_csv(args.outfile, sep=',', header=True)

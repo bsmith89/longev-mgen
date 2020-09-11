@@ -9,6 +9,7 @@ drmaa: " -cwd \
         -j yes \
         -terse \
         "
+jobs: 12
 notemp: true
 local-cores: 6
 latency-wait: 60

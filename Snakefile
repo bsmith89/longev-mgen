@@ -901,7 +901,7 @@ rule concoct_cluster_contigs:
 
 # FIXME: 'gt1000' in recipe means that I've hard-coded the minimum contig length.
 rule merge_concoct_sharded_clusters:
-    output: 'data/{group}.a.contigs.shard-{maxshard}.unshard.concoct.csv'
+    output: 'data/{group}.a.contigs.shard-{maxshard}.concoct.unshard.csv'
     input:  'data/{group}.a.contigs.shard-{maxshard}.concoct.d'
     conda: 'conda/concoct.yaml'
     shell:
@@ -962,44 +962,58 @@ rule alias_concoct_binning:
 #
 # # {{{3 Clustering
 #
-# # TODO: Don't rename as a separate stem.
-# # TODO: Refine this script.
-# rule cluster_contigs:
-#     output:
-#         out='data/{group}.a.contigs.cluster.tsv',
-#         summary='data/{group}.a.contigs.cluster.summary.tsv',
-#     input:
-#         script='scripts/cluster_contigs.py',
-#         pca='data/{group}.a.contigs.concoct.pca.tsv',
-#         length='data/{group}.a.contigs.nlength.tsv',
-#     log: 'log/{group}.a.contigs.cluster.log'
-#     params:
-#         min_contig_length=1000,
-#         frac=0.10,
-#         alpha=1,
-#         max_clusters=2000,
-#         seed=1,
-#     threads: 20
-#     shell:
-#         limit_numpy_procs + r"""
-#         {input.script} {input.pca} {input.length} \
-#                 --min-length {params.min_contig_length} \
-#                 --frac {params.frac} \
-#                 --max-nbins {params.max_clusters} \
-#                 --alpha {params.alpha} \
-#                 --seed {params.seed} \
-#                 --summary {output.summary} \
-#                 > {output.out} 2> {log}
-#         """
-#
-rule rename_clusters_to_bins:
+# TODO: Don't rename as a separate stem.
+# TODO: Refine this script.
+rule cluster_contigs:
+    output:
+        out='data/{group}.a.contigs.shard-{maxshard}.cluster.csv',
+        summary='data/{group}.a.contigs.shard-{maxshard}.cluster.summary.tsv',
+    input:
+        script='scripts/cluster_contigs.py',
+        concoct_data='data/{group}.a.contigs.shard-{maxshard}.concoct.d',
+        length='data/{group}.a.contigs.shard-{maxshard}.nlength.tsv',
+    log: 'log/{group}.a.contigs.shard-{maxshard}.cluster.log'
+    params:
+        frac=0.10,
+        alpha=1,
+        max_clusters=2000,
+        seed=1,
+        min_contig_length=1000,
+    threads: 12
+    resources:
+        memory_mb=100000,
+        pmem=100000 // 12
+    shell:
+        limit_numpy_procs + r"""
+        {input.script} {input.concoct_data}/PCA_transformed_data_gt1000.csv \
+                {input.length} \
+                --min-length {params.min_contig_length} \
+                --frac {params.frac} \
+                --max-nbins {params.max_clusters} \
+                --alpha {params.alpha} \
+                --seed {params.seed} \
+                --summary {output.summary} \
+                > {output.out} 2> {log}
+        """
+
+# FIXME: 'gt1000' in recipe means that I've hard-coded the minimum contig length.
+rule merge_sharded_clusters:
+    output: 'data/{group}.a.contigs.shard-{maxshard}.cluster.unshard.csv'
+    input:  'data/{group}.a.contigs.shard-{maxshard}.cluster.csv'
+    conda: 'conda/concoct.yaml'
+    shell:
+        """
+        merge_cutup_clustering.py {input} > {output}
+        """
+
+rule clusters_to_bins:
     output: 'data/{group}.a.contigs.bins.tsv'
-    input: 'data/{group}.a.contigs.cluster.tsv'
+    input: 'data/{group}.a.contigs.shard-1e4.cluster.unshard.csv'
     params:
         padding=5
     shell:
         r"""
-        awk -v OFS='\t' \
+        awk -v FS=',' -v OFS='\t' \
             'BEGIN   {{print "contig_id", "bin_id"}}
              FNR > 1 {{printf "%s\tbin%0{params.padding}d\n", $1, $2}}
             ' \
@@ -1152,12 +1166,15 @@ rule query_merge_stats:
         """
 
 # TODO: Automate this??
-# TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce a dependencies on databases and therefore schema.sql
+# TODO: Swap checkm_merge_stats input for bin_merge_stats? (this will introduce
+# a dependencies on databases and therefore schema.sql
+# TODO: Write curated data out to chkpt/ dir, a location for intermeidate data
+# files that SHOULD be version controlled (e.g. manual curation)
 rule select_curated_mags:
     output:
-        contigs='data/{group}.a.mags/{mag}.g.contigs.list',
-        libraries='data/{group}.a.mags/{mag}.g.library.list',
-        trusted='data/{group}.a.mags/{mag}.g.trusted_depth.tsv'
+        contigs='chkpt/{group}.a.mags/{mag}.g.contigs.list',
+        libraries='chkpt/{group}.a.mags/{mag}.g.library.list',
+        trusted='chkpt/{group}.a.mags/{mag}.g.trusted_depth.tsv'
     input:
         contig='data/{group}.a.contigs.nlength.tsv',
         contig_bin='data/{group}.a.contigs.bins.tsv',
@@ -1185,6 +1202,23 @@ rule select_curated_mags:
 EOF
         false
         """
+
+rule link_curated_mag:
+    output:
+        contigs='data/{group}.a.mags/{mag}.g.contigs.list',
+        libraries='data/{group}.a.mags/{mag}.g.library.list',
+        depth='data/{group}.a.mags/{mag}.g.trusted_depth.tsv'
+    input:
+        contigs='chkpt/{group}.a.mags/{mag}.g.contigs.list',
+        libraries='chkpt/{group}.a.mags/{mag}.g.library.list',
+        depth='chkpt/{group}.a.mags/{mag}.g.trusted_depth.tsv'
+    shell:
+        """
+        ln -rs {input.contigs} {output.contigs}
+        ln -rs {input.libraries} {output.libraries}
+        ln -rs {input.depth} {output.depth}
+        """
+localrules: link_curated_mag
 
 rule get_mag_contigs:
     output: 'data/{group}.a.mags/{bin}.g.contigs.fn'
@@ -1627,30 +1661,30 @@ rule quality_asses_mag:
     output: directory('data/{group}.a.mags/{mag}.g.quast.d')
     input:
         asmbl=[
-             #   'data/{group}.a.mags/{mag}.g.contigs.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
-             'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+               'data/{group}.a.mags/{mag}.g.contigs.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-90.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
              ],
     threads: min(7, MAX_THREADS)
     conda: 'conda/quast.yaml'

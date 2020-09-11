@@ -4,6 +4,7 @@ SELECT DISTINCT
   , feature_id
   , feature_start
   , feature_stop
+  , (feature_start < feature_stop) AS positive_strand
   , susC
   , susD
   , susEF

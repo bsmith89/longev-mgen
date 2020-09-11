@@ -79,9 +79,9 @@ include: 'snake/local.snake'
 
 # {{{3 Sub-project includes
 include: 'snake/genome_comparison.snake'
-# include: 'snake/curation.snake'
 include: 'snake/cazy.snake'
 include: 'snake/strain_variation.snake'
+# include: 'snake/curation.snake'
 
 # {{{2 Params
 
@@ -113,8 +113,13 @@ rule drop_header_meta:
 localrules: drop_header_meta
 ruleorder: drop_header_meta > drop_header
 
+rule start_ipython:
+    threads: MAX_THREADS
+    shell: limit_numpy_procs + 'ipython'
+
 rule start_jupyter:
-    shell: "jupyter notebook --config=nb/jupyter_notebook_config.py --notebook-dir=nb/"
+    threads: MAX_THREADS
+    shell: limit_numpy_procs + "jupyter notebook --config=nb/jupyter_notebook_config.py --notebook-dir=nb/"
 localrules: start_jupyter
 
 rule configure_git:
@@ -320,6 +325,12 @@ rule download_dBCAN_hmms:
     shell: curl_recipe
 localrules: download_dBCAN_hmms
 
+# rule download_dbCAN_meta:
+#     output: "raw/ref/dbCAN.tsv"
+#     params:
+#         url="http://csbl.bmb.uga.edu/dbCAN/download/FamInfo.txt"
+#     shell: curl_recipe
+# localrules: download_dbCAN_meta
 
 rule filter_dbCAN_hmms:
     output: "ref/hmm/dbCAN.hmm"
@@ -554,18 +565,19 @@ rule quality_trim_reads:
 
 # {{{3 Aliasing after processing
 
-# This processing intended for mapping.
-rule alias_read_processing_r1:
-    output: 'data/{library}.m.r1.proc.fq.gz'
-    input: 'data/{library}.m.r1.dedup.deadapt.qtrim.fq.gz'
-    shell: alias_recipe
-localrules: alias_read_processing_r1
-
-rule alias_read_processing_r2:
-    output: 'data/{library}.m.r2.proc.fq.gz'
-    input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
-    shell: alias_recipe
-localrules: alias_read_processing_r2
+# # Why does the existence of these aliased files result in a "ChildIOException" (or
+# # something like that)?
+# # This processing intended for mapping.
+# rule alias_read_processing_r1:
+#     output: 'data/{library}.m.r1.proc.fq.gz'
+#     input: 'data/{library}.m.r1.dedup.deadapt.qtrim.fq.gz'
+#     shell: alias_recipe
+# localrules: alias_read_processing_r1
+# rule alias_read_processing_r2:
+#     output: 'data/{library}.m.r2.proc.fq.gz'
+#     input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
+#     shell: alias_recipe
+# localrules: alias_read_processing_r2
 
 # {{{2 Metagenome Assembly
 
@@ -620,7 +632,7 @@ rule fastg_to_gfa:
 # TODO: Ensure this hardcoded k is appropriate.
 rule gfa_to_fn:
     output: '{stem}.a.contigs.fn'
-    input: '{stem}.a-k141.gfa'
+    input: '{stem}.a-k161.gfa'
     shell:
         """
         awk '/^S/{{print ">"$2"\\n"$3}}' < {input} > {output}
@@ -703,8 +715,7 @@ rule combine_read_mappings:
 rule index_read_mappings:
     output: 'data/{stem}.sort.bam.bai'
     input: 'data/{stem}.sort.bam'
-    threads: min(6, MAX_THREADS)
-    shell: 'samtools index -@ {threads} {input} {output}'
+    shell: 'samtools index -b {input} {output}'
 
 
 # {{{2 Scaffolding
@@ -872,16 +883,20 @@ rule construct_concoct_coverage_table:
 # TODO: Be explicit about parameters to this.
 # FIXME: Why does '--converge_out' not give me any debug info in the log file?
 # TODO: Consider if the concoct default of 400 clusters is appropriate.  Other defaults?
+# TODO: Fix the output file names. Currently `-b X.d` produces outputs of `X.d_*`
 rule concoct_cluster_contigs:
-    output: directory('{stem}.concoct.d/')
+    output: directory('{stem}.concoct.d')
     input:
         fn='{stem}.fn',
         cvrg='{stem}.concoct_cvrg.tsv',
+    params:
+        clusters=1000,
+        max_iter=1000,
     conda: 'conda/concoct.yaml'
     threads: 18
     shell:
         """
-        concoct --threads {threads} --converge_out --composition_file {input.fn} --coverage_file {input.cvrg} -b {output}
+        concoct --threads {threads} --clusters {params.clusters} --iterations {params.max_iter} --converge_out --composition_file {input.fn} --coverage_file {input.cvrg} -b {output}
         """
 
 # FIXME: 'gt1000' in recipe means that I've hard-coded the minimum contig length.
@@ -910,6 +925,73 @@ rule alias_concoct_binning:
     shell: alias_recipe
 
 
+# # {{{3 Prepare input data
+#
+# rule transform_contig_space:
+#     output:
+#         pca='data/{group}.a.contigs.concoct.pca.tsv',
+#         raw='data/{group}.a.contigs.concoct.tsv',
+#         dir=directory('data/{group}.a.contigs.concoct.d')
+#     input:
+#         cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
+#         seqs='data/{group}.a.contigs.fn'
+#     params:
+#         seed=1,
+#         total_percentage_pca=90,
+#         read_length=140,
+#         kmer_length=4,
+#         length_threshold=1000,
+#     conda: 'conda/concoct.yaml'
+#     # shadow: 'full'
+#     threads: 16
+#     shell:
+#         limit_numpy_procs + r"""
+#         concoct --coverage_file={input.cvrg} \
+#                 --composition_file={input.seqs} \
+#                 --threads {threads} \
+#                 --seed={params.seed} \
+#                 --total_percentage_pca={params.total_percentage_pca} \
+#                 --read_length={params.read_length} \
+#                 --kmer_length={params.kmer_length} \
+#                 --length_threshold={params.length_threshold} \
+#                 --basename={output.dir}/ \
+#                 --cluster=10 --iterations=1 --converge_out
+#         sed 's:,:\t:g' {output.dir}/original_data_gt{params.length_threshold}.csv | sed '1,1s:^:contig_id:' > {output.raw}
+#         sed 's:,:\t:g' {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv > {output.pca}
+#         """
+#
+# # {{{3 Clustering
+#
+# # TODO: Don't rename as a separate stem.
+# # TODO: Refine this script.
+# rule cluster_contigs:
+#     output:
+#         out='data/{group}.a.contigs.cluster.tsv',
+#         summary='data/{group}.a.contigs.cluster.summary.tsv',
+#     input:
+#         script='scripts/cluster_contigs.py',
+#         pca='data/{group}.a.contigs.concoct.pca.tsv',
+#         length='data/{group}.a.contigs.nlength.tsv',
+#     log: 'log/{group}.a.contigs.cluster.log'
+#     params:
+#         min_contig_length=1000,
+#         frac=0.10,
+#         alpha=1,
+#         max_clusters=2000,
+#         seed=1,
+#     threads: 20
+#     shell:
+#         limit_numpy_procs + r"""
+#         {input.script} {input.pca} {input.length} \
+#                 --min-length {params.min_contig_length} \
+#                 --frac {params.frac} \
+#                 --max-nbins {params.max_clusters} \
+#                 --alpha {params.alpha} \
+#                 --seed {params.seed} \
+#                 --summary {output.summary} \
+#                 > {output.out} 2> {log}
+#         """
+#
 rule rename_clusters_to_bins:
     output: 'data/{group}.a.contigs.bins.tsv'
     input: 'data/{group}.a.contigs.cluster.tsv'
@@ -982,24 +1064,31 @@ rule checkm_refinements:
         dir=directory('data/{group}.a.mags/{mag}.g.rfn_check.checkm.d'),
         summary='data/{group}.a.mags/{mag}.g.rfn_check.checkm.tsv'
     input:
-        seqs=[ 'data/{group}.a.mags/{mag}.g.contigs.fn'
+        seqs=[
+               'data/{group}.a.mags/{mag}.g.contigs.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
              ],
     threads: 6
     conda: 'conda/checkm.yaml'
@@ -1214,7 +1303,7 @@ rule bam_to_fastq:
             samtools view -@ {threads} {input.bam} | {input.script}
         ) \
             | samtools view -@ {threads} -u - \
-            | samtools fastq -@ {threads} -c 6 -1 {output.r1} -2 {output.r2} -
+            | samtools fastq -c 6 -1 {output.r1} -2 {output.r2} -
         """
 
 rule diginorm_reads:
@@ -1248,9 +1337,12 @@ rule reassemble_mag:
         contigs='data/{group}.a.mags/{mag}.g.rsmbl.contigs.fn',
         dir=directory('data/{group}.a.mags/{mag}.g.spades.d'),
     input:
-        r1='data/{group}.a.mags/{mag}.g.contigs.map.r1.dnorm.fq.gz',
-        r2='data/{group}.a.mags/{mag}.g.contigs.map.r2.dnorm.fq.gz'
+        r1='data/{group}.a.mags/{mag}.g.contigs.map.r1.fq.gz',  # TODO: Check if dnorm helped.
+        r2='data/{group}.a.mags/{mag}.g.contigs.map.r2.fq.gz'
     threads: min(15, MAX_THREADS)
+    resources:
+        mem_mb=200000,
+        pmem=200000 // 15,
     shell:
         r"""
         spades.py --tmp-dir $TMPDIR --threads {threads} --careful -1 {input.r1} -2 {input.r2} -o {output.dir}
@@ -1273,7 +1365,8 @@ rule pilon_refine:
         bam="data/{group}.a.mags/{mag}.g.{proc}.map.sort.bam",
         bai="data/{group}.a.mags/{mag}.g.{proc}.map.sort.bam.bai",
     resources:
-        mem_mb=100000
+        mem_mb=int(1e5),
+        pmem=int(1e5 // 12),
     params:
         prefix="data/{group}.a.mags/{mag}.g.{proc}.pilon"
     threads: min(12, MAX_THREADS)
@@ -1333,12 +1426,18 @@ rule estimate_mag_feature_cvrg:
     input:
         depth='data/{group}.a.mags/{mag_stem}.library-depth.tsv.gz',
         feature='data/{group}.a.mags.annot/{mag_stem}.features.tsv'
+    threads: 8
+    resources:
+        memory_mb=256000,
+        pmem=256000 // 8,
     shell:
         """
 script=$(mktemp)
 db=$(mktemp)
+echo $db
 
 cat <<EOF > $script
+.bail on
 .separator '\t'
 
 CREATE TABLE _feature
@@ -1458,26 +1557,34 @@ rule select_mag_refinement:
     output:
         fn="data/{group}.a.mags/{mag}.g.rfn.fn",
     input:
-        seqs=[ 'data/{group}.a.mags/{mag}.g.contigs.fn'
+        seqs=[
+               'data/{group}.a.mags/{mag}.g.contigs.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
              , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
-             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-90.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
              ],
         checkm="data/{group}.a.mags/{mag}.g.rfn_check.checkm_details.tsv",
+        quast='data/{group}.a.mags/{mag}.g.quast.d',
     shell:
         """
         cat <<EOF
@@ -1488,7 +1595,7 @@ rule select_mag_refinement:
 
         You may want to use the following to guide your decision:
         -   Completeness/contamination ({input.checkm})
-        -   Number of contigs/scaffolds
+        -   Number and size of contigs/scaffolds ({input.quast})
         -   Total sequence length
 
         Once you have selected the final MAG:
@@ -1520,20 +1627,31 @@ rule quality_asses_mag:
     output: directory('data/{group}.a.mags/{mag}.g.quast.d')
     input:
         asmbl=[
-               'data/{group}.a.mags/{mag}.g.contigs.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn',
-               'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn',
-               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn',
-               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn',
-               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn',
-               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn',
-               'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn',
-               ]
+             #   'data/{group}.a.mags/{mag}.g.contigs.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.contigs.ctrim-90.fn'
+             'data/{group}.a.mags/{mag}.g.contigs.pilon.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-50.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-60.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-70.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-80.fn'
+             , 'data/{group}.a.mags/{mag}.g.contigs.pilon.ctrim-90.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.ctrim-90.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-50.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-60.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-70.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-80.fn'
+             # , 'data/{group}.a.mags/{mag}.g.rsmbl.scaffolds.pilon.ctrim-90.fn'
+             ],
     threads: min(7, MAX_THREADS)
     conda: 'conda/quast.yaml'
     shell:
@@ -2319,6 +2437,7 @@ rule denormalize_database_1:
         cp {input.db} $tmp
         ls -l $tmp
         echo '
+PRAGMA legacy_alter_table = 1;
 PRAGMA cache_size = 1000000;
 
 CREATE TABLE __bin_coverage AS SELECT * FROM bin_coverage;
@@ -2364,6 +2483,7 @@ rule generate_database_2:
         feature_tmhmm='data/{group}.a.mags.{genomes}.g.final.tmhmm-annot.tsv',
         feature_lipop='data/{group}.a.mags.{genomes}.g.final.lipop-annot.tsv',
         feature_library_cvrg='data/{group}.a.mags.{genomes}.g.final.feature_cvrg.tsv',
+        variant_cross_cvrg='data/core.a.mags.annot/B1.g.final.cvrg-ratio.tsv',
     shell:
         r"""
         tmp=$(mktemp -u)
@@ -2399,6 +2519,7 @@ PRAGMA foreign_keys = TRUE;
 .import {input.feature_tmhmm} feature_tmh
 .import {input.feature_lipop} feature_lipop
 .import {input.feature_library_cvrg} feature_library_coverage
+.import {input.variant_cross_cvrg} variant_cross_coverage
 ANALYZE;
              ' \
         | sqlite3 $tmp
@@ -2415,6 +2536,7 @@ rule denormalize_database_2:
         cp {input.db} $tmp
         echo '
 .bail on
+PRAGMA legacy_alter_table = 1;
 PRAGMA cache_size = 1000000;
 
 CREATE TABLE __feature_details AS SELECT * FROM feature_details;

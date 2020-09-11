@@ -73,16 +73,12 @@ config['genome_group'] = \
         { 'muri':
              { 'mags': [ 'B1A'
                        , 'B1B'
-                       , 'B1C'
-                       , 'B1D'
-                       , 'B1E'
+                       , 'B2'
                        , 'B3'
                        , 'B4'
-                       , 'B2'
                        , 'B5'
                        , 'B6'
                        , 'B7'
-                       , 'B8'
                        ]
              , 'refs': [ 'GP1'
                        , 'GP2'
@@ -118,8 +114,7 @@ config['genome_group'] = \
                        # , 'Muribaculaceae_bacterium_DSM_100739'  # mostly identical to M. intestinale
                        # , 'Muribaculaceae_bacterium_DSM_100746'  # mostly identical to M. intestinale
                        # , 'Muribaculaceae_bacterium_DSM_100749'  # identical-ish to Muribaculaceae_bacterium_DSM_100764
-                       , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
-                       , 'Muribaculaceae_bacterium_DSM_100764'  # mostly identical to OTU-49
+                       # , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
                        # , 'Duncaniella_muris_DSM_103720'  # TODO
                        , 'Zag10'
                        , 'Zag1'
@@ -129,6 +124,36 @@ config['genome_group'] = \
                        , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
                        , 'Barnesiella_viscericola_DSM_18177'  # Outgroup
                        , 'Porphyromonas_gingivalis_ATCC_33277'  # Outgroup
+                       # Lagkouvardos2019 DSM Isolates:
+                       , 'Paramuribaculum_intestinale_DSM_100749T'  # Paramuribaculum intestinale DSM 100749T GCA_003024925.1
+                       , 'Paramuribaculum_intestinale_DSM_100764'  # Paramuribaculum intestinale DSM 100764 GCA_003024815.1
+                       , 'Duncaniella_muris_DSM_103720T'  # Duncaniella muris DSM 103720T GCA_003024805.1
+                       # , 'Muribaculum_intestinale_DSM_100746'  # Muribaculum intestinale DSM 100746 GCA_003024855.1
+                       # , 'Muribaculum_intestinale_DSM_100739'  # Muribaculum intestinale DSM 100739 GCA_003024845.1
+                       # TODO: Lagkouvardos2019 "Short-term" isolates (not deposited in DSM)
+                       # Isolate-037 (Harlan; PRJNA503544)
+                       # Isolate-001 (NCI; PRJNA503101)
+                       # Isolate-001 (NCI; PRJNA503101)
+                       # Isolate-036 (Harlan; PRJNA503543)
+                       # Isolate-113 (HZI; PRJNA503598)
+                       # Isolate-114 (HZI; PRJNA503600)
+                       # Isolate-007 (NCI; PRJNA503106)
+                       # Isolate-100 (HZI; PRJNA503563)
+                       # Isolate-042 (Harlan; PRJNA503547)
+                       # Isolate-102 (HZI; PRJNA503594)
+                       # Isolate-104 (HZI; PRJNA503595)
+                       # Isolate-004 (NCI; PRJNA503105)
+                       # Isolate-105 (HZI; PRJNA503596)
+                       # Isolate-043 (Harlan; PRJNA503548)
+                       # Isolate-110 (HZI; PRJNA503597)
+                       # Isolate-080 (Janvier; PRJNA503555)
+                       # Isolate-039 (Harlan; PRJNA503545)
+                       # Isolate-083 (Janvier; PRJNA503556)
+                       # Isolate-077 (Janvier; PRJNA503553)
+                       # Isolate-084 (Janvier; PRJNA503557)
+                       # Isolate-002 (NCI; PRJNA503102)
+                       # Isolate-013 (NCI; PRJNA503113)
+                       # TODO: Lagkouvardos2019 MAGs from iMGMC
                        ]
              }
         }
@@ -305,21 +330,21 @@ localrules: alias_an289_genome
 
 ruleorder: alias_an289_genome > alias_sra_genomes
 
-# {{{2 Duncaniella_muris
-rule download_duncaniella_muris_genome:
-    output: 'raw/ref/Duncaniella_muris_DSM_103720.fn'
-    params:
-        url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/805/GCA_003024805.1_ASM302480v1'
-    shell: curl_unzip_recipe
-localrules: download_duncaniella_muris_genome
-
-rule alias_duncaniella_muris_genome:
-    output: 'data/ref.mags/Duncaniella_muris_DSM_103720.fn'
-    input: 'raw/ref/Duncaniella_muris_DSM_103720.fn'
-    shell: alias_recipe
-localrules: alias_duncaniella_muris_genome
-
-ruleorder: alias_duncaniella_muris_genome > alias_sra_genomes
+# # {{{2 Duncaniella_muris
+# rule download_duncaniella_muris_genome:
+#     output: 'raw/ref/Duncaniella_muris_DSM_103720.fn'
+#     params:
+#         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/805/GCA_003024805.1_ASM302480v1'
+#     shell: curl_unzip_recipe
+# localrules: download_duncaniella_muris_genome
+#
+# rule alias_duncaniella_muris_genome:
+#     output: 'data/ref.mags/Duncaniella_muris_DSM_103720.fn'
+#     input: 'raw/ref/Duncaniella_muris_DSM_103720.fn'
+#     shell: alias_recipe
+# localrules: alias_duncaniella_muris_genome
+#
+# ruleorder: alias_duncaniella_muris_genome > alias_sra_genomes
 
 # {{{2 Bacteroides thetaiotaomicron VPI5482
 rule download_btheta_genome:
@@ -398,8 +423,82 @@ rule alias_ljohn_genome:
     input: 'raw/ref/Lactobacillus_johnsonii_NCC_533.fn'
     shell: alias_recipe
 localrules: alias_ljohn_genome
-
 ruleorder: alias_ljohn_genome > alias_sra_genomes
+
+# {{{2 Paramuribaculum_intestinale_DSM_100749T
+rule download_Paramuribaculum_intestinale_DSM_100749T_genome:
+    output: 'raw/ref/Paramuribaculum_intestinale_DSM_100749T.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/925/GCA_003024925.1_ASM302492v1/GCA_003024925.1_ASM302492v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Paramuribaculum_intestinale_DSM_100749T_genome
+
+rule alias_Paramuribaculum_intestinale_DSM_100749T_genome:
+    output: 'data/ref.mags/Paramuribaculum_intestinale_DSM_100749T.g.fn'
+    input: 'raw/ref/Paramuribaculum_intestinale_DSM_100749T.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Paramuribaculum_intestinale_DSM_100749T_genome
+ruleorder: alias_Paramuribaculum_intestinale_DSM_100749T_genome > alias_sra_genomes
+
+# {{{2 Paramuribaculum_intestinale_DSM_100764
+rule download_Paramuribaculum_intestinale_DSM_100764_genome:
+    output: 'raw/ref/Paramuribaculum_intestinale_DSM_100764.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/815/GCA_003024815.1_ASM302481v1/GCA_003024815.1_ASM302481v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Paramuribaculum_intestinale_DSM_100764_genome
+
+rule alias_Paramuribaculum_intestinale_DSM_100764_genome:
+    output: 'data/ref.mags/Paramuribaculum_intestinale_DSM_100764.g.fn'
+    input: 'raw/ref/Paramuribaculum_intestinale_DSM_100764.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Paramuribaculum_intestinale_DSM_100764_genome
+ruleorder: alias_Paramuribaculum_intestinale_DSM_100764_genome > alias_sra_genomes
+
+# {{{2 Duncaniella_muris_DSM_103720T
+rule download_Duncaniella_muris_DSM_103720T_genome:
+    output: 'raw/ref/Duncaniella_muris_DSM_103720T.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/805/GCA_003024805.1_ASM302480v1/GCA_003024805.1_ASM302480v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Duncaniella_muris_DSM_103720T_genome
+
+rule alias_Duncaniella_muris_DSM_103720T_genome:
+    output: 'data/ref.mags/Duncaniella_muris_DSM_103720T.g.fn'
+    input: 'raw/ref/Duncaniella_muris_DSM_103720T.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Duncaniella_muris_DSM_103720T_genome
+ruleorder: alias_Duncaniella_muris_DSM_103720T_genome > alias_sra_genomes
+
+# {{{2 Muribaculum_intestinale_DSM_100746
+rule download_Muribaculum_intestinale_DSM_100746_genome:
+    output: 'raw/ref/Muribaculum_intestinale_DSM_100746.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/855/GCA_003024855.1_ASM302485v1/GCA_003024855.1_ASM302485v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Muribaculum_intestinale_DSM_100746_genome
+
+rule alias_Muribaculum_intestinale_DSM_100746_genome:
+    output: 'data/ref.mags/Muribaculum_intestinale_DSM_100746.g.fn'
+    input: 'raw/ref/Muribaculum_intestinale_DSM_100746.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Muribaculum_intestinale_DSM_100746_genome
+ruleorder: alias_Muribaculum_intestinale_DSM_100746_genome > alias_sra_genomes
+
+# {{{2 Muribaculum_intestinale_DSM_100739
+rule download_Muribaculum_intestinale_DSM_100739_genome:
+    output: 'raw/ref/Muribaculum_intestinale_DSM_100739.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/024/845/GCA_003024845.1_ASM302484v1/GCA_003024845.1_ASM302484v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Muribaculum_intestinale_DSM_100739_genome
+
+rule alias_Muribaculum_intestinale_DSM_100739_genome:
+    output: 'data/ref.mags/Muribaculum_intestinale_DSM_100739.g.fn'
+    input: 'raw/ref/Muribaculum_intestinale_DSM_100739.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Muribaculum_intestinale_DSM_100739_genome
+ruleorder: alias_Muribaculum_intestinale_DSM_100739_genome > alias_sra_genomes
 
 # {{{1 Compile data
 

@@ -31,4 +31,4 @@ if __name__ == "__main__":
     cvrg_1 = cvrg.loc[lib_1].mean()
     cvrg_2 = cvrg.loc[lib_2].mean()
     ratio = cvrg_2 / cvrg_1
-    ratio.to_csv(sys.stdout, sep='\t')
+    ratio.to_csv(sys.stdout, sep='\t', header=False)

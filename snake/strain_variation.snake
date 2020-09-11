@@ -81,10 +81,10 @@ rule calculate_cross_mapping_ratios:
 rule combine_cross_mapping_ratios:
     output: "data/{group}.a.mags.annot/B1.g.{proc}.cvrg-ratio.tsv"
     input:
-        magB="data/{group}.a.mags.annot/B1A.g.final.B1B-cvrg-ratio.tsv",
-        magC="data/{group}.a.mags.annot/B1B.g.final.B1A-cvrg-ratio.tsv",
+        magB="data/{group}.a.mags.annot/B1A.g.{proc}.B1B-cvrg-ratio.tsv",
+        magA="data/{group}.a.mags.annot/B1B.g.{proc}.B1A-cvrg-ratio.tsv",
     shell:
         """
-        awk -v OFS='\t' -v mag_id=B1B '{{print $1, mag_id, $2}}' {input.magB} > {output}
-        awk -v OFS='\t' -v mag_id=B1A '{{print $1, mag_id, $2}}' {input.magC} >> {output}
+        awk -v OFS='\t' -v mag_id=B1B '{{print $1, mag_id, $2}}' {input.magA} > {output}
+        awk -v OFS='\t' -v mag_id=B1A '{{print $1, mag_id, $2}}' {input.magB} >> {output}
         """

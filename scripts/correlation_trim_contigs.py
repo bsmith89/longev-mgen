@@ -89,12 +89,14 @@ if __name__ == "__main__":
     seqs = index(args.seq_path, 'fasta')
     data = pd.read_table(args.corr_handle,
                          names=['contig_id', 'position', 'total_depth', 'cosine_similarity'])
+    data.contig_id = data.contig_id.astype(str)  # FIXME: Brittle
     data.position = data.position - 1  # Convert to zero-indexed.
     tally_seqs = 0
     tally_nucs = 0
     for contig_id in tqdm(list(seqs.keys())):
         seq = seqs[contig_id].seq
         if len(seq) < args.min_length:
+            # print(f"Contig {contig_id} too short.", file=sys.stderr)
             continue
         d = data[data.contig_id == contig_id]
         if d.empty:

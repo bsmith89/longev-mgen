@@ -40,14 +40,15 @@ Muribaculum_intestinale_DSM_100746	0	public	Muribaculaceae		GCA_003024855.1
 Paramuribaculum_intestinale_DSM_100749T	0	public	Muribaculaceae		GCA_003024925.1
 Paramuribaculum_intestinale_DSM_100764	0	public	Muribaculaceae		GCA_003024815.1
 Muribaculum_intestinale_yl27	0	reference	Muribaculaceae		
-B1A	1	here	Muribaculaceae		Otu0001_vC refined manually from OTU-1 at UM
-B1B	1	here	Muribaculaceae		Otu0001_vB refined manually from OTU-1 variant specific to UT
-B2	1	here	Muribaculaceae		Otu0007_vA when considering all ITP/Glenn mice, but OTU-4 in Smith2019.
-B3	1	here	Muribaculaceae		Otu0009_vA
-B4	1	here	Muribaculaceae		Otu0005_vA
-B5	1	here	Muribaculaceae		Otu0004_vA
-B6	1	here	Muribaculaceae		Otu0049_vA
-B7	1	here	Muribaculaceae		Otu0017_vA
+B1A	1	here	Muribaculaceae		Otu0001 refined manually from samples at both UM and UT.
+B1B	1	here	Muribaculaceae		Otu0001 refined manually from only UT samples.
+B2	1	here	Muribaculaceae		Otu0007 when considering all ITP/Glenn mice, but OTU-4 in Smith2019. TODO: Check this.
+B3	1	here	Muribaculaceae		Otu???
+B4	1	here	Muribaculaceae		Otu???
+B5	1	here	Muribaculaceae		Otu???
+B6	1	here	Muribaculaceae		Otu???
+B7	1	here	Muribaculaceae		Otu???
+B8	1	here	Muribaculaceae		Otu???
 Porphyromonas_gingivalis_ATCC_33277	0	reference	Porphyromonadaceae		
 Zag1	1	public	Muribaculaceae		
 Zag10	1	public	Muribaculaceae		

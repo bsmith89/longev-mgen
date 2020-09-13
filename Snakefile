@@ -1170,7 +1170,7 @@ rule query_merge_stats:
 # a dependencies on databases and therefore schema.sql
 # TODO: Write curated data out to chkpt/ dir, a location for intermeidate data
 # files that SHOULD be version controlled (e.g. manual curation)
-rule select_curated_mags:
+rule manual_choose_curated_mags:
     output:
         contigs='chkpt/{group}.a.mags/{mag}.g.contigs.list',
         libraries='chkpt/{group}.a.mags/{mag}.g.library.list',
@@ -1202,6 +1202,7 @@ rule select_curated_mags:
 EOF
         false
         """
+localrules: manual_choose_curated_mags
 
 rule link_curated_mag:
     output:
@@ -1587,7 +1588,7 @@ rule correlation_trim_contigs:
 
 # {{{3 Refinement Selection
 
-rule select_mag_refinement:
+rule manual_choose_mag_refinement:
     output:
         fn="data/{group}.a.mags/{mag}.g.rfn.fn",
     input:
@@ -1639,7 +1640,7 @@ rule select_mag_refinement:
 EOF
         false
         """
-localrules: select_mag_refinement
+localrules: manual_choose_mag_refinement
 
 rule rename_mag_sequences:
     output: "data/{group}.a.mags/{mag}.g.final.fn"

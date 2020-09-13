@@ -925,43 +925,10 @@ rule alias_concoct_binning:
     shell: alias_recipe
 
 
-# # {{{3 Prepare input data
-#
-# rule transform_contig_space:
-#     output:
-#         pca='data/{group}.a.contigs.concoct.pca.tsv',
-#         raw='data/{group}.a.contigs.concoct.tsv',
-#         dir=directory('data/{group}.a.contigs.concoct.d')
-#     input:
-#         cvrg='data/{group}.a.contigs.cvrg.unstack.tsv',
-#         seqs='data/{group}.a.contigs.fn'
-#     params:
-#         seed=1,
-#         total_percentage_pca=90,
-#         read_length=140,
-#         kmer_length=4,
-#         length_threshold=1000,
-#     conda: 'conda/concoct.yaml'
-#     # shadow: 'full'
-#     threads: 16
-#     shell:
-#         limit_numpy_procs + r"""
-#         concoct --coverage_file={input.cvrg} \
-#                 --composition_file={input.seqs} \
-#                 --threads {threads} \
-#                 --seed={params.seed} \
-#                 --total_percentage_pca={params.total_percentage_pca} \
-#                 --read_length={params.read_length} \
-#                 --kmer_length={params.kmer_length} \
-#                 --length_threshold={params.length_threshold} \
-#                 --basename={output.dir}/ \
-#                 --cluster=10 --iterations=1 --converge_out
-#         sed 's:,:\t:g' {output.dir}/original_data_gt{params.length_threshold}.csv | sed '1,1s:^:contig_id:' > {output.raw}
-#         sed 's:,:\t:g' {output.dir}/PCA_transformed_data_gt{params.length_threshold}.csv > {output.pca}
-#         """
-#
+# {{{3 Prepare input data
+
 # # {{{3 Clustering
-#
+
 # TODO: Don't rename as a separate stem.
 # TODO: Refine this script.
 rule cluster_contigs:

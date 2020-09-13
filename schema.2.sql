@@ -392,6 +392,7 @@ WHERE
    OR domain_id LIKE 'GH57|_%' ESCAPE '|' OR domain_id = 'GH57'
    OR domain_id LIKE 'GH70|_%' ESCAPE '|' OR domain_id = 'GH70'
    OR domain_id LIKE 'GH77|_%' ESCAPE '|' OR domain_id = 'GH77'
+   OR domain_id LIKE 'GH119|_%' ESCAPE '|' OR domain_id = 'GH119'
     )
 ;
 

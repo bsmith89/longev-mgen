@@ -261,6 +261,14 @@ rule extract_tigrfam:
         tar -O -xzf {input} > {output}
         """
 
+rule extract_single_tigrfam_model:
+    output: "ref/hmm/TIGR{number}.hmm"
+    input: "ref/hmm/TIGRFAM.hmm"
+    shell:
+        """
+        hmmfetch {input} TIGR{wildcards.number} > {output}
+        """
+
 rule download_pfam:
     output: "raw/ref/Pfam-31.0.hmm"
     params:

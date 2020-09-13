@@ -2402,7 +2402,7 @@ rule generate_database_1:
         contig_bin='data/{group}.a.contigs.bins.noheader.tsv',
         contig_coverage='data/{group}.a.contigs.cvrg.noheader.tsv',
         bin_checkm='data/{group}.a.bins.checkm_details.noheader.tsv',
-        # contig_linkage='data/{group}.a.contigs.linkage_tally.noheader.tsv',
+        contig_linkage='data/{group}.a.contigs.linkage_tally.noheader.tsv',
         checkm_merge='data/{group}.a.bins.checkm_merge_stats.noheader.tsv',
     shell:
         r"""
@@ -2418,8 +2418,8 @@ PRAGMA foreign_keys = TRUE;
 .import {input.contig_coverage} contig_coverage
 .import {input.contig_bin} contig_bin
 .import {input.bin_checkm} bin_checkm
+.import {input.contig_linkage} _contig_linkage
 .import {input.checkm_merge} _bin_complementarity
--- .import {{input.contig_linkage}} _contig_linkage
 ANALYZE;
              ' \
         | sqlite3 $tmp

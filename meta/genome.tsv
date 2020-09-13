@@ -1,6 +1,4 @@
 genome_id	is_mag	genome_type	taxon_family	ormerod_guild	comment
-An287	0	public	unknown		
-An289	0	public	unknown		
 Bacteroides_ovatus_ATCC_8483	0	reference	Bacteroidaceae		
 Bacteroides_thetaiotaomicron_VPI5482	0	reference	Bacteroidaceae		
 Barnesiella_viscericola_DSM_18177	0	reference	Barnesiellaceae		
@@ -34,9 +32,6 @@ M6	1	ormerod	Muribaculaceae	starch
 M7	1	ormerod	Muribaculaceae	starch	
 M8	1	ormerod	Muribaculaceae	plant	
 M9	1	ormerod	Muribaculaceae	host	
-Muribaculaceae_bacterium_DSM_100720	0	public	Muribaculaceae		
-Muribaculaceae_bacterium_DSM_100739	0	public	Muribaculaceae		GCA_003024845.1
-Muribaculum_intestinale_DSM_100746	0	public	Muribaculaceae		GCA_003024855.1
 Paramuribaculum_intestinale_DSM_100749T	0	public	Muribaculaceae		GCA_003024925.1
 Paramuribaculum_intestinale_DSM_100764	0	public	Muribaculaceae		GCA_003024815.1
 Muribaculum_intestinale_yl27	0	reference	Muribaculaceae		
@@ -52,4 +47,4 @@ B8	1	here	Muribaculaceae		Otu???
 Porphyromonas_gingivalis_ATCC_33277	0	reference	Porphyromonadaceae		
 Zag1	1	public	Muribaculaceae		
 Zag10	1	public	Muribaculaceae		
-Duncaniella_muris_DSM_103720T	0	reference	Muribaculaceae	GCA_003024805.1
+Duncaniella_muris_DSM_103720T	0	reference	Muribaculaceae		GCA_003024805.1

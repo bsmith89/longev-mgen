@@ -7,67 +7,73 @@ import sys
 from collections import defaultdict
 import argparse
 
+
 def log(message):
     print(message, file=sys.stderr, flush=True)
 
+
+def idxwhere(x):
+    return x[x].index
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument('--fasta-output-template', type=str, default='marker_genes.{}.fa')
-    p.add_argument('--tsv-output', type=str, default='marker_genes.tsv')
-    p.add_argument('--list-output', type=str, default='marker_genes.list')
-    p.add_argument('hits', type=str, nargs='+', metavar='TABLE:FASTA')
+    p.add_argument("--fasta-output-template", type=str)
+    p.add_argument("--tsv-output", type=str)
+    p.add_argument("--list-output", type=str)
+    p.add_argument("--min-frac", type=float, default=1.0)
+    p.add_argument(
+        "hits", type=str, nargs="+", metavar="GENOME_ID:TABLE:FASTA"
+    )
 
     args = p.parse_args()
 
     input_paths = {}
     for arg in args.hits:
-        genome_id, hmmer_path, fasta_path = arg.strip().split(':')
+        genome_id, hmmer_path, fasta_path = arg.strip().split(":")
         input_paths[genome_id] = (hmmer_path, fasta_path)
 
-    log("Identifying single copy genes in each HMMER output table.")
-    single_copy_sets = []
-    hmmer_tables = {}
+    data = []
     for genome_id in input_paths:
         hmmer_path, _ = input_paths[genome_id]
-        table = pd.read_table(hmmer_path, names=['feature_id', 'model_id', 'score'])
-        hmmer_tables[genome_id] = table
-        single_copies = table.groupby(['model_id']).score.count()[lambda x: x==1].index
-        single_copy_sets.append(set(single_copies))
+        d = pd.read_table(
+            hmmer_path, names=["feature_id", "model_id", "score"]
+        )
+        d["genome_id"] = genome_id
+        data.append(d)
+    data = pd.concat(data)
 
-    log('Identifying shared single-copy genes.')
-    shared_single_copy_genes = single_copy_sets[0]
-    for gene_set in single_copy_sets[1:]:
-        shared_single_copy_genes &= gene_set
+    model_by_genome_counts = (
+        data.groupby(["genome_id"])
+        .apply(lambda d: d.model_id.value_counts())
+        .unstack(fill_value=0)
+    )
 
-    # TODO: Check that different single copy genes don't have any duplicate hits?
-    # Some ORFs do have duplicate hits, but those appear to be multiple,
-    # non-overlapping domains in the same protein.
-    all_genes = {}
-    log('Outputting list of shared single-copy genes.')
-    with open(args.list_output, 'w') as list_handle:
-        for gene in shared_single_copy_genes:
-            all_hits = {}
-            for genome_id in hmmer_tables:
-                hit = hmmer_tables[genome_id][lambda x: x.model_id == gene].feature_id
-                assert hit.shape == (1,), 'Dimensionality of results are wrong ({})'.format(hit.shape)
-                all_hits[genome_id] = hit.values[0]
-            all_genes[gene] = all_hits
-            print(gene, file=list_handle)
+    is_single_copy = (model_by_genome_counts > 1).sum() == 0
+    is_ubiquitous = (model_by_genome_counts == 1).mean() >= args.min_frac
 
-    log('Loading FASTA files.')
-    fasta_indices = {}
-    for genome_id in input_paths:
-        _, fasta_path = input_paths[genome_id]
-        fasta_indices[genome_id] = index_seqs(fasta_path, 'fasta')
+    shared_single_copy_models = idxwhere(is_single_copy & is_ubiquitous)
 
-    log('Writing gene outputs.')
-    with open(args.tsv_output, 'w') as tsv_handle:
-        for gene in all_genes:
-            with open(args.fasta_output_template.format(gene), 'w') as fasta_handle:
-                for genome_id in all_genes[gene]:
-                    feature_id = all_genes[gene][genome_id]
-                    rec = fasta_indices[genome_id][feature_id]
-                    seq_id = rec.id
-                    seq_seq = str(rec.seq)
-                    print(f'>{seq_id}\n{seq_seq}', file=fasta_handle)
-                    print(genome_id, gene, feature_id, sep='\t', file=tsv_handle)
+    if args.list_output:
+        with open(args.list_output, "w") as f:
+            for model_id in shared_single_copy_models:
+                print(model_id, file=f)
+
+    if args.tsv_output:
+        (
+            data[["genome_id", "model_id", "feature_id"]].to_csv(
+                args.tsv_output, sep="\t", header=False, index=False
+            )
+        )
+
+    if args.fasta_output_template:
+        fasta_indexes = {}
+        for genome_id in input_paths:
+            fasta_path = input_paths[genome_id][1]
+            fasta_indexes[genome_id] = index_seqs(fasta_path, "fasta")
+        for model_id in shared_single_copy_models:
+            with open(args.fasta_output_template.format(model_id), "w") as f:
+                for _, x in data[data.model_id == model_id].iterrows():
+                    feature_id = x["feature_id"]
+                    rec = fasta_indexes[x["genome_id"]][feature_id]
+                    print(f">{rec.id}\n{rec.seq}", file=f)

@@ -846,7 +846,7 @@ rule pick_phylogenetic_marker_genes:
         refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.g.TIGRFAM-hits.hmmer-tc.tsv'
                                  f':data/ref.mags.annot/{g}.g.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['refs']],
-        min_frac=1.0,  # TODO: Fix concatenation step and set this down to 0.95
+        min_frac=0.95,  # TODO: Fix concatenation step and set this down to 0.95
     shell:
         """
         rm -rf {output.dir}

@@ -81,7 +81,9 @@ config['genome_group'] = \
                        , 'B7'
                        , 'B8'
                        ]
-             , 'refs': [ 'GP1'
+             , 'refs': [
+                       # MAGs from Ormerod
+                         'GP1'
                        , 'GP2'
                        , 'GP3'
                        , 'GP4'
@@ -110,13 +112,15 @@ config['genome_group'] = \
                        , 'M7'
                        , 'M8'
                        , 'M9'
-                       , 'Homeothermus_arabinoxylanisolvens'
-                       , 'Muribaculum_intestinale_yl27'
+                       , 'Homeothermus_arabinoxylanisolvens'  # High-quality MAG from Ormerod
+                       # Reference genomes
+                       , 'Muribaculum_intestinale_yl27' # DSM-28989T
                        # , 'Muribaculaceae_bacterium_DSM_100739'  # mostly identical to M. intestinale
                        # , 'Muribaculaceae_bacterium_DSM_100746'  # mostly identical to M. intestinale
                        # , 'Muribaculaceae_bacterium_DSM_100749'  # identical-ish to Muribaculaceae_bacterium_DSM_100764
                        # , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
                        # , 'Duncaniella_muris_DSM_103720'  # TODO
+                       # Found on NCBI taxonomy page for Muribaculaceae:
                        , 'Zag10'
                        , 'Zag1'
                        # , 'An287'  # Apparently not Muris
@@ -127,7 +131,7 @@ config['genome_group'] = \
                        , 'Porphyromonas_gingivalis_ATCC_33277'  # Outgroup
                        # Lagkouvardos2019 DSM Isolates:
                        , 'Paramuribaculum_intestinale_DSM_100749T'  # Paramuribaculum intestinale DSM 100749T GCA_003024925.1
-                       , 'Paramuribaculum_intestinale_DSM_100764'  # Paramuribaculum intestinale DSM 100764 GCA_003024815.1
+                       , 'Paramuribaculum_intestinale_DSM_100764'  # TODO: DROP: Paramuribaculum intestinale DSM 100764 GCA_003024815.1
                        , 'Duncaniella_muris_DSM_103720T'  # Duncaniella muris DSM 103720T GCA_003024805.1
                        # , 'Muribaculum_intestinale_DSM_100746'  # Muribaculum intestinale DSM 100746 GCA_003024855.1
                        # , 'Muribaculum_intestinale_DSM_100739'  # Muribaculum intestinale DSM 100739 GCA_003024845.1
@@ -155,6 +159,11 @@ config['genome_group'] = \
                        # Isolate-002 (NCI; PRJNA503102)
                        # Isolate-013 (NCI; PRJNA503113)
                        # TODO: Lagkouvardos2019 MAGs from iMGMC
+                       # Two new species type-strains from Miyake2020
+                       , 'Duncaniella_freteri_DSM_108168T'
+                       , 'Duncaniella_dubosii_DSM_107170T'
+                       # A new high-quality MAG from Hinsu2019
+                       , 'Amulumruptor_caecigallinarius'
                        ]
              }
         }
@@ -500,6 +509,51 @@ rule alias_Muribaculum_intestinale_DSM_100739_genome:
     shell: "ln -rs {input} {output}"
 localrules: alias_Muribaculum_intestinale_DSM_100739_genome
 ruleorder: alias_Muribaculum_intestinale_DSM_100739_genome > alias_sra_genomes
+
+# {{{2 Duncaniella_freteri_DSM_108168T
+rule download_Duncaniella_freteri_DSM_108168T_genome:
+    output: 'raw/ref/Duncaniella_freteri_DSM_108168T.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/004/766/125/GCA_004766125.1_ASM476612v1/GCA_004766125.1_ASM476612v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Duncaniella_freteri_DSM_108168T_genome
+
+rule alias_Duncaniella_freteri_DSM_108168T_genome:
+    output: 'data/ref.mags/Duncaniella_freteri_DSM_108168T.g.fn'
+    input: 'raw/ref/Duncaniella_freteri_DSM_108168T.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Duncaniella_freteri_DSM_108168T_genome
+ruleorder: alias_Duncaniella_freteri_DSM_108168T_genome > alias_sra_genomes
+
+# {{{2 Duncaniella_dubosii_DSM_107170T
+rule download_Duncaniella_dubosii_DSM_107170T_genome:
+    output: 'raw/ref/Duncaniella_dubosii_DSM_107170T.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/004/803/915/GCA_004803915.1_ASM480391v1/GCA_004803915.1_ASM480391v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Duncaniella_dubosii_DSM_107170T_genome
+
+rule alias_Duncaniella_dubosii_DSM_107170T_genome:
+    output: 'data/ref.mags/Duncaniella_dubosii_DSM_107170T.g.fn'
+    input: 'raw/ref/Duncaniella_dubosii_DSM_107170T.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Duncaniella_dubosii_DSM_107170T_genome
+ruleorder: alias_Duncaniella_dubosii_DSM_107170T_genome > alias_sra_genomes
+
+# {{{2 Amulumruptor_caecigallinarius
+rule download_Amulumruptor_caecigallinarius_genome:
+    output: 'raw/ref/Amulumruptor_caecigallinarius.fn'
+    params:
+        url='https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/004/115/465/GCA_004115465.1_ASM411546v1/GCA_004115465.1_ASM411546v1_genomic.fna.gz'
+    shell: curl_unzip_recipe
+localrules: download_Amulumruptor_caecigallinarius_genome
+
+rule alias_Amulumruptor_caecigallinarius_genome:
+    output: 'data/ref.mags/Amulumruptor_caecigallinarius.g.fn'
+    input: 'raw/ref/Amulumruptor_caecigallinarius.fn'
+    shell: "ln -rs {input} {output}"
+localrules: alias_Amulumruptor_caecigallinarius_genome
+ruleorder: alias_Amulumruptor_caecigallinarius_genome > alias_sra_genomes
 
 # {{{1 Compile data
 

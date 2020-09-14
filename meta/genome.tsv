@@ -16,7 +16,7 @@ H6	1	ormerod	Muribaculaceae	host
 H7	1	ormerod	Muribaculaceae	plant	
 H8	1	ormerod	Muribaculaceae	starch	
 H9	1	ormerod	Muribaculaceae	starch	
-Homeothermus_arabinoxylanisolvens	1	ormerod	Muribaculaceae	plant	
+Homeothermus_arabinoxylanisolvens	1	ormerod	Muribaculaceae	plant	Candidatus
 K1	1	ormerod	Muribaculaceae	plant	
 K10	1	ormerod	Muribaculaceae	starch	
 M1	1	ormerod	Muribaculaceae	plant	
@@ -34,7 +34,7 @@ M8	1	ormerod	Muribaculaceae	plant
 M9	1	ormerod	Muribaculaceae	host	
 Paramuribaculum_intestinale_DSM_100749T	0	public	Muribaculaceae		GCA_003024925.1
 Paramuribaculum_intestinale_DSM_100764	0	public	Muribaculaceae		GCA_003024815.1
-Muribaculum_intestinale_yl27	0	reference	Muribaculaceae		
+Muribaculum_intestinale_DSM_28989T	0	reference	Muribaculaceae		
 B1A	1	here	Muribaculaceae		Otu0001 refined manually from samples at both UM and UT.
 B1B	1	here	Muribaculaceae		Otu0001 refined manually from only UT samples.
 B2	1	here	Muribaculaceae		Otu0007 when considering all ITP/Glenn mice, but OTU-4 in Smith2019. TODO: Check this.
@@ -50,4 +50,4 @@ Zag10	1	public	Muribaculaceae
 Duncaniella_muris_DSM_103720T	0	public	Muribaculaceae		GCA_003024805.1
 Duncaniella_freteri_DSM_108168T	0	public	Muribaculaceae		
 Duncaniella_dubosii_DSM_107170T	0	public	Muribaculaceae		
-Amulumruptor_caecigallinarius	1	public	Muribaculaceae		
+Amulumruptor_caecigallinarius	1	public	Muribaculaceae		Candidatus

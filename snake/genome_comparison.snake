@@ -112,29 +112,12 @@ config['genome_group'] = \
                        , 'M7'
                        , 'M8'
                        , 'M9'
-                       , 'Homeothermus_arabinoxylanisolvens'  # High-quality MAG from Ormerod
-                       # Reference genomes
-                       , 'Muribaculum_intestinale_yl27' # DSM-28989T
-                       # , 'Muribaculaceae_bacterium_DSM_100739'  # mostly identical to M. intestinale
-                       # , 'Muribaculaceae_bacterium_DSM_100746'  # mostly identical to M. intestinale
-                       # , 'Muribaculaceae_bacterium_DSM_100749'  # identical-ish to Muribaculaceae_bacterium_DSM_100764
-                       # , 'Muribaculaceae_bacterium_DSM_100720'  # mostly identical to M13
-                       # , 'Duncaniella_muris_DSM_103720'  # TODO
-                       # Found on NCBI taxonomy page for Muribaculaceae:
-                       , 'Zag10'
-                       , 'Zag1'
-                       # , 'An287'  # Apparently not Muris
-                       # , 'An289'  # Apparently not Muris
-                       , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
-                       , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
-                       , 'Barnesiella_viscericola_DSM_18177'  # Outgroup
-                       , 'Porphyromonas_gingivalis_ATCC_33277'  # Outgroup
-                       # Lagkouvardos2019 DSM Isolates:
+                       , 'Homeothermus_arabinoxylanisolvens'  # Candidatus: High-quality MAG from Ormerod
+                       # Public genomes
+                       , 'Muribaculum_intestinale_DSM_28989T'  # yl27' # DSM-28989T
+                       # Lagkouvardos2019 DSM Isolate Type strains:
                        , 'Paramuribaculum_intestinale_DSM_100749T'  # Paramuribaculum intestinale DSM 100749T GCA_003024925.1
-                       , 'Paramuribaculum_intestinale_DSM_100764'  # TODO: DROP: Paramuribaculum intestinale DSM 100764 GCA_003024815.1
                        , 'Duncaniella_muris_DSM_103720T'  # Duncaniella muris DSM 103720T GCA_003024805.1
-                       # , 'Muribaculum_intestinale_DSM_100746'  # Muribaculum intestinale DSM 100746 GCA_003024855.1
-                       # , 'Muribaculum_intestinale_DSM_100739'  # Muribaculum intestinale DSM 100739 GCA_003024845.1
                        # TODO: Lagkouvardos2019 "Short-term" isolates (not deposited in DSM)
                        # Isolate-037 (Harlan; PRJNA503544)
                        # Isolate-001 (NCI; PRJNA503101)
@@ -162,8 +145,14 @@ config['genome_group'] = \
                        # Two new species type-strains from Miyake2020
                        , 'Duncaniella_freteri_DSM_108168T'
                        , 'Duncaniella_dubosii_DSM_107170T'
+                       # Found on NCBI taxonomy page for Muribaculaceae:
                        # A new high-quality MAG from Hinsu2019
-                       , 'Amulumruptor_caecigallinarius'
+                       , 'Amulumruptor_caecigallinarius'  # Candidatus
+                       # Reference Genomes
+                       , 'Bacteroides_thetaiotaomicron_VPI5482'  # Outgroup
+                       , 'Bacteroides_ovatus_ATCC_8483'  # Outgroup
+                       , 'Barnesiella_viscericola_DSM_18177'  # Outgroup
+                       , 'Porphyromonas_gingivalis_ATCC_33277'  # Outgroup
                        ]
              }
         }
@@ -180,17 +169,18 @@ rule alias_sra_genomes:
     shell: "ln -rs {input} {output}"
 localrules: alias_sra_genomes
 
-# {{{2 Muribaculum intestinale YL27
-rule download_m_intestinale_genome:
-    output: 'raw/ref/Muribaculum_intestinale_yl27.fn'
+# Muribaculum_intestinale_DSM_28989T
+# {{{2 Muribaculum_intestinale_DSM_28989T
+rule download_Muribaculum_intestinale_DSM_28989T_genome:
+    output: 'raw/ref/Muribaculum_intestinale_DSM_28989T.fn'
     params:
         url='ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/201/515/GCA_002201515.1_ASM220151v1/GCA_002201515.1_ASM220151v1_genomic.fna.gz'
     shell: curl_unzip_recipe
-localrules: download_m_intestinale_genome
+localrules: download_Muribaculum_intestinale_DSM_28989T_genome
 
 rule alias_m_intestinale_genome:
-    output: 'data/ref.mags/Muribaculum_intestinale_yl27.g.fn'
-    input: 'raw/ref/Muribaculum_intestinale_yl27.fn'
+    output: 'data/ref.mags/Muribaculum_intestinale_DSM_28989T.g.fn'
+    input: 'raw/ref/Muribaculum_intestinale_DSM_28989T.fn'
     shell: alias_recipe
 localrules: alias_m_intestinale_genome
 

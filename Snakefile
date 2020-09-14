@@ -47,19 +47,10 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 # TODO: Build the other files from the database.
 rule all:
     input:
-        [ "data/core.a.mags.muri.g.final.marker_genes.refine.gb.prot.nwk"
+        [ "data/core.a.mags.muri.g.final.marker_genes.gb.prot.nwk"
         , "data/core.muri.2.denorm.db"
         , "data/core.a.mags.muri.g.final.genome_stats.tsv"
         , "data/core.a.mags.muri.g.final.cds.fa"
-        , "data/core.a.mags.muri.g.final.ec-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.final.ec-annot.tsv"
-        , "data/core.a.mags.muri.g.final.ko-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.final.ko-annot.tsv"
-        , "data/core.a.mags.muri.g.final.cog-annot.count.tsv"
-        # , "data/core.a.mags.muri.g.final.cog-annot.tsv"
-        , "data/core.a.mags.muri.g.final.Pfam-architecture-annot.count.tsv"
-        , "data/core.a.mags.muri.g.final.denovo50-clust.count.tsv"
-        # , "data/core.a.mags.muri.g.final.denovo50-clust.tsv"
         ]
     shell:
         "# {input}"

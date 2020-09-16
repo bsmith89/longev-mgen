@@ -2,8 +2,8 @@
 
 CREATE TEMP VIEW proximate_susC AS
 SELECT DISTINCT n.feature_id
-FROM feature_neighborhood AS n
-JOIN putative_susC AS s ON s.feature_id = n.seed_id
+FROM feature_distance AS n
+JOIN susC AS s ON s.feature_id = n.seed_id
 WHERE distance < 15000
 ;
 

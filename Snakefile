@@ -48,6 +48,7 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 rule all:
     input:
         [ "data/core.a.mags.muri.g.final.marker_genes.gb.prot.nwk"
+        , "data/core.a.mags.muri.g.final.cds.TIGR02013-hits.sqz.gb.prot.nwk"
         , "data/core.muri.2.denorm.db"
         , "data/core.a.mags.muri.g.final.genome_stats.tsv"
         , "data/core.a.mags.muri.g.final.cds.fa"

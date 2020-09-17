@@ -32,6 +32,6 @@ LEFT JOIN (SELECT
            FROM feature_x_cazy_minimal_domain
            GROUP BY feature_id) AS ca USING (feature_id)
 LEFT JOIN (SELECT feature_id, coverage_ratio FROM variant_cross_coverage) USING (feature_id)
-WHERE genome_id IN ('B1A', 'B1B', 'B2', 'Bacteroides_ovatus_ATCC_8483', 'Bacteroides_thetaiotaomicron_VPI5482')
+WHERE genome_id IN ('B1A', 'B1B')
 ;
 

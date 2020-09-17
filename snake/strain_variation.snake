@@ -90,3 +90,33 @@ rule combine_cross_mapping_ratios:
         awk -v OFS='\t' -v mag_id=B1B '{{print $1, mag_id, $2}}' {input.magA} > {output}
         awk -v OFS='\t' -v mag_id=B1A '{{print $1, mag_id, $2}}' {input.magB} >> {output}
         """
+
+rule quast_comparison:
+    output:
+        directory("data/{group_stem}/{magA}.g.{proc}.{magB}-align.quast.d")
+    input:
+        magA="data/{group_stem}/{magA}.g.{proc}.fn",
+        magB="data/{group_stem}/{magB}.g.{proc}.fn",
+    conda: 'conda/quast.yaml'
+    shell:
+        """
+        quast.py --threads={threads} \
+                --min-contig 0 --fragmented \
+                -r {input.magA} \
+                --output-dir {output} \
+                {input}
+        """
+
+rule combine_quast_results:
+    output: "data/{group}.a.mags/B1.g.{proc}.quast-align.tsv"
+    input:
+        quastB="data/{group}.a.mags/B1A.g.{proc}.B1B-align.quast.d",
+        quastA="data/{group}.a.mags/B1B.g.{proc}.B1A-align.quast.d",
+    shell:
+        """
+        ( \
+            echo 'assembly\treference_genome_id\tassembly_length\treference_length\tunaligned_length' ; \
+            awk -v OFS='\t' -v FS='\t' -v ref=B1A 'NR!=1{{print $1,ref,$16,$17,$36}}' {input.quastB}/transposed_report.tsv ; \
+            awk -v OFS='\t' -v FS='\t' -v ref=B1B 'NR!=1{{print $1,ref,$16,$17,$36}}' {input.quastA}/transposed_report.tsv ; \
+        ) > {output}
+        """

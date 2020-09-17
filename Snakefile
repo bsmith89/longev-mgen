@@ -52,6 +52,7 @@ rule all:
         , "data/core.muri.2.denorm.db"
         , "data/core.a.mags.muri.g.final.genome_stats.tsv"
         , "data/core.a.mags.muri.g.final.cds.fa"
+        , "data/core.a.mags/B1.g.final.quast-align.tsv"
         ]
     shell:
         "# {input}"

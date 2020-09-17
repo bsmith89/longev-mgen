@@ -26,7 +26,7 @@ dependencies:
   - bowtie2=2.4.1=py38he513fc3_0
   - brotlipy=0.7.0=py38h1e0a361_1000
   - bzip2=1.0.8=h516909a_2
-  - ca-certificates=2020.6.24=0
+  - ca-certificates=2020.7.22=0
   - cachecontrol=0.12.6=py_0
   - cachetools=4.1.1=py_0
   - cairo=1.14.12=h8948797_3
@@ -46,10 +46,12 @@ dependencies:
   - defusedxml=0.6.0=py_0
   - dendropy=4.4.0=py_1
   - docutils=0.15.2=py38_0
+  - drmaa=0.7.9=py38_0
   - dropbox=10.1.1=pyh9f0ad1d_0
   - entrypoints=0.3=py38_0
   - expat=2.2.9=he6710b0_2
   - fastqc=0.11.9=0
+  - fasttree=2.1.10=h516909a_4
   - fastuniq=1.1=h470a237_1
   - fftw=3.3.8=nompi_h7f3a6c3_1111
   - filechunkio=1.8=py_2
@@ -57,6 +59,7 @@ dependencies:
   - fontconfig=2.13.0=h9420a91_0
   - freetype=2.10.2=h5ab3b9f_0
   - ftputil=4.0.0=py_0
+  - gblocks=0.91b=1
   - gettext=0.19.8.1=h5e8e0c9_1
   - ghostscript=9.18=1
   - giflib=5.1.9=h516909a_0
@@ -78,6 +81,7 @@ dependencies:
   - harfbuzz=1.8.8=hffaf4a1_0
   - hdmedians=0.13=py38h8790de6_1002
   - hmmer=3.3=he1b5a44_1
+  - htslib=1.10.2=h78d89cc_0
   - httplib2=0.18.1=pyh9f0ad1d_0
   - icu=58.2=he6710b0_3
   - idna=2.10=pyh9f0ad1d_0
@@ -111,6 +115,7 @@ dependencies:
   - ld_impl_linux-64=2.33.1=h53a641e_7
   - libarchive=3.3.3=h3a8160c_1008
   - libcurl=7.71.0=hcdd3856_0
+  - libdeflate=1.3=h516909a_0
   - libedit=3.1.20191231=h7b6447c_0
   - libffi=3.3=he6710b0_1
   - libgcc=7.2.0=h69d50b8_2
@@ -131,6 +136,7 @@ dependencies:
   - libxcb=1.14=h7b6447c_0
   - libxml2=2.9.10=he19cac6_1
   - libxslt=1.1.34=hc22bd24_0
+  - llvm-openmp=8.0.1=hc9558a2_0
   - lockfile=0.12.2=py_1
   - lxml=4.5.1=py38hbb43d70_0
   - lz4-c=1.9.2=he1b5a44_1
@@ -150,6 +156,8 @@ dependencies:
   - more-itertools=8.4.0=py_0
   - msgpack-python=1.0.0=py38hbf85e49_1
   - multidict=4.7.5=py38h1e0a361_1
+  - mummer=3.23=pl526he1b5a44_11
+  - muscle=3.8.1551=hc9558a2_5
   - natsort=7.0.1=py_0
   - nbconvert=5.6.1=py38_0
   - nbformat=5.0.7=py_0
@@ -161,6 +169,7 @@ dependencies:
   - oauth2client=4.1.3=py_0
   - openjdk=11.0.1=h516909a_1016
   - openjpeg=2.3.1=h981e76c_3
+  - openmp=8.0.1=0
   - openssl=1.1.1g=h7b6447c_0
   - packaging=20.4=py_0
   - pandas=1.0.5=py38h0573a6f_0
@@ -192,6 +201,7 @@ dependencies:
   - perl-yaml=1.29=pl526_0
   - pexpect=4.8.0=py38_0
   - pickleshare=0.7.5=py38_1000
+  - pilon=1.23=2
   - pip=20.1.1=py38_1
   - pixman=0.38.0=h516909a_1003
   - pkg-config=0.29.2=h516909a_1006
@@ -237,7 +247,7 @@ dependencies:
   - rsa=4.6=pyh9f0ad1d_0
   - ruamel_yaml=0.15.80=py38h1e0a361_1001
   - s3transfer=0.3.3=py38h32f6830_1
-  - samtools=1.3.1=0
+  - samtools=1.10=h2e538c0_3
   - scikit-bio=0.5.6=py38h8790de6_2
   - scikit-learn=0.23.1=py38h423224d_0
   - scipy=1.5.0=py38h0b6359f_0
@@ -250,8 +260,9 @@ dependencies:
   - six=1.15.0=py_0
   - slacker=0.14.0=py_0
   - smmap=3.0.4=pyh9f0ad1d_0
-  - snakemake=5.19.3=0
-  - snakemake-minimal=5.19.3=py_0
+  - snakemake=5.18.1=0
+  - snakemake-minimal=5.18.1=py_0
+  - spades=3.14.1=h2d02072_0
   - sqlite=3.32.3=h62c20be_0
   - statsmodels=0.11.1=py38h7b6447c_0
   - tbb=2020.1=hc9558a2_0

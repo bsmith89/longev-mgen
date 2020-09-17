@@ -7,9 +7,11 @@ rule compare_strains:
     wildcard_constraints:
         magA=one_word_wc_constraint,
         magB=one_word_wc_constraint,
+    params:
+        prefix='data/{group_stem}/{magA}.g.{proc}.{magB}-align'
     shell:
         """
-        nucmer --mum --delta {output.delta} {input.magA} {input.magB}
+        nucmer --mum --delta --prefix {params.prefix} {input.magA} {input.magB}
         """
 
 # TODO

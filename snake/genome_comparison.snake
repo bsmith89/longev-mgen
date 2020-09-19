@@ -30,9 +30,10 @@ rule download_genbank_genome:
     params:
         url=lambda w: genbank_genomic_ftp_url(w.accession, w.assembly)
     shell: curl_unzip_recipe
+localrules: download_genbank_genome
 
 rule alias_genbank_genome:
-    output: 'ref/genome/{genome}.g.fn'
+    output: 'data/ref.mags/{genome}.g.fn'
     input:
         lambda w: ('raw/genbank/{}_{}.fn'
                    .format(config['genome']['genbank_accession'][w.genome],
@@ -50,7 +51,7 @@ rule full_genomes_group_quast_result:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag_stem}.g.{wildcards.proc}.fn'
                                 for mag_stem in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'ref/genome/{ref_stem}.g.fn'
+        refs=lambda wildcards: [f'data/ref.mags/{ref_stem}.g.fn'
                                 for ref_stem in config['genome_group'][wildcards.genomes]['refs']],
     params:
         labels=lambda wildcards: ', '.join(list(config['genome_group'][wildcards.genomes]['mags']) +
@@ -68,7 +69,7 @@ rule make_genome_group_dir:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
                                 for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'ref/genome/{ref}.g.fn'
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.g.fn'
                                 for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         """
@@ -170,7 +171,7 @@ rule compile_sequence_by_genome_tables:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.sequence.list'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'ref/genome/{ref}.g.sequence.list'
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.g.sequence.list'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     shell:
         r"""
@@ -238,7 +239,7 @@ rule compile_genome_sequences:
     input:
         mags=lambda wildcards: [f'data/{wildcards.group}.a.mags/{mag}.g.{wildcards.proc}.fn'
                                      for mag in config['genome_group'][wildcards.genomes]['mags']],
-        refs=lambda wildcards: [f'ref/genome/{ref}.g.fn'
+        refs=lambda wildcards: [f'data/ref.mags/{ref}.g.fn'
                                      for ref in config['genome_group'][wildcards.genomes]['refs']],
     wildcard_constraints:
         annot=one_word_wc_constraint
@@ -332,7 +333,7 @@ rule pick_phylogenetic_marker_genes:
         refs=lambda wildcards: [(f'{g}:data/ref.mags.annot/{g}.g.TIGRFAM-hits.hmmer-tc.tsv'
                                  f':data/ref.mags.annot/{g}.g.cds.fa')
                                 for g in config['genome_group'][wildcards.genomes]['refs']],
-        min_frac=0.95,  # TODO: Fix concatenation step and set this down to 0.95
+        min_frac=0.95,
     shell:
         """
         rm -rf {output.dir}

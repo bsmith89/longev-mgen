@@ -1,54 +1,169 @@
-genome_id	genome_type	taxon_family	url	comment
-Bacteroides_ovatus_ATCC_8483	isolate	Bacteroidaceae		
-Bacteroides_thetaiotaomicron_VPI5482	isolate	Bacteroidaceae		
-Barnesiella_viscericola_DSM_18177	isolate	Porphyromonadaceae		
-GP1	mag	Muribaculaceae		
-GP2	mag	Muribaculaceae		
-GP3	mag	Muribaculaceae		
-GP4	mag	Muribaculaceae		
-H1	mag	Muribaculaceae		
-H10	mag	Muribaculaceae		
-H2	mag	Muribaculaceae		
-H3	mag	Muribaculaceae		
-H4	mag	Muribaculaceae		
-H5	mag	Muribaculaceae		
-H6	mag	Muribaculaceae		
-H7	mag	Muribaculaceae		
-H8	mag	Muribaculaceae		
-H9	mag	Muribaculaceae		
-Homeothermus_arabinoxylanisolvens	mag	Muribaculaceae		Candidatus
-K1	mag	Muribaculaceae		
-K10	mag	Muribaculaceae		
-M1	mag	Muribaculaceae		
-M10	mag	Muribaculaceae		
-M11	mag	Muribaculaceae		
-M12	mag	Muribaculaceae		
-M13	mag	Muribaculaceae		
-M14	mag	Muribaculaceae		
-M2	mag	Muribaculaceae		
-M3	mag	Muribaculaceae		
-M5	mag	Muribaculaceae		
-M6	mag	Muribaculaceae		
-M7	mag	Muribaculaceae		
-M8	mag	Muribaculaceae		
-M9	mag	Muribaculaceae		
-Paramuribaculum_intestinale_DSM_100749T	isolate	Muribaculaceae		GCA_003024925.1
-Paramuribaculum_intestinale_DSM_100764	isolate	Muribaculaceae		GCA_003024815.1
-Muribaculum_intestinale_DSM_28989T	isolate	Muribaculaceae		
-B1A	mag	Muribaculaceae		Otu0001 refined manually from samples at both UM and UT.
-B1B	mag	Muribaculaceae		Otu0001 refined manually from only UT samples.
-B2	mag	Muribaculaceae		"Otu0007 when considering all ITP/Glenn mice, but OTU-4 in Smith2019. TODO: Check this."
-B3	mag	Muribaculaceae		Otu0009
-B4	mag	Muribaculaceae		Otu0005
-B5	mag	Muribaculaceae		Otu0004
-B6	mag	Muribaculaceae		Otu0049
-B7	mag	Muribaculaceae		Otu0017
-B8	mag	Muribaculaceae		Otu0013
-Porphyromonas_gingivalis_ATCC_33277	isolate	Porphyromonadaceae		
-Zag1	mag	Muribaculaceae		
-Zag10	mag	Muribaculaceae		
-Duncaniella_muris_DSM_103720T	isolate	Muribaculaceae		GCA_003024805.1
-Duncaniella_freteri_DSM_108168T	isolate	Muribaculaceae		
-Duncaniella_dubosii_DSM_107170T	isolate	Muribaculaceae		
-Amulumruptor_caecigallinarius	mag	Muribaculaceae		Candidatus
-Barnesiella_intestinihominis_DSM_21032	isolate	Porphyromonadaceae		
+genome_id	genome_type	taxon_family	genbank_accession	assembly_name	comment
+B1A	mag	Muribaculaceae			Otu0001 refined manually from samples at both UM and UT.
+B1B	mag	Muribaculaceae			Otu0001 refined manually from only UT samples.
+B2	mag	Muribaculaceae			"Otu0007 when considering all ITP/Glenn mice, but OTU-4 in Smith2019. TODO: Check this."
+B3	mag	Muribaculaceae			Otu0009
+B4	mag	Muribaculaceae			Otu0005
+B5	mag	Muribaculaceae			Otu0004
+B6	mag	Muribaculaceae			Otu0049
+B7	mag	Muribaculaceae			Otu0017
+B8	mag	Muribaculaceae			Otu0013
+GP1	mag	Muribaculaceae	GCA_001701105.1	ASM170110v1	
+GP2	mag	Muribaculaceae	GCA_001701115.1	ASM170111v1	
+GP3	mag	Muribaculaceae	GCA_001701075.1	ASM170107v1	
+GP4	mag	Muribaculaceae	GCA_001701065.1	ASM170106v1	
+H1	mag	Muribaculaceae	GCA_001701175.1	ASM170117v1	
+H10	mag	Muribaculaceae	GCA_001701295.1	ASM170129v1	
+H2	mag	Muribaculaceae	GCA_001701255.1	ASM170125v1	
+H3	mag	Muribaculaceae	GCA_001701135.1	ASM170113v1	
+H4	mag	Muribaculaceae	GCA_001701165.1	ASM170116v1	
+H5	mag	Muribaculaceae	GCA_001701225.1	ASM170122v1	
+H6	mag	Muribaculaceae	GCA_001701285.1	ASM170128v1	
+H7	mag	Muribaculaceae	GCA_001701195.1	ASM170119v1	
+H8	mag	Muribaculaceae	GCA_001701305.1	ASM170130v1	
+H9	mag	Muribaculaceae	GCA_001701235.1	ASM170123v1	
+K1	mag	Muribaculaceae	GCA_001689645.1	ASM168964v1	
+K10	mag	Muribaculaceae	GCA_001689655.1	ASM168965v1	
+M1	mag	Muribaculaceae	GCA_001689425.1	ASM168942v1	
+M10	mag	Muribaculaceae	GCA_001689685.1	ASM168968v1	
+M11	mag	Muribaculaceae	GCA_001689665.1	ASM168966v1	
+M12	mag	Muribaculaceae	GCA_001689575.1	ASM168957v1	
+M13	mag	Muribaculaceae	GCA_001689585.1	ASM168958v1	
+M14	mag	Muribaculaceae	GCA_001689615.1	ASM168961v1	
+M2	mag	Muribaculaceae	GCA_001689415.1	ASM168941v1	
+M3	mag	Muribaculaceae	GCA_001689445.1	ASM168944v1	
+M5	mag	Muribaculaceae	GCA_001689535.1	ASM168953v1	
+M6	mag	Muribaculaceae	GCA_001689485.1	ASM168948v1	
+M7	mag	Muribaculaceae	GCA_001689515.1	ASM168951v1	
+M8	mag	Muribaculaceae	GCA_001689495.1	ASM168949v1	
+M9	mag	Muribaculaceae	GCA_001689565.1	ASM168956v1	
+Bacteroides_thetaiotaomicron_VPI5482	isolate	Bacteroidaceae	GCA_900624795.1	81H8	
+GCA_011958005	isolate	Muribaculaceae	GCA_011958005.1	ASM1195800v1	Muribaculaceae bacterium (CFB group bacteria) IMSAG_025
+GCA_011958445	isolate	Muribaculaceae	GCA_011958445.1	ASM1195844v1	Muribaculaceae bacterium (CFB group bacteria) IMSAG_192
+GCA_011959405	isolate	Muribaculaceae	GCA_011959405.1	ASM1195940v1	Muribaculaceae bacterium (CFB group bacteria) IMSAGC_006
+GCA_011959565	isolate	Muribaculaceae	GCA_011959565.1	ASM1195956v1	Muribaculaceae bacterium (CFB group bacteria) IMSAGC_008
+GCA_011960395	isolate	Muribaculaceae	GCA_011960395.1	ASM1196039v1	Muribaculaceae bacterium (CFB group bacteria) IMSAGC_016
+GCA_011960975	isolate	Muribaculaceae	GCA_011960975.1	ASM1196097v1	Muribaculaceae bacterium (CFB group bacteria) IMSAGC_027
+GCA_013316255	isolate	Muribaculaceae	GCA_013316255.1	ASM1331625v1	Muribaculaceae bacterium (CFB group bacteria) RACS_040
+GCA_013316365	isolate	Muribaculaceae	GCA_013316365.1	ASM1331636v1	Muribaculaceae bacterium (CFB group bacteria) RACS_036
+GCA_013316445	isolate	Muribaculaceae	GCA_013316445.1	ASM1331644v1	Muribaculaceae bacterium (CFB group bacteria) RACS_031
+GCA_013316455	isolate	Muribaculaceae	GCA_013316455.1	ASM1331645v1	Muribaculaceae bacterium (CFB group bacteria) RACS_030
+GCA_013316535	isolate	Muribaculaceae	GCA_013316535.1	ASM1331653v1	Muribaculaceae bacterium (CFB group bacteria) RACS_025
+GCA_013316545	isolate	Muribaculaceae	GCA_013316545.1	ASM1331654v1	Muribaculaceae bacterium (CFB group bacteria) RACS_022
+GCA_013316595	isolate	Muribaculaceae	GCA_013316595.1	ASM1331659v1	Muribaculaceae bacterium (CFB group bacteria) RACS_024
+GCA_013316675	isolate	Muribaculaceae	GCA_013316675.1	ASM1331667v1	Muribaculaceae bacterium (CFB group bacteria) RACS_019
+GCA_013316695	isolate	Muribaculaceae	GCA_013316695.1	ASM1331669v1	Muribaculaceae bacterium (CFB group bacteria) RACS_016
+GCA_013316705	isolate	Muribaculaceae	GCA_013316705.1	ASM1331670v1	Muribaculaceae bacterium (CFB group bacteria) RACS_017
+GCA_013316715	isolate	Muribaculaceae	GCA_013316715.1	ASM1331671v1	Muribaculaceae bacterium (CFB group bacteria) RACS_018
+GCA_013316725	isolate	Muribaculaceae	GCA_013316725.1	ASM1331672v1	Muribaculaceae bacterium (CFB group bacteria) RACS_015
+GCA_013316775	isolate	Muribaculaceae	GCA_013316775.1	ASM1331677v1	Muribaculaceae bacterium (CFB group bacteria) RACS_014
+GCA_013316795	isolate	Muribaculaceae	GCA_013316795.1	ASM1331679v1	Muribaculaceae bacterium (CFB group bacteria) RACS_013
+GCA_013316815	isolate	Muribaculaceae	GCA_013316815.1	ASM1331681v1	Muribaculaceae bacterium (CFB group bacteria) RACS_012
+GCA_013316855	isolate	Muribaculaceae	GCA_013316855.1	ASM1331685v1	Muribaculaceae bacterium (CFB group bacteria) RACS_011
+GCA_013316875	isolate	Muribaculaceae	GCA_013316875.1	ASM1331687v1	Muribaculaceae bacterium (CFB group bacteria) RACS_009
+GCA_013316895	isolate	Muribaculaceae	GCA_013316895.1	ASM1331689v1	Muribaculaceae bacterium (CFB group bacteria) RACS_008
+GCA_013316975	isolate	Muribaculaceae	GCA_013316975.1	ASM1331697v1	Muribaculaceae bacterium (CFB group bacteria) RACS_003
+GCA_013317015	isolate	Muribaculaceae	GCA_013317015.1	ASM1331701v1	Muribaculum sp. (CFB group bacteria) RACS_002
+GCA_013317025	isolate	Muribaculaceae	GCA_013317025.1	ASM1331702v1	Muribaculaceae bacterium (CFB group bacteria) RACS_001
+GCA_001688845		Muribaculaceae	GCA_001688845.2	ASM168884v2	Muribaculum intestinale (CFB group bacteria)
+Homeothermus_arabinoxylanisolvens	mag	Muribaculaceae	GCA_001689405.1	ASM168940v1	Candidatus Homeothermus arabinoxylanisolvens (CFB group bacteria); MAG M4 before rename in Ormerod2016
+GCA_002159555		Muribaculaceae	GCA_002159555.1	ASM215955v1	Muribaculum sp. An289 (CFB group bacteria)
+GCA_002159585		Muribaculaceae	GCA_002159585.1	ASM215958v1	Muribaculum sp. An287 (CFB group bacteria)
+Muribaculum_intestinale_DSM_28989T	isolate	Muribaculaceae	GCA_002201515.1	ASM220151v1	Muribaculum intestinale (CFB group bacteria)
+GCA_002633115		Muribaculaceae	GCA_002633115.1	ASM263311v1	Muribaculaceae bacterium Zag1 (CFB group bacteria) Zag1
+GCA_002633305		Muribaculaceae	GCA_002633305.1	ASM263330v1	Muribaculaceae bacterium Zag10 (CFB group bacteria) Zag10
+Duncaniella_muris_DSM_103720T	isolate	Muribaculaceae	GCA_003024805.1	ASM302480v1	Duncaniella muris (CFB group bacteria)
+GCA_003024815		Muribaculaceae	GCA_003024815.1	ASM302481v1	Paramuribaculum intestinale (CFB group bacteria)
+GCA_003024845		Muribaculaceae	GCA_003024845.1	ASM302484v1	Muribaculum intestinale (CFB group bacteria)
+GCA_003024855		Muribaculaceae	GCA_003024855.1	ASM302485v1	Muribaculum intestinale (CFB group bacteria)
+Paramuribaculum_intestinale_DSM_100749T	isolate	Muribaculaceae	GCA_003024925.1	ASM302492v1	Paramuribaculum intestinale (CFB group bacteria)
+GCA_003762605	isolate	Muribaculaceae	GCA_003762605.1	ASM376260v1	Muribaculaceae bacterium Isolate-042 (Harlan) (CFB group bacteria)
+GCA_003762615	isolate	Muribaculaceae	GCA_003762615.1	ASM376261v1	Muribaculaceae bacterium Isolate-037 (Harlan) (CFB group bacteria)
+GCA_003762635	isolate	Muribaculaceae	GCA_003762635.1	ASM376263v1	Muribaculaceae bacterium Isolate-043 (Harlan) (CFB group bacteria)
+GCA_003762665	isolate	Muribaculaceae	GCA_003762665.1	ASM376266v1	Muribaculaceae bacterium Isolate-102 (HZI) (CFB group bacteria)
+GCA_003762685	isolate	Muribaculaceae	GCA_003762685.1	ASM376268v1	Muribaculaceae bacterium Isolate-083 (Janvier) (CFB group bacteria)
+GCA_003762695	isolate	Muribaculaceae	GCA_003762695.1	ASM376269v1	Muribaculaceae bacterium Isolate-100 (HZI) (CFB group bacteria)
+GCA_003762715	isolate	Muribaculaceae	GCA_003762715.1	ASM376271v1	Muribaculaceae bacterium Isolate-104 (HZI) (CFB group bacteria)
+GCA_003762745	isolate	Muribaculaceae	GCA_003762745.1	ASM376274v1	Muribaculaceae bacterium Isolate-105 (HZI) (CFB group bacteria)
+GCA_003762755	isolate	Muribaculaceae	GCA_003762755.1	ASM376275v1	Muribaculaceae bacterium Isolate-084 (Janvier) (CFB group bacteria)
+GCA_003762785	isolate	Muribaculaceae	GCA_003762785.1	ASM376278v1	Muribaculaceae bacterium Isolate-080 (Janvier) (CFB group bacteria)
+GCA_003762805	isolate	Muribaculaceae	GCA_003762805.1	ASM376280v1	Muribaculaceae bacterium Isolate-077 (Janvier) (CFB group bacteria)
+GCA_003762865	isolate	Muribaculaceae	GCA_003762865.1	ASM376286v1	Muribaculaceae bacterium Isolate-113 (HZI) (CFB group bacteria)
+GCA_003762875	isolate	Muribaculaceae	GCA_003762875.1	ASM376287v1	Muribaculaceae bacterium Isolate-110 (HZI) (CFB group bacteria)
+GCA_003833075	isolate	Muribaculaceae	GCA_003833075.1	ASM383307v1	Muribaculaceae bacterium Isolate-036 (Harlan) (CFB group bacteria)
+GCA_003833095	isolate	Muribaculaceae	GCA_003833095.1	ASM383309v1	Muribaculaceae bacterium Isolate-114 (HZI) (CFB group bacteria)
+GCA_003833175	isolate	Muribaculaceae	GCA_003833175.1	ASM383317v1	Muribaculaceae bacterium Isolate-039 (Harlan) (CFB group bacteria)
+GCA_003979055	mag	Muribaculaceae	GCA_003979055.1	ASM397905v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_021
+GCA_003979065	mag	Muribaculaceae	GCA_003979065.1	ASM397906v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_022
+GCA_003979075	mag	Muribaculaceae	GCA_003979075.1	ASM397907v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_023
+GCA_003979105	mag	Muribaculaceae	GCA_003979105.1	ASM397910v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_019
+GCA_003979145	mag	Muribaculaceae	GCA_003979145.1	ASM397914v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_016
+GCA_003979155	mag	Muribaculaceae	GCA_003979155.1	ASM397915v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_014
+GCA_003979165	mag	Muribaculaceae	GCA_003979165.1	ASM397916v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_015
+GCA_003979385	mag	Muribaculaceae	GCA_003979385.1	ASM397938v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_020
+GCA_003979445	mag	Muribaculaceae	GCA_003979445.1	ASM397944v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_013
+GCA_003979475	mag	Muribaculaceae	GCA_003979475.1	ASM397947v1	Muribaculaceae bacterium (CFB group bacteria) MAG_RACS_004
+GCA_004102765	isolate	Muribaculaceae	GCA_004102765.1	ASM410276v1	Muribaculaceae bacterium Isolate-004 (NCI) (CFB group bacteria)
+GCA_004102775	isolate	Muribaculaceae	GCA_004102775.1	ASM410277v1	Muribaculaceae bacterium Isolate-001 (NCI) (CFB group bacteria)
+GCA_004102785	isolate	Muribaculaceae	GCA_004102785.1	ASM410278v1	Muribaculaceae bacterium Isolate-013 (NCI) (CFB group bacteria)
+GCA_004102805	isolate	Muribaculaceae	GCA_004102805.1	ASM410280v1	Muribaculaceae bacterium Isolate-002 (NCI) (CFB group bacteria)
+GCA_004102905	isolate	Muribaculaceae	GCA_004102905.1	ASM410290v1	Muribaculaceae bacterium Isolate-007 (NCI) (CFB group bacteria)
+Amulumruptor_caecigallinarius	mag	Muribaculaceae	GCA_004115465.1	ASM411546v1	Candidatus Amulumruptor caecigallinarius (CFB group bacteria) Hinsu1
+Duncaniella_freteri_DSM_108168T	isolate	Muribaculaceae	GCA_004766125.1	ASM476612v1	Duncaniella freteri (CFB group bacteria)
+GCA_004792675		Muribaculaceae	GCA_004792675.1	ASM479267v1	Muribaculum intestinale (CFB group bacteria)
+GCA_004793655		Muribaculaceae	GCA_004793655.1	ASM479365v1	Muribaculum intestinale (CFB group bacteria)
+GCA_004793735		Muribaculaceae	GCA_004793735.1	ASM479373v1	Muribaculum sp. NM65_B17 (CFB group bacteria)
+GCA_004801635		Muribaculaceae	GCA_004801635.1	ASM480163v1	Muribaculaceae bacterium (CFB group bacteria)
+GCA_004801705		Muribaculaceae	GCA_004801705.1	ASM480170v1	Muribaculaceae bacterium (CFB group bacteria)
+GCA_004803695		Muribaculaceae	GCA_004803695.1	ASM480369v1	Muribaculum sp. TLL-A4 (CFB group bacteria)
+Duncaniella_dubosii_DSM_107170T	isolate	Muribaculaceae	GCA_004803915.1	ASM480391v1	Duncaniella dubosii (CFB group bacteria)
+GCA_004803935		Muribaculaceae	GCA_004803935.1	ASM480393v1	Duncaniella sp. C9 (CFB group bacteria)
+GCA_005304985		Muribaculaceae	GCA_005304985.1	ASM530498v1	Duncaniella sp. B8 (CFB group bacteria)
+GCA_008728965		Muribaculaceae	GCA_008728965.1	ASM872896v1	Muribaculaceae bacterium AM35 (CFB group bacteria)
+GCA_009676955	isolate	Muribaculaceae	GCA_009676955.1	ASM967695v1	Muribaculaceae bacterium DSM 108610 (CFB group bacteria)
+GCA_009774915	mag	Muribaculaceae	GCA_009774915.1	ASM977491v1	Muribaculaceae bacterium (CFB group bacteria) S9771_S20_bin.18
+GCA_009774935	mag	Muribaculaceae	GCA_009774935.1	ASM977493v1	Muribaculaceae bacterium (CFB group bacteria) SA1426_S37_bin.21
+GCA_009774945	mag	Muribaculaceae	GCA_009774945.1	ASM977494v1	Muribaculaceae bacterium (CFB group bacteria) SC1113_S19_bin.8
+GCA_009774955	mag	Muribaculaceae	GCA_009774955.1	ASM977495v1	Muribaculaceae bacterium (CFB group bacteria) S9771_S20_bin.7
+GCA_009774995	mag	Muribaculaceae	GCA_009774995.1	ASM977499v1	Muribaculum intestinale (CFB group bacteria) SC1153_S6_bin.20
+GCA_009775005	mag	Muribaculaceae	GCA_009775005.1	ASM977500v1	Muribaculaceae bacterium (CFB group bacteria) SA1426_S37_bin.23
+GCA_009775035	mag	Muribaculaceae	GCA_009775035.1	ASM977503v1	Muribaculum sp. (CFB group bacteria) SC1196_S49_bin.27
+GCA_009775045	mag	Muribaculaceae	GCA_009775045.1	ASM977504v1	Muribaculum sp. (CFB group bacteria) SC1194_S47_bin.6
+GCA_009775075	mag	Muribaculaceae	GCA_009775075.1	ASM977507v1	Candidatus Homeothermus arabinoxylanisolvens (CFB group bacteria) S9779_S26_bin.7
+GCA_009775095	mag	Muribaculaceae	GCA_009775095.1	ASM977509v1	Muribaculum sp. (CFB group bacteria) SC1186_S39_bin.11
+GCA_009775115	mag	Muribaculaceae	GCA_009775115.1	ASM977511v1	Muribaculum sp. (CFB group bacteria) SC1151_S4_bin.9
+GCA_009775125	mag	Muribaculaceae	GCA_009775125.1	ASM977512v1	Muribaculaceae bacterium (CFB group bacteria) SC1196_S49_bin.11
+GCA_009775135	mag	Muribaculaceae	GCA_009775135.1	ASM977513v1	Muribaculaceae bacterium (CFB group bacteria) SC1124_S30_bin.2
+GCA_009775145	mag	Muribaculaceae	GCA_009775145.1	ASM977514v1	Muribaculaceae bacterium (CFB group bacteria) S9741_S7_spades_bin.15
+GCA_009775195	mag	Muribaculaceae	GCA_009775195.1	ASM977519v1	Muribaculaceae bacterium (CFB group bacteria) SC1177_S30_bin.15
+GCA_009775205	mag	Muribaculaceae	GCA_009775205.1	ASM977520v1	Muribaculaceae bacterium (CFB group bacteria) S9741_S7_spades_bin.8
+GCA_009775225	mag	Muribaculaceae	GCA_009775225.1	ASM977522v1	Muribaculaceae bacterium (CFB group bacteria) SC1196_S49_bin.12
+GCA_009775255	mag	Muribaculaceae	GCA_009775255.1	ASM977525v1	Muribaculaceae bacterium (CFB group bacteria) SC1157_S10_bin.11
+GCA_009775265	mag	Muribaculaceae	GCA_009775265.1	ASM977526v1	Muribaculaceae bacterium (CFB group bacteria) S9771_S20_bin.19
+GCA_009775275	mag	Muribaculaceae	GCA_009775275.1	ASM977527v1	Muribaculaceae bacterium (CFB group bacteria) SC1140_S46_bin.4
+GCA_009775305	mag	Muribaculaceae	GCA_009775305.1	ASM977530v1	Muribaculaceae bacterium (CFB group bacteria) S9745_S9_bin.14
+GCA_009775325	mag	Muribaculaceae	GCA_009775325.1	ASM977532v1	Muribaculaceae bacterium (CFB group bacteria) SC1158_S11_bin.11
+GCA_009775355	mag	Muribaculaceae	GCA_009775355.1	ASM977535v1	Muribaculaceae bacterium (CFB group bacteria) S9745_S9_bin.2
+GCA_009775365	mag	Muribaculaceae	GCA_009775365.1	ASM977536v1	Muribaculaceae bacterium (CFB group bacteria) S9745_S9_bin.7
+GCA_009775375	mag	Muribaculaceae	GCA_009775375.1	ASM977537v1	Muribaculaceae bacterium (CFB group bacteria) SC1121_S27_bin.1
+GCA_009775415	mag	Muribaculaceae	GCA_009775415.1	ASM977541v1	Paramuribaculum intestinale (CFB group bacteria) S9743_S8_spades_bin.14
+GCA_009775435	mag	Muribaculaceae	GCA_009775435.1	ASM977543v1	Duncaniella sp. (CFB group bacteria) SC1124_S30_bin.4
+GCA_009775445	mag	Muribaculaceae	GCA_009775445.1	ASM977544v1	Duncaniella sp. (CFB group bacteria) SA1427_S38_bin.15
+GCA_009775475	mag	Muribaculaceae	GCA_009775475.1	ASM977547v1	Duncaniella muris (CFB group bacteria) SC1126_S32_bin.10
+GCA_009775485	mag	Muribaculaceae	GCA_009775485.1	ASM977548v1	Duncaniella sp. (CFB group bacteria) SC1124_S30_bin.19
+GCA_009775505	mag	Muribaculaceae	GCA_009775505.1	ASM977550v1	Muribaculaceae bacterium (CFB group bacteria) SC1123_S29_bin.8
+GCA_009775535	mag	Muribaculaceae	GCA_009775535.1	ASM977553v1	Muribaculaceae bacterium (CFB group bacteria) SC1186_S39_bin.12
+GCA_009775605	mag	Muribaculaceae	GCA_009775605.1	ASM977560v1	Paramuribaculum sp. (CFB group bacteria) SC1111_S17_bin.14
+GCA_009856815		Muribaculaceae	GCA_009856815.1	ASM985681v1	Muribaculum intestinale (CFB group bacteria)
+GCA_009911555		Muribaculaceae	GCA_009911555.1	ASM991155v1	Muribaculaceae bacterium Z1 (CFB group bacteria)
+GCA_009911605		Muribaculaceae	GCA_009911605.1	ASM991160v1	Muribaculaceae bacterium S4 (CFB group bacteria)
+GCA_009911635		Muribaculaceae	GCA_009911635.1	ASM991163v1	Muribaculaceae bacterium Z82 (CFB group bacteria)
+GCA_009935955		Muribaculaceae	GCA_009935955.1	ASM993595v1	Muribaculaceae bacterium M3 (CFB group bacteria)
+GCA_902362735		Muribaculaceae	GCA_902362735.1	MGYG-HGUT-00055	Muribaculaceae bacterium (CFB group bacteria) MGYG-HGUT-00055
+GCA_902383915		Muribaculaceae	GCA_902383915.1	UHGG_MGYG-HGUT-02157	uncultured Muribaculaceae bacterium (CFB group bacteria) MGYG-HGUT-02157
+GCA_902388335		Muribaculaceae	GCA_902388335.1	UHGG_MGYG-HGUT-02556	uncultured Muribaculaceae bacterium (CFB group bacteria) MGYG-HGUT-02556
+GCA_902406015		Muribaculaceae	GCA_902406015.1	UHGG_MGYG-HGUT-04255	uncultured Muribaculaceae bacterium (CFB group bacteria) MGYG-HGUT-04255
+Barnesiella_viscericola_DSM_18177	isolate	Porphyromonadaceae	GCA_000512915.1	ASM51291v1	
+Porphyromonas_gingivalis_ATCC_33277	isolate	Porphyromonadaceae	GCA_000010505.1	ASM1050v1	
+Bacteroides_ovatus_ATCC_8483	isolate	Bacteroidaceae	GCA_000154125.1	ASM15412v1	
+Barnesiella_intestinihominis_YIT_11860	isolate	Porphyromonadaceae	GCA_000296465.1	Barn_inte_YIT_11860_V1	

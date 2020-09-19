@@ -1,2 +1,4 @@
 _meta_library: 'meta/library.tsv'
 _meta_asmbl_group: 'meta/asmbl_group.tsv'
+_meta_genome: 'meta/genome.tsv'
+_meta_genome_group: 'meta/genome_group.tsv'

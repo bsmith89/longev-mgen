@@ -47,11 +47,11 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 # TODO: Build the other files from the database.
 rule all:
     input:
-        [ "data/core.a.mags.muri.g.final.marker_genes.gb.prot.nwk"
-        , "data/core.a.mags.muri.g.final.cds.TIGR02013-hits.sqz.gb.prot.nwk"
-        , "data/core.muri.2.denorm.db"
-        , "data/core.a.mags.muri.g.final.genome_stats.tsv"
-        , "data/core.a.mags.muri.g.final.cds.fa"
+        [ "data/core.a.mags.muri2.g.final.marker_genes.gb.prot.nwk"
+        , "data/core.a.mags.muri2.g.final.cds.TIGR02013-hits.sqz.gb.prot.nwk"
+        , "data/core.muri2.2.denorm.db"
+        , "data/core.a.mags.muri2.g.final.genome_stats.tsv"
+        , "data/core.a.mags.muri2.g.final.cds.fa"
         , "data/core.a.mags/B1.g.final.quast-align.tsv"
         , "data/core.muri2.2.query_otu_genomic_variants.tsv"
         , "data/core.muri2.2.query_putative_PUL_regions.tsv"
@@ -2464,6 +2464,7 @@ rule generate_database_2:
         db='data/{group}.0.db',
         schema='schema.2.sql',
         genome='data/genome.noheader.tsv',
+        genome_group='data/genome_group.noheader.tsv',
         library_size='data/{group}.a.proc.library_size.tsv',
         checkm='data/{group}.a.mags.{genomes}.g.final.checkm_details.noheader.tsv',
         quast='data/{group}.a.mags.{genomes}.g.final.quast.noheader.tsv',
@@ -2500,6 +2501,7 @@ PRAGMA foreign_keys = TRUE;
 .read {input.schema}
 .separator \t
 .import {input.genome} genome
+.import {input.genome_group} genome_group
 .import {input.library_size} library_size
 .import {input.checkm} checkm
 .import {input.quast} quast

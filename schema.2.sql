@@ -9,6 +9,14 @@ CREATE TABLE genome
 , comment
 );
 
+CREATE TABLE genome_group
+( genome_id REFERENCES genome(genome_id)
+, genome_group_id
+, subgroup
+
+, PRIMARY KEY (genome_id, genome_group_id)
+);
+
 CREATE TABLE checkm
 ( genome_id PRIMARY KEY REFERENCES genome(genome_id)
 , n_markers INT

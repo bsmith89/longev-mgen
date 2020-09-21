@@ -53,6 +53,8 @@ rule all:
         , "data/core.a.mags.muri.g.final.genome_stats.tsv"
         , "data/core.a.mags.muri.g.final.cds.fa"
         , "data/core.a.mags/B1.g.final.quast-align.tsv"
+        , "data/core.muri2.2.query_otu_genomic_variants.tsv"
+        , "data/core.muri2.2.query_putative_PUL_regions.tsv"
         ]
     shell:
         "# {input}"
@@ -2573,6 +2575,10 @@ DROP TABLE feature_to_cog;
 CREATE VIEW feature_to_cog AS
 SELECT feature_id, cog_id FROM feature_details
 ;
+
+CREATE TABLE __closest_PUL_susC AS SELECT * FROM closest_PUL_susC;
+DROP VIEW closest_PUL_susC;
+ALTER TABLE __closest_PUL_susC RENAME TO closest_PUL_susC;
 
 -- TODO: Replace the lost indices, where necessary
 

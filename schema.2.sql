@@ -485,3 +485,14 @@ JOIN ( SELECT
 WHERE distance < 5000
   AND (d.feature_start - c.feature_start) * d.strand > 0  -- susD follows susC
 ;
+
+-- NOTE: Will only include features within 25,000 bases of a pul_susC
+-- for computational reasons.
+-- This is usually enough.
+CREATE VIEW closest_PUL_susC AS
+SELECT feature_id, MIN(distance)
+FROM feature_distance
+JOIN (SELECT feature_id AS seed_id FROM pul_susC) USING (seed_id)
+WHERE distance < 25000
+GROUP BY feature_id
+;

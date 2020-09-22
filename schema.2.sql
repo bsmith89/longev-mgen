@@ -2,10 +2,10 @@
 
 CREATE TABLE genome
 ( genome_id PRIMARY KEY
-, is_mag BOOL
 , genome_type
 , taxon_family
-, ormerod_guild
+, genbank_accession
+, assembly_name
 , comment
 );
 

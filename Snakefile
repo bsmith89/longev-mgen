@@ -53,7 +53,7 @@ rule all:
         , "data/core.a.mags.muri2.g.final.genome_stats.tsv"
         , "data/core.a.mags.muri2.g.final.cds.fa"
         , "data/core.a.mags/B1.g.final.quast-align.tsv"
-        , "data/core.muri2.2.query_otu_genomic_variants.tsv"
+        , "data/core.muri2.2.query_B1_genomic_variants.tsv"
         , "data/core.muri2.2.query_putative_PUL_regions.tsv"
         ]
     shell:

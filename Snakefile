@@ -2250,6 +2250,30 @@ rule tree_sort_afa:
 # {{{2 Protein Clustering
 
 # {{{3 De novo
+
+rule cdhit_dereplicate_proteins:
+    output:
+        fasta="{stem}.cds.derep.fa",
+        mapping="{stem}.cds.derep.fa.clstr",
+    input: "{stem}.cds.fa"
+    params:
+        cutoff=0.99,
+    threads: 4
+    shell:
+        """
+        cd-hit -T {threads} -i {input} -o {output.fasta} -c {params.cutoff} -d 0
+        """
+
+rule cdhit_to_map:
+    output: '{stem}.cds.derep.tsv'
+    input:
+        script='scripts/cdhit_to_cluster_mapping.py',
+        clstr='{stem}.cds.derep.fa.clstr',
+    shell:
+        """
+        {input.script} {input.clstr} > {output}
+        """
+
 rule make_diamond_db:
     output: "{stem}.fa.dmnd"
     input: "{stem}.fa"
@@ -2258,9 +2282,9 @@ rule make_diamond_db:
 rule all_by_all_blastp:
     output: "data/{stem}.self-blastp.tsv"
     input:
-        fa='data/{stem}.cds.fa',
-        db='data/{stem}.cds.fa.dmnd',
-    threads: min(20, MAX_THREADS)
+        fa='data/{stem}.fa',
+        db='data/{stem}.fa.dmnd',
+    threads: 12
     params:
         # Should probably be substantially greater than the effective number of
         # genomes being compared.
@@ -2281,9 +2305,10 @@ rule transform_blastp_to_similarity:
     input:
         script='scripts/transform_blastp_to_similarity.py',
         blastp='{stem}.self-blastp.tsv'
+    threads: 4
     shell:
         """
-        {input.script} {input.blastp} > {output}
+        {input.script} {threads} {input.blastp} > {output}
         """
 
 rule clip_protein_similarity_graph:
@@ -2315,6 +2340,20 @@ rule mcl_to_opf_mapping:
     shell:
         """
         {input.script} {input.mcl} > {output}
+        """
+
+rule underep_clust_mapping:
+    output: 'data/{stemA}.derep.{stemB}.underep.tsv'
+    input:
+        clust='data/{stemA}.derep.{stemB}.tsv',
+        derep='data/{stemA}.derep.tsv'
+    shell:
+        """
+        join -1 1 -2 1 \
+                <(sort -k1,1 -k2,2 {input.derep}) \
+                <(sort -k1,1 -k2,2 {input.clust}) \
+            | awk -v OFS='\t' '{{print $1,$3}}' \
+            > {output}
         """
 
 rule join_genome_by_cluster_table:
@@ -2479,7 +2518,7 @@ rule generate_database_2:
         feature_details='data/{group}.a.mags.{genomes}.g.final.feature_details.tsv',
         feature_x_ko='data/{group}.a.mags.{genomes}.g.final.ko-annot.tsv',
         feature_to_cog='data/{group}.a.mags.{genomes}.g.final.cog-annot.tsv',
-        feature_to_opf='data/{group}.a.mags.{genomes}.g.final.denovo50-clust.tsv',
+        feature_to_opf='data/{group}.a.mags.{genomes}.g.final.cds.derep.denovo50-clust.underep.tsv',
         feature_pfam_domain='data/{group}.a.mags.{genomes}.g.final.Pfam-domain-annot.tsv',
         feature_cazy_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-annot.tsv',
         feature_cazy_min_domain='data/{group}.a.mags.{genomes}.g.final.dbCAN-domain-best-annot.tsv',

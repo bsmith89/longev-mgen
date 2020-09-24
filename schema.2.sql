@@ -498,7 +498,7 @@ WHERE distance < 5000
 -- for computational reasons.
 -- This is usually enough.
 CREATE VIEW closest_PUL_susC AS
-SELECT feature_id, MIN(distance)
+SELECT feature_id, MIN(distance) AS distance
 FROM feature_distance
 JOIN (SELECT feature_id AS seed_id FROM pul_susC) USING (seed_id)
 WHERE distance < 25000

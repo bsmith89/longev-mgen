@@ -217,7 +217,6 @@ rule combine_feature_tables:
 
 ruleorder: combine_feature_tables > parse_feature_table
 
-
 rule combine_annotations:
     output:
         "data/{group}.a.mags.{genomes}.g.{proc}.{annot}-annot.tsv"

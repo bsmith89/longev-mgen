@@ -1,13 +1,13 @@
 genome_id	genome_type	taxon_family	genbank_accession	assembly_name	comment
-B1A	mag	Muribaculaceae			Otu0001 refined manually from samples at both UM and UT.
-B1B	mag	Muribaculaceae			Otu0001 refined manually from only UT samples.
-B2	mag	Muribaculaceae			"Otu0007 when considering all ITP/Glenn mice, but OTU-4 in Smith2019. TODO: Check this."
-B3	mag	Muribaculaceae			Otu0009
-B4	mag	Muribaculaceae			Otu0005
-B5	mag	Muribaculaceae			Otu0004
-B6	mag	Muribaculaceae			Otu0049
-B7	mag	Muribaculaceae			Otu0017
-B8	mag	Muribaculaceae			Otu0013
+B1A	mag	Muribaculaceae			Otu0001; Otu0001 in Smith2019; refined manually from samples at both UM and UT.
+B1B	mag	Muribaculaceae			Otu0001; Otu0001 in Smith2019; refined manually from only UT samples.
+B2	mag	Muribaculaceae			Otu0007; Otu0004 in Smith2019; when considering all ITP/Glenn mice, but OTU-4 in Smith2019. TODO: Check this.
+B3	mag	Muribaculaceae			Otu0009; Otu0008 in Smith2019;
+B4	mag	Muribaculaceae			Otu0005; Otu0005 in Smith2019;
+B5	mag	Muribaculaceae			Otu0004; Otu0006 in Smith2019;
+B6	mag	Muribaculaceae			Otu0049; Otu0039 in Smith2019;
+B7	mag	Muribaculaceae			Otu0017; Otu0030 in Smith2019;
+B8	mag	Muribaculaceae			Otu0013; Otu0011 in Smith2019;
 GP1	mag	Muribaculaceae	GCA_001701105.1	ASM170110v1	
 GP2	mag	Muribaculaceae	GCA_001701115.1	ASM170111v1	
 GP3	mag	Muribaculaceae	GCA_001701075.1	ASM170107v1	

@@ -2617,6 +2617,10 @@ CREATE VIEW feature_to_cog AS
 SELECT feature_id, cog_id FROM feature_details
 ;
 
+CREATE TABLE __feature_possible_ko AS SELECT * FROM feature_possible_ko;
+DROP VIEW feature_possible_ko;
+ALTER TABLE __feature_possible_ko RENAME TO feature_possible_ko;
+
 CREATE TABLE __closest_PUL_susC AS SELECT * FROM closest_PUL_susC;
 DROP VIEW closest_PUL_susC;
 ALTER TABLE __closest_PUL_susC RENAME TO closest_PUL_susC;

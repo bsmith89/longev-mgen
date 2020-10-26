@@ -464,7 +464,7 @@ CREATE VIEW susEF AS
 SELECT DISTINCT feature_id
 FROM feature
 LEFT JOIN feature_possible_ko USING (feature_id)
-JOIN feature_x_pfam_domain USING (feature_id)
+LEFT JOIN feature_x_pfam_domain USING (feature_id)
 WHERE ko_id = 'K21571'
    OR domain_id LIKE '%SusE%'
    OR domain_id LIKE '%SusF%'

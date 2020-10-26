@@ -2345,14 +2345,14 @@ rule mcl_to_opf_mapping:
 rule underep_clust_mapping:
     output: 'data/{stemA}.derep.{stemB}.underep.tsv'
     input:
+        derep='data/{stemA}.derep.tsv',
         clust='data/{stemA}.derep.{stemB}.tsv',
-        derep='data/{stemA}.derep.tsv'
     shell:
         """
-        join -1 1 -2 1 \
-                <(sort -k1,1 -k2,2 {input.derep}) \
+        join -1 2 -2 1 \
+                <(sort -k2,2 -k1,1 {input.derep}) \
                 <(sort -k1,1 -k2,2 {input.clust}) \
-            | awk -v OFS='\t' '{{print $1,$3}}' \
+            | awk -v OFS='\t' '{{print $2,$3}}' \
             > {output}
         """
 

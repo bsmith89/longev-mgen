@@ -1558,7 +1558,7 @@ rule correlation_trim_contigs:
 
 # {{{3 Refinement Selection
 
-NOTE: Checkpoint rule. Comment out to speed up dependency analysis.
+# NOTE: Checkpoint rule. Comment out to speed up dependency analysis.
 rule manual_choose_mag_refinement:
     output:
         fn="data/{group}.a.mags/{mag}.g.rfn.fn",

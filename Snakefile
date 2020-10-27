@@ -1558,6 +1558,7 @@ rule correlation_trim_contigs:
 
 # {{{3 Refinement Selection
 
+NOTE: Checkpoint rule. Comment out to speed up dependency analysis.
 rule manual_choose_mag_refinement:
     output:
         fn="data/{group}.a.mags/{mag}.g.rfn.fn",
@@ -1697,8 +1698,6 @@ rule quality_asses_spike_mag:
 
 # {{{4 Prokka
 
-# TODO: Output the individual files rather than the directory
-# TODO: Redo annotation now that --metagenome flag has been removed.
 rule annotate_mag:
     output:
         fa="data/{stem}.mags.annot/{mag}.g.{proc}.cds.fa",

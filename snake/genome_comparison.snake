@@ -199,7 +199,6 @@ rule compile_feature_details:
         """
         cat {input} > {output}
         """
-
 ruleorder: compile_feature_details > extract_feature_details
 
 rule combine_feature_tables:
@@ -214,7 +213,6 @@ rule combine_feature_tables:
         r"""
         cat {input} > {output}
         """
-
 ruleorder: combine_feature_tables > parse_feature_table
 
 rule combine_annotations:
@@ -279,7 +277,6 @@ rule combine_prokka_annotations:
             sed '1,1d' $file
         done > {output}
         """
-
 ruleorder: combine_prokka_annotations > combine_annotations
 
 rule combine_minpath_results:

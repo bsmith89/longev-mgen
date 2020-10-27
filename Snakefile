@@ -568,19 +568,19 @@ rule quality_trim_reads:
 
 # {{{3 Aliasing after processing
 
-# # Why does the existence of these aliased files result in a "ChildIOException" (or
-# # something like that)?
-# # This processing intended for mapping.
-# rule alias_read_processing_r1:
-#     output: 'data/{library}.m.r1.proc.fq.gz'
-#     input: 'data/{library}.m.r1.dedup.deadapt.qtrim.fq.gz'
-#     shell: alias_recipe
-# localrules: alias_read_processing_r1
-# rule alias_read_processing_r2:
-#     output: 'data/{library}.m.r2.proc.fq.gz'
-#     input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
-#     shell: alias_recipe
-# localrules: alias_read_processing_r2
+# Why does the existence of these aliased files result in a "ChildIOException" (or
+# something like that)?
+# This processing intended for mapping.
+rule alias_read_processing_r1:
+    output: 'data/{library}.m.r1.proc.fq.gz'
+    input: 'data/{library}.m.r1.dedup.deadapt.qtrim.fq.gz'
+    shell: alias_recipe
+localrules: alias_read_processing_r1
+rule alias_read_processing_r2:
+    output: 'data/{library}.m.r2.proc.fq.gz'
+    input: 'data/{library}.m.r2.dedup.deadapt.qtrim.fq.gz'
+    shell: alias_recipe
+localrules: alias_read_processing_r2
 
 # {{{2 Metagenome Assembly
 

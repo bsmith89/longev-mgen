@@ -408,7 +408,7 @@ sequences across the 47 genomes.
 Annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
 KOs, and Pfam and CAZy domains are all available in the Supplementary Results.
 TODO: Supplementary Results
--->>
+-->
 
 ### Ordination of gene content
 

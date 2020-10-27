@@ -13,6 +13,7 @@ SELECT DISTINCT
   , localization
   , coverage_ratio AS cross_coverage_ratio
   , opf_id
+  , ko_list
   , architecture
   , product_description
   , cazy_domain_list
@@ -31,6 +32,11 @@ LEFT JOIN (SELECT
              , GROUP_CONCAT(domain_id, ',') AS cazy_domain_list
            FROM feature_x_cazy_minimal_domain
            GROUP BY feature_id) AS ca USING (feature_id)
+LEFT JOIN (SELECT
+               feature_id
+             , GROUP_CONCAT(ko_id, ',') AS ko_list
+           FROM feature_x_ko
+           GROUP BY feature_id) AS ko USING (feature_id)
 LEFT JOIN (SELECT feature_id, coverage_ratio FROM variant_cross_coverage) USING (feature_id)
 WHERE genome_id IN ('B1A', 'B1B')
 ;

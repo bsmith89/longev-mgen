@@ -7,15 +7,22 @@ author:
     -   Richard A. Miller
     -   Thomas M. Schmidt
 
+geometry:
+    - margin=1in
+
+mainfont: "Palatino"
+
 ---
 
 <!--
-TODO: B1-A vs B1A everywhere.
+TODO: Fix inline -> citation linking.
+TODO: Fix PDF font.
 -->
+
 # Abstract
 
 The drug acarbose (ACA) is used to treat
-diabetes, and by inhibiting alpha-amylase in the small intestine increases the amount of
+diabetes, and by inhibiting &alpha;-amylase in the small intestine increases the amount of
 starch entering the lower digestive tract.
 <!--
 'alpha' to greek alpha symbol everywhere?
@@ -35,9 +42,9 @@ available.
 We reconstructed genomes from metagenomes (MAGs) for nine populations of
 _Muribaculaceae_ to examine what distinguishes species that respond positively
 to acarbose.
-We found two closely related MAGs (B1-A and B1-B) from one responsive species
+We found two closely related MAGs (B1A and B1B) from one responsive species
 that both contain a polysaccharide utilization locus with a predicted
-extracellular alpha-amylase.
+extracellular &alpha;-amylase.
 <!--
 TODO: Check the following and add if true: "...and these were the only two to
 posses a predicted OM-localized GH13 domain containing gene product.
@@ -46,7 +53,7 @@ These also shared a periplasmic neopullulanase with another, distantly related
 MAG (B2) representative of the only other responsive species.
 This gene differentiated these three MAGs from MAGs representative of
 non-responding species.
-Differential gene content in B1-A and B1-B may be associated with the
+Differential gene content in B1A and B1B may be associated with the
 inconsistent response of this species to acarbose across study sites.
 This work demonstrates the utility of culture-free genomics for inferring
 the ecological roles of gut bacteria including their response to pharmaceutical
@@ -84,7 +91,7 @@ Understanding how the
 bacterial inhabitants of the gut respond to pharmaceutical and dietary
 perturbations is a major step in developing a predictive framework for
 microbiome-based therapies.
-Acarbose (ACA) is an alpha-glucosidase inhibitor
+Acarbose (ACA) is an &alpha;-glucosidase inhibitor
 prescribed for the treatment of type 2 diabetes mellitus because it
 reduces the absorption of glucose from starch in the small
 intestine [@Hiele1992].
@@ -126,7 +133,7 @@ early clone [@s247clone; @Salzman2002],
 <!--
 TODO: Convert s247clone reference to an inlined URL.
 -->
-or sometimes as _Candidatus Homeothermaceae_ [@Ormerod2016]---have only
+or sometimes as _Candidatus_ Homeothermaceae [@Ormerod2016]---have only
 recently been isolated
 [@Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
 despite being a common and abundant
@@ -154,9 +161,9 @@ Based on 30 such metagenome
 assembled genomes (MAGs) they reconstructed using this approach,
 Ormerod and colleagues [@Ormerod2016] proposed that the _Muribaculaceae_ fall
 into three distinct carbohydrate utilization guilds, which they describe
-as specialists on alpha-glucans, plant glycans, and host glycans,
+as specialists on &alpha;-glucans, plant glycans, and host glycans,
 respectively.
-While it is reasonable to expect that alpha-glucan specialists
+While it is reasonable to expect that &alpha;-glucan specialists
 would benefit the most from the large influx of starch to the gut
 resulting from ACA treatment, this prediction has not been tested, and
 physiological inferences based on the genome content of members of the
@@ -217,10 +224,10 @@ related, sharing just 90% of nucleotides in their 16S rRNA gene V4
 hypervariable region [@Smith2019].
 We nonetheless find genomic evidence that OTU-1
 and OTU-4 occupy overlapping niches, specializing in the degradation of
-alpha-glucans, a role not held by the other _Muribaculaceae_ described in
+&alpha;-glucans, a role not held by the other _Muribaculaceae_ described in
 this study.
 In addition, we identify two distinct genomic variants of OTU-1,
-referred to as B1-A and B1-B, which are differentially distributed
+referred to as B1A and B1B, which are differentially distributed
 between UM and UT and have functionally relevant differences in gene
 content.
 
@@ -251,29 +258,33 @@ _Muribaculaceae_,
 including for two species, OTU-1 and OTU-4, previously shown to
 respond positively to ACA.
 For OTU-1, two closely related genomic variants were recovered,
-here designated B1-A and B1-B,
+here designated B1A and B1B,
 possessing 0.56 and 0.31 Mbp of unshared sequence, respectively
-(Table 2).
+([@Tbl:b1-vars]).
 We designate the MAG constructed for OTU-4 as B2.
 MAGs obtained from non-responding species are designated B3 through B8.
 All 9 novel MAGs are estimated to be
 more than 84% complete and all had less than 2% estimated contamination
-based on the recovery of ubiquitous, single-copy genes (Table 1).
+based on the recovery of ubiquitous, single-copy genes ([@Tbl:mags]).
 The median N50
 statistic was approximately 61 kbp, suggesting that assembly was
 suitable for inferring the genomic context of functional genes.
 Estimated genome sizes, GC%, and number of predicted genes are
 all similar to reference isolates from the
 family _Muribaculaceae_.
+<!--
+TODO: Consider moving sentences referencing Table 2 down below Table 1.
+-->
 
 To confirm the assertion that each of the reconstructed genomes
 is representative of a previously described _Muribaculaceae_ species identified
 in these mice [@Smith2019],
-the per-library mapping rates of each genome were
-compared to the relative abundance of the associated 16S rRNA gene in
-amplicon libraries.
-Pearson correlation coefficients between the fraction of reads
-mapped and species relative abundance were above 0.86 for all MAGs,
+the median mapping rate of metagenomic reads to protein coding features for
+each MAG was compared to the relative abundance of the associated 16S rRNA gene
+across matched amplicon libraries.
+Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
+robust concordence in coverage between the shotgun metagenomic and amplicon
+libraries.
 
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
 | Genome      | Completeness^1^| Scaffolds   | Length^2^      | N50       | GC           | in           |
@@ -281,44 +292,44 @@ mapped and species relative abundance were above 0.86 for all MAGs,
 |             |                |             |                |           |              |              |
 |             |                |             |                |           |              |              |
 +:============+===============:+============:+===============:+==========:+=============:+:=============+
-| B1A         |            95% |         286 |            3.1 |    23,337 |        46.6% | OTU-1        |
+| B1A         | 95%            | 286         | 3.1            | 23,337    | 46.6%        | OTU-1        |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B1B         |            94% |         320 |            2.8 |    19,144 |        47.0% | OTU-1        |
+| B1B         | 94%            | 320         | 2.8            | 19,144    | 47.0%        | OTU-1        |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B2          |            96% |         116 |            2.7 |    75,014 |        50.6% | OTU-4        |
+| B2          | 96%            | 116         | 2.7            | 75,014    | 50.6%        | OTU-4        |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B3          |            93% |          62 |            2.7 |    80,587 |        55.8% | OTU-8        |
+| B3          | 93%            | 62          | 2.7            | 80,587    | 55.8%        | OTU-8        |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B4          |            97% |          30 |            2.7 |   127,141 |        55.4% | OTU-5        |
+| B4          | 97%            | 30          | 2.7            | 127,141   | 55.4%        | OTU-5        |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B5          |            89% |         124 |            2.3 |    46,359 |        54.2% | OTU-6        |
+| B5          | 89%            | 124         | 2.3            | 46,359    | 54.2%        | OTU-6        |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B6          |            90% |          87 |            2.3 |    61,151 |        54.2% | OTU-39       |
+| B6          | 90%            | 87          | 2.3            | 61,151    | 54.2%        | OTU-39       |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B7          |            84% |         217 |            2.9 |    78,457 |        48.0% | OTU-30       |
+| B7          | 84%            | 217         | 2.9            | 78,457    | 48.0%        | OTU-30       |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| B8          |            87% |         154 |            2.2 |    33,525 |        53.4% | OTU-11       |
+| B8          | 87%            | 154         | 2.2            | 33,525    | 53.4%        | OTU-11       |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Mi          |            99% |           1 |            3.3 | 3,307,069 |        50.1% |              |
+| Mi          | 99%            | 1           | 3.3            | 3,307,069 | 50.1%        | \-           |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Dm          |            99% |          80 |            3.3 |    93,062 |        50.8% |              |
+| _Dm_        | 99%            | 80          | 3.3            | 93,062    | 50.8%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Df          |            99% |           5 |            3.6 | 2,271,962 |        48.5% |              |
+| _Df_        | 99%            | 5           | 3.6            | 2,271,962 | 48.5%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Dd          |            97% |           5 |            3.7 | 3,598,157 |        47.9% |              |
+| _Dd_        | 97%            | 5           | 3.7            | 3,598,157 | 47.9%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Pi          |            98% |         378 |            2.9 |    13,720 |        53.1% |              |
+| _Pi_        | 98%            | 378         | 2.9            | 13,720    | 53.1%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Ha          |            99% |          60 |            2.8 |    80,867 |        50.3% |              |
+| _Ha_        | 99%            | 60          | 2.8            | 80,867    | 50.3%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Ac          |            90% |         157 |            2.4 |    41,191 |        51.9% |              |
+| _Ac_        | 90%            | 157         | 2.4            | 41,191    | 51.9%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
 
-: **Table 1**: Summary of novel MAGs, previously described, high-quality MAGs,
-and isolate genomes: Candidatus Homeothermus arabinoxylanisolvens (Ha),
-Muribaculum intestinale (Mi), Duncaniella muris (Dm), Duncaniella freteri (Df),
-Duncaniella dubosii (Dd) Paramuribaculum intestinale (Pi),
-Candidatus Amulumruptor caecigallinarius (Ac)
+: Summary of novel MAGs, previously described, high-quality MAGs,
+and isolate genomes: _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
+_Muribaculum intestinale_ (_Mi_), _Duncaniella muris_ (_Dm_), _Duncaniella freteri_ (_Df_),
+_Duncaniella dubosii_ (_Dd_), _Paramuribaculum intestinale_ (_Pi_),
+_Candidatus_ Amulumruptor caecigallinarius (_Ac_) {#tbl:mags}
 
 ^1^ Estimated by CheckM [@Parks2015] \
 ^2^ Total length in Mbp \
@@ -354,8 +365,8 @@ Otu0049	Otu0039	1.683847e-04
 -->
 
 ![
-**Figure 1**: Comparison of novel and previously described Muribaculaceae genomes.
-Novel MAGs (labeled "B1-A", "B1-B", and "B2" through "B8") are combined with publicly
+Comparison of novel and previously described Muribaculaceae genomes.
+Novel MAGs (labeled "B1A" through "B8") are combined with publicly
 available genomes and MAGs, as well as 30 MAGs constructed in [@Ormerod2016] that
 are hypothesized to reflect three polysaccharide utilization guilds
 (marker colors).
@@ -371,21 +382,22 @@ Functional comparisons were visualized (**B**, **C**) by plotting the first two
 principal components of an ordination based on counts of predicted proteins
 annotated with GH and CBM domains either (**B**) aggregated by CAZy family or
 (**C**) possessing a signal peptide and aggregated by OPF.
-(**B**, **C**) All genomes were projected onto principle components that were
-calculated after dereplicating redundant genomes by complete-linkage clustering
-at a 0.2 cosine dissimilarity threshold and replacing these clusters with their
+(**B**, **C**) To reduce the effects of redundancy on ordination,
+all genomes were projected onto principle components that were
+calculated by first dereplicating redundant genomes (complete-linkage clustering
+at a 0.2 cosine dissimilarity threshold) replacing these clusters with their
 mean counts.
 Novel MAGs (black triangles) are labeled, as are 7 previously described
-cultivar genomes and high quality MAGs: Candidatus Homeothermus arabinoxylanisolvens (Ha),
-Muribaculum intestinale (Mi), Duncaniella muris (Dm), Duncaniella freteri (Df),
-Duncaniella dubosii (Dd) Paramuribaculum intestinale (Pi),
-Candidatus Amulumruptor caecigallinarius (Ac).
-](fig/muri_comparison.pdf)
+cultivar genomes and high quality MAGs: _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
+_Muribaculum intestinale_ (Mi), _Duncaniella muris_ (Dm), _Duncaniella freteri_ (Df),
+_Duncaniella dubosii_ (Dd) _Paramuribaculum intestinale_ (Pi),
+_Candidatus_ Amulumruptor caecigallinarius (Ac).
+](fig/muri_comparison.pdf){#fig:muri-comparison}
 
 ### Phylogenetics
 
 To better understand the evolutionary relationships between these
-organisms, a concatenated gene tree (Figre 1A) was constructed
+organisms, a concatenated gene tree ([@Fig:muri-comparison]) was constructed
 for the 9 new MAGs along with publicly available MAGs and isolate genomes
 [@Ormerod2016; @Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
 <!--
@@ -451,18 +463,18 @@ TODO: Supplementary Results
 To better understand the polysaccharide utilization potential encoded by the
 novel MAGs and other available _Muribaculaceae_ genomes, we performed an
 ordination of the counts of  genes with predicted homology to GH or CBM domains
-(Figure 1B).
+(see [@Fig:muri-comparison] panel B).
 This holistic analysis of genes that could plausibly be involved in
 polysaccharide degradation recapitulates the three clusters previously
 described by Ormerod and colleagues for the first 30 MAGs from the family
 [@Ormerod2016],
-including associations of the hypothesized alpha-glucan, plant glycan, and host
+including associations of the hypothesized &alpha;-glucan, plant glycan, and host
 glycan guilds with GH13, GH43, and GH20 domains, respectively.
 However, given the ambiguous, intermediate placement of many newer genomes, it
 also suggests exceptions to the three-guild model.
 Notably, none of B1A, B1B, or B2---MAGs representative of responding
 species---were
-placed cleanly within the alpha-glucan guild as we had hypothesized.
+placed cleanly within the &alpha;-glucan guild as we had hypothesized.
 <!--
 TODO: Consider moving above 3-guild model stuff to discussion.
 -->
@@ -481,10 +493,10 @@ than domain level homology, the OPF designations were tallied for predicted
 proteins with homology to GHs and CBMs, rather than the domains themselves.
 While this more targeted analysis illustrates similar trends to before, the
 distinction between the three clusters appears visually more defined
-(Figure 1C).
+([@Fig:muri-comparison] panel C).
 Interestingly, in this ordination B1A, B1B and several closely related genomes
 now occupy a space proximate to but distinct from the previously hypothesized
-alpha-glucan guild.
+&alpha;-glucan guild.
 
 Reassuringly, OPFs driving the separation between clusters possess domains
 matching the original guild descriptions [@Ormerod2016].
@@ -496,7 +508,7 @@ in this family include a GH43 domain.
 Surprisingly, not all protein families sharing the same domains are equivalent.
 Although Opf01909 and Opf00965 both possess a predicted GH13 domain—and are the
 first and fourth most positively weighted features in PC2, indicating an
-association with the alpha-glucan guild—the latter is also enriched in the
+association with the &alpha;-glucan guild—the latter is also enriched in the
 plant glycan guild while the former is not; of the 12 MAGs originally
 classified to the plant glycan guild, 11 have at least one copy of Opf00965
 with a signal peptide versus just one MAG with Opf01909.
@@ -514,24 +526,23 @@ propionate.
 
 Based on the characterization of genes and genomic regions with a role
 in starch utilization in the closely related genus _Bacteroides_, it is
-plausible that an alpha-amylase localized to the outer membrane (OM) may be common to
+plausible that an &alpha;-amylase localized to the outer membrane (OM) may be common to
 starch utilizing bacteria in the order Bacteroidales [@Shipman1999].
-Indeed, B1-A and B1-B both have three genes predicted to code for
+Indeed, B1A and B1B both have three genes predicted to code for
 GH13 containing, OM-localized lipoproteins (B1A_01660, B1A_01692, B1A_02267 in
-B1-A and B1B_01504, B1B_01538, B1B_02118 in B1-B),
-each in a separate PUL (see Figure 2).
+B1A and B1B_01504, B1B_01538, B1B_02118 in B1B),
+each in a separate PUL (see [@Fig:puls]).
 While it also includes members without
-this activity, GH13 is the most common family of alpha-amylases [@Janecek2014].
+this activity, GH13 is the most common family of &alpha;-amylases [@Janecek2014].
 These genomic regions also possess additional genes with
-carbohydrate-active domains that are expected to interact with alpha-glucans.
+carbohydrate-active domains that are expected to interact with &alpha;-glucans.
 
 ![
-**Figure 2**:
-Diagrams of several Sus-like PULs in B1A, B1B, B2, B3, B. thetaiotaomicron,
-and B. ovatus.
-Operons are labeled with the genome name, contig identifier, and
+Diagrams of Sus-like PULs in B1A, B1B, B2, B3, _B. thetaiotaomicron_,
+and _B. ovatus_.
+Regions are labeled with the genome name, contig identifier, and
 nucleotide coordinates.
-ORFs are depicted as arrows pointed 5’ to 3’ along the
+ORFs are depicted as arrows pointed 5' to 3' along the
 coding sequence,
 and colors indicate homology to genes and domains known to
 participate in either starch or dextran utilization.
@@ -541,16 +552,16 @@ and nearby residues.
 Matching numbers indicate homology based on OPF
 clustering,
 and are arbitrarily assigned.
-](fig/starch_related_PULs_manual.pdf)
+](fig/starch_related_PULs_manual.pdf){#fig:puls}
 
 <!--
 TODO: Confirm 5' -> 3' arrows.
 -->
 
-Besides B1-A and B1-B, B3 is the only other MAG to possess a putative PUL
+Besides B1A and B1B, B3 is the only other MAG to possess a putative PUL
 coding for a full complement of predicted starch-active proteins.
 This PUL has a large degree of synteny with one of the three matching PULs found
-in both B1-A and B1-B, and also includes two OPFs with members also found in the
+in both B1A and B1B, and also includes two OPFs with members also found in the
 Sus-operon of _B. thetaiotaomicron_, suggesting shared function.
 However, while B3 also has
 a GH13 containing lipoprotein (B3_00513), its predicted localization is to
@@ -569,7 +580,7 @@ Despite the absence of a GH13 domain on the OM, it is
 plausible that B2 is capable of degrading starch using other enzymatic
 machinery.
 We speculate about one putative locus
-(Figure 2),
+([@Fig:puls]),
 which is highly syntenic with characterized
 dextran PULs in _B. thetaiotaomicron_ and _B. ovatus_
 [@Ravcheev2013; @Rogers2013; @VanBueren2015].
@@ -578,7 +589,7 @@ other proximal genes have domains with known affinity for starch, including
 GH97, CBM20, and CBM69.
 
 To expand the search for relevant genetic features, _de novo_ protein
-clusters were filtered to those with members in B1-A, B1-B, and
+clusters were filtered to those with members in B1A, B1B, and
 B2.
 Of these OPFs, several stood out as particularly relevant.
 Opf01405
@@ -586,39 +597,38 @@ includes SusR, the regulator of transcription of the starch utilization
 system in _B. thetaiotaomicron_, as well as its homolog in _B. ovatus_.
 It is an apparent subcluster of the larger family defined by K21557, and
 in many cases is encoded directly upstream of _susC_ in putative PULs
-that are considered likely to have affinity for alpha-glucans.
-In B1-A and B1-B, two of the
+that are considered likely to have affinity for &alpha;-glucans.
+In B1A and B1B, two of the
 three putative starch PULs encode a member of Opf01405, and it is
 similarly located in PULs with starch-active CBM and GH domains in B2
 and B3.
 Interestingly, this OPF is not found in any of the other novel MAGs.
 In addition, of the seven MAGs constructed by Ormerod _et al._
 that encode a member of this cluster, five of them are classified to the
-alpha-glucan guild.
+&alpha;-glucan guild.
 It is plausible that members of Opf01405 share a
-functional role regulating transcriptional responses to alpha-glucans.
+functional role regulating transcriptional responses to &alpha;-glucans.
 
 Finally, we find one example of a GH13 containing OPF that is found in MAGs
-representing the responder, B1-A, B1-B, and B2, but none of the other
+representing the responder, B1A, B1B, and B2, but none of the other
 MAGs generated in this study.
 Opf01765, which recapitulates K21575, includes SusA: the periplasmic
 neopullulanase of _B. thetaiotaomicron_ and an important component of
 starch utilization in that organism [@DElia1996].
 What's more, the OPF is found in twelve of the thirteen
-alpha-glucan and a minority of the plant glycan guild members.
+&alpha;-glucan and a minority of the plant glycan guild members.
 Interestingly,
 although it is encoded by the Sus operon in _B. thetaiotaomicron_ and
 its homologous locus in _B. ovatus_, in the _Muribaculaceae_ members of
 Opf01765 do not in general appear to be encoded in PULs.
 
-## Unshared gene content in B1-A and B1-B
+## Unshared gene content in B1A and B1B
 
 Two distinct genomic variants were associated with OTU-1
 with one found in a majority
 of the UT mouse metagenomes, and the other ubiquitous at UM.
-Using the nucmer tools for genome alignment [@Delcher2002]
-wrapped by the Quast package [@TODO], 18.1% of the B1-A MAG
-sequence and 11.0% of B1-B were found to not align to the other (Table 2).
+Using the Quast package [@Mikheenko2018], 18.1% of the B1A MAG
+sequence and 11.0% of B1B were found to not align to the other ([@Tbl:b1-vars]).
 While
 these hundreds of kbp may in part reflect errors in genome recovery,
 much of the unaligned length suggests differences in gene content
@@ -631,7 +641,7 @@ library to genomic variant, gene coverage was normalized by the median
 gene coverage in order to identify genes with conspicuously fewer reads
 in particular subsets of the mice.
 Metagenomic libraries manually chosen as unambiguous representatives of
-either B1-A or B1-B were used to systematically identify genes
+either B1A or B1B were used to systematically identify genes
 differentiating the two.
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
@@ -641,13 +651,12 @@ sequences between the two populations of OTU-1.
 TODO: Add these to Supplementary Results
 -->
 Libraries specific to each variant have low coverage over large
-portions of either the B1-A or B1-B MAG (see
-Figure 3), suggesting that mice are primarily inhabited
+portions of either the B1A or B1B MAG (see [@Fig:b1-vars]),
+suggesting that mice are primarily inhabited
 by one of the two variants, and that a portion of genes are variant
 specific.
 
 ![
-**Figure 3**:
 Visualization of differential gene content in two OTU-1 populations.
 Heatmaps depict relative mapping coverage of metagenomes against putative
 protein coding genes in MAGs B1A (left of grey line) or B1B (right).
@@ -659,27 +668,27 @@ All coverage values are normalized to the median coverage of that genome’s
 features within each mouse.
 The site at which each mouse was housed is indicated by colored spans on the
 left (UT: dark green, UM: dark blue), and mice identified as unambiguous
-representations of each population are indicated; B1A (light blue), B1B (light
+representations of each population are indicated: B1A (light blue), B1B (light
 green).
 Rows are ordered based on a hierarchical clustering by cosine distance,
 depicted in the tree on the left.
-](fig/B1_strain_comparison_heatmap.pdf)
+](fig/B1_strain_comparison_heatmap.pdf){#fig:b1-vars}
 
 This analysis found 11.7%
-of predicted genes in B1-A were depleted at least 5-fold in B1-B
+of predicted genes in B1A were depleted at least 5-fold in B1B
 populations, and 12.0% the reverse.
 While this observed depletion could
 indicate variation in copy number, differential gene content between
 variants is a more parsimonious explanation for most loci.
 These
-predicted genes reflect 6.2% of unique KOs in B1-A and 4.4% in B1-B.
+predicted genes reflect 6.2% of unique KOs in B1A and 4.4% in B1B.
 Interestingly, the fraction of variant specific OPFs is greater, 10.8%
 and 11.1% respectively, suggesting that _de novo_ clustering could be
 more sensitive to potential differences in physiology.
 
-+:-----------------------------------------------+:------+:---------+:------+:---------+
-|                                                |B1-A              |B1-B              |
-+:-----------------------------------------------+:------+:---------+:------+:---------+
++-----------------------------------------------:+:------+:---------+:------+:---------+
+|                                                |B1A               |B1B               |
++-----------------------------------------------:+:------+:---------+:------+:---------+
 |                                                | Total | Specific | Total | Specific |
 +------------------------------------------------+-------+----------+-------+----------+
 | Nucleotide length^1^                           | 3.07  | 0.56     | 2.82  | 0.31     |
@@ -696,21 +705,21 @@ more sensitive to potential differences in physiology.
 +------------------------------------------------+-------+----------+-------+----------+
 | CAZy domains^2^                                | 252   | 35       | 240   | 18       |
 +------------------------------------------------+-------+----------+-------+----------+
-: **Table 2**: Summary of variant specific features in two highly similar MAGs
+: Summary of variant specific features in two highly similar MAGs {#tbl:b1-vars}
 
 ^1^ in Mbp \
 ^2^ unique
 
 Given the observation that the relative abundance of OTU-1 was dramatically
 increased with ACA treatment at UM, while not being significantly
-affected at UT, and that B1-B was not found in metagenomes at UM, we
+affected at UT, and that B1B was not found in metagenomes at UM, we
 hypothesized that differences in the genomic potential
-of B1-A and B1-B could explain the different response to ACA
+of B1A and B1B could explain the different response to ACA
 at the two sites.
 
-Genomic regions apparently specific to B1-A---defined as an at least
-5-fold enrichment in B1-A specific libraries relative to
-B1-B specific libraries---include just one PUL
+Genomic regions apparently specific to B1A---defined as an at least
+5-fold enrichment in B1A specific libraries relative to
+B1B specific libraries---include just one PUL
 (SusC-homolog encoded by B1A_02041).
 This locus includes a predicted OM-localized GH30-containing
 protein.
@@ -724,17 +733,17 @@ Both variants also possesses numerous phage
 insertions not seen in the other.
 Likewise, a CRISPR
 operon (Cas9 encoded by B1B_00401) appears to
-be specific to B1-B.
+be specific to B1B.
 
 Most strikingly, a 15 kbp region specific to
-B1-A (from B1A_01550 to B1A_01566)
+B1A (from B1A_01550 to B1A_01566)
 was found to contain numerous genes with homology to cell capsule
 and exopolysaccharide synthesizing enzymes.
 Based on annotations with
 KEGG orthologous groups, these include homologs of _tuaG_ (K16698),
 _tagE_ (K00712), _gmhB_ (K03273), _gmhA_/_lpcA_ (K03271),
 _hddA_ (K07031), _exoO_ (K16555), _waaH_ (K19354), and _tagF_ (K09809).
-Interestingly, the B1-B MAG contains a different such region of about
+Interestingly, the B1B MAG contains a different such region of about
 6.2 kbp (B1B_00746 to B1B_00751) with _wfeD_ (K21364), _pglJ_ (K17248),
 and _epsH_ (K19425).
 For each, several of the OPFs in the respective
@@ -772,7 +781,7 @@ Here we have extended that approach to nine new genomes, and associated
 those with species for which changes in relative abundance in response to
 ACA treatment have been experimentally assessed.
 This enabled us to
-explore why two responding species, represented by MAGs B1-A, B1-B, and B2,
+explore why two responding species, represented by MAGs B1A, B1B, and B2,
 increase with ACA treatment, while
 the other species of _Muribaculaceae_ do not.
 Annotations of reconstructed genomes
@@ -806,11 +815,11 @@ We examine the three-guild model proposed by Ormerod and colleagues
 [@Ormerod2016] by extending their dimensional reduction approach to the much
 larger set of _Muribaculaceae_ genomes now available.
 In this analysis, annotations of B1A, B1B, and B2 are not clearly co-located
-with members of the alpha-glucan guild, complicating this simple
+with members of the &alpha;-glucan guild, complicating this simple
 interpretation.
 Interestingly, a more nuanced analysis involving OPFs and predicted export
 indicates that B1A and B1B may have polysaccharide utilization potentials
-distinct from the alpha-glucan guild previously described.
+distinct from the &alpha;-glucan guild previously described.
 The improved resolution presented by OPF clusters suggests that this more
 detailed examination might identify specific functions that discriminate
 responders from non-responders.
@@ -818,8 +827,8 @@ The approach is bolstered by the phylogenetic and genomic distinction between
 B2 and both B1A and B1B, reducing the confounding effects of shared
 evolutionary history.
 
-A detailed analysis of PULs identified multiple loci shared in both B1-A and
-B1-B that appear
+A detailed analysis of PULs identified multiple loci shared in both B1A and
+B1B that appear
 to be adapted to the degradation of starch or related carbohydrates, due
 to the presence of an OM localized GH13 containing
 protein [@Koropatkin2010].
@@ -830,7 +839,7 @@ Of particular interest is a PUL encoding proteins with
 GH97, CBM20, and CBM69 domains, all of which have documented activity on
 starch [@Naumoff2005; @Boraston2004].
 While the only OM-localized hydrolase in this PUL is a GH66, and members of
-this family have characterized activity on the alpha-1,6 linkages between
+this family have characterized activity on the &alpha;-1,6 linkages between
 glucose monomers in dextran [@Kim2012],
 it is plausible that this PUL can be repurposed and confers some ability to
 grow on starch.
@@ -841,7 +850,7 @@ How to reference this study?
 -->
 
 Most compellingly, a gene family encoding a SusA homolog was identified in
-B1-A, B1-B, and B2 but in none of the non-responders,
+B1A, B1B, and B2 but in none of the non-responders,
 presenting the best case for a single enzyme that can confer a growth
 advantage in ACA treated mice.
 While it is unclear how
@@ -852,14 +861,14 @@ _B.  thetaiotaomicron_ [@DElia1996].
 Since inhibition by ACA is variable
 across enzymes [@Kim1999], it is possible that ACA treatment
 results in elevated production of dextrin and maltooligosaccharides in the
-lower guts of mice due to residual alpha-amylase activity, even at levels
+lower guts of mice due to residual &alpha;-amylase activity, even at levels
 sufficient to prohibit host digestion.
 Periplasmic hydrolysis of these
 starch breakdown products may be sufficient for increased abundance of
 these species in ACA treated mice.
 
 It is notable that of the closely related variants associated with OTU-1,
-B1-B is found at UT and not UM.
+B1B is found at UT and not UM.
 We previously observed site-specificity of the ACA response of
 this species, in which OTU-1 did not have a significantly
 increased abundance in treated mice at UT, while it was the most
@@ -889,14 +898,14 @@ in starch utilization and the same SusA homolog does not support the
 hypothesis that differences in starch utilization potential account for
 these abundance patterns.
 We did, however, identify numerous differences
-in the gene content of B1-A and B1-B, including variant specific loci
+in the gene content of B1A and B1B, including variant specific loci
 that may influence the structure and function of the outer surface of
 the cell.
 Capsule variation is known to greatly affect both ecological
 and host interactions [@Merino2015].
 
 While these results do not establish a mechanistic explanation for
-differences in the response of B1-A and B1-B at UM and UT, nor conclusively
+differences in the response of B1A and B1B at UM and UT, nor conclusively
 identify the pathways that enable starch utilization in B2,
 they do suggest a number of
 genomic features that likely contribute to previously observed patterns
@@ -918,7 +927,7 @@ have found features that differentiate those bacterial species
 that respond positively to ACA treatment from those that do not.
 This analysis suggests that
 utilization of starch and related polysaccharides enables increased
-population size in mice treated with ACA---an alpha-amylase inhibitor.
+population size in mice treated with ACA---an &alpha;-amylase inhibitor.
 In
 addition, two distinct genomic variants of one species were identified
 that differ in functional gene content, potentially explaining
@@ -1040,68 +1049,61 @@ highlighted in Fig. 3.
 Genomic variants were not found associated with any of the other
 _Muribaculaceae_ OTUs described in this study.
 
-For each MAG, several alternative refinement procedures were performed
-from which the best quality result was selected.
-Reads mapping to the
-curated contigs were digitally
-normalized [@Wedemeyer2017; @Brown2012a; @Zhang2014a] and reassembled
-with SPAdes [@Bankevich2012].
-This reassembly as well as the original
-contigs were cleaned using a single pass of the Pilon assembly
-refinement tool [@Walker2014a].
-Finally, the per-library mapping depths
-of each position in these assemblies were compared to the average
-mapping depth of the "trusted contigs" selected earlier, and regions
-with low cosine similarity were excised from the final assemblies.
-
+For each MAG, the list of contigs and relevant libraries identified in the
+previous step, as well as the per-library coverage of trusted contigs were used
+in a final refinement procedure.
+All read pairs from the relevant libraries
+with at least one read mapping to the contigs were extracted and used in a
+single pass of the Pilon assembly refinement tool [@Walker2014a] version 1.23.
+Regions of these improved contigs were then excised where they had low cosine
+similarity to the trusted contig coverage, using a 0, 0.5, 0.6, 0.7, 0.8, and
+0.9 cosine similarity threshold.
 Genome completeness and contamination estimates were calculated based on
-ubiquitous single-copy genes using the program CheckM [@Parks2015].
-Based on these results, the final assembly with the highest completeness
-and with contamination \< 1% was selected from the various refinements.
+ubiquitous single-copy genes using the program CheckM [@Parks2015] version 1.1.2.
+Based on these results, the final refined assembly with the highest
+completeness and with contamination &lt; 2% was selected; ties were broken using
+the N50 statistic.
 
 ## Reference genomes
 
-The _Muribaculum intestinale_ genome sequence was obtained from GenBank
-(accession GCA002201515.1), as well as four additional draft genomes
-(GCA003024805.1, GCA003024815.1, GCA002633305.1, GCA002633115.1)
-enabling comparison of MAGs to cultured isolates.
-<!-- TODO: Does the analysis need to be updated due to the addition of other
-isolate genomes? -->
-While other genomes labeled as _Muribaculaceae_ had also been deposited at the
-time of this work, they were excluded from this analysis due to redundancy or
-apparent misidentification to the family.
-More recently, several other isolate genomes have become available but have
-also not been included here.
-Thirty previously constructed MAGs [@Ormerod2016] were obtained from the SRA.
-For
-comparison, nucleotide sequences for _B. thetaiotaomicron_ VPI-5482
-(AE015928.1), _B. ovatus_ (CP012938.1), _Barnesiella viscericola_
-(GCA000512915.1), and _Porphyromonas gingivalis_ (GCA000010505.1), were
-also downloaded from GenBank.
+A total of 98 draft genomes deposited in GenBank and taxonomically assigned to
+the Muribaculaceae were downloaded, as were the 30 MAGs described in [Ormerod]
+enabling comparison of our 9 novel MAGs to previously reconstructed genomes.
+For comparison, nucleotide sequences for
+_Bacteroides thetaiotaomicron_ VPI-5482 (GCA_900624795.1),
+_Bacteroides ovatus_ ATCC-8483 (GCA_000154125.1),
+_Barnesiella viscericola_ DSM-18177 (GCA_000512915.1),
+_Barnesiella intestinihominis_ YIT-11860 (GCA_000296465.1),
+and _Porphyromonas gingivalis_ ATCC-33277 (GCA_000010505.1),
+were also downloaded from GenBank.
 
 ## Genome annotation
 
 All genomes were initially annotated with Prokka [@Seemann2014] version
-1.13, which uses Prodigal [@Hyatt2010] for gene finding.
+1.14.6, which uses Prodigal [@Hyatt2010] version 2.6.3 for gene finding.
 Putative
 protein sequences were additionally annotated with domains from both the
-dbCAN database [@Yin2012] release 6 of carbohydrate-active domains and
-Pfam [@Punta2012] release 31.0, using HMMER3 [@Eddy2011; @Eddy2009]
-version 3.1b2.
+dbCAN database [@Yin2012] release 6 of carbohydrate-active domains
+(score cutoff of 5.0) and
+Pfam [@Punta2012] release 31.0 (no score filter),
+using HMMER3 [@Eddy2011; @Eddy2009] version 3.3.
 Protein sequences were also annotated with KO numbers by
 BLAST using the KEGG database as of March 2018 as the reference and
 taking the best hit with a maximum E-value of 1e-10.
 
-Lipoproteins were predicted using LipoP [@Juncker2003] (version 1.0a)
+Lipoproteins were predicted using LipoP [@Juncker2003] version 1.0a
 and a score cutoff of 5 and a margin cutoff of 2.
 Lipoproteins with an
-arginine at position +2 relative to the cleavage site were labeled as
-localized to the inner membrane.
+aspartate at position +2 relative to the cleavage site were labeled as
+localized to the inner membrane [@Seydel1999; @Rahman2008].
 Periplasmic proteins were identified
-with SignalP [@Petersen2011] (version 4.1).
+with SignalP [@Petersen2011] version 4.1.
 Predicted protein sequences
-from all annotated genomes were locally all-by-all aligned using the
-DIAMOND implementation of the BLAST algorithm [@Buchfink2014].
+from all annotated genomes were first dereplicated using
+CD-HIT [@Li2006a; @Fu2012]
+version 4.8.1 at a similarity threshold of 0.99, then
+locally all-by-all aligned using the
+DIAMOND [@Buchfink2014] version 0.9.31 implementation of the BLASTp algorithm.
 Each pair
 was then assigned a similarity value as the bitscore of their best local
 alignment normalized by the greater of the two self-alignments.
@@ -1110,8 +1112,8 @@ results in a matrix of pairwise scores reflecting the proximity to
 perfect homology.
 Scores less than 0.2 were replaced with 0.
 Clusters
-were formed using the MCL algorithm [@Enright2002] with an inflation
-parameter of 5.
+were formed using the MCL algorithm [@Enright2002] version 14-137 with an
+inflation parameter of 5.
 
 SusCDEF homologs were identified based on relatively relaxed criteria,
 harnessing OPF assignments, domain predictions, and Prokka annotations
@@ -1131,23 +1133,27 @@ homologs.
 PULs were identified by a SusC-homolog with its start codon
 within 5 kbp of a SusD-homolog's start on the same strand.
 Manual
-inspection supported the vast majority of these identifications.
+inspection supported the majority of these identifications.
 
 ## Phylogenetics
 
 Predicted amino acid sequences for ORFs from all MAGs and all reference genomes
-were search for homology to
-TIGRFAM protein clusters [@Selengut2007] using `hmmsearch` in the HMMER3
-software package version 3.2.1 [@Eddy2011].
+were searched for homology to
+the TIGRFAM protein clusters [@Selengut2007] release 14.0 using
+HMMER3.
 Hits were filtered at the "trusted-cutoff" score threshold
 defined separately for each protein model.
-Sequences found in just one copy in every genome were used as taxonomic
-marker genes for phylogenetic analysis.
-Marker gene sequences were aligned to their respective models using `hmmalign`
+Sequences found in no more than one copy and in at least 95% of genomes were
+used as taxonomic marker genes for phylogenetic analysis.
+Marker gene sequences were aligned to their respective models using HMMER3,
 dropping unaligned residues.
-Aligned markers were then concatenated for each MAG and reference genome,
-and an approximate maximum likelihood phylogeny was estimated using the
-FastTree software version 2.1.10 [@Price2010] with the default parameters.
+Aligned markers were then concatenated for each genome.
+The concatenated alignment was masked using Gblocks [Castresana2000] version 0.91b using
+a wrapper script provided at
+<https://github.com/mattb112885/clusterDbAnalysis/blob/master/src/Gblocks_wrapper.py>
+with the default parameters, before estimating
+an approximate maximum likelihood phylogeny using the
+FastTree software [@Price2010] version 2.1.10 with the default parameters.
 
 
 # Acknowledgments
@@ -1174,6 +1180,12 @@ Metagenomic libraries will be uploaded to the short read archive,
 and the SRA Accession will be added in an upcoming version of this manuscript.
 All code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
+<!--
+TODO: Upload refined MAGs as well?
+TODO: Upload metagenomes to SRA
+TODO: Upload 16S?
+TODO: What to say about KEGG, which is licensed?
+-->
 
 # References
 

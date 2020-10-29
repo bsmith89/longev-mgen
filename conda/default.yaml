@@ -30,6 +30,7 @@ dependencies:
   - cachecontrol=0.12.6=py_0
   - cachetools=4.1.1=py_0
   - cairo=1.14.12=h8948797_3
+  - cd-hit=4.8.1=h8b12597_3
   - certifi=2020.6.20=py38_0
   - cffi=1.14.0=py38he30daa8_1
   - chardet=3.0.4=py38h32f6830_1006
@@ -170,7 +171,7 @@ dependencies:
   - openjdk=11.0.1=h516909a_1016
   - openjpeg=2.3.1=h981e76c_3
   - openmp=8.0.1=0
-  - openssl=1.1.1g=h7b6447c_0
+  - openssl=1.1.1h=h7b6447c_0
   - packaging=20.4=py_0
   - pandas=1.0.5=py38h0573a6f_0
   - pandoc=2.9.2.1=0
@@ -302,5 +303,7 @@ dependencies:
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.4=h6597ccf_3
   - pip:
+    - dill==0.3.2
+    - pandarallel==1.5.1
     - pysam==0.16.0.1
     - sequtils==0.1.0

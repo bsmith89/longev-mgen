@@ -10,7 +10,10 @@ author:
 geometry:
     - margin=1in
 
-mainfont: "Palatino"
+mainfont: DejaVuSerif
+sansfont: DejaVuSans
+monofont: DejaVuSansMono
+mathfont: TeXGyreDejaVuMath-Regular
 
 ---
 
@@ -117,7 +120,7 @@ UM and TJL one highly abundant bacterial species was enriched nearly
 4-fold in ACA treated mice.
 This species, defined at a 97% identity threshold of the 16S rRNA gene V4
 region and designated as OTU-1, was classified as a member of the family
-_Muribaculaceae_ in order _Bacteroidales_.
+_Muribaculaceae_ in order Bacteroidales.
 OTU-1 was also present and abundant at UT but was not
 significantly more abundant in ACA treated mice relative to
 controls.
@@ -131,7 +134,7 @@ these were found to be enriched in ACA treatment.
 Members of the family _Muribaculaceae_---previously referred to as the S24-7 after an
 early clone [@s247clone; @Salzman2002],
 <!--
-TODO: Convert s247clone reference to an inlined URL.
+TODO: Convert s247clone reference to an inlined URL as requested by mSphere.
 -->
 or sometimes as _Candidatus_ Homeothermaceae [@Ormerod2016]---have only
 recently been isolated
@@ -142,7 +145,7 @@ Studies using culture-free methods suggest that the _Muribaculaceae_ specialize 
 the fermentation of complex polysaccharides [@Ormerod2016; @Lagkouvardos2019],
 much like
 members of the genus _Bacteroides_, which is also a member of the order
-_Bacteroidales_.
+Bacteroidales.
 Genomic analysis has also suggested that the capacity for propionate production
 is widespread in the family [@Ormerod2016].
 <!--
@@ -310,7 +313,7 @@ libraries.
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
 | B8          | 87%            | 154         | 2.2            | 33,525    | 53.4%        | OTU-11       |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
-| Mi          | 99%            | 1           | 3.3            | 3,307,069 | 50.1%        | \-           |
+| _Mi_        | 99%            | 1           | 3.3            | 3,307,069 | 50.1%        | \-           |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
 | _Dm_        | 99%            | 80          | 3.3            | 93,062    | 50.8%        | \-            |
 +-------------+----------------+-------------+----------------+-----------+--------------+--------------+
@@ -373,20 +376,18 @@ are hypothesized to reflect three polysaccharide utilization guilds
 (**A**) MAGs reconstructed in this study (highlighted in black) are placed in a
 phylogenetic context using an approximate maximum-likelihood concatenated gene
 tree based on an amino acid alignment of 36 shared, single-copy genes.
-The tree is rooted by Porphyromonas gingivalis ATCC-33277 (not shown) and four
+The tree is rooted by _Porphyromonas gingivalis_ ATCC-33277 (not shown) and four
 additional Bacteroidales genomes are included as an outgroup.
 Nodes with less than 70% confidence are collapsed into polytomies and
 topological support greater than 95% is indicated (black dots on internal nodes).
 Branch lengths indicate an estimate of expected substitutions per site.
-Functional comparisons were visualized (**B**, **C**) by plotting the first two
-principal components of an ordination based on counts of predicted proteins
+Functional comparisons are visualized (**B**, **C**) by plotting the first two
+principal components (PCs) of an ordination based on counts of predicted proteins
 annotated with GH and CBM domains either (**B**) aggregated by CAZy family or
 (**C**) possessing a signal peptide and aggregated by OPF.
-(**B**, **C**) To reduce the effects of redundancy on ordination,
-all genomes were projected onto principle components that were
-calculated by first dereplicating redundant genomes (complete-linkage clustering
-at a 0.2 cosine dissimilarity threshold) replacing these clusters with their
-mean counts.
+(**B**, **C**) Purple arrows indicate the contributions
+of the labeled features, and axes are labeled with the fraction
+of all variation accounted for by that PC.
 Novel MAGs (black triangles) are labeled, as are 7 previously described
 cultivar genomes and high quality MAGs: _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
 _Muribaculum intestinale_ (Mi), _Duncaniella muris_ (Dm), _Duncaniella freteri_ (Df),
@@ -397,13 +398,13 @@ _Candidatus_ Amulumruptor caecigallinarius (Ac).
 ### Phylogenetics
 
 To better understand the evolutionary relationships between these
-organisms, a concatenated gene tree ([@Fig:muri-comparison]) was constructed
+organisms, a concatenated gene tree ([@Fig:muri-comparison] panel A) was constructed
 for the 9 new MAGs along with publicly available MAGs and isolate genomes
 [@Ormerod2016; @Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
 <!--
 TODO: Confirm that these are the correct citations.
 -->
-The tree was rooted by five other _Bacteroidales_
+The tree was rooted by five other Bacteroidales
 species: _Bacteroides ovatus_ (ATCC-8483), _Bacteroides
 thetaiotaomicron_ VPI-5482, _Porphyromonas gingivalis_ (ATCC-33277),
 _Barnesiella viscericola_ (DSM-18177),
@@ -431,8 +432,7 @@ deposited in public repositories, novel taxa remain to be described.
 
 Annotations based on alignment to a database of previously characterized
 sequences may provide only limited insight into the function of gene products,
-in particular for genes
-from largely unstudied families of bacteria.
+in particular for genes from largely unstudied families of bacteria.
 In order to identify
 previously uncharacterized orthologous groups of genes, _de novo_
 clustering [@Schloss2008] was carried out based on amino acid similarity
@@ -440,7 +440,7 @@ of all 348,908 putative protein coding genes found in the 9 novel MAGs, 30 MAGs
 previously generated by Ormerod and colleagues [@Ormerod2016],
 all 98 _Muribaculaceae_ genome assemblies available from GenBank as of this
 work, and 5 reference genomes from other members of the order Bacteroidales.
-The resulting 16,859 clusters with more than on emember contain 315,581
+The resulting 16,859 clusters with more than on member contain 315,581
 sequences (90%) and are referred to here as operational protein families
 (OPFs).
 While a fraction of these clusters may be due to
@@ -635,7 +635,7 @@ much of the unaligned length suggests differences in gene content
 between these populations of OTU-1.
 This observation was confirmed
 by assessing the mapping of metagenomic reads against predicted protein
-coding genes in each variant.
+coding genes in each variant ([@Fig:b1-vars]).
 For each pairing of metagenomic read
 library to genomic variant, gene coverage was normalized by the median
 gene coverage in order to identify genes with conspicuously fewer reads
@@ -651,7 +651,7 @@ sequences between the two populations of OTU-1.
 TODO: Add these to Supplementary Results
 -->
 Libraries specific to each variant have low coverage over large
-portions of either the B1A or B1B MAG (see [@Fig:b1-vars]),
+portions of either the B1A or B1B MAG,
 suggesting that mice are primarily inhabited
 by one of the two variants, and that a portion of genes are variant
 specific.
@@ -668,8 +668,8 @@ All coverage values are normalized to the median coverage of that genome’s
 features within each mouse.
 The site at which each mouse was housed is indicated by colored spans on the
 left (UT: dark green, UM: dark blue), and mice identified as unambiguous
-representations of each population are indicated: B1A (light blue), B1B (light
-green).
+representations of each population are indicated
+(B1A: light blue, B1B: light green).
 Rows are ordered based on a hierarchical clustering by cosine distance,
 depicted in the tree on the left.
 ](fig/B1_strain_comparison_heatmap.pdf){#fig:b1-vars}
@@ -721,7 +721,7 @@ Genomic regions apparently specific to B1A---defined as an at least
 5-fold enrichment in B1A specific libraries relative to
 B1B specific libraries---include just one PUL
 (SusC-homolog encoded by B1A_02041).
-This locus includes a predicted OM-localized GH30-containing
+This locus includes a predicted OM-localized, GH30-containing
 protein.
 Proteins that contain a GH30 domain have
 beta-glucosylceramidase, beta-1,6-glucanase, or beta-xylosidase
@@ -996,6 +996,11 @@ Raw metagenomic reads were deduplicated using FastUniq [@Xu2012],
 adapters trimmed using Scythe [@Buffalo2018], and quality trimmed using
 Sickle [@Joshi2011] to produce processed reads for all downstream
 analyses.
+<!--
+TODO: Scythe and Sickle are github links and not actual citations.
+mSphere asks for these to be included as URLs inline, rather than
+references.
+-->
 The resulting paired-end reads were assembled into primary
 contigs using MEGAHIT [@Li2014].
 Reads were then mapped back to these
@@ -1018,7 +1023,7 @@ for matched libraries as described in [@Smith2019].
 Bins were then recruited to one or more OTUs by
 calculating a Canonical partial least squares between OTU abundance and
 bin coverage as implemented in the scikit-learn machine learning library
-for Python [@Pedregosa2012].
+for Python [@Pedregosa2012] version 0.23.2.
 For bins recruited to OTUs classified as
 _Muribaculaceae_, contigs were re-clustered based on coverage across
 samples.
@@ -1066,8 +1071,11 @@ the N50 statistic.
 
 ## Reference genomes
 
-A total of 98 draft genomes deposited in GenBank and taxonomically assigned to
-the Muribaculaceae were downloaded, as were the 30 MAGs described in [Ormerod]
+A total of 98 draft genomes, both isolates and MAGs,
+deposited in GenBank and taxonomically assigned to
+the _Muribaculaceae_ were downloaded,
+as were the 30 MAGs described in [@Ormerod2016]
+(BioProject PRJNA313232),
 enabling comparison of our 9 novel MAGs to previously reconstructed genomes.
 For comparison, nucleotide sequences for
 _Bacteroides thetaiotaomicron_ VPI-5482 (GCA_900624795.1),
@@ -1075,7 +1083,7 @@ _Bacteroides ovatus_ ATCC-8483 (GCA_000154125.1),
 _Barnesiella viscericola_ DSM-18177 (GCA_000512915.1),
 _Barnesiella intestinihominis_ YIT-11860 (GCA_000296465.1),
 and _Porphyromonas gingivalis_ ATCC-33277 (GCA_000010505.1),
-were also downloaded from GenBank.
+were also downloaded.
 
 ## Genome annotation
 
@@ -1135,6 +1143,17 @@ within 5 kbp of a SusD-homolog's start on the same strand.
 Manual
 inspection supported the majority of these identifications.
 
+Annotations were compared across all genomes using
+dimensional reduction
+([@Fig:muri-comparison] panels B and C).
+In order to reduce the effects of redundancy on ordination,
+highly similar genomes were first clustered
+by complete-linkage
+at a 0.8 cosine similarity threshold.
+Clusters were then replaced by their mean counts before PCA.
+Finally, the original genomes were projected onto these PCs
+and visualized.
+
 ## Phylogenetics
 
 Predicted amino acid sequences for ORFs from all MAGs and all reference genomes
@@ -1176,9 +1195,9 @@ TODO: Anything else?
 
 ## Data Availability
 
-Metagenomic libraries will be uploaded to the short read archive,
-and the SRA Accession will be added in an upcoming version of this manuscript.
-All code and additional data/metadata needed to reproduce this analysis are
+Metagenomic libraries will be uploaded to the short read archive under
+BioProject PRJNA448009.
+Code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
 <!--
 TODO: Upload refined MAGs as well?

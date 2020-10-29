@@ -379,7 +379,7 @@ tree based on an amino acid alignment of 36 shared, single-copy genes.
 The tree is rooted by _Porphyromonas gingivalis_ ATCC-33277 (not shown) and four
 additional Bacteroidales genomes are included as an outgroup.
 Nodes with less than 70% confidence are collapsed into polytomies and
-topological support greater than 95% is indicated (black dots on internal nodes).
+topological support greater than 95% is indicated (black dots on internal branches).
 Branch lengths indicate an estimate of expected substitutions per site.
 Functional comparisons are visualized (**B**, **C**) by plotting the first two
 principal components (PCs) of an ordination based on counts of predicted proteins
@@ -724,7 +724,7 @@ B1B specific libraries---include just one PUL
 This locus includes a predicted OM-localized, GH30-containing
 protein.
 Proteins that contain a GH30 domain have
-beta-glucosylceramidase, beta-1,6-glucanase, or beta-xylosidase
+&beta;-glucosylceramidase, &beta;-1,6-glucanase, or &beta;-xylosidase
 activity [@StJohn2010].
 Given that this PUL also encodes a periplasmic,
 GH3 containing protein, it appears to be unlikely that it has

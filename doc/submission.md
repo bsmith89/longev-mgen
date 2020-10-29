@@ -12,12 +12,9 @@ geometry:
 
 header-includes: |
   \usepackage{textalpha}
-  \usepackage{setspace}
-  \doublespacing
-  \usepackage{lineno}
-  \linenumbers
 
 link-citations: true
+linkcolor: blue
 
 
 ---
@@ -284,16 +281,6 @@ family _Muribaculaceae_.
 TODO: Consider moving sentences referencing Table 2 down below Table 1.
 -->
 
-To confirm the assertion that each of the reconstructed genomes
-is representative of a previously described _Muribaculaceae_ species identified
-in these mice [@Smith2019],
-the median mapping rate of metagenomic reads to protein coding features for
-each MAG was compared to the relative abundance of the associated 16S rRNA gene
-across matched amplicon libraries.
-Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
-robust concordence in coverage between the shotgun metagenomic and amplicon
-libraries.
-
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
 | Genome      | CheckM                | Scaffolds   | Length (Mbp)   | N50       | GC           | in           |
 |             | Completeness          |             |                |           |              | [@Smith2019] |
@@ -368,6 +355,16 @@ Otu0013	Otu0011	2.620290e-05
 Otu0017	Otu0030	9.554748e-05
 Otu0049	Otu0039	1.683847e-04
 -->
+
+To confirm the assertion that each of the reconstructed genomes
+is representative of a previously described _Muribaculaceae_ species identified
+in these mice [@Smith2019],
+the median mapping rate of metagenomic reads to protein coding features for
+each MAG was compared to the relative abundance of the associated 16S rRNA gene
+across matched amplicon libraries.
+Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
+robust concordence in coverage between the shotgun metagenomic and amplicon
+libraries.
 
 ![
 Comparison of novel and previously described Muribaculaceae genomes.
@@ -629,7 +626,7 @@ Opf01765 do not in general appear to be encoded in PULs.
 Two distinct genomic variants were associated with OTU-1
 with one found in a majority
 of the UT mouse metagenomes, and the other ubiquitous at UM.
-Using the Quast package [@Mikheenko2018], 18.1% of the B1A MAG
+Using the QUAST package [@Mikheenko2018], 18.1% of the B1A MAG
 sequence and 11.0% of B1B were found to not align to the other ([@Tbl:b1-vars]).
 While
 these hundreds of kbp may in part reflect errors in genome recovery,

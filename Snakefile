@@ -179,7 +179,7 @@ rule build_pdf_documentation:
     shell:
         """
         pandoc --from markdown --to pdf \
-               --pdf-engine=lualatex \
+               --pdf-engine=pdflatex \
                --filter pandoc-crossref --csl {input.csl} \
                --bibliography={input.bib} -s {input.source} -o {output}
         """

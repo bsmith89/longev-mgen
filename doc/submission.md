@@ -66,7 +66,6 @@ perturbations.
 
 <!-- TODO: Ensure abstract not over word limit. -->
 
-
 # Importance
 
 
@@ -363,7 +362,7 @@ the median mapping rate of metagenomic reads to protein coding features for
 each MAG was compared to the relative abundance of the associated 16S rRNA gene
 across matched amplicon libraries.
 Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
-robust concordence in coverage between the shotgun metagenomic and amplicon
+robust concordance in coverage between the shotgun metagenomic and amplicon
 libraries.
 
 ![
@@ -388,7 +387,7 @@ annotated with GH and CBM domains either (**B**) aggregated by CAZy family or
 of the labeled features, and axes are labeled with the fraction
 of all variation accounted for by that PC.
 Novel MAGs (black triangles) are labeled, as are 7 previously described
-cultivar genomes and high quality MAGs: _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
+cultivar genomes and high-quality MAGs: _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
 _Muribaculum intestinale_ (Mi), _Duncaniella muris_ (Dm), _Duncaniella freteri_ (Df),
 _Duncaniella dubosii_ (Dd) _Paramuribaculum intestinale_ (Pi),
 _Candidatus_ Amulumruptor caecigallinarius (Ac).
@@ -725,7 +724,7 @@ activity [@StJohn2010].
 Given that this PUL also encodes a periplasmic,
 GH3 containing protein, it appears to be unlikely that it has
 specificity for starch.
-Both variants also possesses numerous phage
+Both variants also possess numerous phage
 insertions not seen in the other.
 Likewise, a CRISPR
 operon (Cas9 encoded by B1B_00401) appears to
@@ -957,7 +956,7 @@ agents every 3 months, and all tests were negative.
 Individual fecal pellets were collected from a single mouse per cage.
 16S rRNA gene libraries and metabolite analyses of these samples are
 as described previously [@Smith2019].
-From this collection, a subset of samples were
+From this collection, a subset of samples was
 non-randomly selected for metagenomic sequencing in order to test
 several unrelated hypotheses about SCFA production.
 <!-- TODO: Is this still too ambiguous? Too specific? -->
@@ -979,7 +978,7 @@ explaining that spiking was done for experimental consideration not dealt
 with in this manuscript. -->
 A small number of these were split for both spiked and unspiked samples,
 which we used to validate this procedure.
-For each, 150 uL of this
+For each, 150 &micro;L of this
 sample was transferred for extraction using the MoBio PowerMag
 Microbiome kit.
 Metagenomic libraries were prepared using standard
@@ -1191,7 +1190,7 @@ TODO: Anything else?
 
 ## Data Availability
 
-Metagenomic libraries will be uploaded to the short read archive under
+Metagenomic libraries will be uploaded to the sequence read archive under
 BioProject PRJNA448009.
 Code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.

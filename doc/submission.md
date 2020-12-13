@@ -20,6 +20,22 @@ linkcolor: blue
 ---
 
 <!--
+TODO: Add a standard header with following affilitations:
+```
+    Byron J. Smith(a,*)
+Richard A. Miller(b)
+Thomas M. Schmidt(a,c,#)
+(a) Department of Ecology & Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA.
+(b) Department of Pathology and Geriatrics Center, University of Michigan, Ann Arbor, MI, USA.
+(c) Department of Internal Medicine, University of Michigan, Ann Arbor, MI, USA
+(*) Present address: School of Medicine, University of California, San Francisco, CA, USA
+(#) Correspondence: schmidti@umich.edu
+Running title: Genomes of acarbose-responsive Muribaculaceae
+Word Count:
+    Abstract: 237
+    Importance: 149
+    Manuscript: TODO
+```
 TODO: Fix inline -> citation linking.
 TODO: Fix PDF font.
 -->
@@ -27,25 +43,26 @@ TODO: Fix PDF font.
 # Abstract
 
 The drug acarbose (ACA) is used to treat
-diabetes, and by inhibiting &alpha;-amylase in the small intestine increases the amount of
+diabetes, and, by inhibiting &alpha;-amylase in the small intestine, increases the amount of
 starch entering the lower digestive tract.
 <!--
 'alpha' to greek alpha symbol everywhere?
 -->
 This results in
-changes to the composition of the microbiota and its fermentation products.
-Acarbose also increases longevity in mice, an effect that could be related to
+changes to the composition of the microbiota and their fermentation products.
+Acarbose also increases longevity in mice, an effect that has been correlated with
 increased production of the
 short-chain fatty acids propionate and butyrate.
 In experiments replicated across three study sites, two distantly related
 species in the bacterial family _Muribaculaceae_ were dramatically more
-abundant in ACA treated mice, distinguishing these responders from other
+abundant in ACA-treated mice, distinguishing these responders from other
 members of the family.
-Members of the _Muribaculaceae_ likely produce propionate and are abundant and
+Bacteria in the family _Muribaculaceae_ are predicted to produce propionate as a
+fermentation end product and are abundant and
 diverse in the guts of mice, although few isolates are
 available.
 We reconstructed genomes from metagenomes (MAGs) for nine populations of
-_Muribaculaceae_ to examine what distinguishes species that respond positively
+_Muribaculaceae_ to examine factors that distinguish species that respond positively
 to acarbose.
 We found two closely related MAGs (B1A and B1B) from one responsive species
 that both contain a polysaccharide utilization locus with a predicted
@@ -54,7 +71,7 @@ extracellular &alpha;-amylase.
 TODO: Check the following and add if true: "...and these were the only two to
 posses a predicted OM-localized GH13 domain containing gene product.
 -->
-These also shared a periplasmic neopullulanase with another, distantly related
+These genomes also shared a periplasmic neopullulanase with another, distantly related
 MAG (B2) representative of the only other responsive species.
 This gene differentiated these three MAGs from MAGs representative of
 non-responding species.
@@ -83,9 +100,9 @@ Comparisons among genomes enhance existing models for the ecological niches
 occupied by members of this family.
 In addition, genes encoding one type of enzyme known to participate in starch
 breakdown were found in all three genomes from responding species, but none of
-the others.
+the other genomes.
 
-# Background
+# Introduction
 
 The mammalian gut microbiome is a complex ecological system that
 influences energy balance [@Turnbaugh2006], pathogen
@@ -103,16 +120,16 @@ In rats, ACA has been shown to increase the
 amount of starch entering the lower digestive system after a
 meal [@Dehghan-Kooshkghazi2004].
 ACA treatment also changes the composition
-of the gut microbiota and its fermentation products in many rodents.
+of the gut microbiota and its fermentation products in many rodents
 [@Zhao2018; @Holt1996; @Wolever2000; @Dehghan-Kooshkghazi2004; @Weaver1997; @Weaver2000; @Wolin1999; @Zhang2017; @Baxter2019; @Smith2019].
 Interestingly, long-term treatment with ACA has been shown to
 substantially increase longevity in male mice and to a lesser extent in
 females [@Harrison2014; @Strong2016; @Harrison2019].
 
-Previously we have shown that the relative abundance of a
-number of bacterial species as well as the concentrations of propionate and
+Previously we found that the relative abundance of
+multiple bacterial species as well as the concentrations of propionate and
 butyrate respond to long term treatment with ACA [@Smith2019].
-This study was
+That study was
 notable in being replicated across three sites: The University of Michigan (UM)
 in Ann Arbor, The University of Texas Health Science Center at San
 Antonio (UT), and The Jackson Laboratory (TJL) in Bar Harbor, Maine.
@@ -121,18 +138,18 @@ UM and TJL one highly abundant bacterial species was enriched nearly
 4-fold in ACA treated mice.
 This species, defined at a 97% identity threshold of the 16S rRNA gene V4
 region and designated as OTU-1, was classified as a member of the family
-_Muribaculaceae_ in order Bacteroidales.
+_Muribaculaceae_ in the order Bacteroidales.
 OTU-1 was also present and abundant at UT but was not
 significantly more abundant in ACA treated mice relative to
 controls.
 Instead, a different _Muribaculaceae_ species,
-designated OTU-4, was found to be highly abundant and 4-fold enriched in
+designated OTU-4, was found to be highly abundant and enriched 4-fold in
 ACA-treated mice, but was nearly absent at UM and TJL.
 Other _Muribaculaceae_ were also identified as among the most abundant members
 of the mouse gut microbiota across the three sites, although none of
-these were found to be enriched in ACA treatment.
+these were found to be enriched during ACA treatment.
 
-Members of the family _Muribaculaceae_---previously referred to as the S24-7 after an
+Members of the family _Muribaculaceae_---previously referred to as family S24-7 after an
 early clone [@s247clone; @Salzman2002],
 <!--
 TODO: Convert s247clone reference to an inlined URL as requested by mSphere.
@@ -162,7 +179,7 @@ communities [@Parks2017; @Lee2017].
 <!-- TODO: Add additional Muri mags to this paragraph.
 [@Lesker2020; @Lagkouvardos2019; @Miyake2019] -->
 Based on 30 such metagenome
-assembled genomes (MAGs) they reconstructed using this approach,
+assembled genomes (MAGs) they reconstructed,
 Ormerod and colleagues [@Ormerod2016] proposed that the _Muribaculaceae_ fall
 into three distinct carbohydrate utilization guilds, which they describe
 as specialists on &alpha;-glucans, plant glycans, and host glycans,
@@ -189,7 +206,7 @@ resistant to the inhibitory effects of ACA, or benefit from elevated
 levels of intermediate starch degradation products.
 Since isolates of
 the _Muribaculaceae_ strains in these mice are not available for
-characterization, a comparative genomic approach is taken to explore
+characterization, we took a comparative genomic approach to explore
 their functional potential.
 
 Most of the research on the genomic components of polysaccharide
@@ -215,7 +232,7 @@ proteins they encode, based on the specificity of glycoside hydrolase
 extensively cataloged in the dbCAN database [@Yin2012; @Zhang2018].
 
 Here MAGs from the feces of mice at UT and UM are analyzed
-in the context of previously generated MAGs and isolate genomes to explore
+in the context of previously generated MAGs and cultivar genomes to explore
 two closely related questions about the niche of OTU-1 and OTU-4 in the lower
 digestive system.
 First, why do these species each increase in relative abundance with ACA
@@ -261,20 +278,20 @@ MAGs were constructed for 9 populations classified as members of the family
 _Muribaculaceae_,
 including for two species, OTU-1 and OTU-4, previously shown to
 respond positively to ACA.
-For OTU-1, two closely related genomic variants were recovered,
-here designated B1A and B1B,
-possessing 0.56 and 0.31 Mbp of unshared sequence, respectively
-([@Tbl:b1-vars]).
-We designate the MAG constructed for OTU-4 as B2.
-MAGs obtained from non-responding species are designated B3 through B8.
 All 9 novel MAGs are estimated to be
 more than 84% complete and all had less than 2% estimated contamination
 based on the recovery of ubiquitous, single-copy genes ([@Tbl:mags]).
 The median N50
 statistic was approximately 61 kbp, suggesting that assembly was
 suitable for inferring the genomic context of functional genes.
-Estimated genome sizes, GC%, and number of predicted genes are
-all similar to reference isolates from the
+For OTU-1, two closely related genomic variants were recovered,
+here designated B1A and B1B,
+possessing 0.56 and 0.31 Mbp of unshared sequence, respectively
+([@Tbl:b1-vars]).
+We designate the MAG constructed for OTU-4 as B2.
+MAGs obtained from non-responding species are designated B3 through B8.
+Estimated genome sizes, %GC, and number of predicted genes are
+all similar to reference genomes from cultivated members of the
 family _Muribaculaceae_.
 <!--
 TODO: Consider moving sentences referencing Table 2 down below Table 1.
@@ -320,9 +337,9 @@ TODO: Consider moving sentences referencing Table 2 down below Table 1.
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
 
 : Summary of novel MAGs, previously described, high-quality MAGs,
-and isolate genomes: _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
-_Muribaculum intestinale_ (_Mi_), _Duncaniella muris_ (_Dm_), _Duncaniella freteri_ (_Df_),
+and cultivar genomes: _Muribaculum intestinale_ (_Mi_), _Duncaniella muris_ (_Dm_), _Duncaniella freteri_ (_Df_),
 _Duncaniella dubosii_ (_Dd_), _Paramuribaculum intestinale_ (_Pi_),
+_Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
 _Candidatus_ Amulumruptor caecigallinarius (_Ac_) {#tbl:mags}
 
 <!--
@@ -379,6 +396,8 @@ additional Bacteroidales genomes are included as an outgroup.
 Nodes with less than 70% confidence are collapsed into polytomies and
 topological support greater than 95% is indicated (black dots on internal branches).
 Branch lengths indicate an estimate of expected substitutions per site.
+A version of this panel with GenBank accessions for all publicly available
+genomes is available as Supplemental File TODO.
 Functional comparisons are visualized (**B**, **C**) by plotting the first two
 principal components (PCs) of an ordination based on counts of predicted proteins
 annotated with GH and CBM domains either (**B**) aggregated by CAZy family or
@@ -392,6 +411,9 @@ _Muribaculum intestinale_ (Mi), _Duncaniella muris_ (Dm), _Duncaniella freteri_ 
 _Duncaniella dubosii_ (Dd) _Paramuribaculum intestinale_ (Pi),
 _Candidatus_ Amulumruptor caecigallinarius (Ac).
 ](fig/muri_comparison.pdf){#fig:muri-comparison}
+<!--
+TODO: Fix panel (A) tax-label font size to 6 pt.
+-->
 
 ### Phylogenetics
 
@@ -409,7 +431,7 @@ _Barnesiella viscericola_ (DSM-18177),
 and _Barnesiella intestinihominis_ (YIT-11860).
 Most internal nodes were supported with
 high topological confidence (>95% bootstrap support), and the placement of the
-MAGs derived by Ormerod and colleagues was highly consistent with their
+MAGs derived by Ormerod and colleagues [@Ormerod2016] was highly consistent with their
 published tree.
 To further check the robustness of our phylogeny, a second maximum
 likelihood tree was constructed based on the _rpoB_ gene, which is generally
@@ -641,6 +663,7 @@ in particular subsets of the mice.
 Metagenomic libraries manually chosen as unambiguous representatives of
 either B1A or B1B were used to systematically identify genes
 differentiating the two.
+
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
 providing a measure of the relative enrichment or depletion of genomic
@@ -650,9 +673,20 @@ TODO: Add these to Supplementary Results
 -->
 Libraries specific to each variant have low coverage over large
 portions of either the B1A or B1B MAG,
-suggesting that mice are primarily inhabited
+suggesting that mice are primarily colonized
 by one of the two variants, and that a portion of genes are variant
 specific.
+This analysis found 11.7%
+of predicted genes in B1A were depleted at least 5-fold in B1B
+populations, and 12.0% the reverse.
+While this observed depletion could
+indicate variation in copy number, differential gene content between
+variants is a more parsimonious explanation for most loci.
+These
+predicted genes reflect 6.2% of unique KOs in B1A and 4.4% in B1B.
+Interestingly, the fraction of variant specific OPFs is greater, 10.8%
+and 11.1% respectively, suggesting that _de novo_ clustering could be
+more sensitive to potential differences in physiology.
 
 ![
 Visualization of differential gene content in two OTU-1 populations.
@@ -671,18 +705,6 @@ representations of each population are indicated
 Rows are ordered based on a hierarchical clustering by cosine distance,
 depicted in the tree on the left.
 ](fig/B1_strain_comparison_heatmap.pdf){#fig:b1-vars}
-
-This analysis found 11.7%
-of predicted genes in B1A were depleted at least 5-fold in B1B
-populations, and 12.0% the reverse.
-While this observed depletion could
-indicate variation in copy number, differential gene content between
-variants is a more parsimonious explanation for most loci.
-These
-predicted genes reflect 6.2% of unique KOs in B1A and 4.4% in B1B.
-Interestingly, the fraction of variant specific OPFs is greater, 10.8%
-and 11.1% respectively, suggesting that _de novo_ clustering could be
-more sensitive to potential differences in physiology.
 
 +---------------------------+:------+:---------+:------+:---------+
 |                           |B1A               |B1B               |
@@ -942,7 +964,7 @@ communities.
 
 Mice were bred, housed, and treated as described in [@Harrison2014].
 Briefly, genetically heterogeneous UM-HET3 mice at each study site were
-produced by the four-way cross between (BALB/cByJ x C57BL/6J) F1 mothers and
+produced by a four-way cross between (BALB/cByJ x C57BL/6J) F1 mothers and
 (C3H/HeJ x DBA.2J) F1 fathers, as detailed in [@Miller2011].
 Mice were fed LabDiet 5LG6 (TestDiet Inc.) from weaning onwards.
 Starting at 8 months
@@ -971,8 +993,7 @@ Based on alignment to the reference genome, sequenced reads from
 _S. alaskensis_ can be distinguished from all endogenous bacteria in mouse
 feces.
 This spike was added as an internal standard to quantify total 16S rRNA
-gene abundance, and also provides a benchmark for the reconstruction
-of bacterial genomes.
+gene abundance in a separate study [@Smith2019].
 <!-- TODO: Also discuss S.a. assembly quality? Perhaps skim over this by
 explaining that spiking was done for experimental consideration not dealt
 with in this manuscript. -->
@@ -986,6 +1007,10 @@ procedures sequenced on the Illumina HiSeq 400 platform using the v4
 paired-end 2x150 bp.
 
 ## Assembly, binning, and MAG refinement
+
+Bioinformatic processing of metagenomes was implemented as a Snakemake pipeline
+[@Koster2012]. Code and metadata can be obtained at
+<https://github.com/bsmith89/longev-mgen>.
 
 Raw metagenomic reads were deduplicated using FastUniq [@Xu2012],
 adapters trimmed using Scythe [@Buffalo2018], and quality trimmed using
@@ -1182,15 +1207,15 @@ TODO: Anyone else?
 
 ## Funding
 
-Funding for this work was provided by the Glenn Foundation for Medical
-Research.
+Funding for this work was provided in part by a grant from the Glenn Foundation
+for Medical Research.
 <!--
 TODO: Anything else?
 -->
 
 ## Data Availability
 
-Metagenomic libraries will be uploaded to the sequence read archive under
+Metagenomic libraries have been uploaded to the sequence read archive under
 BioProject PRJNA448009.
 Code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
@@ -1203,4 +1228,8 @@ TODO: What to say about KEGG, which is licensed?
 
 # References
 
-<!-- TODO: Move websites to links in the text rather than in the refs. -->
+<!--
+TODO: Move websites to links in the text rather than in the refs.
+TODO: Refine citation style a la Tom.
+TODO: Citations require ISO 4 abbreviated journal names?
+-->

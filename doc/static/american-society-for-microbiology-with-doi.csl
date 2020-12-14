@@ -28,7 +28,7 @@
     <category citation-format="numeric"/>
     <category field="biology"/>
     <summary>Style for all American Society for Microbiology journals.</summary>
-    <updated>2020-06-29T19:34:00+00:00</updated>
+    <updated>2020-12-14T00:55:40+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <macro name="author">
@@ -108,7 +108,7 @@
       <if type="article-journal">
         <group prefix=" " delimiter=":">
           <text variable="volume"/>
-          <text variable="page"/>
+          <text variable="page" suffix="."/>
         </group>
       </if>
     </choose>

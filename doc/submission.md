@@ -411,8 +411,9 @@ _Muribaculum intestinale_ (Mi), _Duncaniella muris_ (Dm), _Duncaniella freteri_ 
 _Duncaniella dubosii_ (Dd) _Paramuribaculum intestinale_ (Pi),
 _Candidatus_ Amulumruptor caecigallinarius (Ac).
 ](fig/muri_comparison.pdf){#fig:muri-comparison}
+
 <!--
-TODO: Fix panel (A) tax-label font size to 6 pt.
+TODO: Italicize Muribaculaceae in one taxon label. Ensure that height/width are appropriate.
 -->
 
 ### Phylogenetics
@@ -583,6 +584,12 @@ coding for a full complement of predicted starch-active proteins.
 This PUL has a large degree of synteny with one of the three matching PULs found
 in both B1A and B1B, and also includes two OPFs with members also found in the
 Sus-operon of _B. thetaiotaomicron_, suggesting shared function.
+<!--
+TODO: Note that B. theta's Sus-operon does not have the correct localization
+annotation, as SusD should be a lipoprotein, not periplasmic. This calls into
+question the localization of all of the other proteins in the Muribaculaceae,
+but who knows. *shrug*.
+-->
 However, while B3 also has
 a GH13 containing lipoprotein (B3_00513), its predicted localization is to
 the inner membrane, not the OM.
@@ -825,8 +832,6 @@ organisms.
 Testing these predictions will require characterization of the metabolic
 potential of these genes after obtaining cultivars or through heterologous
 expression in appropriate hosts.
-<!-- TODO: Eventually, I'd like to add references here to the B1-like isolate
-that I just found: <https://www.ncbi.nlm.nih.gov/assembly/GCF_004102775.1/> -->
 
 We examine the three-guild model proposed by Ormerod and colleagues
 [@Ormerod2016] by extending their dimensional reduction approach to the much
@@ -1222,8 +1227,8 @@ available at <https://github.com/bsmith89/longev-mgen>.
 <!--
 TODO: Upload refined MAGs as well?
 TODO: Upload metagenomes to SRA
-TODO: Upload 16S?
-TODO: What to say about KEGG, which is licensed?
+TODO: What to say about KEGG, which is licensed? Do my current annotations
+require the licensed version?
 -->
 
 # References

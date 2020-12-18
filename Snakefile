@@ -844,6 +844,17 @@ rule count_seq_lengths_aa:
         {input.script} {input.seqs} >> {output}
         """
 
+rule filter_sequences_by_length:
+    output: 'data/{stem}.gt{length}.fn'
+    input: nlength='data/{stem}.nlength.tsv', fn='data/{stem}.fn'
+    wildcard_constraints:
+        length=integer_wc_constraint
+    params: length=lambda w: int(w.length)
+    shell:
+        """
+        seqtk subseq {input.fn} <(awk -v thresh={params.length} '$2>=thresh {{print $1}}' {input.nlength}) > {output}
+        """
+
 # {{{3 Coverage
 
 # NOTE: The depth file format is lacking a header.

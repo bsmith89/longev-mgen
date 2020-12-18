@@ -40,7 +40,7 @@ Running title: Genomes of acarbose-responsive Muribaculaceae
 Word Count:
     Abstract: 249
     Importance: 149
-    Manuscript: 6260
+    Manuscript: 6261
 ```
 See `doc/static/coverpage.docx`.
 -->
@@ -769,8 +769,8 @@ different.
 
 # Discussion
 
-Mice are a key model system for study of the mammalian gut microbiome,
-with an outsized importance in testing mechanistic hypotheses for the
+Mice are a key model system for the study of the mammalian gut microbiome,
+with an outsized importance in testing mechanistic hypotheses about the
 roles of this community in host health [@Nguyen2015].
 The
 generalizability of observations made in mice is a constant

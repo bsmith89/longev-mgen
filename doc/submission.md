@@ -12,15 +12,21 @@ geometry:
 
 header-includes: |
   \usepackage{textalpha}
+  \usepackage[font={small}]{caption}
+  \interlinepenalty=10000
 
 link-citations: true
 linkcolor: blue
 
 
 ---
+<!--
+TODO: Double check that the "interlinepenalty=10000" in the header isn't
+problematic.
+-->
 
 <!--
-TODO: Add a standard header with following affilitations:
+NOTE: Always prepend the standard header with following affilitations:
 ```
     Byron J. Smith(a,*)
 Richard A. Miller(b)
@@ -32,12 +38,11 @@ Thomas M. Schmidt(a,c,#)
 (#) Correspondence: schmidti@umich.edu
 Running title: Genomes of acarbose-responsive Muribaculaceae
 Word Count:
-    Abstract: 237
+    Abstract: 249
     Importance: 149
-    Manuscript: TODO
+    Manuscript: 6260
 ```
-TODO: Fix inline -> citation linking.
-TODO: Fix PDF font.
+See `doc/static/coverpage.docx`.
 -->
 
 # Abstract
@@ -101,6 +106,8 @@ occupied by members of this family.
 In addition, genes encoding one type of enzyme known to participate in starch
 breakdown were found in all three genomes from responding species, but none of
 the other genomes.
+
+\pagebreak
 
 # Introduction
 
@@ -293,9 +300,46 @@ MAGs obtained from non-responding species are designated B3 through B8.
 Estimated genome sizes, %GC, and number of predicted genes are
 all similar to reference genomes from cultivated members of the
 family _Muribaculaceae_.
+
+To confirm the assertion that each of the reconstructed genomes
+is representative of a previously described _Muribaculaceae_ species identified
+in these mice [@Smith2019],
+the median mapping rate of metagenomic reads to protein coding features for
+each MAG was compared to the relative abundance of the associated 16S rRNA gene
+across matched amplicon libraries.
+Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
+robust concordance in coverage between the shotgun metagenomic and amplicon
+libraries.
+
 <!--
-TODO: Consider moving sentences referencing Table 2 down below Table 1.
+Smith2019 mapping (2-step-process):
+
+MAG to OTU (this study):
+otu_id	best_otu	cosine_similarity
+B1A	Otu0001	0.928659
+B1B	Otu0001	0.929332
+B2	Otu0007	0.884812
+B3	Otu0009	0.921115
+B4	Otu0005	0.920213
+B5	Otu0004	0.883707
+B6	Otu0049	0.967271
+B7	Otu0017	0.897659
+B8	Otu0013	0.910010
+
+OTU in this study to OTU in 2019:
+otu_id	otu2019	corr-dist
+Otu0001	Otu0001	1.683127e-05
+Otu0004	Otu0006	3.515030e-05
+Otu0005	Otu0005	3.306074e-05
+Otu0007	Otu0004	7.163800e-06
+Otu0009	Otu0008	2.440454e-05
+Otu0013	Otu0011	2.620290e-05
+Otu0017	Otu0030	9.554748e-05
+Otu0049	Otu0039	1.683847e-04
 -->
+
+\pagebreak
+
 
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
 | Genome      | CheckM                | Scaffolds   | Length (Mbp)   | N50       | GC           | in           |
@@ -345,42 +389,7 @@ _Candidatus_ Amulumruptor caecigallinarius (_Ac_) {#tbl:mags}
 <!--
 TODO: Confirm that the above table caption doesn't break when coded across multiple
 lines.
-
-Smith2019 mapping (2-step-process):
-
-MAG to OTU (this study):
-otu_id	best_otu	cosine_similarity
-B1A	Otu0001	0.928659
-B1B	Otu0001	0.929332
-B2	Otu0007	0.884812
-B3	Otu0009	0.921115
-B4	Otu0005	0.920213
-B5	Otu0004	0.883707
-B6	Otu0049	0.967271
-B7	Otu0017	0.897659
-B8	Otu0013	0.910010
-
-OTU in this study to OTU in 2019:
-otu_id	otu2019	corr-dist
-Otu0001	Otu0001	1.683127e-05
-Otu0004	Otu0006	3.515030e-05
-Otu0005	Otu0005	3.306074e-05
-Otu0007	Otu0004	7.163800e-06
-Otu0009	Otu0008	2.440454e-05
-Otu0013	Otu0011	2.620290e-05
-Otu0017	Otu0030	9.554748e-05
-Otu0049	Otu0039	1.683847e-04
 -->
-
-To confirm the assertion that each of the reconstructed genomes
-is representative of a previously described _Muribaculaceae_ species identified
-in these mice [@Smith2019],
-the median mapping rate of metagenomic reads to protein coding features for
-each MAG was compared to the relative abundance of the associated 16S rRNA gene
-across matched amplicon libraries.
-Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
-robust concordance in coverage between the shotgun metagenomic and amplicon
-libraries.
 
 ![
 Comparison of novel and previously described Muribaculaceae genomes.
@@ -397,7 +406,7 @@ Nodes with less than 70% confidence are collapsed into polytomies and
 topological support greater than 95% is indicated (black dots on internal branches).
 Branch lengths indicate an estimate of expected substitutions per site.
 A version of this panel with GenBank accessions for all publicly available
-genomes is available as Supplemental File TODO.
+genomes is available as Supplementary [@Fig:supp-phylo-access].
 Functional comparisons are visualized (**B**, **C**) by plotting the first two
 principal components (PCs) of an ordination based on counts of predicted proteins
 annotated with GH and CBM domains either (**B**) aggregated by CAZy family or
@@ -412,15 +421,12 @@ _Duncaniella dubosii_ (Dd) _Paramuribaculum intestinale_ (Pi),
 _Candidatus_ Amulumruptor caecigallinarius (Ac).
 ](fig/muri_comparison.pdf){#fig:muri-comparison}
 
-<!--
-TODO: Italicize Muribaculaceae in one taxon label. Ensure that height/width are appropriate.
--->
-
 ### Phylogenetics
 
 To better understand the evolutionary relationships between these
-organisms, a concatenated gene tree ([@Fig:muri-comparison] panel A) was constructed
-for the 9 new MAGs along with publicly available MAGs and isolate genomes
+organisms, a concatenated gene tree ([@Fig:muri-comparison] panel A and
+Supplementary [@Fig:supp-phylo-access]) was constructed for the 9 new MAGs along with
+publicly available MAGs and isolate genomes
 [@Ormerod2016; @Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
 <!--
 TODO: Confirm that these are the correct citations.
@@ -439,7 +445,7 @@ likelihood tree was constructed based on the _rpoB_ gene, which is generally
 not thought to be transmitted horizontally (with exceptions [@Kim2013]),
 While _rpoB_ was not annotated in a number of the genomes, and some nodes
 were unable to be resolved, this approach largely confirmed the topology of the
-concatenated gene tree (Supplemental Results).
+concatenated gene tree (see Supplementary [@Fig:supp-phylo-rpoB]).
 The estimated phylogeny shows
 that the newly generated MAGs encompass most of the
 documented diversity of _Muribaculaceae_.
@@ -461,7 +467,7 @@ of all 348,908 putative protein coding genes found in the 9 novel MAGs, 30 MAGs
 previously generated by Ormerod and colleagues [@Ormerod2016],
 all 98 _Muribaculaceae_ genome assemblies available from GenBank as of this
 work, and 5 reference genomes from other members of the order Bacteroidales.
-The resulting 16,859 clusters with more than on member contain 315,581
+The resulting 16,859 clusters with more than one member contain 315,581
 sequences (90%) and are referred to here as operational protein families
 (OPFs).
 While a fraction of these clusters may be due to
@@ -472,12 +478,8 @@ Of this higher confidence set,
 only 4,448 have members annotated with any COG, KO, or putative function.
 The remaining 8,528 unannotated OPFs encompass 111,177 predicted protein
 sequences across the 142 genomes.
-<!--
-TODO: Consider adding back in:
-Annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
-KOs, and Pfam and CAZy domains are all available in the Supplementary Results.
-TODO: Supplementary Results
--->
+Detailed annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
+KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot].
 
 ### Ordination of gene content
 
@@ -496,13 +498,10 @@ also suggests exceptions to the three-guild model.
 Notably, none of B1A, B1B, or B2---MAGs representative of responding
 species---were
 placed cleanly within the &alpha;-glucan guild as we had hypothesized.
-<!--
-TODO: Consider moving above 3-guild model stuff to discussion.
--->
 
 It is likely that a more nuanced approach to comparing _Muribaculaceae_ genomes
 will yield enhanced predictions of functional capacities.
-To better reflect a priori assumptions about the cellular mechanisms of
+To better reflect _a priori_ assumptions about the cellular mechanisms of
 polysaccharide utilization in the family, the same analysis was repeated, but
 with two modifications.
 First, since proteins must be localized to the cell envelope in order to
@@ -573,11 +572,7 @@ and nearby residues.
 Matching numbers indicate homology based on OPF
 clustering,
 and are arbitrarily assigned.
-](fig/starch_related_PULs_manual.pdf){#fig:puls}
-
-<!--
-TODO: Confirm 5' -> 3' arrows.
--->
+](fig/starch_related_PULs.pdf){#fig:puls}
 
 Besides B1A and B1B, B3 is the only other MAG to possess a putative PUL
 coding for a full complement of predicted starch-active proteins.
@@ -674,10 +669,7 @@ differentiating the two.
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
 providing a measure of the relative enrichment or depletion of genomic
-sequences between the two populations of OTU-1.
-<!--
-TODO: Add these to Supplementary Results
--->
+sequences between the two populations of OTU-1 (See Supplementary [@Tbl:supp-b1-vars-enrich]).
 Libraries specific to each variant have low coverage over large
 portions of either the B1A or B1B MAG,
 suggesting that mice are primarily colonized
@@ -1014,12 +1006,12 @@ paired-end 2x150 bp.
 ## Assembly, binning, and MAG refinement
 
 Bioinformatic processing of metagenomes was implemented as a Snakemake pipeline
-[@Koster2012]. Code and metadata can be obtained at
+[@Koster2012] run with version 5.18.1. Code and metadata can be obtained at
 <https://github.com/bsmith89/longev-mgen>.
 
-Raw metagenomic reads were deduplicated using FastUniq [@Xu2012],
-adapters trimmed using Scythe [@Buffalo2018], and quality trimmed using
-Sickle [@Joshi2011] to produce processed reads for all downstream
+Raw metagenomic reads were deduplicated using FastUniq [@Xu2012] version 1.1,
+adapters trimmed using Scythe [@Buffalo2018] version 0.991, and quality trimmed using
+Sickle [@Joshi2011] version 1.33 to produce processed reads for all downstream
 analyses.
 <!--
 TODO: Scythe and Sickle are github links and not actual citations.
@@ -1027,13 +1019,13 @@ mSphere asks for these to be included as URLs inline, rather than
 references.
 -->
 The resulting paired-end reads were assembled into primary
-contigs using MEGAHIT [@Li2014].
+contigs using MEGAHIT [@Li2014] version 1.2.9.
 Reads were then mapped back to these
-contigs with Bowtie2 [@Langmead2012], and per-library coverage was
+contigs with Bowtie2 [@Langmead2012] version 2.4.1, and per-library coverage was
 estimated for each contig.
 
 For all contigs \>1000 bp in length, dimensional reductions built into
-CONCOCT [@Alneberg2014] were applied to produce input data for a
+CONCOCT [@Alneberg2014] version 1.1.0 were applied to produce input data for a
 Gaussian mixture model (GMM) similar to the procedure used by that
 program for binning.
 However, unlike CONCOCT---due to computational
@@ -1048,7 +1040,7 @@ for matched libraries as described in [@Smith2019].
 Bins were then recruited to one or more OTUs by
 calculating a Canonical partial least squares between OTU abundance and
 bin coverage as implemented in the scikit-learn machine learning library
-for Python [@Pedregosa2012] version 0.23.2.
+[@Pedregosa2012] version 0.23.2.
 For bins recruited to OTUs classified as
 _Muribaculaceae_, contigs were re-clustered based on coverage across
 samples.
@@ -1225,16 +1217,44 @@ BioProject PRJNA448009.
 Code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
 <!--
-TODO: Upload refined MAGs as well?
-TODO: Upload metagenomes to SRA
 TODO: What to say about KEGG, which is licensed? Do my current annotations
 require the licensed version?
 -->
+
+# Supplemental Materials
+
+![
+Supplemental Figure 1: Phylogenetic tree identical to [@Fig:muri-comparison] panel A, but with the
+addition of GenBank accessions for all publicly available genomes.
+](doc/static/figure_placeholder.png){#fig:supp-phylo-access}
+
+![
+Supplemental Figure 2: Phylogenetic tree constructed as in [@Fig:muri-comparison] panel A, but using
+only the RpoB protein sequence instead of a concatenated gene tree.
+](doc/static/figure_placeholder.png){#fig:supp-phylo-rpoB tag='S2'}
+
+
++--+
+|  |
++--+
+
+: Supplemental Table 1: Annotations, including KO, COG, OPF, Pfam, dbCAN, and localization for all
+predicted protein coding genes in all genomes analyzed for this
+study. {#tbl:supp-gene-annot}
+
+
++--+
+|  |
++--+
+
+: Supplemental Table 2: B1A and B1B gene specificity scores, where the specificity of a gene to the
+B1A genomic variant is calculated as the ratio of the median normalized
+coverage in B1B specific libraries versus B1A specific
+libraries. {#tbl:supp-b1-vars-enrich}
+
 
 # References
 
 <!--
 TODO: Move websites to links in the text rather than in the refs.
-TODO: Refine citation style a la Tom.
-TODO: Citations require ISO 4 abbreviated journal names?
 -->

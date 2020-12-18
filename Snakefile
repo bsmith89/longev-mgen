@@ -60,6 +60,46 @@ rule all:
         "# {input}"
 localrules: all
 
+rule submission:
+    input:
+        pdf='build/submission.pdf',
+        docx='build/submission.docx',
+        figS1='build/figureS1.pdf',
+        figS2='build/figureS2.pdf',
+        tblS1='build/tableS1.tsv',
+        tblS2='build/tableS2.tsv',
+
+rule rename_tableS1:
+    output: 'build/tableS1.tsv'
+    input: 'data/core.muri2.2.query_all_genome_annotations.tsv'
+    shell:
+        'ln {input} {output}'
+localrules: rename_tableS1
+
+rule rename_tableS2:
+    output: 'build/tableS2.tsv'
+    input: 'data/core.muri2.2.query_B1_genomic_variants.tsv'
+    shell:
+        'ln {input} {output}'
+localrules: rename_tableS2
+
+rule rename_figureS1:
+    output: 'build/figureS1.pdf'
+    input: 'fig/phylogenetics_concatenated_with_accession.pdf'
+    shell:
+        'ln {input} {output}'
+localrules: rename_figureS1
+ruleorder: rename_figureS1 > build_pdf_documentation
+
+rule rename_figureS2:
+    output: 'build/figureS2.pdf'
+    input: 'fig/phylogenetics_rpoB.pdf'
+    shell:
+        'ln {input} {output}'
+localrules: rename_figureS2
+ruleorder: rename_figureS2 > build_pdf_documentation
+
+
 # {{{2 Tooling configuration
 
 rule setup_git_locally:
@@ -169,6 +209,20 @@ rule build_html_documentation:
                --bibliography={input.bib} -s {input.source} -o {output}
         """
 localrules: build_html_documentation
+
+rule build_latex_documentation:
+    output: "build/{stem}.tex"
+    input:
+        source="doc/{stem}.md",
+        bib="doc/bibliography.bib",
+        csl="doc/static/style.csl",
+    shell:
+        """
+        pandoc --from markdown --to latex \
+               --filter pandoc-crossref --csl {input.csl} \
+               --bibliography={input.bib} -s {input.source} -o {output}
+        """
+localrules: build_pdf_documentation
 
 rule build_pdf_documentation:
     output: "build/{stem}.pdf"

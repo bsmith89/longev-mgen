@@ -21,11 +21,6 @@ linkcolor: blue
 
 ---
 <!--
-TODO: Double check that the "interlinepenalty=10000" in the header isn't
-problematic.
--->
-
-<!--
 NOTE: Always prepend the standard header with following affilitations:
 ```
     Byron J. Smith(a,*)
@@ -40,14 +35,44 @@ Running title: Genomes of acarbose-responsive Muribaculaceae
 Word Count:
     Abstract: 249
     Importance: 149
-    Manuscript: 6261
+    Manuscript: FIXME
 ```
 See `doc/static/coverpage.docx`.
+
+FIXME: render the DOCX for sharing/submission (checklist):
+    -   Copy/paste contents of doc/static/coverpage.docx to replace
+        title/authors.
+    -   Add page break after Importance
+    -   smake -j1 build/submission.docx
+    -   Replace muri-comparison figure (Figure 1) with the
+        `fig/muri_comparison.png`.
+    -   Rename Figure 4/5 to Figure S1, S2 (FIXME: Are these the correct
+        numbers?)
+    -   Rename Table 3/4 to Table S1, S2 (FIXME: Correct numbers?)
+    -   Update line spacing in "first-paragraph"/"normal" text styles as
+        desired.
+    -   Delete placeholder tables/images from Supplemental materials section
+    -   Add or remove line numbers as desired.
+    -   Starting from the top, move figures/tables and their respective
+        captions around, such that page breaks make sense. For some of the
+        figures, captions should go on the next page (add a page-break between
+        figure and caption)
+    -   Update "body" word count from "FIXME" to the number of words between
+        introduction and references section (so more than they actually care to
+        know), minus all the words in table/figure captions.
+    -   "Print to PDF" with "best for accessibility" (rather than best for
+        printing) so that hyperlinks work.
+
+FIXME: Render to LaTeX PDF (checklist):
+    -   Double check that the "interlinepenalty=10000" in the header isn't
+        problematic.
+-->
+
 -->
 
 # Abstract
 
-The drug acarbose (ACA) is used to treat
+The drug acarbose is used to treat
 diabetes, and, by inhibiting &alpha;-amylase in the small intestine, increases the amount of
 starch entering the lower digestive tract.
 <!--
@@ -60,7 +85,7 @@ increased production of the
 short-chain fatty acids propionate and butyrate.
 In experiments replicated across three study sites, two distantly related
 species in the bacterial family _Muribaculaceae_ were dramatically more
-abundant in ACA-treated mice, distinguishing these responders from other
+abundant in acarbose-treated mice, distinguishing these responders from other
 members of the family.
 Bacteria in the family _Muribaculaceae_ are predicted to produce propionate as a
 fermentation end product and are abundant and
@@ -142,12 +167,12 @@ in Ann Arbor, The University of Texas Health Science Center at San
 Antonio (UT), and The Jackson Laboratory (TJL) in Bar Harbor, Maine.
 At
 UM and TJL one highly abundant bacterial species was enriched nearly
-4-fold in ACA treated mice.
+4-fold in ACA-treated mice.
 This species, defined at a 97% identity threshold of the 16S rRNA gene V4
 region and designated as OTU-1, was classified as a member of the family
 _Muribaculaceae_ in the order Bacteroidales.
 OTU-1 was also present and abundant at UT but was not
-significantly more abundant in ACA treated mice relative to
+significantly more abundant in ACA-treated mice relative to
 controls.
 Instead, a different _Muribaculaceae_ species,
 designated OTU-4, was found to be highly abundant and enriched 4-fold in
@@ -196,6 +221,10 @@ would benefit the most from the large influx of starch to the gut
 resulting from ACA treatment, this prediction has not been tested, and
 physiological inferences based on the genome content of members of the
 family have been largely divorced from biological observations.
+<!--
+TODO: Look into [@Chijiiwa2020] where they seem to link "fiber-response" to
+genomes, including apparently some Muribaculaceae.
+-->
 
 Experimental perturbations of complex microbial communities present an
 opportunity to observe ecological features of many bacterial taxa
@@ -231,12 +260,13 @@ Homologs of SusC and SusD characterize all
 known polysaccharide utilization systems in this clade [@Grondin2017],
 are encoded in Sus-like genomic regions known as polysaccharide
 utilization loci (PULs), and are widespread in the phylum
-_Bacteroidetes_ [@Fernandez-Gomez2013].
+Bacteroidetes [@Fernandez-Gomez2013].
 The molecular range of these
 systems is determined by the carbohydrate-active enzymes and structural
 proteins they encode, based on the specificity of glycoside hydrolase
 (GH) and carbohydrate binding module (CBM) domains, which have been
-extensively cataloged in the dbCAN database [@Yin2012; @Zhang2018].
+extensively cataloged in the CAZy and dbCAN databases
+[@Yin2012; @Lombard2014; @Zhang2018; @TheCAZypediaConsortium2018].
 
 Here MAGs from the feces of mice at UT and UM are analyzed
 in the context of previously generated MAGs and cultivar genomes to explore
@@ -387,9 +417,43 @@ _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
 _Candidatus_ Amulumruptor caecigallinarius (_Ac_) {#tbl:mags}
 
 <!--
-TODO: Confirm that the above table caption doesn't break when coded across multiple
-lines.
+TODO: Should the species names (and Candidatus) be *un*-italicized in the
+italicized table caption.
 -->
+
+### Phylogenetics
+
+To better understand the evolutionary relationships between these
+organisms, a concatenated gene tree ([@Fig:muri-comparison] panel A and
+Supplementary [@Fig:supp-phylo-access]) was constructed for the 9 new MAGs along with
+publicly available MAGs and isolate genomes
+[@Ormerod2016; @Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
+<!--
+TODO: Confirm that these are the correct citations.
+-->
+The tree was rooted by five other Bacteroidales
+species: _Bacteroides ovatus_ (ATCC-8483), _Bacteroides
+thetaiotaomicron_ VPI-5482, _Porphyromonas gingivalis_ (ATCC-33277),
+_Barnesiella viscericola_ (DSM-18177),
+and _Barnesiella intestinihominis_ (YIT-11860).
+Most internal nodes were supported with
+high topological confidence (>95% bootstrap support), and the placement of the
+MAGs derived by Ormerod and colleagues [@Ormerod2016] was highly consistent with their
+published tree.
+To further check the robustness of our phylogeny, a second, approximate maximum
+likelihood tree was constructed based on the _rpoB_ gene, which is generally
+not thought to be transmitted horizontally (with exceptions [@Kim2013]),
+While _rpoB_ was not annotated in a number of the genomes, and some nodes
+were unable to be resolved, this approach largely confirmed the topology of the
+concatenated gene tree (see Supplementary [@Fig:supp-phylo-rpoB]).
+The estimated phylogeny shows
+that the newly generated MAGs encompass most of the
+documented diversity of _Muribaculaceae_.
+While many of the novel MAGs are phylogenetically similar to previously
+described genomes, two of the MAGs, B3 and B4, are notably diverged from the
+most closely related taxa.
+This demonstrates, that despite a growing number of _Muribaculaceae_ genomes
+deposited in public repositories, novel taxa remain to be described.
 
 ![
 Comparison of novel and previously described Muribaculaceae genomes.
@@ -421,39 +485,10 @@ _Duncaniella dubosii_ (Dd) _Paramuribaculum intestinale_ (Pi),
 _Candidatus_ Amulumruptor caecigallinarius (Ac).
 ](fig/muri_comparison.pdf){#fig:muri-comparison}
 
-### Phylogenetics
-
-To better understand the evolutionary relationships between these
-organisms, a concatenated gene tree ([@Fig:muri-comparison] panel A and
-Supplementary [@Fig:supp-phylo-access]) was constructed for the 9 new MAGs along with
-publicly available MAGs and isolate genomes
-[@Ormerod2016; @Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
 <!--
-TODO: Confirm that these are the correct citations.
+FIXME: muri_mags figure (from PDF) always loses resolution for some reason when
+included in the DOCX. Grrr!  Replace with a PNG render in DOCX.
 -->
-The tree was rooted by five other Bacteroidales
-species: _Bacteroides ovatus_ (ATCC-8483), _Bacteroides
-thetaiotaomicron_ VPI-5482, _Porphyromonas gingivalis_ (ATCC-33277),
-_Barnesiella viscericola_ (DSM-18177),
-and _Barnesiella intestinihominis_ (YIT-11860).
-Most internal nodes were supported with
-high topological confidence (>95% bootstrap support), and the placement of the
-MAGs derived by Ormerod and colleagues [@Ormerod2016] was highly consistent with their
-published tree.
-To further check the robustness of our phylogeny, a second maximum
-likelihood tree was constructed based on the _rpoB_ gene, which is generally
-not thought to be transmitted horizontally (with exceptions [@Kim2013]),
-While _rpoB_ was not annotated in a number of the genomes, and some nodes
-were unable to be resolved, this approach largely confirmed the topology of the
-concatenated gene tree (see Supplementary [@Fig:supp-phylo-rpoB]).
-The estimated phylogeny shows
-that the newly generated MAGs encompass most of the
-documented diversity of _Muribaculaceae_.
-While many of the novel MAGs are phylogenetically similar to previously
-described genomes, two of the MAGs, B3 and B4, are notably diverged from the
-most closely related taxa.
-This demonstrates, that despite a growing number of _Muribaculaceae_ genomes
-deposited in public repositories, novel taxa remain to be described.
 
 ### Novel protein families
 
@@ -526,17 +561,15 @@ homologous to GH20.
 Likewise, Opf01132 parallels the plant glycan guild and all predicted proteins
 in this family include a GH43 domain.
 Surprisingly, not all protein families sharing the same domains are equivalent.
-Although Opf01909 and Opf00965 both possess a predicted GH13 domain—and are the
+Although Opf01909 and Opf00965 both possess a predicted GH13 domain---and are the
 first and fourth most positively weighted features in PC2, indicating an
-association with the &alpha;-glucan guild—the latter is also enriched in the
+association with the &alpha;-glucan guild---the latter is also enriched in the
 plant glycan guild while the former is not; of the 12 MAGs originally
 classified to the plant glycan guild, 11 have at least one copy of Opf00965
 with a signal peptide versus just one MAG with Opf01909.
 While a detailed enrichment analysis is outside the scope of this work, this
 suggests that OPFs may indeed provide more functional resolution than
 annotations based on existing reference databases.
-
-
 <!--
 TODO: Consider adding some results on the ability of these organisms to produce
 propionate.
@@ -551,6 +584,10 @@ starch utilizing bacteria in the order Bacteroidales [@Shipman1999].
 Indeed, B1A and B1B both have three genes predicted to code for
 GH13 containing, OM-localized lipoproteins (B1A_01660, B1A_01692, B1A_02267 in
 B1A and B1B_01504, B1B_01538, B1B_02118 in B1B),
+<!--
+TODO: Figure out how to change gene references to better reflect the
+GenBank versions.
+-->
 each in a separate PUL (see [@Fig:puls]).
 While it also includes members without
 this activity, GH13 is the most common family of &alpha;-amylases [@Janecek2014].
@@ -866,7 +903,7 @@ How to reference this study?
 Most compellingly, a gene family encoding a SusA homolog was identified in
 B1A, B1B, and B2 but in none of the non-responders,
 presenting the best case for a single enzyme that can confer a growth
-advantage in ACA treated mice.
+advantage in ACA-treated mice.
 While it is unclear how
 expression of this important component of starch utilization might be
 regulated, given that it is not located in a PUL in any of the
@@ -879,7 +916,7 @@ lower guts of mice due to residual &alpha;-amylase activity, even at levels
 sufficient to prohibit host digestion.
 Periplasmic hydrolysis of these
 starch breakdown products may be sufficient for increased abundance of
-these species in ACA treated mice.
+these species in ACA-treated mice.
 
 It is notable that of the closely related variants associated with OTU-1,
 B1B is found at UT and not UM.
@@ -1056,8 +1093,11 @@ manual assignment of contigs to MAGs.
 Libraries in which MAGs had
 non-negligible coverage were identified manually and used in subsequent
 refinements.
+<!--
+FIXME: Compare 10^5 renderings below.
+-->
 While clustering contigs associated with OTU-1 a number of
-groups containing on the order of $10^5$ bp were found with a bimodal
+groups containing on the order of 10^5^ $10^5$ bp were found with a bimodal
 coverage distribution, low normalized coverage in a subset of libraries,
 and normal coverage in others.
 By this criterion, contigs in these
@@ -1212,6 +1252,9 @@ TODO: Anything else?
 
 ## Data Availability
 
+<!--
+TODO: Reference genome accessions instead of (or in addition to?) BioProject.
+-->
 Metagenomic libraries have been uploaded to the sequence read archive under
 BioProject PRJNA448009.
 Code and additional data/metadata needed to reproduce this analysis are

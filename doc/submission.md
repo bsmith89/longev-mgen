@@ -1255,8 +1255,12 @@ TODO: Anything else?
 <!--
 TODO: Reference genome accessions instead of (or in addition to?) BioProject.
 -->
-Metagenomic libraries have been uploaded to the sequence read archive under
-BioProject PRJNA448009.
+MAGs generated for this study have been deposited
+to GenBank under the accessions JAEKDF000000000 (B1A),
+JAEKDG000000000 (B1B), JAEKDH000000000 (B2), JAEKDI000000000 (B3),
+JAEKDJ000000000 (B4), JAEKDK000000000 (B5), JAEKDL000000000 (B6),
+JAEKDM000000000 (B7), JAEKDN000000000 (B8).
+Metagenomic libraries are also available under BioProject PRJNA448009.
 Code and additional data/metadata needed to reproduce this analysis are
 available at <https://github.com/bsmith89/longev-mgen>.
 <!--

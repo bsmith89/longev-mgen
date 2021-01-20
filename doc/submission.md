@@ -18,8 +18,9 @@ header-includes: |
 link-citations: true
 linkcolor: blue
 
-
 ---
+
+
 <!--
 NOTE: Always prepend the standard header with following affilitations:
 ```
@@ -40,18 +41,19 @@ Word Count:
 See `doc/static/coverpage.docx`.
 
 FIXME: render the DOCX for sharing/submission (checklist):
+    -   smake -j1 build/submission.docx
     -   Copy/paste contents of doc/static/coverpage.docx to replace
         title/authors.
+    -   Choose line spacing (1x works)
     -   Add page break after Importance
-    -   smake -j1 build/submission.docx
     -   Replace muri-comparison figure (Figure 1) with the
         `fig/muri_comparison.png`.
     -   Rename Figure 4/5 to Figure S1, S2 (FIXME: Are these the correct
         numbers?)
     -   Rename Table 3/4 to Table S1, S2 (FIXME: Correct numbers?)
+    -   Delete end-matter legends for Figure S1/2, Table S1/2.
     -   Update line spacing in "first-paragraph"/"normal" text styles as
         desired.
-    -   Delete placeholder tables/images from Supplemental materials section
     -   Add or remove line numbers as desired.
     -   Starting from the top, move figures/tables and their respective
         captions around, such that page breaks make sense. For some of the
@@ -66,8 +68,6 @@ FIXME: render the DOCX for sharing/submission (checklist):
 FIXME: Render to LaTeX PDF (checklist):
     -   Double check that the "interlinepenalty=10000" in the header isn't
         problematic.
--->
-
 -->
 
 # Abstract
@@ -425,7 +425,9 @@ italicized table caption.
 
 To better understand the evolutionary relationships between these
 organisms, a concatenated gene tree ([@Fig:muri-comparison] panel A and
-Supplementary [@Fig:supp-phylo-access]) was constructed for the 9 new MAGs along with
+Supplementary [@Fig:supp-phylo-access]
+at <https://doi.org/10.5281/zenodo.4450697>)
+was constructed for the 9 new MAGs along with
 publicly available MAGs and isolate genomes
 [@Ormerod2016; @Lagkouvardos2016; @Lagkouvardos2019; @Miyake2020]
 <!--
@@ -445,7 +447,8 @@ likelihood tree was constructed based on the _rpoB_ gene, which is generally
 not thought to be transmitted horizontally (with exceptions [@Kim2013]),
 While _rpoB_ was not annotated in a number of the genomes, and some nodes
 were unable to be resolved, this approach largely confirmed the topology of the
-concatenated gene tree (see Supplementary [@Fig:supp-phylo-rpoB]).
+concatenated gene tree (see Supplementary [@Fig:supp-phylo-rpoB]
+at <https://doi.org/10.5281/zenodo.4450697>).
 The estimated phylogeny shows
 that the newly generated MAGs encompass most of the
 documented diversity of _Muribaculaceae_.
@@ -470,7 +473,8 @@ Nodes with less than 70% confidence are collapsed into polytomies and
 topological support greater than 95% is indicated (black dots on internal branches).
 Branch lengths indicate an estimate of expected substitutions per site.
 A version of this panel with GenBank accessions for all publicly available
-genomes is available as Supplementary [@Fig:supp-phylo-access].
+genomes is available as Supplementary [@Fig:supp-phylo-access] at
+<https://doi.org/10.5281/zenodo.4450697>.
 Functional comparisons are visualized (**B**, **C**) by plotting the first two
 principal components (PCs) of an ordination based on counts of predicted proteins
 annotated with GH and CBM domains either (**B**) aggregated by CAZy family or
@@ -514,7 +518,8 @@ only 4,448 have members annotated with any COG, KO, or putative function.
 The remaining 8,528 unannotated OPFs encompass 111,177 predicted protein
 sequences across the 142 genomes.
 Detailed annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
-KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot].
+KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot]
+at <https://doi.org/10.5281/zenodo.4450697>.
 
 ### Ordination of gene content
 
@@ -706,7 +711,8 @@ differentiating the two.
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
 providing a measure of the relative enrichment or depletion of genomic
-sequences between the two populations of OTU-1 (See Supplementary [@Tbl:supp-b1-vars-enrich]).
+sequences between the two populations of OTU-1 (See Supplementary [@Tbl:supp-b1-vars-enrich]
+at <https://doi.org/10.5281/zenodo.4450697>).
 Libraries specific to each variant have low coverage over large
 portions of either the B1A or B1B MAG,
 suggesting that mice are primarily colonized
@@ -1044,7 +1050,7 @@ paired-end 2x150 bp.
 
 Bioinformatic processing of metagenomes was implemented as a Snakemake pipeline
 [@Koster2012] run with version 5.18.1. Code and metadata can be obtained at
-<https://github.com/bsmith89/longev-mgen>.
+<https://doi.org/10.5281/zenodo.4450697>.
 
 Raw metagenomic reads were deduplicated using FastUniq [@Xu2012] version 1.1,
 adapters trimmed using Scythe [@Buffalo2018] version 0.991, and quality trimmed using
@@ -1262,7 +1268,7 @@ JAEKDJ000000000 (B4), JAEKDK000000000 (B5), JAEKDL000000000 (B6),
 JAEKDM000000000 (B7), JAEKDN000000000 (B8).
 Metagenomic libraries are also available under BioProject PRJNA448009.
 Code and additional data/metadata needed to reproduce this analysis are
-available at <https://github.com/bsmith89/longev-mgen>.
+available at <https://doi.org/10.5281/zenodo.4450697>.
 <!--
 TODO: What to say about KEGG, which is licensed? Do my current annotations
 require the licensed version?

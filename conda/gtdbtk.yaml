@@ -1,0 +1,48 @@
+name: gtdbtk
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - boost=1.70.0=py38h9de70de_1
+  - boost-cpp=1.70.0=h7b93d67_3
+  - bzip2=1.0.8=h7f98852_4
+  - ca-certificates=2021.5.30=ha878542_0
+  - capnproto=0.6.1=hfc679d8_1
+  - dendropy=4.5.2=pyh3252c3a_0
+  - fastani=1.32=he1c1bb9_0
+  - fasttree=2.1.10=h779adbc_5
+  - gsl=2.6=he838d99_2
+  - gtdbtk=1.5.1=pyhdfd78af_0
+  - hmmer=3.1b2=3
+  - icu=67.1=he1b5a44_0
+  - ld_impl_linux-64=2.35.1=h7274673_9
+  - libblas=3.9.0=9_openblas
+  - libcblas=3.9.0=9_openblas
+  - libffi=3.3=he6710b0_2
+  - libgcc-ng=9.3.0=h2828fa1_19
+  - libgfortran-ng=9.3.0=hff62375_19
+  - libgfortran5=9.3.0=hff62375_19
+  - libgomp=9.3.0=h2828fa1_19
+  - liblapack=3.9.0=9_openblas
+  - libopenblas=0.3.15=pthreads_h8fe5266_1
+  - libstdcxx-ng=9.3.0=h6de172a_19
+  - lz4-c=1.9.3=h2531618_0
+  - mash=2.3=he348c14_1
+  - ncurses=6.2=h58526e2_4
+  - numpy=1.21.0=py38h9894fe3_0
+  - openssl=1.1.1k=h27cfd23_0
+  - pplacer=1.1.alpha19=h9ee0642_2
+  - prodigal=2.6.3=h779adbc_3
+  - python=3.8.10=h12debd9_8
+  - python_abi=3.8=2_cp38
+  - readline=8.1=h46c0cb4_0
+  - sqlite=3.36.0=hc218d9a_0
+  - tk=8.6.10=hed695b0_1
+  - tqdm=4.61.1=pyhd3eb1b0_1
+  - xz=5.2.5=h516909a_1
+  - zlib=1.2.11=h516909a_1010
+  - zstd=1.4.9=haebb681_0
+prefix: /pollard/home/bsmith/anaconda3/envs/gtdbtk

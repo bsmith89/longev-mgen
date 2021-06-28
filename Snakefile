@@ -369,6 +369,32 @@ rule extract_checkm_reference:
         tar -C {output} -xzf {input}
         """
 
+# {{{3 GTDB
+
+rule download_gtdbtk_db:
+    output: 'raw/ref/gtdbtk_r202_data.tar.gz'
+    params:
+        url='https://data.gtdb.ecogenomic.org/releases/release202/202.0/auxillary_files/gtdbtk_r202_data.tar.gz'
+    shell: curl_recipe
+
+localrules: download_gtdbtk_db
+
+rule unpack_gtdbtk_db:
+    output: 'raw/ref/release202/'
+    input: 'raw/ref/gtdbtk_r202_data.tar.gz'
+    shell:
+        """
+        tar -xzvf {input}
+        """
+
+rule alias_gtdbtk_db:
+    output: 'ref/gtdbtk_db'
+    input: 'raw/ref/release202'
+    shell: alias_recipe
+
+localrules: alias_gtdbtk_db
+
+
 # {{{3 dbCAN
 
 # FIXME: Update manuscript with new dbCAN version
@@ -1075,6 +1101,24 @@ rule split_out_bins:
 # TODO: refine bins (scaffolds, contig extension, splitting/merging
 
 # {{{3 QC bins
+
+rule run_gtdbtk_classify_on_mags:
+    output:
+        dir=directory('data/{stem}.gtdbtk.d')
+    input:
+        genomes_dir='data/{stem}.for_checkm.d',
+        db_dir='ref/gtdbtk_db',
+    threads: 8
+    conda: 'conda/gtdbtk.yaml'
+    shell:
+        """
+        GTDBTK_DATA_PATH={input.db_dir} \
+                gtdbtk classify_wf \
+                --genome_dir {input.genomes_dir} \
+                --out_dir {output} -x .fn \
+                --cpus {threads}
+        """
+
 
 rule checkm_seqs:
     output:

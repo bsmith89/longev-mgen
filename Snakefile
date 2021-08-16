@@ -380,7 +380,7 @@ rule download_gtdbtk_db:
 localrules: download_gtdbtk_db
 
 rule unpack_gtdbtk_db:
-    output: 'raw/ref/release202/'
+    output: 'raw/ref/release202'
     input: 'raw/ref/gtdbtk_r202_data.tar.gz'
     shell:
         """
@@ -2729,6 +2729,10 @@ CREATE TABLE __feature_possible_ko AS SELECT * FROM feature_possible_ko;
 DROP VIEW feature_possible_ko;
 ALTER TABLE __feature_possible_ko RENAME TO feature_possible_ko;
 
+CREATE TABLE __pul_susC AS SELECT * FROM pul_susC;
+DROP VIEW pul_susC;
+ALTER TABLE __pul_susC RENAME TO pul_susC;
+
 CREATE TABLE __closest_PUL_susC AS SELECT * FROM closest_PUL_susC;
 DROP VIEW closest_PUL_susC;
 ALTER TABLE __closest_PUL_susC RENAME TO closest_PUL_susC;
@@ -2736,7 +2740,7 @@ ALTER TABLE __closest_PUL_susC RENAME TO closest_PUL_susC;
 -- TODO: Replace the lost indices, where necessary
 
 VACUUM; ANALYZE;
-        ' | sqlite3 $tmp
+        ' | sqlite3 -echo $tmp
         mv $tmp {output}
         """
 

@@ -59,11 +59,13 @@ FIXME: render the DOCX for sharing/submission (checklist):
         captions around, such that page breaks make sense. For some of the
         figures, captions should go on the next page (add a page-break between
         figure and caption)
+    -   Bold 'Figure N:' / 'Table N:' / 'Supplementary Table SN' / etc.
     -   Update "body" word count from "FIXME" to the number of words between
         introduction and references section (so more than they actually care to
         know), minus all the words in table/figure captions.
     -   "Print to PDF" with "best for accessibility" (rather than best for
         printing) so that hyperlinks work.
+    -   Supplementary Note for each Jupyter notebook?
 
 FIXME: Render to LaTeX PDF (checklist):
     -   Double check that the "interlinepenalty=10000" in the header isn't

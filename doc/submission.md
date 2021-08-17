@@ -519,6 +519,18 @@ Of this higher confidence set,
 only 4,448 have members annotated with any COG, KO, or putative function.
 The remaining 8,528 unannotated OPFs encompass 111,177 predicted protein
 sequences across the 142 genomes.
+
+To better understand the relationship between our _de novo_ clusters and
+previously described annotations, we inspected the concordance between known
+GH13 subfamilies,
+which posses &alpha;-amylase activities on different starches [@Stam2006a],
+and the 20 OPFs with these domains (See Supplementary Results).
+We find that most OPFs are composed of members with
+just one subfamily,
+suggesting that our clusters are consistent with these known groupings.
+Several OPFs are dominated by members without a more specific subfamily, and
+while outside the scope of this study, these may offer hypotheses for
+additional divisions within GH13.
 Detailed annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
 KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot]
 at <https://doi.org/10.5281/zenodo.4450697>.
@@ -574,6 +586,11 @@ association with the &alpha;-glucan guild---the latter is also enriched in the
 plant glycan guild while the former is not; of the 12 MAGs originally
 classified to the plant glycan guild, 11 have at least one copy of Opf00965
 with a signal peptide versus just one MAG with Opf01909.
+Based on annotation by the dbCAN2 meta server [@Zhang2018],
+The GH13 domain in Opf01909 members is classified to the recently defined
+subfamily 42 [@Valk2016],
+however Opf00965 is not assigned to a more precise subfamily
+(See Supplementary Results).
 While a detailed enrichment analysis is outside the scope of this work, this
 suggests that OPFs may indeed provide more functional resolution than
 annotations based on existing reference databases.

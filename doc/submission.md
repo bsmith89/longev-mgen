@@ -619,10 +619,11 @@ These genomic regions also possess additional genes with
 carbohydrate-active domains that are expected to interact with &alpha;-glucans.
 
 ![
-Diagrams of Sus-like PULs in B1A, B1B, B2, B3, _B. thetaiotaomicron_,
+Diagrams of Sus-like PULs in B1A, B2, B3, _B. thetaiotaomicron_,
 and _B. ovatus_.
 Regions are labeled with the genome name, contig identifier, and
 nucleotide coordinates.
+For B1A PULs, the matching region in B1B is noted in parentheses, but not shown.
 ORFs are depicted as arrows pointed 5' to 3' along the
 coding sequence,
 and colors indicate homology to genes and domains known to
@@ -633,6 +634,10 @@ and nearby residues.
 Matching numbers indicate homology based on OPF
 clustering,
 and are arbitrarily assigned.
+(1: Opf01209, 2: Opf02007, 3: Opf02000, 4: Opf00042, 5: Opf01405,
+6: Opf02584, 7: Opf01765, 8: Opf00431, 9: Opf09589, 10: Opf15294, 11:
+Opf14773, 12: Opf01209, 13: Opf03138, 14: Opf04347, 15: Opf04327, 16:
+Opf16791).
 ](fig/starch_related_PULs.pdf){#fig:puls}
 
 Besides B1A and B1B, B3 is the only other MAG to possess a putative PUL

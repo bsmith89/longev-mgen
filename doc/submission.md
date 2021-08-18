@@ -59,11 +59,13 @@ FIXME: render the DOCX for sharing/submission (checklist):
         captions around, such that page breaks make sense. For some of the
         figures, captions should go on the next page (add a page-break between
         figure and caption)
+    -   Bold 'Figure N:' / 'Table N:' / 'Supplementary Table SN' / etc.
     -   Update "body" word count from "FIXME" to the number of words between
         introduction and references section (so more than they actually care to
         know), minus all the words in table/figure captions.
     -   "Print to PDF" with "best for accessibility" (rather than best for
         printing) so that hyperlinks work.
+    -   Supplementary Note for each Jupyter notebook?
 
 FIXME: Render to LaTeX PDF (checklist):
     -   Double check that the "interlinepenalty=10000" in the header isn't
@@ -517,6 +519,18 @@ Of this higher confidence set,
 only 4,448 have members annotated with any COG, KO, or putative function.
 The remaining 8,528 unannotated OPFs encompass 111,177 predicted protein
 sequences across the 142 genomes.
+
+To better understand the relationship between our _de novo_ clusters and
+previously described annotations, we inspected the concordance between known
+GH13 subfamilies,
+which posses &alpha;-amylase activities on different starches [@Stam2006a],
+and the 20 OPFs with these domains (See Supplementary Results).
+We find that most OPFs are composed of members with
+just one subfamily,
+suggesting that our clusters are consistent with these known groupings.
+Several OPFs are dominated by members without a more specific subfamily, and
+while outside the scope of this study, these may offer hypotheses for
+additional divisions within GH13.
 Detailed annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
 KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot]
 at <https://doi.org/10.5281/zenodo.4450697>.
@@ -572,6 +586,11 @@ association with the &alpha;-glucan guild---the latter is also enriched in the
 plant glycan guild while the former is not; of the 12 MAGs originally
 classified to the plant glycan guild, 11 have at least one copy of Opf00965
 with a signal peptide versus just one MAG with Opf01909.
+Based on annotation by the dbCAN2 meta server [@Zhang2018],
+The GH13 domain in Opf01909 members is classified to the recently defined
+subfamily 42 [@Valk2016],
+however Opf00965 is not assigned to a more precise subfamily
+(See Supplementary Results).
 While a detailed enrichment analysis is outside the scope of this work, this
 suggests that OPFs may indeed provide more functional resolution than
 annotations based on existing reference databases.
@@ -600,10 +619,11 @@ These genomic regions also possess additional genes with
 carbohydrate-active domains that are expected to interact with &alpha;-glucans.
 
 ![
-Diagrams of Sus-like PULs in B1A, B1B, B2, B3, _B. thetaiotaomicron_,
+Diagrams of Sus-like PULs in B1A, B2, B3, _B. thetaiotaomicron_,
 and _B. ovatus_.
 Regions are labeled with the genome name, contig identifier, and
 nucleotide coordinates.
+For B1A PULs, the matching region in B1B is noted in parentheses, but not shown.
 ORFs are depicted as arrows pointed 5' to 3' along the
 coding sequence,
 and colors indicate homology to genes and domains known to
@@ -614,6 +634,10 @@ and nearby residues.
 Matching numbers indicate homology based on OPF
 clustering,
 and are arbitrarily assigned.
+(1: Opf01209, 2: Opf02007, 3: Opf02000, 4: Opf00042, 5: Opf01405,
+6: Opf02584, 7: Opf01765, 8: Opf00431, 9: Opf09589, 10: Opf15294, 11:
+Opf14773, 12: Opf01209, 13: Opf03138, 14: Opf04347, 15: Opf04327, 16:
+Opf16791).
 ](fig/starch_related_PULs.pdf){#fig:puls}
 
 Besides B1A and B1B, B3 is the only other MAG to possess a putative PUL

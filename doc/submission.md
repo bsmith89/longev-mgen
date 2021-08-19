@@ -40,6 +40,10 @@ Word Count:
 ```
 See `doc/static/coverpage.docx`.
 
+TODO:
+    -   Supplementary Note for each Jupyter notebook?
+    -   Supplementary Note for the GH13 tree
+
 FIXME: render the DOCX for sharing/submission (checklist):
     -   smake -j1 build/submission.docx
     -   Copy/paste contents of doc/static/coverpage.docx to replace
@@ -65,7 +69,6 @@ FIXME: render the DOCX for sharing/submission (checklist):
         know), minus all the words in table/figure captions.
     -   "Print to PDF" with "best for accessibility" (rather than best for
         printing) so that hyperlinks work.
-    -   Supplementary Note for each Jupyter notebook?
 
 FIXME: Render to LaTeX PDF (checklist):
     -   Double check that the "interlinepenalty=10000" in the header isn't
@@ -531,6 +534,8 @@ suggesting that our clusters are consistent with these known groupings.
 Several OPFs are dominated by members without a more specific subfamily, and
 while outside the scope of this study, these may offer hypotheses for
 additional divisions within GH13.
+We provide an estimated phylogenetic tree of all GH13 domains, their OPF
+assignments, and their predicted localization as Supplementary Data.
 Detailed annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
 KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot]
 at <https://doi.org/10.5281/zenodo.4450697>.
@@ -656,6 +661,8 @@ a GH13 containing lipoprotein (B3_00513), its predicted localization is to
 the inner membrane, not the OM.
 It is unclear whether this explains B3's
 non-response in ACA-treated mice.
+Only two other IM-localized GH13 containing proteins are found across all
+of the genomes analyzed here (Supplementary Data).
 Plausible OM-localized, GH13
 containing proteins are not found in any non-responders.
 While this

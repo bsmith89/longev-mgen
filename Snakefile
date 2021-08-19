@@ -48,7 +48,7 @@ for group, d in _asmbl_group.groupby('asmbl_group'):
 rule all:
     input:
         [ "data/core.a.mags.muri2.g.final.marker_genes.gb.prot.nwk"
-        , "data/core.a.mags.muri2.g.final.cds.TIGR02013-hits.sqz.gb.prot.nwk"
+        , "data/core.a.mags.muri2.g.final.cds.TIGR02013-hits.hmmer-tc.sqz.gb.prot.nwk"
         , "data/core.muri2.2.denorm.db"
         , "data/core.a.mags.muri2.g.final.genome_stats.tsv"
         , "data/core.a.mags.muri2.g.final.cds.fa"
@@ -98,6 +98,23 @@ rule rename_figureS2:
         'ln {input} {output}'
 localrules: rename_figureS2
 ruleorder: rename_figureS2 > build_pdf_documentation
+
+# Modify taxa names in a GH13 domain tree with 'Genome_FeatureNumber|OpfNNNNN'
+rule rename_tree_modify_names:
+    output: 'build/gh13_tree.nwk'
+    input:
+        tree='data/core.a.mags.muri2.g.final.cds.GH13-hits.hmmer-nothresh.sqz.prot.nwk',
+        meta='data/core.muri2.2.query_gh13_features.tsv',
+    shell:
+        """
+        tmp=$(mktemp)
+        echo "SELECT feature_id, opf_id, localization FROM feature_to_opf JOIN feature_localization USING (feature_id)" \
+            | sqlite3 -separator '\t' {input.db} \
+            | awk -v OFS=':' '{{print "s",$1,$1"|"$2"|"$3,"g"}}' \
+            > $tmp
+        sed --file <(awk -v OFS=':' '{{print "s",$1,$1"|"$2"|"$3,"g"}}' {input.meta}) {input.tree} > {output}
+        """
+
 
 
 # {{{2 Tooling configuration
@@ -2139,16 +2156,26 @@ rule blast_rrs_reps:
         blastn -subject {input.ref} -query {input.mag} -max_target_seqs 1 -outfmt 6 > {output}
         """
 
-rule gather_hit_cds_fa_strict:
+rule gather_hit_cds_fa:
     output:
-        prot="data/{stem}.cds.{hmm}-hits.fa"
+        prot="data/{stem}.cds.{hmm}-hits.hmmer-{cutoff}.fa"
     input:
-        hit_table="data/{stem}.{hmm}-hits.hmmer-tc.tsv",
+        hit_table="data/{stem}.{hmm}-hits.hmmer-{cutoff}.tsv",
         prot="data/{stem}.cds.fa"
     shell:
         """
         seqtk subseq {input.prot} <(sed 1,1d {input.hit_table} | cut -f 1 | sort -u) > {output.prot}
         """
+
+
+rule alias_hit_cds_fa_strict:
+    output:
+        prot="data/{stem}.cds.{hmm}-hits.fa"
+    input:
+        hit_table="data/{stem}.{hmm}-hits.hmmer-tc.tsv",
+    shell: alias_recipe
+localrules: alias_hit_cds_fa_strict
+
 
 rule gather_hit_cds_fn_strict:
     output:
@@ -2268,6 +2295,14 @@ rule hmmalign:
         hmmalign --informat fasta {input.hmm} {input.fa} | convert -f stockholm -t fasta > {output}
         """
 
+rule hmmalign_with_other_cutoff:
+    output: "data/{stem}.{hmm}-hits.hmmer-{cutoff}.afa"
+    input: fa="data/{stem}.{hmm}-hits.hmmer-{cutoff}.fa", hmm="ref/hmm/{hmm}.hmm"
+    shell:
+        """
+        hmmalign --informat fasta {input.hmm} {input.fa} | seqret -sfortmat1 stockholm -osformat2 fasta -filter > {output}
+        """
+
 rule codonalign:
     output: "data/{stem}.codonalign.afn"
     input:
@@ -2292,12 +2327,12 @@ rule squeeze_codon_alignment:
     shell: "{input.script} '-.acgtu' < {input.seq} > {output}"
 
 rule squeeze_hmmalign_alignment:
-    output: "data/{stem}.{hmm}-hits.sqz.afa"
+    output: "data/{stem}.{hmm}-hits.hmmer-{cutoff}.sqz.afa"
     wildcard_constraints:
         hmm="[^.]*"
     input:
         script="scripts/squeeze_alignment.py",
-        seq="data/{stem}.{hmm}-hits.afa"
+        seq="data/{stem}.{hmm}-hits.hmmer-{cutoff}.afa"
     shell: "{input.script} '-.*abcdefghijklmnopqrstuvwxyz' < {input.seq} > {output}"
 
 rule gblocks_afa:

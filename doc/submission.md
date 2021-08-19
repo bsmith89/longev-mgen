@@ -624,11 +624,10 @@ These genomic regions also possess additional genes with
 carbohydrate-active domains that are expected to interact with &alpha;-glucans.
 
 ![
-Diagrams of Sus-like PULs in B1A, B2, B3, _B. thetaiotaomicron_,
-and _B. ovatus_.
-Regions are labeled with the genome name, contig identifier, and
-nucleotide coordinates.
-For B1A PULs, the matching region in B1B is noted in parentheses, but not shown.
+Diagrams of PULs plausibly reflecting activity on starch and/or dextran
+in B1A, B2, B3, _B. thetaiotaomicron_, and _B. ovatus_.
+Regions are labeled with the genome name and the interval of gene numbers.
+For B1A PULs, the matching gene numbers in B1B are noted in parentheses.
 ORFs are depicted as arrows pointed 5' to 3' along the
 coding sequence,
 and colors indicate homology to genes and domains known to

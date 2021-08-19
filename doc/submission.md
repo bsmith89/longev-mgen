@@ -1164,12 +1164,11 @@ the N50 statistic.
 
 ## Reference genomes
 
-A total of 98 draft genomes, both isolates and MAGs,
-deposited in GenBank and taxonomically assigned to
-the _Muribaculaceae_ were downloaded,
-as were the 30 MAGs described in [@Ormerod2016]
-(BioProject PRJNA313232),
-enabling comparison of our 9 novel MAGs to previously reconstructed genomes.
+In order to compare our 9 novel MAGs to previously reconstructed genomes,
+we downloaded a total of 98 draft genomes from GenBank, both isolates and MAGs,
+representing all genomes taxonomically assigned to the _Muribaculaceae_ as of
+September 2020,
+along with the 30 MAGs described in [@Ormerod2016] (BioProject PRJNA313232).
 For comparison, nucleotide sequences for
 _Bacteroides thetaiotaomicron_ VPI-5482 (GCA_900624795.1),
 _Bacteroides ovatus_ ATCC-8483 (GCA_000154125.1),

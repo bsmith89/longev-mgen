@@ -15,7 +15,6 @@ log/
 raw/
 ref/
 data/
-build/
 
 local.snake
 .venv

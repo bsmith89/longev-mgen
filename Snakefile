@@ -273,6 +273,11 @@ rule build_docx_documentation:
 localrules: build_docx_documentation
 
 
+rule jupyter_notebook_to_html:
+    output: 'build/{stem}.ipynb.html',
+    input: 'nb/{stem}.ipynb',
+    shell: "jupyter nbconvert --to html --stdout {input} > {output}"
+localrules: jupyter_notebook_to_html
 
 
 # {{{1 Downloading and linking data

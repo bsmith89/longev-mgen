@@ -349,6 +349,9 @@ Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
 robust concordance in coverage between the shotgun metagenomic and amplicon
 libraries.
 Correlated coverage statistics can be found in the Supplementary Results.
+<!--
+TODO: Add URL to the supplemental?
+-->
 
 <!--
 Smith2019 mapping (2-step-process):
@@ -423,7 +426,7 @@ Otu0049	Otu0039	1.683847e-04
 and cultivar genomes: _Muribaculum intestinale_ (_Mi_), _Duncaniella muris_ (_Dm_), _Duncaniella freteri_ (_Df_),
 _Duncaniella dubosii_ (_Dd_), _Paramuribaculum intestinale_ (_Pi_),
 _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
-_Candidatus_ Amulumruptor caecigallinarius (_Ac_)
+_Candidatus_ Amulumruptor caecigallinarius (_Ac_).
 \*'s indicate MAGs from responder populations. {#tbl:mags}
 
 <!--

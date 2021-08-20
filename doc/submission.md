@@ -49,9 +49,12 @@ FIXME: render the DOCX for sharing/submission (checklist):
     -   Copy/paste contents of doc/static/coverpage.docx to replace
         title/authors.
     -   Choose line spacing (1x works)
+    -   Crop top of Figure 3 to have less whitespace
     -   Add page break after Importance
     -   Replace muri-comparison figure (Figure 1) with the
-        `fig/muri_comparison.png`.
+        `fig/muri_comparison.png`. (FIXME: Is this because of poor resolution?)
+    -   Remove italics for B. thetaiotaomicron and B. ovatus in otherwise
+        italicized figure legends.
     -   Rename Figure 4/5 to Figure S1, S2 (FIXME: Are these the correct
         numbers?)
     -   Rename Table 3/4 to Table S1, S2 (FIXME: Correct numbers?)
@@ -683,9 +686,9 @@ other proximal genes have domains with known affinity for starch, including
 GH97, CBM20, and CBM69.
 
 To expand the search for relevant genetic features, _de novo_ protein
-clusters were filtered to those with members in B1A, B1B, and
-B2.
-Of these OPFs, several stood out as particularly relevant.
+clusters were filtered to those with members in B1A and
+B2, and in at most one of the non-responders, B3-B8.
+Of these 52 OPFs, two stood out as particularly relevant.
 Opf01405
 includes SusR, the regulator of transcription of the starch utilization
 system in _B. thetaiotaomicron_, as well as its homolog in _B. ovatus_.
@@ -734,8 +737,9 @@ For each pairing of metagenomic read
 library to genomic variant, gene coverage was normalized by the median
 gene coverage in order to identify genes with conspicuously fewer reads
 in particular subsets of the mice.
-Metagenomic libraries manually chosen as unambiguous representatives of
-either B1A or B1B were used to systematically identify genes
+Metagenomic libraries were manually chosen as unambiguous representatives of
+either B1A or B1B based on concordance in their coverage profiles
+([@Fig:b1-vars]) and these were used to systematically identify genes
 differentiating the two.
 
 The median normalized mapping depths in each
@@ -963,6 +967,12 @@ dramatic change at UM [@Smith2019].
 Differences in the functional potential due to differences in gene content of
 populations found at each of the sites is one possible explanation for this
 pattern.
+Alternatively, differences in the occurrence or gene content of other microbial
+community members could lead to the differential response of OTU-1 across these
+sites, for instance through resource competition or by contributing to the
+partial breakdown of larger starch molecules;
+ACA appears to be less inhibitory to members of the Firmicutes than the
+Bacteroidetes [@Santilli2018].
 Intriguingly, while we do not conjecture a mechanistic link,
 an ACA-by-site interaction effect on longevity has been
 previously observed in the mouse colonies sampled here,
@@ -988,8 +998,10 @@ We did, however, identify numerous differences
 in the gene content of B1A and B1B, including variant specific loci
 that may influence the structure and function of the outer surface of
 the cell.
-Capsule variation is known to greatly affect both ecological
-and host interactions [@Merino2015].
+Given the size of these regions, their parallel physiological roles,
+and their plausible effect on interactions with the host or other microbes
+[@Merino2015], we speculate that these variable loci could result in relevant,
+functional differences between the two populations.
 
 While these results do not establish a mechanistic explanation for
 differences in the response of B1A and B1B at UM and UT, nor conclusively
@@ -1108,8 +1120,9 @@ While this may
 have reduced the accuracy of the binning procedure, we believe that
 subsequent refinement steps mitigated the impact of this decision.
 
-OTUs were classified taxonomically and relative abundance was calculated
-for matched libraries as described in [@Smith2019].
+Using 16S rRNA gene libraries described in [@Smith2019] and processed as in
+that reference, OTUs were classified taxonomically and relative abundance was
+calculated.
 Bins were then recruited to one or more OTUs by
 calculating a Canonical partial least squares between OTU abundance and
 bin coverage as implemented in the scikit-learn machine learning library
@@ -1129,18 +1142,15 @@ manual assignment of contigs to MAGs.
 Libraries in which MAGs had
 non-negligible coverage were identified manually and used in subsequent
 refinements.
-<!--
-FIXME: Compare 10^5 renderings below.
--->
 While clustering contigs associated with OTU-1 a number of
-groups containing on the order of 10^5^ $10^5$ bp were found with a bimodal
+groups containing on the order of $10^5$ bp were found with a bimodal
 coverage distribution, low normalized coverage in a subset of libraries,
 and normal coverage in others.
 By this criterion, contigs in these
 "variable" groups were partitioned into two MAG variants, A and B, with
 the non-variable contig groups shared by both.
 To avoid challenges associated with admixture, only libraries that appeared on
-further inspection to have just one of the two variants were considered
+further inspection to have coverage over just one of the two variants were considered
 in downstream refinement steps.
 The mice matching these libraries are
 highlighted in Fig. 3.
@@ -1184,9 +1194,12 @@ All genomes were initially annotated with Prokka [@Seemann2014] version
 Putative
 protein sequences were additionally annotated with domains from both the
 dbCAN database [@Yin2012] release 6 of carbohydrate-active domains
-(score cutoff of 5.0) and
-Pfam [@Punta2012] release 31.0 (no score filter),
+and
+Pfam [@Punta2012] release 31.0,
 using HMMER3 [@Eddy2011; @Eddy2009] version 3.3.
+In order to maximize the sensitivity of this analysis,
+these annotations used a bitscore score cutoff of 5.0 and no cutoff,
+respectively.
 Protein sequences were also annotated with KO numbers by
 BLAST using the KEGG database as of March 2018 as the reference and
 taking the best hit with a maximum E-value of 1e-10.

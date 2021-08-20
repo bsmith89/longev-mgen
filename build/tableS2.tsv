@@ -1,4 +1,4 @@
-feature_id	feature_start	feature_stop	susC	susD	susEF	starch_active_domain	localization	cross_coverage_ratio	opf_id	ko_list	architecture	product_description	cazy_domain_list
+feature_id	feature_start	feature_stop	susC	susD	susEF	starch_active_domain	localization	coverage_ratio	opf_id	ko_list	architecture	product_description	cazy_domain_list
 B1A_00001	40	456					CY	0.743806938300489	Opf01135	K01689	Enolase_C	Enolase	
 B1A_00002	1554	103					CY	4.07025411631643	Opf07120		DUF2542:DDE_5:DDE_Tnp_1	IS4 family transposase ISUnCu6	
 B1A_00003	1688	1921					CY	0.0206959752765901			Pro_racemase	hypothetical protein	

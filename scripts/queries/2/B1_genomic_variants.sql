@@ -11,7 +11,7 @@ SELECT DISTINCT
   -- , susG
   , starch_active_domain
   , localization
-  , coverage_ratio AS cross_coverage_ratio
+  , coverage_ratio
   , opf_id
   , ko_list
   , architecture

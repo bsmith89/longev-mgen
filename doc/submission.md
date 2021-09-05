@@ -747,7 +747,7 @@ in particular subsets of the mice.
 Metagenomic libraries were manually chosen as unambiguous representatives of
 either B1A or B1B based on concordance in their coverage profiles
 ([@Fig:b1-vars]) and these were used to systematically identify genes
-differentiating the two.
+differentiating the two populations.
 
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
@@ -980,10 +980,10 @@ populations found at each of the sites is one possible explanation for this
 pattern.
 Alternatively, differences in the occurrence or gene content of other microbial
 community members could lead to the differential response of OTU-1 across these
-sites, for instance through resource competition or by contributing to the
-partial breakdown of larger starch molecules;
-ACA appears to be less inhibitory to members of the Firmicutes than the
-Bacteroidetes [@Santilli2018].
+sites, for instance by contributing to the partial breakdown of larger starch
+molecules or through resource competition.
+Notably, ACA appears to be less inhibitory to members of the Firmicutes than
+the Bacteroidetes [@Santilli2018].
 Intriguingly, while we do not conjecture a mechanistic link,
 an ACA-by-site interaction effect on longevity has been
 previously observed in the mouse colonies sampled here,
@@ -1213,7 +1213,7 @@ and
 Pfam [@Punta2012] release 31.0,
 using HMMER3 [@Eddy2011; @Eddy2009] version 3.3.
 In order to maximize the sensitivity of this analysis,
-these annotations used a bitscore score cutoff of 5.0 and no cutoff,
+these annotations used a bitscore cutoff of 5.0 and no cutoff (any hit),
 respectively.
 Protein sequences were also annotated with KO numbers by
 BLAST using the KEGG database as of March 2018 as the reference and

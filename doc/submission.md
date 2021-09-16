@@ -40,10 +40,6 @@ Word Count:
 ```
 See `doc/static/coverpage.docx`.
 
-TODO:
-    -   Supplementary Note for each Jupyter notebook?
-    -   Supplementary Note for the GH13 tree
-
 FIXME: render the DOCX for submission to mSphere (checklist):
     -   smake -j1 build/submission.docx
     -   Copy/paste contents of doc/static/coverpage.docx to replace
@@ -53,7 +49,7 @@ FIXME: render the DOCX for submission to mSphere (checklist):
     -   Add page break after Importance
     -   Replace muri-comparison figure (Figure 1) with the
         `fig/muri_comparison.png` to fix poor resolution.
-    -   Remove italics for B. thetaiotaomicron and B. ovatus in otherwise
+    -   Remove italics for e.g. B. thetaiotaomicron and B. ovatus in otherwise
         italicized figure legends.
     -   Rename Figure 4/5 to Figure S1, S2 (FIXME: Are these the correct
         numbers?)
@@ -354,9 +350,6 @@ libraries.
 Correlated coverage statistics can be found in the Supplementary Results
 (see `build/otu_correlation_and_aca_response.ipynb.html` at
 <https://doi.org/10.5281/zenodo.4450697>).
-<!--
-TODO: Add URL to the supplemental?
--->
 
 <!--
 Smith2019 mapping (2-step-process):
@@ -756,7 +749,7 @@ gene coverage in order to identify genes with conspicuously fewer reads
 in particular subsets of the mice.
 Metagenomic libraries were manually chosen as unambiguous representatives of
 either B1A or B1B based on concordance in their coverage profiles
-([@Fig:b1-vars]) and these were used to systematically identify genes
+(see [@Fig:b1-vars]) and these were used to systematically identify genes
 differentiating the two populations.
 
 The median normalized mapping depths in each
@@ -1343,17 +1336,17 @@ TODO: What to say about KEGG, which is licensed? Do my current annotations
 require the licensed version?
 -->
 
-# Supplemental Materials
+# Supplementary Materials
 
 Supplementary Materials are available at <https://doi.org/10.5281/zenodo.4450697>.
 
 ![
-Supplemental Figure 1: Phylogenetic tree identical to [@Fig:muri-comparison] panel A, but with the
+Supplementary Figure 1: Phylogenetic tree identical to [@Fig:muri-comparison] panel A, but with the
 addition of GenBank accessions for all publicly available genomes.
 ](doc/static/figure_placeholder.png){#fig:supp-phylo-access}
 
 ![
-Supplemental Figure 2: Phylogenetic tree constructed as in [@Fig:muri-comparison] panel A, but using
+Supplementary Figure 2: Phylogenetic tree constructed as in [@Fig:muri-comparison] panel A, but using
 only the RpoB protein sequence instead of a concatenated gene tree.
 ](doc/static/figure_placeholder.png){#fig:supp-phylo-rpoB tag='S2'}
 
@@ -1362,7 +1355,7 @@ only the RpoB protein sequence instead of a concatenated gene tree.
 |  |
 +--+
 
-: Supplemental Table 1: Annotations, including KO, COG, OPF, Pfam, dbCAN, and localization for all
+: Supplementary Table 1: Annotations, including KO, COG, OPF, Pfam, dbCAN, and localization for all
 predicted protein coding genes in all genomes analyzed for this
 study. {#tbl:supp-gene-annot}
 
@@ -1371,7 +1364,7 @@ study. {#tbl:supp-gene-annot}
 |  |
 +--+
 
-: Supplemental Table 2: B1A and B1B gene specificity scores, where the specificity of a gene to the
+: Supplementary Table 2: B1A and B1B gene specificity scores, where the specificity of a gene to the
 B1A genomic variant is calculated as the ratio of the median normalized
 coverage in B1B specific libraries versus B1A specific
 libraries. {#tbl:supp-b1-vars-enrich}

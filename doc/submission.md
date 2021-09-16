@@ -348,6 +348,10 @@ across matched amplicon libraries.
 Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
 robust concordance in coverage between the shotgun metagenomic and amplicon
 libraries.
+Correlated coverage statistics can be found in the Supplementary Results.
+<!--
+TODO: Add URL to the supplemental?
+-->
 
 <!--
 Smith2019 mapping (2-step-process):
@@ -385,11 +389,11 @@ Otu0049	Otu0039	1.683847e-04
 |             |                       |             |                |           |              |              |
 |             |                       |             |                |           |              |              |
 +:============+======================:+============:+===============:+==========:+=============:+:=============+
-| B1A         | 95%                   | 286         | 3.1            | 23,337    | 46.6%        | OTU-1        |
+| B1A\*       | 95%                   | 286         | 3.1            | 23,337    | 46.6%        | OTU-1        |
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
-| B1B         | 94%                   | 320         | 2.8            | 19,144    | 47.0%        | OTU-1        |
+| B1B\*       | 94%                   | 320         | 2.8            | 19,144    | 47.0%        | OTU-1        |
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
-| B2          | 96%                   | 116         | 2.7            | 75,014    | 50.6%        | OTU-4        |
+| B2\*        | 96%                   | 116         | 2.7            | 75,014    | 50.6%        | OTU-4        |
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
 | B3          | 93%                   | 62          | 2.7            | 80,587    | 55.8%        | OTU-8        |
 +-------------+-----------------------+-------------+----------------+-----------+--------------+--------------+
@@ -422,7 +426,8 @@ Otu0049	Otu0039	1.683847e-04
 and cultivar genomes: _Muribaculum intestinale_ (_Mi_), _Duncaniella muris_ (_Dm_), _Duncaniella freteri_ (_Df_),
 _Duncaniella dubosii_ (_Dd_), _Paramuribaculum intestinale_ (_Pi_),
 _Candidatus_ Homeothermus arabinoxylanisolvens (Ha),
-_Candidatus_ Amulumruptor caecigallinarius (_Ac_) {#tbl:mags}
+_Candidatus_ Amulumruptor caecigallinarius (_Ac_).
+\*'s indicate MAGs from responder populations. {#tbl:mags}
 
 <!--
 TODO: Should the species names (and Candidatus) be *un*-italicized in the
@@ -459,7 +464,7 @@ concatenated gene tree (see Supplementary [@Fig:supp-phylo-rpoB]
 at <https://doi.org/10.5281/zenodo.4450697>).
 The estimated phylogeny shows
 that the newly generated MAGs encompass most of the
-documented diversity of _Muribaculaceae_.
+documented diversity of _Muribaculaceae_ ([@Fig:muri-comparison]A).
 While many of the novel MAGs are phylogenetically similar to previously
 described genomes, two of the MAGs, B3 and B4, are notably diverged from the
 most closely related taxa.
@@ -695,8 +700,8 @@ system in _B. thetaiotaomicron_, as well as its homolog in _B. ovatus_.
 It is an apparent subcluster of the larger family defined by K21557, and
 in many cases is encoded directly upstream of _susC_ in putative PULs
 that are considered likely to have affinity for &alpha;-glucans.
-In B1A and B1B, two of the
-three putative starch PULs encode a member of Opf01405, and it is
+In each of B1A and B1B, one of the
+three putative starch PULs encodes a member of Opf01405, and it is
 similarly located in PULs with starch-active CBM and GH domains in B2
 and B3.
 Interestingly, this OPF is not found in any of the other novel MAGs.
@@ -717,7 +722,9 @@ What's more, the OPF is found in twelve of the thirteen
 Interestingly,
 although it is encoded by the Sus operon in _B. thetaiotaomicron_ and
 its homologous locus in _B. ovatus_, in the _Muribaculaceae_ members of
-Opf01765 do not in general appear to be encoded in PULs.
+Opf01765 are not encoded in PULs, with only 7 of 44 members within 25 kbp of
+the closest PUL _susC_ homolog, and all of these either upstream of _susC_ or
+on the opposite strand.
 
 ## Unshared gene content in B1A and B1B
 
@@ -740,22 +747,26 @@ in particular subsets of the mice.
 Metagenomic libraries were manually chosen as unambiguous representatives of
 either B1A or B1B based on concordance in their coverage profiles
 ([@Fig:b1-vars]) and these were used to systematically identify genes
-differentiating the two.
+differentiating the two populations.
 
 The median normalized mapping depths in each
 set of libraries against predicted genes in each MAG were compared,
 providing a measure of the relative enrichment or depletion of genomic
-sequences between the two populations of OTU-1 (See Supplementary [@Tbl:supp-b1-vars-enrich]
-at <https://doi.org/10.5281/zenodo.4450697>).
+sequences between the two populations of OTU-1.
 Libraries specific to each variant have low coverage over large
 portions of either the B1A or B1B MAG,
 suggesting that mice are primarily colonized
 by one of the two variants, and that a portion of genes are variant
 specific.
-This analysis found 11.7%
-of predicted genes in B1A were depleted at least 5-fold in B1B
-populations, and 12.0% the reverse.
-While this observed depletion could
+At a 5-fold depletion cutoff---selected as a compropmise between sensitivity
+and specificity in identifying genomic regions that differentate the two---we
+found found 11.7%
+of predicted genes in B1A were depleted in B1B
+populations, and 12.0% the reverse ([@Tbl:b1-vars]).
+Coverage ratios over all genes in B1A and B1B can be found in Supplementary
+[@Tbl:supp-b1-vars-enrich]
+(available at https://doi.org/10.5281/zenodo.4450697).
+While the observed coverage ratios could
 indicate variation in copy number, differential gene content between
 variants is a more parsimonious explanation for most loci.
 These
@@ -777,7 +788,7 @@ features within each mouse.
 The site at which each mouse was housed is indicated by colored spans on the
 left (UT: dark green, UM: dark blue), and mice identified as unambiguous
 representations of each population are indicated
-(B1A: light blue, B1B: light green).
+(B1A: light blue, B1B: light green, uncertain: white).
 Rows are ordered based on a hierarchical clustering by cosine distance,
 depicted in the tree on the left.
 ](fig/B1_strain_comparison_heatmap.pdf){#fig:b1-vars}
@@ -789,7 +800,7 @@ depicted in the tree on the left.
 +---------------------------+-------+----------+-------+----------+
 | Nucleotide length (Mbp)   | 3.07  | 0.56     | 2.82  | 0.31     |
 +---------------------------+-------+----------+-------+----------+
-| Genes                     | 2,612 | 3,07     | 2,419 | 291      |
+| Genes                     | 2,612 | 307      | 2,419 | 291      |
 +---------------------------+-------+----------+-------+----------+
 | OPFs (unique)             | 2,221 | 242      | 2,096 | 234      |
 +---------------------------+-------+----------+-------+----------+
@@ -969,10 +980,10 @@ populations found at each of the sites is one possible explanation for this
 pattern.
 Alternatively, differences in the occurrence or gene content of other microbial
 community members could lead to the differential response of OTU-1 across these
-sites, for instance through resource competition or by contributing to the
-partial breakdown of larger starch molecules;
-ACA appears to be less inhibitory to members of the Firmicutes than the
-Bacteroidetes [@Santilli2018].
+sites, for instance by contributing to the partial breakdown of larger starch
+molecules or through resource competition.
+Notably, ACA appears to be less inhibitory to members of the Firmicutes than
+the Bacteroidetes [@Santilli2018].
 Intriguingly, while we do not conjecture a mechanistic link,
 an ACA-by-site interaction effect on longevity has been
 previously observed in the mouse colonies sampled here,
@@ -985,6 +996,9 @@ even closely related populations [@Rasko2008; @Medini2005],
 studies reconstructing genomes from
 metagenomes have just started to consider these pangenome dynamics
 [@Scholz2016; @Truong2017; @Delmont2018; @Segata2018a; @Quince2017].
+Improvements to software (e.g. binning) and sequencing technologies (e.g. long
+reads) will increase the accuracy of physiological inferences based on homology
+and synteny.
 The discovery of two
 populations of OTU-1 therefore demonstrates the value of considering
 pangenome dynamics, and presents a potential explanation for the
@@ -1103,7 +1117,7 @@ TODO: Scythe and Sickle are github links and not actual citations.
 mSphere asks for these to be included as URLs inline, rather than
 references.
 -->
-The resulting paired-end reads were assembled into primary
+The resulting paired-end reads from all samples were co-assembled into primary
 contigs using MEGAHIT [@Li2014] version 1.2.9.
 Reads were then mapped back to these
 contigs with Bowtie2 [@Langmead2012] version 2.4.1, and per-library coverage was
@@ -1154,8 +1168,9 @@ further inspection to have coverage over just one of the two variants were consi
 in downstream refinement steps.
 The mice matching these libraries are
 highlighted in Fig. 3.
-Genomic variants were not found associated with any of the other
-_Muribaculaceae_ OTUs described in this study.
+None of the other _Muribaculaceae_ OTUs described in this study were found
+during this manual curation process to have genomic variants comparable to B1A
+and B1B.
 
 For each MAG, the list of contigs and relevant libraries identified in the
 previous step, as well as the per-library coverage of trusted contigs were used
@@ -1198,7 +1213,7 @@ and
 Pfam [@Punta2012] release 31.0,
 using HMMER3 [@Eddy2011; @Eddy2009] version 3.3.
 In order to maximize the sensitivity of this analysis,
-these annotations used a bitscore score cutoff of 5.0 and no cutoff,
+these annotations used a bitscore cutoff of 5.0 and no cutoff (any hit),
 respectively.
 Protein sequences were also annotated with KO numbers by
 BLAST using the KEGG database as of March 2018 as the reference and
@@ -1243,10 +1258,12 @@ were identified as putative SusD.
 Proteins in clusters tagged with
 K21571, or with either PF14292 or PF16411, were considered SusEF
 homologs.
-PULs were identified by a SusC-homolog with its start codon
-within 5 kbp of a SusD-homolog's start on the same strand.
-Manual
-inspection supported the majority of these identifications.
+Putative PULs were identified by “tandem susCD-like pairs”: a SusC-homolog
+within 5 kbp of a SusD-homolog on the same strand, similar to
+[@Terrapon2015]. Of the 121 putative PULs identified across the nine novel
+MAGs in this study, 103 of them have at least one gene within 10 kbp with
+homology to a CAZy domain family, suggesting that the majority of our
+identified PULs may indeed have activity on polysaccharides.
 
 Annotations were compared across all genomes using
 dimensional reduction

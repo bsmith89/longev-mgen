@@ -137,11 +137,6 @@ rule rename_tree_modify_names:
         meta='data/core.muri2.2.query_gh13_features.tsv',
     shell:
         """
-        tmp=$(mktemp)
-        echo "SELECT feature_id, opf_id, localization FROM feature_to_opf JOIN feature_localization USING (feature_id)" \
-            | sqlite3 -separator '\t' {input.db} \
-            | awk -v OFS=':' '{{print "s",$1,$1"|"$2"|"$3,"g"}}' \
-            > $tmp
         sed --file <(awk -v OFS=':' '{{print "s",$1,$1"|"$2"|"$3,"g"}}' {input.meta}) {input.tree} > {output}
         """
 

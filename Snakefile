@@ -62,14 +62,42 @@ localrules: all
 
 rule submission:
     input:
-        pdf='build/submission.pdf',
         docx='build/submission.docx',
+        fig1='build/figure1.pdf',
+        fig2='build/figure2.pdf',
+        fig3='build/figure3.pdf',
         figS1='build/figureS1.pdf',
         figS2='build/figureS2.pdf',
         tblS1='build/tableS1.tsv',
         tblS2='build/tableS2.tsv',
         gh13_tree='build/gh13_tree.nwk',
         gtdb_assign='build/gtdbtk_classify_summary.tsv',
+        ipynbs=[
+            'build/B1_inter_strain_comparison.ipynb.html',
+            'build/annotation_ordination.ipynb.html',
+            'build/genome_statistics_table.ipynb.html',
+            'build/genomic_diagrams.ipynb.html',
+            'build/gh13_families_to_opfs_mapping.ipynb.html',
+            'build/match_2019_2020_otus.ipynb.html',
+            'build/metabinning_and_strain_variation_muribaculaceae.ipynb.html',
+            'build/otu_correlation_and_aca_response.ipynb.html',
+            'build/phylogenetic_tree_figure.ipynb.html',
+        ],
+
+rule rename_figure1:
+    output: 'build/figure1.pdf'
+    input: 'fig/muri_comparison.pdf'
+    shell: 'ln {input} {output}'
+
+rule rename_figure2:
+    output: 'build/figure2.pdf'
+    input: 'fig/starch_related_PULs.pdf'
+    shell: 'ln {input} {output}'
+
+rule rename_figure3:
+    output: 'build/figure3.pdf'
+    input: 'fig/B1_strain_comparison_heatmap.pdf'
+    shell: 'ln {input} {output}'
 
 rule rename_tableS1:
     output: 'build/tableS1.tsv'

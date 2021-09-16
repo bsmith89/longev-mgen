@@ -1392,6 +1392,10 @@ Cross-comparison of sequence membership in GH13 subfamilies and OPFs.
 Estimated phylogeny of GH13 domains from _Muribaculaceae_, labeled
 by source genome, OPF, and localization.
 
+**Supplementary Results `build/gtdbtk_classify_summary.tsv`**
+Results from GTDB-tk classify workflow run on the 8 novel MAGs
+analyzed in this study.
+
 **Supplementary Results `build/B1_inter_strain_comparison.ipynb.html`**:
 Analysis and plotting code for coverage and gene content comparisons
 for B1A and B1B.

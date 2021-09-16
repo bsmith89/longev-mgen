@@ -68,6 +68,8 @@ rule submission:
         figS2='build/figureS2.pdf',
         tblS1='build/tableS1.tsv',
         tblS2='build/tableS2.tsv',
+        gh13_tree='build/gh13_tree.nwk',
+        gtdb_assign='build/gtdbtk_classify_summary.tsv',
 
 rule rename_tableS1:
     output: 'build/tableS1.tsv'
@@ -115,6 +117,14 @@ rule rename_tree_modify_names:
         sed --file <(awk -v OFS=':' '{{print "s",$1,$1"|"$2"|"$3,"g"}}' {input.meta}) {input.tree} > {output}
         """
 
+rule rename_gtdb_classification_summary:
+    output: 'build/gtdbtk_classify_summary.tsv'
+    input: dir='data/core.a.mags.here.g.final.gtdbtk.d'
+    params:
+        basename='gtdbtk.bac120.summary.tsv',
+    shell:
+        "cp {input.dir}/{params.basename} {output}"
+localrules: rename_gtdb_classification_summary
 
 
 # {{{2 Tooling configuration
@@ -402,7 +412,7 @@ rule download_gtdbtk_db:
 localrules: download_gtdbtk_db
 
 rule unpack_gtdbtk_db:
-    output: 'raw/ref/release202'
+    output: directory('raw/ref/release202')
     input: 'raw/ref/gtdbtk_r202_data.tar.gz'
     shell:
         """
@@ -410,7 +420,7 @@ rule unpack_gtdbtk_db:
         """
 
 rule alias_gtdbtk_db:
-    output: 'ref/gtdbtk_db'
+    output: directory('ref/gtdbtk_db')
     input: 'raw/ref/release202'
     shell: alias_recipe
 
@@ -1131,6 +1141,8 @@ rule run_gtdbtk_classify_on_mags:
         genomes_dir='data/{stem}.for_checkm.d',
         db_dir='ref/gtdbtk_db',
     threads: 8
+    resources:
+        mem_mb=250000,
     conda: 'conda/gtdbtk.yaml'
     shell:
         """

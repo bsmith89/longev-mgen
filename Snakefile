@@ -84,6 +84,16 @@ rule submission:
             'build/phylogenetic_tree_figure.ipynb.html',
         ],
 
+rule render_muri_comparison_figure_to_pdf:
+    output:
+        "fig/muri_comparison.pdf",
+    input:
+        "doc/static/muri_comparison.svg",
+    shell:
+        """
+        inkscape {input} --export-filename {output}
+        """
+
 rule rename_figure1:
     output: 'build/figure1.pdf'
     input: 'fig/muri_comparison.pdf'
@@ -311,17 +321,6 @@ rule jupyter_notebook_to_html:
     input: 'nb/{stem}.ipynb',
     shell: "jupyter nbconvert --to html --stdout {input} > {output}"
 localrules: jupyter_notebook_to_html
-
-
-rule render_static_svg_to_pdf:
-    output:
-        "fig/{stem}_figure.pdf",
-    input:
-        "doc/static/{stem}_figure.svg",
-    shell:
-        """
-        inkscape {input} --export-filename {output}
-        """
 
 
 # {{{1 Downloading and linking data

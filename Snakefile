@@ -313,6 +313,17 @@ rule jupyter_notebook_to_html:
 localrules: jupyter_notebook_to_html
 
 
+rule render_static_svg_to_pdf:
+    output:
+        "fig/{stem}_figure.pdf",
+    input:
+        "doc/static/{stem}_figure.svg",
+    shell:
+        """
+        inkscape {input} --export-filename {output}
+        """
+
+
 # {{{1 Downloading and linking data
 
 # {{{2 Reference data

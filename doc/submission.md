@@ -44,7 +44,7 @@ TODO:
     -   Supplementary Note for each Jupyter notebook?
     -   Supplementary Note for the GH13 tree
 
-FIXME: render the DOCX for sharing/submission (checklist):
+FIXME: render the DOCX for submission to mSphere (checklist):
     -   smake -j1 build/submission.docx
     -   Copy/paste contents of doc/static/coverpage.docx to replace
         title/authors.
@@ -52,13 +52,14 @@ FIXME: render the DOCX for sharing/submission (checklist):
     -   Crop top of Figure 3 to have less whitespace
     -   Add page break after Importance
     -   Replace muri-comparison figure (Figure 1) with the
-        `fig/muri_comparison.png`. (FIXME: Is this because of poor resolution?)
+        `fig/muri_comparison.png` to fix poor resolution.
     -   Remove italics for B. thetaiotaomicron and B. ovatus in otherwise
         italicized figure legends.
     -   Rename Figure 4/5 to Figure S1, S2 (FIXME: Are these the correct
         numbers?)
     -   Rename Table 3/4 to Table S1, S2 (FIXME: Correct numbers?)
-    -   Delete end-matter legends for Figure S1/2, Table S1/2.
+    -   Delete end-matter legends for Figure S1/2, Table S1/2, all other
+        supplementaries (these should only go on Zenodo).
     -   Update line spacing in "first-paragraph"/"normal" text styles as
         desired.
     -   Add or remove line numbers as desired.
@@ -72,6 +73,8 @@ FIXME: render the DOCX for sharing/submission (checklist):
         know), minus all the words in table/figure captions.
     -   "Print to PDF" with "best for accessibility" (rather than best for
         printing) so that hyperlinks work.
+    -   Review the result for figure resolution, formatting, line numbering,
+        margins
 
 FIXME: Render to LaTeX PDF (checklist):
     -   Double check that the "interlinepenalty=10000" in the header isn't
@@ -348,7 +351,9 @@ across matched amplicon libraries.
 Reassuringly, cosine similarities were above 0.88 for all MAGs, suggesting
 robust concordance in coverage between the shotgun metagenomic and amplicon
 libraries.
-Correlated coverage statistics can be found in the Supplementary Results.
+Correlated coverage statistics can be found in the Supplementary Results
+(see `build/otu_correlation_and_aca_response.ipynb.html` at
+<https://doi.org/10.5281/zenodo.4450697>).
 <!--
 TODO: Add URL to the supplemental?
 -->
@@ -535,7 +540,9 @@ To better understand the relationship between our _de novo_ clusters and
 previously described annotations, we inspected the concordance between known
 GH13 subfamilies,
 which posses &alpha;-amylase activities on different starches [@Stam2006a],
-and the 20 OPFs with these domains (See Supplementary Results).
+and the 20 OPFs with these domains
+(see Supplementary Results `build/gh13_families_to_opfs_mapping.ipynb.html` at
+<https://doi.org/10.5281/zenodo.4450697>).
 We find that most OPFs are composed of members with
 just one subfamily,
 suggesting that our clusters are consistent with these known groupings.
@@ -543,7 +550,8 @@ Several OPFs are dominated by members without a more specific subfamily, and
 while outside the scope of this study, these may offer hypotheses for
 additional divisions within GH13.
 We provide an estimated phylogenetic tree of all GH13 domains, their OPF
-assignments, and their predicted localization as Supplementary Data.
+assignments, and their predicted localization in the Supplementary Data
+`build/gh13_tree.nwk` at <https://doi.org/10.5281/zenodo.4450697>.
 Detailed annotations of predicted genes in MAG and reference genomes with OPFs, COGs,
 KOs, and Pfam and CAZy domains are available as Supplementary [@Tbl:supp-gene-annot]
 at <https://doi.org/10.5281/zenodo.4450697>.
@@ -603,7 +611,8 @@ Based on annotation by the dbCAN2 meta server [@Zhang2018],
 The GH13 domain in Opf01909 members is classified to the recently defined
 subfamily 42 [@Valk2016],
 however Opf00965 is not assigned to a more precise subfamily
-(See Supplementary Results).
+(see Supplementary Results `build/gh13_families_to_opfs_mapping.ipynb.html` at
+<https://doi.org/10.5281/zenodo.4450697>).
 While a detailed enrichment analysis is outside the scope of this work, this
 suggests that OPFs may indeed provide more functional resolution than
 annotations based on existing reference databases.
@@ -669,7 +678,8 @@ the inner membrane, not the OM.
 It is unclear whether this explains B3's
 non-response in ACA-treated mice.
 Only two other IM-localized GH13 containing proteins are found across all
-of the genomes analyzed here (Supplementary Data).
+of the genomes analyzed here (Supplementary Data `build/gh13_tree.nwk` at
+<https://doi.org/10.5281/zenodo.4450697>).
 Plausible OM-localized, GH13
 containing proteins are not found in any non-responders.
 While this
@@ -765,7 +775,7 @@ of predicted genes in B1A were depleted in B1B
 populations, and 12.0% the reverse ([@Tbl:b1-vars]).
 Coverage ratios over all genes in B1A and B1B can be found in Supplementary
 [@Tbl:supp-b1-vars-enrich]
-(available at https://doi.org/10.5281/zenodo.4450697).
+(available at <https://doi.org/10.5281/zenodo.4450697>).
 While the observed coverage ratios could
 indicate variation in copy number, differential gene content between
 variants is a more parsimonious explanation for most loci.
@@ -1335,6 +1345,8 @@ require the licensed version?
 
 # Supplemental Materials
 
+Supplementary Materials are available at <https://doi.org/10.5281/zenodo.4450697>.
+
 ![
 Supplemental Figure 1: Phylogenetic tree identical to [@Fig:muri-comparison] panel A, but with the
 addition of GenBank accessions for all publicly available genomes.
@@ -1364,6 +1376,46 @@ B1A genomic variant is calculated as the ratio of the median normalized
 coverage in B1B specific libraries versus B1A specific
 libraries. {#tbl:supp-b1-vars-enrich}
 
+**Supplementary Results `build/otu_correlation_and_aca_response.ipynb.html`**:
+Assignment of MAGs to OTU labels and responder/non-responder categories.
+
+**Supplementary Results `build/median_relative_mag_coverage.tsv`**:
+Normalized MAG coverage data across samples analyzed in this study.
+
+**Supplementary Results `build/otu_relative_abundance.tsv`**:
+Relative abundance of _Muribaculaceae_ OTUs across samples analyzed in this study.
+
+**Supplementary Results `build/gh13_families_to_opfs_mapping.ipynb.html`**:
+Cross-comparison of sequence membership in GH13 subfamilies and OPFs.
+
+**Supplementary Results `build/gh13_tree.nwk`**:
+Estimated phylogeny of GH13 domains from _Muribaculaceae_, labeled
+by source genome, OPF, and localization.
+
+**Supplementary Results `build/B1_inter_strain_comparison.ipynb.html`**:
+Analysis and plotting code for coverage and gene content comparisons
+for B1A and B1B.
+
+**Supplementary Results `build/annotation_ordination.ipynb.html`**:
+Analysis and plotting code for annotation and comparative genomics of
+_Muribaculaceae_ genomes.
+
+**Supplementary Results `build/genome_statistics_table.ipynb.html`**:
+Code to compile genome statistics in [@Tbl:mags].
+
+**Supplementary Results `build/genomic_diagrams.ipynb.html`**:
+Code used for automated plotting of PULs for [@Fig:puls].
+
+**Supplementary Results `build/match_2019_2020_otus.ipynb.html`**:
+Analysis code confirming the assignment MAGs in this work to those described
+in [@Smith2019].
+
+**Supplementary Results `build/metabinning_and_strain_variation_muribaculaceae.ipynb.html`**:
+Analysis code used to assign contigs, samples, and coverage profiles to the
+novel MAGs included in this study.
+
+**Supplementary Methods `build/phylogenetic_tree_figure.ipynb.html`**:
+Code used to plot annotated species and gene trees.
 
 # References
 

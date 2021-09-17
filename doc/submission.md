@@ -106,7 +106,7 @@ that both contain a polysaccharide utilization locus with a predicted
 extracellular &alpha;-amylase.
 <!--
 TODO: Check the following and add if true: "...and these were the only two to
-posses a predicted OM-localized GH13 domain containing gene product.
+possess a predicted OM-localized GH13 domain containing gene product.
 -->
 These genomes also shared a periplasmic neopullulanase with another, distantly related
 MAG (B2) representative of the only other responsive species.
@@ -532,7 +532,7 @@ sequences across the 142 genomes.
 To better understand the relationship between our _de novo_ clusters and
 previously described annotations, we inspected the concordance between known
 GH13 subfamilies,
-which posses &alpha;-amylase activities on different starches [@Stam2006a],
+which possess &alpha;-amylase activities on different starches [@Stam2006a],
 and the 20 OPFs with these domains
 (see Supplementary Results `build/gh13_families_to_opfs_mapping.ipynb.html` at
 <https://doi.org/10.5281/zenodo.4450697>).
@@ -761,9 +761,9 @@ portions of either the B1A or B1B MAG,
 suggesting that mice are primarily colonized
 by one of the two variants, and that a portion of genes are variant
 specific.
-At a 5-fold depletion cutoff---selected as a compropmise between sensitivity
-and specificity in identifying genomic regions that differentate the two---we
-found found 11.7%
+At a 5-fold depletion cutoff---selected as a compromise between sensitivity
+and specificity in identifying genomic regions that differentiate the two---we
+found 11.7%
 of predicted genes in B1A were depleted in B1B
 populations, and 12.0% the reverse ([@Tbl:b1-vars]).
 Coverage ratios over all genes in B1A and B1B can be found in Supplementary
